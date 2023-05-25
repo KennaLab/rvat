@@ -1,0 +1,11 @@
+pandoc: 2.11.4
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  association_testing: association_testing.html
+  basics: basics.html
+  cmdline: cmdline.html
+  explore_visualize_results: explore_visualize_results.html
+  faq: faq.html
+last_built: 2023-05-25T13:18Z
+
