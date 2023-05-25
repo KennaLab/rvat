@@ -1,0 +1,16 @@
+---
+title: "F.A.Q"
+output: 
+  html_document:
+    toc: true
+bibliography: rvat.bib
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here you can find possible solutions to common problems/issues.

@@ -1,0 +1,331 @@
+---
+title: "Basics"
+output: 
+  html_document:
+    toc: true
+bibliography: rvat.bib
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, warning = FALSE}
+# Libraries
+library(rvat)
+library(rvatData)
+library(SummarizedExperiment)
+```
+
+## Example data
+
+In these tutorials, we'll use simulated example data that we included in the `rvatData` package. 
+
+Included in-memory datasets:
+```{r}
+data(package = "rvatData")$results[,"Item"]
+```
+
+Included on-disk datasets, note that the paths to the on-disk datasets can be retrieved as below:
+
+```{r}
+rvat_example()
+rvat_example("rvatData.gdb")
+```
+
+
+Some output will be written during the tutorials, use a temporary directory for that:
+
+```{r}
+outdir <- tempdir()
+```
+
+## Setting up and populating a gdb
+
+### Creating a gdb based on a VCF-file
+
+The first step consists of setting up a so-called `gdb()`, an SQLite-based
+data structure which forms the heart of all RVAT operation. Gdb files
+allow for much more rapid and memory efficient loading of sample
+genotype data into numeric matrices within R. They also allow for the
+upload and integration of additional variant and sample annotation data
+to allow for complex data
+
+Here, we show how to create a `gdb()` object from a VCF-file. Note that
+RVAT will assign a unique `VAR_id` to each variant, which allow rapid
+querying of variants, these IDs have no inherent meaning (i.e. they do
+not refer to chromosomal position or the like).
+
+```{r}
+vcfpath <- rvat_example("rvatData.vcf.gz")
+buildGdb(vcf = vcfpath,
+         output = paste0(outdir,"/rvat_tutorials.gdb"), 
+         overWrite = TRUE)
+```
+
+Connect to the gdb you just created using the `gdb()` function:
+
+```{r}
+gdb <- gdb(paste0(outdir,"/rvat_tutorials.gdb"))
+gdb
+```
+
+### Import variant info
+
+add variant info to the gdb using the `uploadAnno()` method, 
+variants are mapped to the gdb `VAR_id` based on the CHROM,POS,REF,ALT fields.
+
+```{r}
+# example file including info such as chromosomal location, annotated gene and variant impact.
+varinfopath <- rvat_example("rvatData.varinfo")
+varinfo <- read.table(varinfopath, header = TRUE)
+
+# the `name` parameter specifies the name of the table in the gdb, 
+# the variant info that should be important is specified using the `value` parameter
+uploadAnno(object = gdb, name = "varInfo",value = varinfo)
+```
+
+The `listAnno()` method lists all variant annotation tables in the gdb:
+
+```{r}
+listAnno(gdb)
+```
+
+The `getAnno()` method retrieves a given variant annotation table from
+the gdb:
+
+```{r}
+varinfo <- getAnno(gdb, table = "varinfo")
+head(varinfo)
+```
+
+a specific region can be selected as follows:
+
+```{r}
+varinfo <- getAnno(gdb, table = "varinfo", ranges = data.frame(CHROM="chr1", start = 11013847, end = 11016874))
+head(varinfo)
+```
+
+### Import sample info
+
+add phenotype info to the gdb using the `uploadCohort()` method:
+
+```{r}
+# First we'll read in the phenotype data
+phenopath <- rvat_example("rvatData.pheno")
+pheno <- read.table( phenopath, header = TRUE)
+
+# Import into the gdb (the `IID` column is used)
+# the `name` parameter specifies the name of the table in the gdb, 
+# the sample info that should be important is specified using the `value` parameter
+uploadCohort(object = gdb, name = "pheno", value = pheno)
+```
+
+The `listCohort()` method lists all uploaded sample info tables in the
+gdb:
+
+```{r}
+listCohort(gdb)
+```
+
+The `getCohort()` method retrieves a given sample info table from the
+gdb:
+
+```{r}
+pheno <- getCohort(gdb, cohort = "pheno")
+head(pheno)
+```
+
+## GenoMatrix objects
+
+Central to `RVAT` is the `genoMatrix()` object. The `genoMatrix()` object is
+an extension of the BioConductor
+[summarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html)
+class. A `genoMatrix()` contains a matrix of genotypes, variant info and
+sample info queried from a `gdb()` object, various methods are implemented
+for genoMatrix objects, which we'll explore in this section.
+
+### Construct a genoMatrix
+
+First, we'll build a genoMatrix object using the `getGT()` method.
+Variants to include can be specified in two main ways: 1) by directly
+passing the VAR_ids to the `getGT()` method, 2) by supplying a `varSet`.
+Here we'll start with the first method, varSets are discussed in the
+`vignette("association_testing")`
+
+```{r}
+# get varinfo
+varinfo <- getAnno(gdb, table = "varinfo", where = "gene_name = 'SOD1' and ModerateImpact = 1")
+
+GT <- getGT(gdb, 
+            VAR_id = varinfo$VAR_id,
+            cohort = "pheno")
+GT
+            
+```
+
+### Basic operations
+
+Also see
+[this](https://bioconductor.org/packages/release/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html)
+tutorial on SummarizedExperiments objects, the `genoMatrix()` class
+inherits from `summarizedExperiment`, meaning that all
+summarizedExperiment methods also apply to the `genoMatrix` object. Here
+we first show some basic operations:
+
+retrieve colData (i.e. sample info):
+
+```{r}
+head(colData(GT))
+```
+
+retrieve rowData (i.e. variant info):
+
+```{r}
+head(rowData(GT))
+```
+
+show metadata:
+
+```{r}
+metadata(GT)
+```
+
+A `genoMatrix` object can be subsetted similarly as a dataframe:
+
+```{r}
+GT[1:5, 1:5]
+```
+
+subset subjects with pheno == 1
+
+```{r}
+GT[,GT$pheno == 1]
+```
+
+subset first 2 variants for subjects older than 70:
+
+```{r}
+GT[1:2,GT$age > 70]
+```
+
+Although you'll usually not work directly on the genotypes, they can be
+retrieved as followingL
+
+```{r}
+assays(GT)$GT[1:5,1:5]
+```
+
+### RVAT methods
+
+return the variant allele frequencies using the `getAF()` method:
+
+```{r}
+getAF(GT)
+```
+
+reurn the alternate allele counts:
+```{r}
+getAC(GT)
+```
+
+Flip genotype dosages such that all GT values represent minor allele
+counts (note that in this case that was already the case) using the
+`flipToMinor()` method:
+
+```{r}
+GT <- flipToMinor(GT)
+```
+
+Return a variant summary using the `summariseGeno()` method:
+
+```{r}
+sumgeno <- summariseGeno(GT)
+head(sumgeno) 
+```
+
+Meanimpute genotype dosages using the `recode()` method:
+
+```{r}
+recode(GT, imputeMethod = "meanImpute")
+```
+
+Apply dominant model using the `recode()` method:
+
+```{r}
+recode(GT, geneticModel = "dominant")
+```
+
+Aggregate genotype counts across variants, creating a single aggregate
+score per individual (i.e. a burden score):
+
+```{r}
+GT <- aggregate(GT, returnGT = TRUE)
+summary(GT$aggregate)
+```
+
+Retrieve IDs of carriers per variants:
+
+```{r}
+getCarriers(GT, colDataFields = c("pop","age"))[1:10,] 
+```
+
+### Association testing
+
+RVAT provides an unified interface to various rare variant collapsing
+methods, while allowing for MAF weighting, filtering etc. There is a
+dedicated tutorial for association testing
+`vignette("association_testing")` , but we include a brief primer here:
+
+```{r}
+burden_results <- assocTest(GT,
+                            pheno = "pheno",
+                            covar = c("PC1", "PC2", "PC3", "PC4"),
+                            test = c("firth", "skat", "acatv"),
+                            name = "example") # optional name of the analysis
+burden_results
+```
+
+## More on the gdb
+
+### Subsetting a gdb
+
+A gdb can be subsetted, retaining queried variants. This can be useful to downsize a (big) gdb for targeted local analyses. 
+
+```{r}
+subsetGdb(gdb, 
+          output = paste0(outdir, "/rvat_tutorials_subset.gdb"),
+          where = "gene_name = 'ABCA4'",
+          intersect = "varinfo", 
+          overWrite = TRUE)
+
+gdb_subset <- gdb(paste0(outdir, "/rvat_tutorials_subset.gdb"))
+anno <- getAnno(gdb_subset,table = "varinfo")
+table(anno$gene_name)
+```
+
+### Using RSQLite
+
+Although several convenience methods exist to query and update a `gdb`
+(such as `getGT()`, `getAnno()`, `getCohort()`, `uploadAnno()` and
+`uploadCohort()`), users can also query the gdb as any other SQLite
+database. Either from the command-line (as demonstrated in
+`vignette("cmdline")`), or by connecting to the database within R using
+[RSQLite](https://cran.r-project.org/web/packages/RSQLite/index.html)
+for example.
+
+An example:
+
+```{r}
+# connect to the gdb
+gdb <- gdb(paste0(outdir, "/rvat_tutorials.gdb"))
+
+# select high impact SOD1 variants
+SOD1_highimpact <- RSQLite::dbGetQuery(gdb,
+                              "select distinct VAR_id from varinfo where gene_name = 'SOD1' and HighImpact = 1;")
+```
+
+More sophisticated examples will be included in our workflow examples.

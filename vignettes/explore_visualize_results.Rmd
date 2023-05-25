@@ -1,0 +1,157 @@
+---
+title: "Exploring and visualizing results"
+output: 
+  html_document:
+    toc: true
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+IN PROGRESS
+
+# rvatResult
+
+The `rvatResult()` class is designed to work with results from RVAT
+analyses, and extends the `DataFrame` class (see:
+[S4Vectors](https://bioconductor.org/packages/devel/bioc/manuals/S4Vectors/man/S4Vectors.pdf)).
+It supports all kinds of common operations such as subsetting and
+merging, and several methods are defined for reading&writing and
+(interactive) visualization.
+
+## Reading & Writing
+
+The `rvbResult()` function loads a results file written to disk (note
+that for single variant results there is an equivalent
+`singlevarResult()`) function:`
+
+```{r, message = FALSE, warning = FALSE}
+library(rvat)
+library(rvatData)
+outdir <- tempdir()
+
+# Load example results file
+data(rvbresults)
+head(rvbresults)
+```
+
+The `writeResult()` method writes the data to disk:
+
+```{r}
+writeResult(rvbresults, file = paste0(outdir,"/burden_results.txt.gz"))
+```
+
+The `rvbResult()` function can be used to load results:
+
+```{r}
+rvbresults <- rvbResult(paste0(outdir,"/burden_results.txt.gz"))
+```
+
+## Inspecting the results
+
+The `summary()` method gives a summary of the contents of the results
+file:
+
+```{r}
+summary(rvbresults)
+```
+
+Several methods such as `head()`, `dim()`, `ncol()` and `nrow()` can be
+used to inspect the results object:
+
+```{r}
+rvbresults[1:5,]
+```
+
+```{r}
+dim(rvbresults)
+```
+
+```{r}
+ncol(rvbresults)
+```
+
+```{r}
+head(rvbresults)
+```
+
+subsetting is identical to data.frame:
+
+```{r}
+rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth", ]
+```
+
+## Combining, merging & splitting
+
+Results files can be combined using `rbind()`:
+
+```{r}
+# for this example we'll split the results-file in two and then glue it back together:
+results1 <- rvbresults[1:ceiling(nrow(rvbresults)/2), ]
+results2 <- rvbresults[(ceiling(nrow(rvbresults)/2)+1):nrow(rvbresults), ]
+test <- rbind(results1, results2)
+
+# check if it's identical:
+identical(rvbresults, test)
+```
+
+add additional info to the results using `merge()`, where the `by` parameter
+specifies which columns should be used to join:
+
+```{r, message = FALSE, warning = FALSE}
+annotation <- as.data.frame(rvbresults)[,colnames(rvbresults) %in% c("unit", "CHROM","POS")]
+annotation <- annotation[!duplicated(annotation$unit),]
+rvbresults <- merge(rvbresults[,!colnames(rvbresults) %in% c("CHROM","POS")], 
+                 annotation,
+                 by = "unit")
+```
+
+the `split()` method can be used to split a results object into defined
+groups. The example below showcases how to split the results into three
+result objects (returned in a list) based on the `varSetName` column:
+
+```{r}
+results_list <- S4Vectors::split(rvbresults, as.character(rvbresults$varSetName))
+head(results_list[[1]])
+head(results_list[[2]])
+```
+
+# Visualize
+
+## QQ-plot
+
+```{r}
+qqplot(rvbresults[rvbresults$test == "firth" &
+       rvbresults$varSetName == "ModerateImpact",])
+```
+
+## Manhattan
+
+Manhattan plots can be generated using the `manhattan()` method. The
+`label` parameter can be specified to indicate a column with labels that
+should be displayed for significant results:
+
+```{r}
+manhattan(rvbresults[rvbresults$test == "skat_burden_robust" &
+                  rvbresults$varSetName == "ModerateImpact",], 
+          label = "unit", 
+          contigs = "GRCh38")
+```
+
+## rvatViewer
+
+The `rvatViewer()` method allows for interactive exploration of the
+results, it can be launched as following:
+
+```{r, eval = FALSE}
+rvatViewer(rvbresults)
+```
+
+A video tutorial on using `rvatViewer()` will be included in the near
+future!
+
+# References

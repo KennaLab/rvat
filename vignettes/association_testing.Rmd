@@ -1,0 +1,462 @@
+---
+title: "Association testing"
+output: 
+  html_document:
+    toc: true
+bibliography: rvat.bib
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, warning = FALSE}
+# Libraries
+library(rvat)
+library(rvatData)
+```
+
+
+Some output will be written during the tutorials, use a temporary directory for that:
+
+```{r}
+outdir <- tempdir()
+```
+
+# Getting started
+
+Connect to gdb:
+
+```{r}
+gdb <- gdb(rvat_example("rvatData.gdb"))
+```
+
+## Create varSets
+
+For this tutorial, we'll create a varSet containing variants with a
+moderate impact (unweighted), and a varSet that contains weights based
+on CADD scores. (more information on building varSets will be included later)
+
+```{r, message = FALSE}
+# Build a varset including variants with a moderate predicted impact
+buildVarSet(object = gdb, 
+            output = paste0(outdir, "/moderate.txt.gz"),
+            varSetName = "Moderate", 
+            unitTable = "varInfo", 
+            unitName = "gene_name",
+            where = "ModerateImpact = 1")
+
+# Build a varset containing CADD weights
+buildVarSet(object = gdb, 
+            output = paste0(outdir, "/CADD.txt.gz"),
+            varSetName = "CADD", 
+            unitTable = "varInfo", 
+            unitName = "gene_name",
+            weightName = "CADDphred")
+```
+
+## Initialize a GT object
+
+```{r}
+moderatepath <-  paste0(outdir, "/moderate.txt.gz")
+CADDpath <- paste0(outdir, "/CADD.txt.gz")
+
+## Initialize a GT object
+varsetfile <- varSetFile(moderatepath)
+varset <- getVarSet(varsetfile, unit = "NEK1")
+GT <- getGT(
+    gdb,
+    varSet = varset,
+    cohort = "pheno")
+```
+
+## Run burden tests
+
+Run a simple burden test:\
+- with 'pheno' column as (binary) outcome\
+- adjusting for 4 PCs - Using the 'firth' method
+
+```{r}
+burden_pheno_4PCs_firth <- assocTest(GT,
+                                     pheno = "pheno",
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = "firth",
+                                     name = "example" # optional name of the analysis
+                                     )
+burden_pheno_4PCs_firth
+```
+
+Also include the SKAT [@wuRareVariantAssociationTesting2011] and ACAT-V
+[@liuACATFastPowerful2019] tests, all available tests are described in
+`assocTest()`:
+
+```{r}
+burden_pheno_4PCs <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               name = "example" # optional name of the analysis
+                                     )
+burden_pheno_4PCs
+```
+
+Run burden tests on a continuous phenotype, indicate that the phenotype
+is continuous by setting `continuous = TRUE`.
+
+```{r}
+burden_age_4PCs <- assocTest(GT,
+                               pheno = "age",
+                               continuous = TRUE,
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("lm", "skat", "acatv"),
+                               name = "example" # optional name of the analysis
+                              )
+```
+
+## Run weighted burden test
+
+The `assocTest()` method applies the weights as included in the
+`genoMatrix()` object. For instance, if we load the varSet including the
+CADD weights, the genoMatrix includes these weights in the `w` field:
+
+```{r}
+varsetfile <- varSetFile(CADDpath)
+varset_CADD <- getVarSet(varsetfile, unit = "NEK1")
+GT_CADD <- getGT(
+    gdb,
+    varSet = varset_CADD,
+    cohort = "pheno")
+head(rowData(GT_CADD)$w)
+```
+
+If we now run a burden test using this genoMatrix, the weights will be
+applied (note that variants with missing weights are excluded):
+
+```{r}
+burden_pheno_4PCs_firth_CADD <- assocTest(GT_CADD,
+                                     pheno = "pheno",
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = "firth",
+                                     name = "example" # optional name of the analysis
+                                     )
+burden_pheno_4PCs_firth_CADD
+```
+
+## Run single variant tests
+
+Running single variant tests is very similar to running burden tests. By
+setting the `singlevar` parameter to `TRUE` an association test is
+performed for each individual variant in the genotype matrix.
+
+```{r}
+singlevar_pheno_4PCs_firth <- assocTest(GT,
+                                     pheno = "pheno",
+                                     singlevar = TRUE,
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = "firth",
+                                     name = "example",
+                                     minCarriers = 3
+                                     )
+```
+
+# Looping through varSets
+
+The examples above show how genotypes are loaded into memory (in a `genoMatrix()`) object, and `assocTest()` is run on the genoMatrix. However, this step can be skipped, and `assocTest()` can be ran directly on a `gdb()` connection instead. This allows looping through the varsets included in a `varSetList()` or `varSetFile()` as demonstrated below.
+
+First, we check what units are available in the varsetfile:
+```{r}
+varsetfile <- varSetFile(moderatepath)
+head(listUnits(varsetfile))
+```
+
+We'll subset the first four for this example:
+```{r}
+varsetlist <- getVarSet(varsetfile,
+                        unit = listUnits(varsetfile)[1:4]
+                        )
+head(varsetlist,2)
+```
+
+Perform association tests on selected varSets:
+
+```{r}
+burden_varsetlist <- assocTest(gdb,
+                               varSet = varsetlist,
+                               cohort="pheno",
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = "firth",
+                               name = "example")
+burden_varsetlist
+```
+
+
+# Applying sample / variant filters
+
+The following parameters can be used to filter samples based on
+callrate:\
+`minCallrateSM` and `maxCallrateSM`.
+
+The following parameters can be used to filter variants based on
+callrate:\
+`minCallrateVar`, `maxCallrateVar`.
+
+The following parameters can be used to filter variants based on
+allele/carrier frequency:\
+`minMAF`, `maxMAF`, `minMAC`, `maxMAC`, `minCarriers` and `maxCarriers`,
+`minCarrierFreq` and `maxCarrierfreq`.
+
+Filter variants based on a maximum MAF of 0.0001 and minimum callrate of
+0.9:
+
+```{r}
+burden_pheno_4PCs_MAF001_varcr0.9 <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               name = "example", # optional name of the analysis
+                               maxMAF = 0.001,
+                               minCallrateVar = 0.9)
+```
+
+Additionally, filter samples based on a call-rate filter of \> 0.95 :
+
+```{r}
+burden_pheno_4PCs_MAF001_SMcr0.9 <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               name = "example", # optional name of the analysis
+                               maxMAF = 0.001,
+                               minCallrateVar = 0.9,
+                               minCallrateSM = 0.95
+                                     )
+```
+
+# Applying weights based on minor allele frequency
+
+Currently Madsen-Browning weighting is implemented
+[@madsenGroupwiseAssociationTest2009], and can be applied by setting the `MAFweights`
+parameter:
+
+```{r}
+burden_pheno_4PCs_mb <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               MAFweights = "mb"
+                               )
+```
+
+# Alternative genetic models
+
+By default the 'allelic' genetic model is applied (with 0,1,2 being the
+number of minor alleles). Alternative models ('recessive' and
+'dominant') can be specified using the `geneticModel` parameter:
+
+```{r}
+burden_pheno_4PCs_recessive <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               geneticModel = "recessive")
+
+burden_pheno_4PCs_dominant <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               geneticModel = "dominant")
+```
+
+Note that the `minCarrier`, `maxCarrier`, `minCarrierFreq` and
+`maxCarrierFreq` parameters can be used to filter variants based on the
+number of carriers *after* applying the genetic model:
+
+```{r}
+burden_pheno_4PCs_dominant_minCarrierFreq0.01 <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               geneticModel = "dominant",
+                               minCarrierFreq = 0.01)
+
+```
+
+# Note on imputation
+
+By default mean imputation is applied to missing values when performing
+burden tests (note that by default no imputation is applied for single
+variant tests), alternatively missings can be set to the reference
+allele:
+
+```{r}
+burden_pheno_4PCs_missingToRef <- assocTest(GT,
+                               pheno = "pheno",
+                               covar = c("PC1", "PC2", "PC3", "PC4"),
+                               test = c("firth", "skat_robust", "acatv"),
+                               imputeMethod = "missingToRef")
+```
+
+# Permuted P-values
+
+Resampling is implemented for various tests (see the `assocTest()` help page for details). Simply set `methodResampling` to 'permutation' and specify the number of resamplings using the `nResampling` parameter:
+
+```{r}
+burden_pheno_4PCs_permuted <- assocTest(GT,
+                                     pheno = "pheno",
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = c("skat", "skat_burden", "acatv"),
+                                     name = "example", # optional name of the analysis,
+                                     methodResampling = "permutation",
+                                     nResampling = 100
+                                     )
+burden_pheno_4PCs_permuted
+```
+
+Make sure to set a seed to ensure that the results are reproducible:
+```{r}
+# reproducibility 
+set.seed(10)
+burden_pheno_4PCs_permuted1 <- assocTest(GT,
+                                     pheno = "pheno",
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = c("skat", "skat_burden", "acatv"),
+                                     name = "example", # optional name of the analysis,
+                                     methodResampling = "permutation",
+                                     nResampling = 100
+                                     )
+
+set.seed(10)
+burden_pheno_4PCs_permuted2 <- assocTest(GT,
+                                     pheno = "pheno",
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = c("skat", "skat_burden", "acatv"),
+                                     name = "example", # optional name of the analysis,
+                                     methodResampling = "permutation",
+                                     nResampling = 100
+                                     )
+identical(burden_pheno_4PCs_permuted1, burden_pheno_4PCs_permuted2)
+```
+
+Alternatively, a resamplingmatrix can be build using `buildResamplingFile()` and supplied to the `resamplingMatrix` parameter.
+
+```{r}
+# reproducibility 
+set.seed(10)
+resamplingmatrix <- buildResamplingFile(nSamples = ncol(GT), nResampling = 100)
+burden_pheno_4PCs_permuted <- assocTest(GT,
+                                     pheno = "pheno",
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = c("skat", "skat_burden", "acatv"),
+                                     name = "example", # optional name of the analysis,
+                                     methodResampling = "permutation",
+                                     resamplingMatrix = resamplingmatrix)
+burden_pheno_4PCs_permuted
+```
+
+```{r}
+identical(burden_pheno_4PCs_permuted, burden_pheno_4PCs_permuted1)
+```
+
+Instead of calculating resampled P-values, the individual resampled P-values can be obtained by setting `outputResampling=TRUE`.
+
+```{r}
+burden_pheno_4PCs_permutations <- assocTest(GT,
+                                     pheno = "pheno",
+                                     covar = c("PC1", "PC2", "PC3", "PC4"),
+                                     test = c("skat", "skat_burden", "acatv"),
+                                     name = "example", # optional name of the analysis,
+                                     methodResampling = "permutation",
+                                     nResampling = 100,
+                                     outputResampling=TRUE
+                                     )
+burden_pheno_4PCs_permutations
+```
+
+# ACAT: combining P-values
+
+ACAT is a fast and powerful P-value combination method [@liuACATFastPowerful2019],
+boosting power by combining the different strengths of various
+statistical tests, annotations and weighting schemes. `RVAT` includes a
+flexible implementation of ACAT allowing the combination of P-values
+across any given analysis, for example across various statistical tests,
+weighting schemes, variant sets, covariate sets, MAF filters etc.
+
+First, we'll use ACAT to combine P-values across three statistical tests
+(firth, SKAT, and ACAT-V):
+
+```{r}
+burden_results <- assocTest(GT,
+                            pheno = "pheno",
+                            covar = c("PC1", "PC2", "PC3", "PC4"),
+                            test = c("firth", "skat", "acatv"),
+                            name = "example")
+burden_results
+```
+
+```{r}
+ACAT(burden_results, aggregate = "test")
+```
+
+`ACAT()` also allows for stepwise ACAT, i.e. you might want to perform two rounds of ACAT:
+1) ACAT across statistical tests followed by 2) ACAT across varSets. 
+Step-wise ACAT is performed by supplying a list of the variables (in order), 
+for example, below we first ACAT across statistical tests, followed by ACAT across varSets:
+
+```{r}
+varsetfile <- varSetFile(CADDpath)
+varset_CADD <- getVarSet(varsetfile, unit = "NEK1")
+GT_CADD <- getGT(
+    gdb,
+    varSet = varset_CADD,
+    cohort = "pheno")
+burden_results_CADD <- assocTest(GT_CADD,
+                            pheno = "pheno",
+                            covar = c("PC1", "PC2", "PC3", "PC4"),
+                            test = c("firth", "skat", "acatv"),
+                            name = "example")
+
+# Combine the moderate and CADD results:
+burden_results_combined <- rbind(burden_results, burden_results_CADD)
+
+# ACAT:
+ACAT(burden_results_combined, aggregate = list("test", "varSetName"))
+```
+
+(todo: add a note on P-values that are exactly 0 or 1; add a note on grouping variables)
+
+# Command-line
+
+assocTest can also be ran from the command-line using the rvat
+command-line tool: (for more information see the tutorial on using rvat
+in the cmd-line: `vignette("cmdline")`). If a varset contains multiple records, the
+assocTest method will loop through each record:
+
+```{r}
+Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
+           gdbpath = rvatData::rvat_example('rvatData.gdb'),
+           outdir = outdir
+           )
+```
+
+```{bash}
+# identify executable path:
+varset=$outdir/moderate.txt.gz
+
+Rscript $rvat --assocTest --gdb=$gdbpath --varSet=$varset --test=firth,acatv,skat_robust --geneticModel=allelic --cohort=pheno --pheno=pheno --covar=PC1,PC2,PC3,PC4 -output=$outdir/burden_cmdline1.txt.gz
+```
+
+Multiple phenotypes, tests, geneticModels, MAFweights and covars can be
+specified, for example, apply both allelic and recessive models and run
+for two covar sets:
+
+```{bash}
+varset=$outdir/moderate.txt.gz
+
+Rscript $rvat --assocTest --gdb=$gdbpath --varSet=$varset --test=firth,acatv,skat_robust --geneticModel=allelic,recessive --cohort=pheno --pheno=pheno --covar=PC1,PC2,PC3,PC4/PC1,PC2,PC3,PC4,age --output=$outdir/burden_cmdline2.txt.gz
+```
+
+# References

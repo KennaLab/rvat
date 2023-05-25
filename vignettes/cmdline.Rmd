@@ -1,0 +1,131 @@
+---
+title: "RVAT in the command-line"
+output: 
+  html_document:
+    toc: true
+bibliography: rvat.bib
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Getting started
+
+Some output will be written during the tutorials, a temporary directory will be used for that:
+
+```{r, include = FALSE, echo = FALSE, message = FALSE, warning = FALSE}
+outdir=tempdir()
+Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
+           vcfpath = rvatData::rvat_example('rvatData.vcf.gz'),
+           phenopath = rvatData::rvat_example('rvatData.pheno'),
+           varinfopath = rvatData::rvat_example('rvatData.varinfo'),
+           outdir = outdir
+           )
+```
+
+Identify RVAT executable path:
+
+```{bash}
+#rvat=$(Rscript -e "cat(system.file('exec/rvat.R', package = 'rvat'))")
+```
+
+Main help page:
+
+```{bash, error=TRUE}
+Rscript $rvat
+```
+
+Function specific help page:
+
+```{bash,error=TRUE}
+Rscript $rvat --buildGdb
+```
+
+# Build GDB
+
+## Import VCF:
+
+```{bash}
+Rscript $rvat --buildGdb --vcf=${vcfpath} --output=$outdir/rvat_tutorials_cmdline.gdb --overWrite=TRUE
+```
+
+## Import sample metadata  
+
+```{bash}
+Rscript $rvat --uploadCohort --gdb=$outdir/rvat_tutorials_cmdline.gdb --name=pheno --value=${phenopath}
+```
+
+list imported cohorts:
+
+```{bash}
+Rscript $rvat --listCohort --gdb=$outdir/rvat_tutorials_cmdline.gdb
+```
+
+
+
+## Import variant annotation tables
+
+```{bash}
+Rscript $rvat --uploadAnno --gdb=$outdir/rvat_tutorials_cmdline.gdb --name=varInfo --value=${varinfopath}
+```
+
+list anno tables:
+
+```{bash}
+Rscript $rvat --listAnno --gdb=$outdir/rvat_tutorials_cmdline.gdb
+```
+
+
+# Association tests
+
+## Build varSets 
+
+build varSet containing moderate variants:
+
+```{bash}
+Rscript $rvat --buildVarSet --gdb=$outdir/rvat_tutorials_cmdline.gdb --varSetName=Moderate --unitTable=varInfo --unitName=gene_name --where="ModerateImpact = 1" --output=${outdir}/moderate_cmdline.txt.gz
+```
+
+build multiple varSets
+
+```{bash}
+tables=(HighImpact ModerateImpact CADDphred PolyPhen)
+weights=(1 1 CADDphred 1)
+wheres=("HighImpact = 1" "ModerateImpact = 1" "CADDphred is not 'NA'" "PolyPhen is 'D'")
+n=${#tables[@]}
+for ((i=0;i<${n};i++))
+   do
+      Rscript $rvat --buildVarSet --gdb=$outdir/rvat_tutorials_cmdline.gdb --unitTable=varInfo --unitName=gene_name --varSetName=${tables[$i]} --where="${wheres[$i]}" --weightName=${weights[$i]} --output=$outdir/${tables[$i]}_cmdline.txt.gz
+   done &> $outdir/varsets.log
+```
+
+Merge variant sets for coordinated set based association testing of multiple filters
+
+```{bash}
+varSets=(HighImpact ModerateImpact CADDphred PolyPhen)
+for varSet in ${varSets[@]}
+  do
+     gunzip -c $outdir/${varSet}_cmdline.txt.gz
+  done | sort -t '|' -s -k1,1 | gzip > $outdir/mergedVarsets_cmdline.txt.gz
+```
+
+## Run burden tests
+
+```{bash, message = FALSE, warning = FALSE}
+Rscript $rvat --assocTest --gdb=$outdir/rvat_tutorials_cmdline.gdb --varSet=$outdir/mergedVarsets_cmdline.txt.gz --name=maxMAF001 --cohort=pheno --pheno=pheno --test=firth,skat_robust,acatv --output=$outdir/burden_tests_merged_cmdline.txt.gz &> $outdir/burden_tests_merged_cmdline.log
+```
+
+
+## Run singlevar tests
+
+```{bash}
+Rscript $rvat --assocTest --singlevar --gdb=$outdir/rvat_tutorials_cmdline.gdb --varSet=${outdir}/moderate_cmdline.txt.gz --name=maxMAF001 --cohort=pheno --pheno=pheno --test=firth --output=$outdir/singlevar_tests_merged_cmdline.txt.gz &> $outdir/singlevar_tests_merged_cmdline.log
+```
+
+## todo
+
+todo: gdbConcat, summariseGeno, etc.
