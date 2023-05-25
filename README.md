@@ -18,4 +18,4 @@ remotes::install_github("kennalab/rvat")
 
 ## Tutorials
 
-Tutorials and documentation: https://kkenna.github.io/rvat/
+Tutorials and documentation: https://kennalab.github.io/rvat/
