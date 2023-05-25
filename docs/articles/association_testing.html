@@ -736,7 +736,7 @@
 <pre><code><span class="co">## 133/199 variants are retained for analysis</span></code></pre>
 <div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Combine the moderate and CADD results:</span>
-<span class="va">burden_results_combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">burden_results</span>, <span class="va">burden_results_CADD</span><span class="op">)</span>
+<span class="va">burden_results_combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DelayedArray/man/DelayedArray-utils.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">burden_results</span>, <span class="va">burden_results_CADD</span><span class="op">)</span>
 
 <span class="co"># ACAT:</span>
 <span class="fu"><a href="../reference/ACAT.html">ACAT</a></span><span class="op">(</span><span class="va">burden_results_combined</span>, aggregate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"test"</span>, <span class="st">"varSetName"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -768,18 +768,18 @@
 <span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a><span class="va">varset=$outdir</span>/moderate.txt.gz</span>
 <span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--assocTest</span> <span class="at">--gdb</span><span class="op">=</span><span class="va">$gdbpath</span> <span class="at">--varSet</span><span class="op">=</span><span class="va">$varset</span> <span class="at">--test</span><span class="op">=</span>firth,acatv,skat_robust <span class="at">--geneticModel</span><span class="op">=</span>allelic <span class="at">--cohort</span><span class="op">=</span>pheno <span class="at">--pheno</span><span class="op">=</span>pheno <span class="at">--covar</span><span class="op">=</span>PC1,PC2,PC3,PC4 <span class="at">-output</span><span class="op">=</span><span class="va">$outdir</span>/burden_cmdline1.txt.gz</span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:20:48</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:49:56</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --assocTest=--assocTest</span>
 <span class="co">## --gdb=/Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.gdb</span>
-<span class="co">## --varSet=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpJkfjGl/moderate.txt.gz</span>
+<span class="co">## --varSet=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpMQ4rex/moderate.txt.gz</span>
 <span class="co">## --test=firth,acatv,skat_robust</span>
 <span class="co">## --geneticModel=allelic</span>
 <span class="co">## --cohort=pheno</span>
 <span class="co">## --pheno=pheno</span>
 <span class="co">## --covar=PC1,PC2,PC3,PC4</span>
-<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpJkfjGl/burden_cmdline1.txt.gz</span>
+<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpMQ4rex/burden_cmdline1.txt.gz</span>
 <span class="co">## Analysing ABCA4</span>
 <span class="co">## Retrieved genotypes for 416 variants</span>
 <span class="co">## Analysing unit ABCA4; varSet Moderate</span>
@@ -839,23 +839,23 @@
 <span class="co">## 1 identical warnings:</span>
 <span class="co">## In .rvat_ACAT(pvals[is.keep], weights.transformed[is.keep]) :</span>
 <span class="co">##   There are p-values that are exactly 0!</span>
-<span class="co">## End time: 2023-05-25 15:21:42</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:50:47</span></code></pre>
 <p>Multiple phenotypes, tests, geneticModels, MAFweights and covars can be specified, for example, apply both allelic and recessive models and run for two covar sets:</p>
 <div class="sourceCode" id="cb132"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="va">varset=$outdir</span>/moderate.txt.gz</span>
 <span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb132-3"><a href="#cb132-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--assocTest</span> <span class="at">--gdb</span><span class="op">=</span><span class="va">$gdbpath</span> <span class="at">--varSet</span><span class="op">=</span><span class="va">$varset</span> <span class="at">--test</span><span class="op">=</span>firth,acatv,skat_robust <span class="at">--geneticModel</span><span class="op">=</span>allelic,recessive <span class="at">--cohort</span><span class="op">=</span>pheno <span class="at">--pheno</span><span class="op">=</span>pheno <span class="at">--covar</span><span class="op">=</span>PC1,PC2,PC3,PC4/PC1,PC2,PC3,PC4,age <span class="at">--output</span><span class="op">=</span><span class="va">$outdir</span>/burden_cmdline2.txt.gz</span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:21:43</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:50:47</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --assocTest=--assocTest</span>
 <span class="co">## --gdb=/Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.gdb</span>
-<span class="co">## --varSet=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpJkfjGl/moderate.txt.gz</span>
+<span class="co">## --varSet=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpMQ4rex/moderate.txt.gz</span>
 <span class="co">## --test=firth,acatv,skat_robust</span>
 <span class="co">## --geneticModel=allelic,recessive</span>
 <span class="co">## --cohort=pheno</span>
 <span class="co">## --pheno=pheno</span>
 <span class="co">## --covar=PC1,PC2,PC3,PC4/PC1,PC2,PC3,PC4,age</span>
-<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpJkfjGl/burden_cmdline2.txt.gz</span>
+<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpMQ4rex/burden_cmdline2.txt.gz</span>
 <span class="co">## Analysing ABCA4</span>
 <span class="co">## Retrieved genotypes for 416 variants</span>
 <span class="co">## Analysing unit ABCA4; varSet Moderate</span>
@@ -1007,7 +1007,7 @@
 <span class="co">##   Less than two samples have a non-zero burden score, skipping tests.</span>
 <span class="co">## 20x : In .rvat_ACAT(pvals[is.keep], weights.transformed[is.keep]) :</span>
 <span class="co">##   There are p-values that are exactly 0!</span>
-<span class="co">## End time: 2023-05-25 15:23:41</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:52:33</span></code></pre>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

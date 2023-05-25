@@ -114,7 +114,7 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#rvat=$(Rscript -e "cat(system.file('exec/rvat.R', package = 'rvat'))")</span></span></code></pre></div>
 <p>Main help page:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span></span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:24:41</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:53:30</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## Error: Rare variant analysis toolkit (rvat)</span>
@@ -141,7 +141,7 @@
 <span class="co">## Execution halted</span></code></pre>
 <p>Function specific help page:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--buildGdb</span></span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:24:46</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:53:34</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --buildGdb=--buildGdb</span>
@@ -171,38 +171,38 @@
 <h3 id="import-vcf">Import VCF:<a class="anchor" aria-label="anchor" href="#import-vcf"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--buildGdb</span> <span class="at">--vcf</span><span class="op">=</span><span class="va">${vcfpath}</span> <span class="at">--output</span><span class="op">=</span><span class="va">$outdir</span>/rvat_tutorials_cmdline.gdb <span class="at">--overWrite</span><span class="op">=</span>TRUE</span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:24:51</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:53:38</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --buildGdb=--buildGdb</span>
 <span class="co">## --vcf=/Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.vcf.gz</span>
-<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/rvat_tutorials_cmdline.gdb</span>
+<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/rvat_tutorials_cmdline.gdb</span>
 <span class="co">## --overWrite=TRUE</span>
-<span class="co">## 2023-05-25 15:24:55  Creating gdb tables</span>
+<span class="co">## 2023-05-25 15:53:42  Creating gdb tables</span>
 <span class="co">## 25000 sample IDs detected</span>
-<span class="co">## 2023-05-25 15:24:56  Parsing vcf records</span>
-<span class="co">## 2023-05-25 15:25:17  Processing completed for 1000 records. Committing to db.</span>
-<span class="co">## 2023-05-25 15:25:32  Processing completed for 1763 records. Committing to db.</span>
-<span class="co">## 2023-05-25 15:25:32  Creating var table indexes</span>
-<span class="co">## 2023-05-25 15:25:32  Creating SM table index</span>
-<span class="co">## 2023-05-25 15:25:32  Creating dosage table index</span>
-<span class="co">## 2023-05-25 15:25:32  Creating ranged var table</span>
-<span class="co">## 2023-05-25 15:25:33  Complete</span>
+<span class="co">## 2023-05-25 15:53:42  Parsing vcf records</span>
+<span class="co">## 2023-05-25 15:54:01  Processing completed for 1000 records. Committing to db.</span>
+<span class="co">## 2023-05-25 15:54:14  Processing completed for 1763 records. Committing to db.</span>
+<span class="co">## 2023-05-25 15:54:14  Creating var table indexes</span>
+<span class="co">## 2023-05-25 15:54:14  Creating SM table index</span>
+<span class="co">## 2023-05-25 15:54:14  Creating dosage table index</span>
+<span class="co">## 2023-05-25 15:54:14  Creating ranged var table</span>
+<span class="co">## 2023-05-25 15:54:14  Complete</span>
 <span class="co">## rvat gdb object</span>
-<span class="co">##  Path: /var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/rvat_tutorials_cmdline.gdb </span>
+<span class="co">##  Path: /var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/rvat_tutorials_cmdline.gdb </span>
 <span class="co">## </span>
 <span class="co">## Finished!</span>
-<span class="co">## End time: 2023-05-25 15:25:33</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:54:14</span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="import-sample-metadata">Import sample metadata<a class="anchor" aria-label="anchor" href="#import-sample-metadata"></a>
 </h3>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--uploadCohort</span> <span class="at">--gdb</span><span class="op">=</span><span class="va">$outdir</span>/rvat_tutorials_cmdline.gdb <span class="at">--name</span><span class="op">=</span>pheno <span class="at">--value</span><span class="op">=</span><span class="va">${phenopath}</span></span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:25:33</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:54:15</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --uploadCohort=--uploadCohort</span>
-<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/rvat_tutorials_cmdline.gdb</span>
+<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/rvat_tutorials_cmdline.gdb</span>
 <span class="co">## --name=pheno</span>
 <span class="co">## --value=/Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.pheno</span>
 <span class="co">## Loading cohort 'pheno' from '/Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.pheno'</span>
@@ -214,31 +214,31 @@
 <span class="co">## [1] 1</span>
 <span class="co">## </span>
 <span class="co">## Finished!</span>
-<span class="co">## End time: 2023-05-25 15:25:38</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:54:19</span></code></pre>
 <p>list imported cohorts:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--listCohort</span> <span class="at">--gdb</span><span class="op">=</span><span class="va">$outdir</span>/rvat_tutorials_cmdline.gdb</span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:25:38</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:54:19</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --listCohort=--listCohort</span>
-<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/rvat_tutorials_cmdline.gdb</span>
+<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/rvat_tutorials_cmdline.gdb</span>
 <span class="co">##    name                                                              value</span>
 <span class="co">## 1 pheno /Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.pheno</span>
 <span class="co">##                       date</span>
-<span class="co">## 1 Thu May 25 15:25:38 2023</span>
+<span class="co">## 1 Thu May 25 15:54:19 2023</span>
 <span class="co">## </span>
 <span class="co">## Finished!</span>
-<span class="co">## End time: 2023-05-25 15:25:43</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:54:23</span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="import-variant-annotation-tables">Import variant annotation tables<a class="anchor" aria-label="anchor" href="#import-variant-annotation-tables"></a>
 </h3>
 <div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--uploadAnno</span> <span class="at">--gdb</span><span class="op">=</span><span class="va">$outdir</span>/rvat_tutorials_cmdline.gdb <span class="at">--name</span><span class="op">=</span>varInfo <span class="at">--value</span><span class="op">=</span><span class="va">${varinfopath}</span></span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:25:43</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:54:23</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --uploadAnno=--uploadAnno</span>
-<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/rvat_tutorials_cmdline.gdb</span>
+<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/rvat_tutorials_cmdline.gdb</span>
 <span class="co">## --name=varInfo</span>
 <span class="co">## --value=/Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.varinfo</span>
 <span class="co">## Loading table 'varInfo' from '/Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.varinfo'</span>
@@ -247,21 +247,21 @@
 <span class="co">## </span>
 <span class="co">## </span>
 <span class="co">## Finished!</span>
-<span class="co">## End time: 2023-05-25 15:25:48</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:54:27</span></code></pre>
 <p>list anno tables:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--listAnno</span> <span class="at">--gdb</span><span class="op">=</span><span class="va">$outdir</span>/rvat_tutorials_cmdline.gdb</span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:25:48</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:54:28</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --listAnno=--listAnno</span>
-<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/rvat_tutorials_cmdline.gdb</span>
+<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/rvat_tutorials_cmdline.gdb</span>
 <span class="co">##      name                                                                value</span>
 <span class="co">## 1 varInfo /Users/phop2/Library/R/3.6/library/rvatData/extdata/rvatData.varinfo</span>
 <span class="co">##                       date</span>
-<span class="co">## 1 Thu May 25 15:25:48 2023</span>
+<span class="co">## 1 Thu May 25 15:54:27 2023</span>
 <span class="co">## </span>
 <span class="co">## Finished!</span>
-<span class="co">## End time: 2023-05-25 15:25:53</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:54:32</span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -272,23 +272,23 @@
 </h3>
 <p>build varSet containing moderate variants:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--buildVarSet</span> <span class="at">--gdb</span><span class="op">=</span><span class="va">$outdir</span>/rvat_tutorials_cmdline.gdb <span class="at">--varSetName</span><span class="op">=</span>Moderate <span class="at">--unitTable</span><span class="op">=</span>varInfo <span class="at">--unitName</span><span class="op">=</span>gene_name <span class="at">--where</span><span class="op">=</span><span class="st">"ModerateImpact = 1"</span> <span class="at">--output</span><span class="op">=</span><span class="va">${outdir}</span>/moderate_cmdline.txt.gz</span></code></pre></div>
-<pre><code><span class="co">## Start time: 2023-05-25 15:25:53</span>
+<pre><code><span class="co">## Start time: 2023-05-25 15:54:32</span>
 <span class="co">## RVAT version: 0.2.0</span>
 <span class="co">## RVAT arguments detected:</span>
 <span class="co">## --buildVarSet=--buildVarSet</span>
-<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/rvat_tutorials_cmdline.gdb</span>
+<span class="co">## --gdb=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/rvat_tutorials_cmdline.gdb</span>
 <span class="co">## --varSetName=Moderate</span>
 <span class="co">## --unitTable=varInfo</span>
 <span class="co">## --unitName=gene_name</span>
 <span class="co">## --where=ModerateImpact = 1</span>
-<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/moderate_cmdline.txt.gz</span>
-<span class="co">## Generated varSetFile: /var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/moderate_cmdline.txt.gz</span>
+<span class="co">## --output=/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/moderate_cmdline.txt.gz</span>
+<span class="co">## Generated varSetFile: /var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/moderate_cmdline.txt.gz</span>
 <span class="co">## varSetFile object</span>
-<span class="co">## Path:/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmptNGlXA/moderate_cmdline.txt.gz</span>
+<span class="co">## Path:/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpKBPUO8/moderate_cmdline.txt.gz</span>
 <span class="co">## Units:10</span>
 <span class="co">## </span>
 <span class="co">## Finished!</span>
-<span class="co">## End time: 2023-05-25 15:25:57</span></code></pre>
+<span class="co">## End time: 2023-05-25 15:54:36</span></code></pre>
 <p>build multiple varSets</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="va">tables=(</span>HighImpact ModerateImpact CADDphred PolyPhen<span class="va">)</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="va">weights=(</span>1 1 CADDphred 1<span class="va">)</span></span>

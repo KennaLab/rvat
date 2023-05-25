@@ -139,7 +139,7 @@ Please see the example section for examples.</p>
     <h2>Rare variant testing</h2>
     
 
-<p>In the following code snippets, x is a genoMatrix object</p><ul><li><p><code><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate()</a></code>: Returns per sample aggregate dosage for a genoMatrix object.
+<p>In the following code snippets, x is a genoMatrix object</p><ul><li><p><code><a href="https://rdrr.io/pkg/S4Vectors/man/aggregate-methods.html" class="external-link">aggregate()</a></code>: Returns per sample aggregate dosage for a genoMatrix object.
 The genoMatrix shouldn't contain missing values, use <code><a href="recode.html">recode()</a></code> to impute missing values.
 Aggregation is dependent on <code>geneticModel</code>, <code>MAFweights</code> and <code>weights</code>, all can be set using the <code><a href="recode.html">recode()</a></code> method.
 By default, an updated genoMatrix is returned with an <code>aggregate</code> field in <code>colData</code>. Set <code>returnGT</code> to <code>FALSE</code> to return a vector of aggregates.</p></li>

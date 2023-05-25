@@ -143,24 +143,24 @@
 <span class="fu"><a href="../reference/buildGdb.html">buildGdb</a></span><span class="op">(</span>vcf <span class="op">=</span> <span class="va">vcfpath</span>,
          output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>,<span class="st">"/rvat_tutorials.gdb"</span><span class="op">)</span>, 
          overWrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## 2023-05-25 15:23:52  Creating gdb tables</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:52:45  Creating gdb tables</span></code></pre>
 <pre><code><span class="co">## 25000 sample IDs detected</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:23:52  Parsing vcf records</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:24:14  Processing completed for 1000 records. Committing to db.</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:24:29  Processing completed for 1763 records. Committing to db.</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:24:29  Creating var table indexes</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:24:29  Creating SM table index</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:24:29  Creating dosage table index</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:24:29  Creating ranged var table</span></code></pre>
-<pre><code><span class="co">## 2023-05-25 15:24:29  Complete</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:52:45  Parsing vcf records</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:53:05  Processing completed for 1000 records. Committing to db.</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:53:18  Processing completed for 1763 records. Committing to db.</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:53:18  Creating var table indexes</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:53:18  Creating SM table index</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:53:18  Creating dosage table index</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:53:18  Creating ranged var table</span></code></pre>
+<pre><code><span class="co">## 2023-05-25 15:53:18  Complete</span></code></pre>
 <pre><code><span class="co">## rvat gdb object</span>
-<span class="co">##  Path: /var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpsnXux5/rvat_tutorials.gdb</span></code></pre>
+<span class="co">##  Path: /var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpX5ASAH/rvat_tutorials.gdb</span></code></pre>
 <p>Connect to the gdb you just created using the <code><a href="../reference/gdb.html">gdb()</a></code> function:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gdb.html">gdb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>,<span class="st">"/rvat_tutorials.gdb"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">gdb</span></code></pre></div>
 <pre><code><span class="co">## rvat gdb object</span>
-<span class="co">##  Path: /private/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T/RtmpsnXux5/rvat_tutorials.gdb</span></code></pre>
+<span class="co">##  Path: /private/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T/RtmpX5ASAH/rvat_tutorials.gdb</span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="import-variant-info">Import variant info<a class="anchor" aria-label="anchor" href="#import-variant-info"></a>
@@ -180,7 +180,7 @@
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gdb.html">listAnno</a></span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##      name               value                     date</span>
-<span class="co">## 1 varInfo interactive_session Thu May 25 15:24:29 2023</span></code></pre>
+<span class="co">## 1 varInfo interactive_session Thu May 25 15:53:19 2023</span></code></pre>
 <p>The <code><a href="../reference/getAnno.html">getAnno()</a></code> method retrieves a given variant annotation table from the gdb:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getAnno.html">getAnno</a></span><span class="op">(</span><span class="va">gdb</span>, table <span class="op">=</span> <span class="st">"varinfo"</span><span class="op">)</span>
@@ -254,7 +254,7 @@
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gdb.html">listCohort</a></span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##    name               value                     date</span>
-<span class="co">## 1 pheno interactive_session Thu May 25 15:24:30 2023</span></code></pre>
+<span class="co">## 1 pheno interactive_session Thu May 25 15:53:19 2023</span></code></pre>
 <p>The <code><a href="../reference/getCohort.html">getCohort()</a></code> method retrieves a given sample info table from the gdb:</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pheno</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCohort.html">getCohort</a></span><span class="op">(</span><span class="va">gdb</span>, cohort <span class="op">=</span> <span class="st">"pheno"</span><span class="op">)</span>
