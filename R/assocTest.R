@@ -500,7 +500,7 @@ setMethod("assocTest",
               if( overwriteAggregate ) {
                 object <- aggregate(recode(object, 
                                              imputeMethod = imputeMethod, 
-                                             MAFweights = MAFweights))
+                                             MAFweights = MAFweights),checkMissing=FALSE)
               } else {
                 if(S4Vectors::metadata(object)$imputeMethod != imputeMethod) {
                   object <- recode(object, 
