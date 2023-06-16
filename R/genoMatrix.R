@@ -22,7 +22,7 @@ genoMatrix=function(GT, SM, VAR_id, w=1, ploidy="diploid", varSetName="unnamed",
   # Validate provided ploidy values and ensure rowData will have correct nrow
   ploidyLevels=unique(ploidy)
   if (length(w)==1){w=rep(w,length(VAR_id))}
-
+  
   # Label GT matrix
   colnames(GT)=SM$IID
   rownames(GT)=VAR_id
@@ -34,7 +34,7 @@ genoMatrix=function(GT, SM, VAR_id, w=1, ploidy="diploid", varSetName="unnamed",
     if(verbose) message(sprintf("%s/%s samples in the gdb are present in cohort '%s'",sum(!missing),nrow(SM), cohortname ))
     GT=GT[,!missing,drop=FALSE]
     SM=SM[!missing,,drop=FALSE]
-    
+    rownames(SM) <- as.character(SM$IID)
   }
 
   # Construct SummarizedExperiment
