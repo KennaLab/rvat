@@ -8,7 +8,7 @@ assocTest_tests <- c("firth", "glm", "lm", "scoreSPA", "nbinom",
                      "skat_burden","skat","skato", 
                      "skat_burden_robust","skat_robust", 
                      "skato_robust", "skat_burden_fwe","skat_fwe",
-                     "skato_fwe", "acatv","acatvSPA")
+                     "skato_fwe", "acatv","acatvSPA","acatvfirth")
 
 ### singlevariant tests
 assocTest_sv_tests <- c("lm", "firth", "glm", "nbinom", "scoreSPA")
@@ -27,7 +27,7 @@ assocTest_rvb_cont_tests <- c("lm", "skat_burden", "skat", "skato",
 
 #### binary rvb tests
 assocTest_rvb_bin_tests <- c("firth", "glm", "scoreSPA", "nbinom", "skat_robust", "skato_robust", "skat_burden_robust",
-                             "skat_burden_fwe", "skat_fwe", "skato_fwe", "acatv", "acatvSPA",
+                             "skat_burden_fwe", "skat_fwe", "skato_fwe", "acatv", "acatvSPA","acatvfirth",
                              "skat_burden", "skat", "skato")
 
 #### skat tests
@@ -40,7 +40,7 @@ assocTest_resampling_tests <- c("skat", "skat_robust", "skat_burden", "skat_burd
 #### tests for which an offset is implemented
 assocTest_offset_tests <- c("firth", "glm", "lm", "scoreSPA", "nbinom", "skat_burden", "skat", "skato",
                             "skat_burden_robust", "skat_robust", "skato_robust", "skat_burden_fwe", "skat_fwe",
-                            "skato_fwe", "acatvSPA"
+                            "skato_fwe", "acatvSPA","acatvfirth"
                             )
 
 #### tests for which an aggregate should be calculated

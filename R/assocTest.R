@@ -1081,7 +1081,7 @@ setMethod("assocTest",
     }
   }
   
-  if(sum(c("acatv","acatvSPA") %in% test) > 0) {
+  if(sum(c("acatv","acatvSPA", "acatvfirth") %in% test) > 0) {
     
     
     if("acatv" %in% test) {
@@ -1109,7 +1109,12 @@ setMethod("assocTest",
       )
     }
     
-    if("acatvSPA" %in% test) {
+    if(any(c("acatvSPA", "acatvfirth") %in% test)) {
+      mac<-Matrix::rowSums(assays(GT)$GT)
+      maf<-Matrix::rowSums(assays(GT)$GT)/(2*ncol(GT))
+    }
+      
+    if(any(c("acatvSPA") %in% test)) {
       tryCatch(
         {
           # null model
@@ -1119,8 +1124,6 @@ setMethod("assocTest",
           )
           
           # fit
-          mac<-Matrix::rowSums(assays(GT)$GT)
-          maf<-Matrix::rowSums(assays(GT)$GT)/(2*ncol(GT))
           fit <- .acatv_rvat(
             t(assays(GT)$GT),
             obj = obj, 
@@ -1135,6 +1138,30 @@ setMethod("assocTest",
         error=function(e){message(sprintf("Failed test '%s'\n%s", "acatvSPA", e))}
       )
     }
+    
+    if("acatvfirth" %in% test) {
+      tryCatch(
+        {
+          
+          # fit
+          fit <- .acatv_rvat(
+            t(assays(GT)$GT),
+            obj = NULL, 
+            data = colData(GT),
+            covar = covar,
+            model = model, 
+            method = "firth",
+            weights=rowData(GT)$w,
+            mac.thresh=10,
+            maf=maf,
+            mac=mac)
+          
+          P["acatvfirth"] <- fit
+        },
+        error=function(e){message(sprintf("Failed test '%s'\n%s", "acatvfirth", e))}
+      )
+    }
+    
   }
   
   results$effect <- effect
@@ -1326,7 +1353,10 @@ setMethod("assocTest",
 # adapted from: https://github.com/yaowuliu/ACAT
 .acatv_rvat <- function(G,
                         obj = NULL, 
-                        method = c("original", "scoreSPA"),
+                        data = NULL,
+                        covar = NULL,
+                        model = NULL,
+                        method = c("original", "scoreSPA", "firth"),
                         weights.beta=c(1,25),
                         weights=NULL,
                         mac.thresh=10,
@@ -1369,13 +1399,13 @@ setMethod("assocTest",
     
     if (method == "original") {
       pval.very.rare <- .acat_burden(G[,is.very.rare,drop=FALSE],
-                                      obj, 
-                                      weights.beta = weights.beta, 
-                                      weights = weights[is.very.rare])
+                                     obj, 
+                                     weights.beta = weights.beta, 
+                                     weights = weights[is.very.rare])
     } else if (method == "scoreSPA") {
       w <- if(is.null(weights)) dbeta(maf[is.very.rare],weights.beta[1],weights.beta[2]) else weights[is.very.rare]
       agg <- Matrix::rowSums(
-        G[,is.very.rare,drop=FALSE] %*%
+        as(G[,is.very.rare,drop=FALSE], "sparseMatrix") %*%
           diag(w,
                ncol=length(w),
                nrow=length(w))
@@ -1385,6 +1415,24 @@ setMethod("assocTest",
         obj.nul = obj,
         minmac = 0
       )$p.value
+    } else if (method == "firth") {
+      w <- if(is.null(weights)) dbeta(maf[is.very.rare],weights.beta[1],weights.beta[2]) else weights[is.very.rare]
+      agg <- Matrix::rowSums(
+        as(G[,is.very.rare,drop=FALSE], "sparseMatrix") %*%
+          diag(w,
+               ncol=length(w),
+               nrow=length(w))
+      )
+      fit <- logistf::logistf(model, 
+                              data = cbind(aggregate = agg, as.data.frame(data[,colnames(data)!="aggregate"])),
+                              plconf = (which(c(covar,"aggregate") == "aggregate")+1),
+                              control = logistf::logistf.control(maxit = maxitFirth),
+                              plcontrol = logistf::logistpl.control(maxit = maxitFirth))
+      if (.check_conv_firth(fit, maxit=maxitFirth)) {
+        pval.very.rare <- fit$prob["aggregate"]
+      } else {
+        pval.very.rare <- NULL
+      }
     }
   }
   
@@ -1403,6 +1451,19 @@ setMethod("assocTest",
         genos = t(G[,!is.very.rare,drop=FALSE]),
         obj.null = obj,
         minmac = 0)$p.value
+    } else if (method == "firth") {
+      Mpvals <- rep(NA_real_, sum(!is.very.rare))
+      names(Mpvals) <- names(is.very.rare)[!is.very.rare]
+      for(i in which(!is.very.rare)) {
+        fit <- logistf::logistf(model, 
+                                data = cbind(aggregate = G[,i], as.data.frame(data[,colnames(data)!="aggregate"])),
+                                plconf = (which(c(covar,"aggregate") == "aggregate")+1),
+                                control = logistf::logistf.control(maxit=maxitFirth),
+                                plcontrol = logistf::logistpl.control(maxit=maxitFirth))
+        if (.check_conv_firth(fit, maxit=maxitFirth)) {
+          Mpvals[colnames(G)[i]] <- fit$prob["aggregate"]
+        } 
+      }
     }
   }
   
