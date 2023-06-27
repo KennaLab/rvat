@@ -1101,7 +1101,8 @@ setMethod("assocTest",
             weights=rowData(GT)$w,
             mac.thresh=10,
             maf=maf,
-            mac=mac)
+            mac=mac
+            )
           
           P["acatv"] <- fit
         },
@@ -1154,7 +1155,9 @@ setMethod("assocTest",
             weights=rowData(GT)$w,
             mac.thresh=10,
             maf=maf,
-            mac=mac)
+            mac=mac,
+            maxitFirth=maxitFirth
+            )
           
           P["acatvfirth"] <- fit
         },
@@ -1361,7 +1364,9 @@ setMethod("assocTest",
                         weights=NULL,
                         mac.thresh=10,
                         maf=NULL,
-                        mac=NULL)
+                        mac=NULL,
+                        maxitFirth=1000
+                        )
 {
   
   method <- match.arg(method)
