@@ -193,9 +193,18 @@ setMethod("getGT", signature="gdb",
             # Process sample data
             if ( is.null(cohort) ) {
               SM <- DBI::dbGetQuery(object,'select * from SM')
-              cohort <- "SM"
+              cohort_name <- "SM"
             } else if (is.data.frame(cohort) || is(cohort, "DFrame")) {
-                if(is(cohort, "DFrame")) cohort <- as.data.frame(cohort)
+                if(is(cohort, "DFrame")) {
+                  if("name" %in% names(metadata(cohort))) {
+                    cohort_name <- metadata(cohort)$name 
+                  } else {
+                    cohort_name <- as.character(as.list(match.call())[-1][["cohort"]])
+                  }
+                  cohort <- as.data.frame(cohort)
+                } else {
+                    cohort_name <- as.character(as.list(match.call())[-1][["cohort"]])
+                  }
                 SM <- DBI::dbGetQuery(object,'select * from SM')
                 SM$IID <- as.character(SM$IID)
               if (!all(cohort$IID %in% SM$IID)) {
@@ -208,9 +217,9 @@ setMethod("getGT", signature="gdb",
               }
               cohort <- cohort[match(SM$IID,cohort$IID),,drop = FALSE]
               SM <- cohort
-              cohort <- as.character(as.list(match.call())[-1][["cohort"]])
             } else {
               SM <- getCohort(object, cohort)
+              cohort_name <- cohort
             }
             
             # Verify ploidy settings
@@ -264,7 +273,7 @@ setMethod("getGT", signature="gdb",
             if(verbose) message(sprintf("Retrieved genotypes for %s variants",nvar))
             
             ## generate genoMatrix
-            return(genoMatrix(GT=GT,SM=SM,VAR_id=VAR_id,w=w,ploidy=ploidy,varSetName=varSetName,unit=unit,cohortname=cohort,verbose=verbose))
+            return(genoMatrix(GT=GT,SM=SM,VAR_id=VAR_id,w=w,ploidy=ploidy,varSetName=varSetName,unit=unit,cohortname=cohort_name,verbose=verbose))
           })
 
 #' @rdname subsetGdb
@@ -313,7 +322,7 @@ setMethod("subsetGdb", signature="gdb",
 
             # Copy remaining base tables
             DBI::dbExecute(object,sprintf("create table %s.SM as select * from SM", tmp))
-            DBI::dbExecute(object,sprintf("create table %s.dosage as select * from dosage inner join %s.var using (VAR_id)", tmp, tmp))
+            DBI::dbExecute(object,sprintf("create table %s.dosage as select dosage.VAR_id,dosage.GT from dosage inner join %s.var using (VAR_id)", tmp, tmp))
             DBI::dbExecute(object,sprintf("create table %s.cohort as select * from cohort", tmp))
             DBI::dbExecute(object,sprintf("create table %s.anno as select * from anno", tmp))
             DBI::dbExecute(object,sprintf("create table %s.meta as select * from meta", tmp))

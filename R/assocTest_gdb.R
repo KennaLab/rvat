@@ -238,9 +238,13 @@ setMethod("assocTest",
                                           file = output, append = FALSE) 
                                   }
             }
-            j <- 1; reloadGT <- TRUE
             
-              
+           # load cohort
+           chrt <- getCohort(object, cohort = cohort, fields = unique(c("IID", "sex", pheno, unlist(covar), offset)))
+           chrt <- DataFrame(chrt[!is.na(chrt$IID),])
+           metadata(chrt)$name <- cohort
+            
+           j <- 1; reloadGT <- TRUE
            # Loop through units -----------------------------------------------
            for(unit in unique(listUnits(varSet)))
               {
@@ -257,9 +261,10 @@ setMethod("assocTest",
                   
                   # Load genotypes
                   GT <- getGT(object, 
-                              cohort = cohort,
+                              cohort = chrt,
                               varSet = if( length(varSets) > 1) collapseVarSetList(varSets) else varSets,
                               checkPloidy = checkPloidy)
+                  metadata(GT)$cohort <- cohort
                 
                   loadGT <- FALSE
                   
@@ -273,29 +278,12 @@ setMethod("assocTest",
                   
                   # If cohort is loaded for first time, perform some checks:
                   if(j == 1) {
-                    
-                    ## Check if phenotypes are present in colData
-                    if(!all(pheno %in% colnames(colData(GT)))) 
-                      stop(sprintf("The following phenotypes are not present in cohort '%s': %s",
-                                   cohort, paste(pheno[!pheno %in% colnames(colData(GT))], collapse = ",")))
-                    
-                    ## Check if covariates are present in colData
-                    if(!all(unlist(covar) %in% colnames(colData(GT)))) 
-                      stop(sprintf("The following covariates are not present in cohort '%s': %s",
-                                   cohort, paste(unique(unlist(covar)[!unlist(covar) %in% colnames(colData(GT))]), collapse = ",")
-                      ))
-                    
-                    ## if `offset` is specified, check if it's available
-                    if (!is.null(offset) && !offset %in% colnames(colData(GT))) {
-                        stop(sprintf("Offset variable: %s is not available ", offset))
-                    }
-                    
                     if (length(pheno) > 1) {
                       ## check if missingness is identical across phenotypes
                       ## if so: loadGT = FALSE for subsequent iterations
                       check_pheno <- all(unlist(lapply(as.data.frame(colData(GT)[,pheno[2:length(pheno)],drop=FALSE]), 
-                                        FUN = function(x,y) identical(is.na(x), is.na(y)), 
-                                        y = is.na(colData(GT)[,pheno[1]]))))
+                                                       FUN = function(x,y) identical(is.na(x), is.na(y)), 
+                                                       y = is.na(colData(GT)[,pheno[1]]))))
                       if(!check_pheno) reloadGT <- TRUE
                     }
                   }
@@ -464,7 +452,7 @@ setMethod("assocTest",
                       
                       ## calculate aggregate if mode = rvb and a test is included that is based on aggregates 
                       if(!singlevar) {
-                        GT_ <- aggregate(recode(GT_, weights = weight, MAFweights = MAFweight), returnGT=TRUE)
+                        GT_ <- aggregate(recode(GT_, weights = weight, MAFweights = MAFweight), returnGT=TRUE,checkMissing=FALSE)
                       } else {
                         GT_ <- recode(GT_, weights = weight, MAFweights = MAFweight)
                       }
