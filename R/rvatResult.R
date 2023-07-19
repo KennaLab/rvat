@@ -345,8 +345,10 @@ setMethod("manhattan", c("rvatResult"),
                    threshold = NULL, 
                    labelThreshold = NULL, 
                    labelRepel = FALSE, 
-                   contigs = c(), 
-                   title = "")
+                   labelSize = NULL,
+                   contigs = c(),
+                   title = ""
+                   )
           {
             # Check if 'CHROM' and 'POS' are present in the rvatResult object
             if(mean(c("CHROM", "POS") %in% colnames(object)) < 1) {
@@ -438,7 +440,9 @@ setMethod("manhattan", c("rvatResult"),
               if(labelRepel) {
                 mplot=mplot + 
                   ggrepel::geom_text_repel(ggplot2::aes_string(x="POS",y="logp",label=label),
-                                     data=(object[!is.na(object$logp) & object$P < labelThreshold,]))
+                                     data=(object[!is.na(object$logp) & object$P < labelThreshold,]),
+                                     size = labelSize 
+                                     )
               } else {
                 mplot=mplot + 
                   ggplot2::geom_text(ggplot2::aes_string(x="POS",y="logp",label=label),
@@ -446,7 +450,9 @@ setMethod("manhattan", c("rvatResult"),
                                      nudge_y = 0.7, 
                                      angle=0, 
                                      vjust = "inward",
-                                     hjust = "inward")
+                                     hjust = "inward",
+                                     size = labelSize
+                                     )
               }
               }
             

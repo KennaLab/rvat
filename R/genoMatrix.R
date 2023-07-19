@@ -282,6 +282,7 @@ setMethod("updateGT", signature="genoMatrix",
             if (!is.null(SM) ) {
               if (!"IID" %in% colnames(SM)) stop("SM should contain an `IID` column")
               if (!(is.data.frame(SM) || is(SM, "DFrame"))) stop("`SM` should be of class `data.frame` or `DFrame`")
+              SM <- S4Vectors::DataFrame(SM)
               rownames(SM) <- SM[["IID"]]
               
               # Validate input SM table
