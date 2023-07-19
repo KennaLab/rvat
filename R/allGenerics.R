@@ -588,7 +588,7 @@ setGeneric("qqplot", function(object, title = "", label = "label", threshold = N
 #' @param contigs Update contig lengths from GRCh37 defaults.
 #' @param title Optional title.
 #' @export
-setGeneric("manhattan", function(object, highlight = NULL, label = "label", threshold = NULL, labelThreshold = NULL, labelRepel=FALSE, contigs=c(), title="") standardGeneric("manhattan"))
+setGeneric("manhattan", function(object, highlight = NULL, label = "label", threshold = NULL, labelThreshold = NULL, labelRepel=FALSE, labelSize = NULL, contigs=c(), title="") standardGeneric("manhattan"))
 
 #' Generate a manhattan plot with a set of genes highlighted
 #' 
