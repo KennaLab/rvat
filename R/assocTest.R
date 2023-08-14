@@ -1201,9 +1201,9 @@ setMethod("assocTest",
   verbose = TRUE
 ) {
   
-  testable <- which(Matrix::rowSums(results[,c("caseMAC","ctrlMAC")][!duplicated(results$VAR_id),], na.rm=TRUE) >= 2)
+  testable <- which(Matrix::rowSums(results[,c("caseMAC","ctrlMAC")][!duplicated(results$VAR_id),], na.rm=TRUE) >= 1)
   if (length(testable) < nrow(GT)) {
-    if (verbose) warning(sprintf("%s/%s variants have less than 2 carriers, tests will be skipped for these variants.", 
+    if (verbose) warning(sprintf("%s/%s variants have less than 1 carriers, tests will be skipped for these variants.", 
                          nrow(GT)-length(testable),
                          nrow(GT)
                          ))
