@@ -540,6 +540,32 @@ if (!is.null(args[["mapVariants"]]))
 }
 
 
+# mapToCDS -------------------------------------------------------------------
+if (!is.null(args[["mapToCDS"]]))
+{
+  check_help(args = args, help = help, func_name = "mapToCDS")
+  required <- c("gdb", "gff", "output")
+  expected <- c("mapToCDS","gdb","gff","exonPadding","output","gene_id","transcript_id","verbose")
+  check_required_args(required = required, args = args, func_name = "mapToCDS")
+  check_expected_args(expected = expected, args = args, func_name = "mapToCDS")
+  
+  gdb <- rvat::gdb(args[["gdb"]])
+  if(is.null(args[["gene_id"]])) gene_id <- NULL else gene_id <- readLines(args[["gene_id"]])
+  if(is.null(args[["transcript_id"]])) transcript_id <- NULL else transcript_id <- readLines(args[["transcript_id"]])
+  if(is.null(args[["biotype"]])) biotype <- NULL else biotype <- readLines(args[["biotype"]])
+  
+  rvat::mapToCDS(gdb,
+                 gff = args[["gff"]],
+                 exonPadding = if(!is.null(args[["exonPadding"]])) as.numeric(args[["exonPadding"]]) else 12,
+                 output = args[["output"]],
+                 gene_id = gene_id,
+                 transcript_id = transcript_id,
+                 biotype = biotype,
+                 verbose = if(is.null(args[["verbose"]])) TRUE else as.logical(args[["verbose"]])
+  )
+}
+
+
 # uploadCohort -------------------------------------------------------------------
 if (!is.null(args[["uploadCohort"]]))
 {
