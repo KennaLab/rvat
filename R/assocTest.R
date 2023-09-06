@@ -436,7 +436,7 @@ setMethod("assocTest",
               
               # Calculate case/ctrl MAF before applying geneticModel
               if (S4Vectors::metadata(object)$geneticModel == "allelic") {
-                caseMAF <- getAF(object[,colData(object)[,pheno] == 1])
+                caseMAF <-if(!continuous) getAF(object[,colData(object)[,pheno] == 1]) else getAF(object)
                 names(caseMAF) <- rownames(object)
                 ctrlMAF = if(!continuous) getAF(object[,colData(object)[,pheno] == 0]) else rep(NA_real_, nrow(object))
                 names(ctrlMAF) <- rownames(object)
