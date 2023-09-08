@@ -1495,7 +1495,7 @@ setMethod("assocTest",
     }
   }
   
-  if (class(G)!="matrix" && class(G)!="dgCMatrix"){
+  if (!"matrix" %in% class(G) && !"dgCMatrix" %in% class(G)){
     stop("The class of G must be matrix or dgCMatrix!")
   }
   
@@ -1566,7 +1566,7 @@ setMethod("assocTest",
   }
   
   ###### if G is sparse or not
-  if (class(G)=="matrix" || class(G)=="dgCMatrix"){
+  if ("matrix" %in% class(G) || "dgCMatrix" %in% class(G)){
     if (out_type=="C"){
       Z.stat.sum<-as.vector((Y.res%*%G)%*%W)
       Gw<-G%*%W
