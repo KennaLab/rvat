@@ -318,11 +318,6 @@ setGeneric("recode", function(object, geneticModel, imputeMethod, weights, MAFwe
 #' @rdname genoMatrix
 #' @usage NULL
 #' @export
-setGeneric("aggregateGT", function(object, returnGT = TRUE) standardGeneric("aggregateGT"))
-
-#' @rdname genoMatrix
-#' @usage NULL
-#' @export
 setGeneric("getCarriers", function(object, VAR_id = NULL, colDataFields = NULL, rowDataFields = NULL, groupBy=NULL, aggregate=FALSE, imputeMethod="meanImpute") standardGeneric("getCarriers"))
 
 # varSet -------------------------------------------------------------------
