@@ -384,7 +384,7 @@ setMethod(".dump",
                              imputeMethod = imputeMethod,
                              geneticModel = geneticModel)
                 weight <- w[rownames(GT)]
-                counts <- aggregate(flipToMinor(recode(GT, weights = weight, MAFweights = MAFweights)), returnGT=FALSE)
+                counts <- aggregate(flipToMinor(recode(GT, weights = weight, MAFweights = MAFweights)), returnGT=FALSE,checkMissing=FALSE)
                 names(counts) <- colnames(GT)
                 counts <- counts[samples]
                 

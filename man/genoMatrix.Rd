@@ -10,7 +10,6 @@
 \alias{getCR}
 \alias{updateGT}
 \alias{flipToMinor}
-\alias{aggregateGT}
 \alias{getCarriers}
 \title{The genoMatrix class for storing genotype data and associated sample and variant info.}
 \description{

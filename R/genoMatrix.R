@@ -22,7 +22,7 @@ genoMatrix=function(GT, SM, VAR_id, w=1, ploidy="diploid", varSetName="unnamed",
   # Validate provided ploidy values and ensure rowData will have correct nrow
   ploidyLevels=unique(ploidy)
   if (length(w)==1){w=rep(w,length(VAR_id))}
-
+  
   # Label GT matrix
   colnames(GT)=SM$IID
   rownames(GT)=VAR_id
@@ -34,7 +34,7 @@ genoMatrix=function(GT, SM, VAR_id, w=1, ploidy="diploid", varSetName="unnamed",
     if(verbose) message(sprintf("%s/%s samples in the gdb are present in cohort '%s'",sum(!missing),nrow(SM), cohortname ))
     GT=GT[,!missing,drop=FALSE]
     SM=SM[!missing,,drop=FALSE]
-    
+    rownames(SM) <- as.character(SM$IID)
   }
 
   # Construct SummarizedExperiment
@@ -389,52 +389,37 @@ setMethod("recode", signature = "genoMatrix",
               {SummarizedExperiment::assays(object)$GT=(SummarizedExperiment::assays(object)$GT>0)*1} else if (geneticModel == "recessive")
               {SummarizedExperiment::assays(object)$GT=(SummarizedExperiment::assays(object)$GT==2)*1} else
               {stop(sprintf("%s does not represent a valid genetic model",geneticModel))}
-
+              
               S4Vectors::metadata(object)$geneticModel <- geneticModel
-              # if(geneticModel != "allelic") {
-              #   warning(sprintf("Allele frequencies are set to NA for geneticModel '%s'.", 
-              #                   S4Vectors::metadata(object)$geneticModel
-              #   ))
-              #   rowData(object)$AF <- NA
-              # }
             }
-
+            
             if(!missing(imputeMethod) && !is.null(imputeMethod)) {
               # Validate recode method and identify variants with missing genotype dosages
               if (!(imputeMethod %in% c("meanImpute","missingToRef"))){stop(sprintf("'%s' is not a recognized imputation method",imputeMethod))}
               if(S4Vectors::metadata(object)$imputeMethod != "none")
               {message(sprintf("GT is already imputed (method='%s'), skipping imputation", S4Vectors::metadata(object)$imputeMethod))
               } else {
-                missingValues=which(Matrix::rowSums(is.na(SummarizedExperiment::assays(object)$GT)) > 0)
-
                 # mean impute missing genotype dosages
                 if (imputeMethod=="meanImpute")
                 {
-                  if (length(missingValues)>0)
+                  missing <- which(is.na(assays(object)$GT), arr.ind=TRUE)
+                  if (length(missing)>0)
                   {
-                    GT <- SummarizedExperiment::assays(object)$GT
-                    u <- Matrix::rowMeans(GT[missingValues,,drop=FALSE],na.rm=TRUE)
-                    for (i in 1:length(missingValues))
-                    {
-                      gt=GT[missingValues[i],]
-                      gt[is.na(gt)]=u[i]
-                      GT[missingValues[i],]=gt
-                    }
-                    object <- BiocGenerics:::replaceSlots(object, assays=Assays(SimpleList(GT=GT)))
+                    assays(object)$GT[missing] <- rowMeans(assays(object)$GT, na.rm=TRUE)[missing[,1]]
                   }
                 }
-
+                
                 # Reset missing genotypes to 0
                 if (imputeMethod=="missingToRef")
                 {
                   SummarizedExperiment::assays(object)$GT[is.na(SummarizedExperiment::assays(object)$GT)]=0
                   SummarizedExperiment::rowData(object)$AF=getAF(object)
                 }
-
+                
                 S4Vectors::metadata(object)$imputeMethod <- imputeMethod
               }
             }
-
+            
             if(!missing(weights)) {
               if(length(weights) == 1) {
                 rowData(object)$w <- as.numeric(rep(weights, nrow(object)))
@@ -443,7 +428,7 @@ setMethod("recode", signature = "genoMatrix",
                 rowData(object)$w <- as.numeric(weights)
               }
             }
-
+            
             if(!missing(MAFweights)) {
               if(!MAFweights %in% c("mb", "none")) stop("`MAFweights` parameter should be either 'none' or 'mb'.")
               if(MAFweights == "mb") {
@@ -453,7 +438,7 @@ setMethod("recode", signature = "genoMatrix",
             }
             # Update 'aggregate' column (if present)
             if("aggregate" %in% colnames(colData(object))) colData(object)$aggregate <- NA_real_
-
+            
             # Return genoMatrix object
             return(object)
           })
@@ -461,35 +446,27 @@ setMethod("recode", signature = "genoMatrix",
 
 #' @export
 setMethod("aggregate", signature = "genoMatrix",
-          definition = function(x, returnGT = TRUE)
+          definition = function(x, returnGT = TRUE, checkMissing=TRUE)
           {
             
-            callRate <- Matrix::rowSums(!is.na(SummarizedExperiment::assays(x)$GT))/S4Vectors::metadata(x)$m
-            if(sum(callRate < 1) > 0) {
-              stop("genoMatrix contains missing values, impute missing values using the `recode` method.")
+            if(checkMissing) {
+              callRate <- Matrix::rowSums(!is.na(SummarizedExperiment::assays(x)$GT))/S4Vectors::metadata(x)$m
+              if(sum(callRate < 1) > 0) {
+                stop("genoMatrix contains missing values, impute missing values using the `recode` method.")
+              }
             }
-            
             if(any(is.na(rowData(x)$w) | is.infinite(rowData(x)$w))) {
               x <- x[!is.na(rowData(x)$w) & !is.infinite(rowData(x)$w),]
             }
+            
             # Generate aggregate counts
             colData(x)$aggregate <- Matrix::rowSums(
-              t(SummarizedExperiment::assays(x)$GT) %*%
+              t(as(assays(x)$GT , "sparseMatrix")) %*%
                 diag(SummarizedExperiment::rowData(x)$w,
                      ncol=S4Vectors::metadata(x)$nvar,
-                     nrow=S4Vectors::metadata(x)$nvar)
-            )
+                     nrow=S4Vectors::metadata(x)$nvar))
             
             if(returnGT) return(x) else return(colData(x)$aggregate)
-          })
-
-
-
-#' @export
-setMethod("aggregateGT", signature = "genoMatrix",
-          definition = function(object, returnGT = TRUE)
-          {
-            aggregate(x = object, returnGT = returnGT)
           })
 
 #' @export
@@ -570,7 +547,7 @@ setMethod("getCarriers", signature = "genoMatrix",
                
                 ## freqs per cohort
                 object <- flipToMinor(object)
-                object <- aggregate(recode(object, imputeMethod = imputeMethod))
+                object <- aggregate(recode(object, imputeMethod = imputeMethod),checkMissing=FALSE)
                 
                 carriers <- as.data.frame(colData(object))[,c("aggregate", groupBy),drop=FALSE] %>%
                   dplyr::group_by(dplyr::across(dplyr::all_of(groupBy))) %>%
