@@ -524,6 +524,7 @@ if (!is.null(args[["mapVariants"]]))
   if (is.null(args[["overWrite"]])) {overWrite = FALSE} else {overWrite = as.logical(args[["overWrite"]])}
   if (is.null(args[["bedCols"]])) {bedCols = character()} else {bedCols <- unlist(strsplit(args[["bedCols"]],split=","))}
   
+  
   rvat::mapVariants(gdb,
                     ranges = args[["ranges"]],
                     gff = args[["gff"]],

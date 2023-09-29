@@ -29,6 +29,7 @@ Collate:
     'getArgs.R'
     'manhattanly.R'
     'mapVariants.R'
+    'nullmodelGSA.R'
     'pipe.R'
     'resampling.R'
     'rvatViewer.R'

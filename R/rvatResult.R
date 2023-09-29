@@ -345,7 +345,7 @@ setMethod("manhattan", c("rvatResult"),
                    threshold = NULL, 
                    labelThreshold = NULL, 
                    labelRepel = FALSE, 
-                   labelSize = NULL,
+                   labelSize = 3.88,
                    contigs = c(),
                    title = ""
                    )

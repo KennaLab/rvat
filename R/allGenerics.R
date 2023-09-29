@@ -585,6 +585,7 @@ setGeneric("qqplot", function(object, title = "", label = "label", threshold = N
 #' @param label Column name of the labels that are used for significant results
 #' @param threshold Fwe threshold (bonferroni applied by default).
 #' @param labelThreshold P-value threshold to display labels.
+#' @param labelSize Size of the label, defaults to the default used in the ggrepel package.
 #' @param contigs Update contig lengths from GRCh37 defaults.
 #' @param title Optional title.
 #' @export
@@ -751,17 +752,6 @@ setGeneric("mergeAggregateFiles", function(
 #' @export
 setGeneric("listGeneSets", function(object) standardGeneric("listGeneSets"))
 
-#' mapToMatrix
-#' 
-#' Map the units in a [`rvbResult`] to the geneSets contained in a
-#' [`geneSetList`] object. 
-#' Returns a matrix where the number of rows equals the number of rows in the rvbResults
-#' and the columns equal the number of geneSets in the geneSetList.
-#' 
-#' @param object  a [`geneSetList`] object
-#' @param results a [`rvbResult`] object
-#' @param ID Name of the column in `results` that corresponds to the IDs in the geneSetList. Defaults to 'unit'.
-#' @param sparse Return a sparse matrix? Defaults to `TRUE`.
 setGeneric("mapToMatrix", function(object, results, ID = "unit", sparse = TRUE) standardGeneric("mapToMatrix"))
 
 #' Get geneset(s) from a geneSetList/geneSetFile
@@ -806,6 +796,9 @@ setGeneric("checkDuplicates", function(object, stop = TRUE) standardGeneric("che
 #' @param geneSet a [`geneSetList`] or [`geneSetFile`] object.
 #' @param scoreMatrix a matrix (rows = genes, columns = features)
 #' @param cormatrix a correlation matrix with row and column names corresponding to the units in the rvbResult. 
+#' Needs to be specified in order to run the 'mlm' (mixed linear model) test. 
+#' A burden score correlation matrix can be generated using the [`buildCorMatrix`] method.
+#' The mixed mixed linear model is run using the GENESIS R package.
 #' @param condition Perform conditional analyses. Input can be a 1) a [`geneSetList`] or [`geneSetFile`], in which case
 #' the genesets specified in the `geneSet` parameter will all be conditioned on the gene sets provided here.
 #' 2) a vector of gene set names present in `geneSet`, all genesets specified in the geneSetList/geneSetFile
@@ -825,6 +818,8 @@ setGeneric("checkDuplicates", function(object, stop = TRUE) standardGeneric("che
 #' @param ID ID column in the rvbResult that corresponds with the IDs used in the geneSetList.
 #' Defaults to 'unit'.
 #' @param output Optional: save results to specified path
+#' @references
+#' Gogarten SM, Sofer T, Chen H, Yu C, Brody JA, Thornton TA, Rice KM, Conomos MP. Genetic association testing using the GENESIS R/Bioconductor package. Bioinformatics. 2019 Dec 15;35(24):5346-5348
 #' @export
 setGeneric("geneSetAssoc", function(object,
                                     geneSet = NULL,
@@ -845,3 +840,67 @@ setGeneric("geneSetAssoc", function(object,
                                     ID = "unit",
                                     output = NULL
 ) standardGeneric("geneSetAssoc"))
+
+
+setGeneric("addBlocks", function(object, maxDist = 2.5e6) standardGeneric("addBlocks"))
+
+
+#' buildCorMatrix
+#' 
+#' Build a block-wise burden correlation matrix, in order to correct for gene-gene correlations in [`geneSetAssoc`].
+#' Burden scores should be stored in an [`aggregateFile`] object (see [`aggregate`]). 
+#' The size of the blocks are controlled using the `maxDist` parameter, all gene-gene correlations beyond the block are set to zero.
+#' This function is based on previous work (\url{https://github.com/opain/TWAS-GSEA}).
+#' 
+#' @param object [`rvatResult`] object
+#' @param aggregateFile [`aggregateFile`] object
+#' @param memlimit maximum number of units to load from the aggregateFile at a time.
+#' @param minR2 R2 values < minR2 will be set to zero (leading to increased sparsity)
+#' @param makePD Make the correlation matrix positive definite? (TRUE/FALSE)
+#' @param absolute Should cormatrix be absolute? Defaults to `TRUE`.
+#' @param maxDist A distance larger than `maxDist` defines a new block. Defaults to 2.5Mb (5Mb window)
+#' @param verbose Should the function be verbose? Defaults to `TRUE`.
+#' @references
+#' \url{https://github.com/opain/TWAS-GSEA}
+#' 
+#' @export
+setGeneric("buildCorMatrix", function(object, aggregateFile, memlimit = 5000, minR2 = 1e-04, makePD = TRUE, absolute = TRUE, maxDist = 2.5e6, verbose = TRUE) standardGeneric("buildCorMatrix"))
+
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setGeneric("getNullModel", function(object) standardGeneric("getNullModel"))
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setGeneric("getResults", function(object) standardGeneric("getResults"))
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setGeneric("getCovar", function(object) standardGeneric("getCovar"))
+
+#' fitNullModelGSA
+#'
+#' Fit a null model for a mixed linear model gene set analysis. 
+#' The correlation matrix used to model gene-gene correlations can be generated
+#' using the [`buildCorMatrix`] method. 
+#' @param object \code{\link{rvbResult-class}} object
+#' @param cormatrix a correlation matrix with row and column names corresponding to the units in the rvbResult. Can be a sparse matrix. See [`buildCorMatrix`].
+#' @param covar a vector of covariates to include when fitting the null model.
+#' @param Zcutoffs A vector (length=2, minimum and maximum) of cutoffs to apply to the Z-scores. 
+#' Z scores below/above these cutoffs will be set equal to the cutoff.
+#' @param INT Apply inverse normal transformation to Z-scores? Defaults to `FALSE`.
+#' @param method Method to use to fit the mixed linear model, currently 'GENESIS' is implemented.
+#' @export
+setGeneric("fitNullModelGSA", function(object,
+                                       cormatrix = NULL, 
+                                       covar = NULL, 
+                                       Zcutoffs = NULL,
+                                       INT = FALSE,
+                                       method = c("GENESIS"),
+                                       ...
+) standardGeneric("fitNullModelGSA"))
+

@@ -11,6 +11,7 @@ manhattan(
   threshold = NULL,
   labelThreshold = NULL,
   labelRepel = FALSE,
+  labelSize = NULL,
   contigs = c(),
   title = ""
 )
@@ -26,6 +27,8 @@ Either give a vector directly or use the method 'manhattanGeneSet'}
 \item{threshold}{Fwe threshold (bonferroni applied by default).}
 
 \item{labelThreshold}{P-value threshold to display labels.}
+
+\item{labelSize}{Size of the label, defaults to the default used in the ggrepel package.}
 
 \item{contigs}{Update contig lengths from GRCh37 defaults.}
 

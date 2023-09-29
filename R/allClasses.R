@@ -679,3 +679,104 @@ setClass("aggregateFileList",
            paths="character",
            units="character",
            samples="character"))
+
+
+
+#' An S4 class to store and handle null models for mixed linear model gene set analysis.
+#' 
+#' @name nullModelGSA-class
+#' @rdname nullModelGSA-class
+#' @order 1
+#' 
+#' @description
+#' An S4 class to store and handle null models for mixed linear model gene set analysis.
+#' 
+#' @usage NULL 
+#' @section Generate a GSA null model:
+#' `fitNullModelGSA`: Generate a GSA null model, see [`buildCorMatrix()`] for details.
+#' 
+#' @section Getters:
+#' In the following code snippets, x is a nullModelGSA object
+#' * `getCovar(x)`: Returns fixed effects 
+#' * `getResults(x)`: Returns input results
+#' * `getNullModel(x)`: Returns the null model
+#' * `listUnits(x)`: Returns the units included
+#' 
+#' @seealso \code{\link{geneSetAssoc}}
+#' @seealso \code{\link{buildCorMatrix}}
+#' @seealso \code{\link{assocTest}}
+NULL
+
+#' nullModelGSA-class
+#' 
+#' An S4 class to store and handle null models for gene set analysis
+#' @name nullModelGSA-class
+#' @slot nullmodel the nullmodel
+#' @slot results the rvbResults the nullmodel was based on
+#' @slot units units 
+#' @slot covar covariates included in the null model
+#' @slot method which method was used, currently 'GENESIS' is implemented.
+#' @export
+setClass("nullModelGSA", 
+         representation(
+           nullmodel="ANY",
+           ID="integer",
+           results="rvatResult",
+           units="character",
+           covar="character",
+           method="character"
+         ))
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @param x \code{\link{nullModelGSA-class}} object
+#' @export
+setMethod("listUnits", signature = "nullModelGSA",
+          definition = function(object) {
+            object@units
+          })
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setMethod("length", signature = "nullModelGSA",
+          definition = function(x) {
+            length(listUnits(x))
+          })
+
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setMethod("show", 
+          signature = "nullModelGSA",
+          definition = function(object) {
+            message(sprintf("nullModelGSA, generated with %s", object@method))
+            message(sprintf("Contains a null model including %s units",length(object)))
+            message(sprintf("Covar: %s", paste(getCovar(object), collapse=",")))
+          })
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setMethod("getNullModel", signature = "nullModelGSA",
+          definition = function(object) {
+            object@nullmodel
+          })
+
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setMethod("getResults", signature = "nullModelGSA",
+          definition = function(object) {
+            object@results
+          })
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setMethod("getCovar", signature = "nullModelGSA",
+          definition = function(object) {
+            object@covar
+          })
