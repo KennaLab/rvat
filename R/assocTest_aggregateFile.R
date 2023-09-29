@@ -39,6 +39,7 @@ setMethod("assocTest",
                               continuous = FALSE, 
                               covar = NULL, 
                               substractCovar = NULL,
+                              dropUnits = NULL,
                               maxitFirth = 1000,
                               keep = NULL,
                               output = NULL
@@ -112,7 +113,7 @@ setMethod("assocTest",
             
             if(!all(pheno %in% colnames(cohort))) 
               stop(sprintf("The following phenotypes are not present in cohort '%s': %s",
-                           cohort, paste(pheno[!pheno %in% colnames(cohort)], collapse = ",")))
+                           cohort_name, paste(pheno[!pheno %in% colnames(cohort)], collapse = ",")))
             
             ## Check if covariates are present in cohort
             if(!all(unlist(covar) %in% colnames(cohort))) 
@@ -155,7 +156,14 @@ setMethod("assocTest",
                 }
                 
                 # Extract units 
-                dat <- getUnit(object, unit = listUnits(geneSets)[listUnits(geneSets) %in% listUnits(object)])
+                units <- listUnits(geneSets)[listUnits(geneSets) %in% listUnits(object)]
+                if (!is.null(dropUnits) ) {
+                  if (!is(dropUnits, "character")) {
+                    stop("The `dropUnits` parameter should be a character vector")
+                  }
+                  units <- units[!units %in% dropUnits]
+                } 
+                dat <- getUnit(object, unit = units)
                 
                 # aggregate
                 cohort[["aggregate"]] <- colSums(dat[,cohort[["IID"]],drop=FALSE])

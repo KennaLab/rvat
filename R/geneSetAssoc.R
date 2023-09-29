@@ -512,7 +512,6 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                               maxSetSize = Inf,
                               oneSided = TRUE,
                               memlimit = 1000, 
-                              REML = TRUE,
                               ID = "unit",
                               output = NULL
           ) {
@@ -521,14 +520,17 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
             if(!is.null(scoreMatrix)) test <- test[test %in% geneSetAssoc_tests_score]
             
             # Check mlm / cormatrix
-            if ("mlm" %in% test) {
-              warning("Unfortunately, `mlm` is currently not implemented yet, it will be soon!")
-              test <- test[test!="mlm"]
-            }
+            # if ("mlm" %in% test) {
+            #   warning("Unfortunately, `mlm` is currently not implemented yet, it will be soon!")
+            #   test <- test[test!="mlm"]
+            # }
             
             # Prepare data 
             if("mlm" %in% test) {
               
+              if (oneSided) {
+                warning("Note that currently mlm will return two-sided P-values, regardless of the `oneSided` argument.")
+              }
               if("mlm" %in% test && is.null(cormatrix)) {
                 stop("The mlm test requires specifying the 'cormatrix' argument, see the `buildCorMatrix` method.")
               }
@@ -536,7 +538,6 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
               nullmodel <- fitNullModelGSA(object = object, 
                                            cormatrix = cormatrix, 
                                            covar = covar, 
-                                           REML = REML, 
                                            Zcutoffs = Zcutoffs)
               object <- getResults(nullmodel)
   
@@ -650,11 +651,10 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                 result_list[[i]] <- enrich_test(
                   as.data.frame(object),
                   scorematrix=scoreMatrix_chunk,
-                  nullmodel=if("mlm" %in% test) getNullModel(nullmodel) else NULL,
+                  nullmodel=if("mlm" %in% test) nullmodel else NULL,
                   covar=covar,
                   test=test,
                   oneSided=oneSided,
-                  REML = REML,
                   ID = ID
                 )
                 i <- i + 1
@@ -702,12 +702,11 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                     as.data.frame(object),
                     genesetlist = getGeneSet(geneSetList_chunk, geneSet = keep),
                     mappedMatrix = as.matrix(mappedMatrix[,keep,drop=FALSE]),
-                    nullmodel = if( "mlm" %in% test) getNullModel(nullmodel) else NULL,
+                    nullmodel = if( "mlm" %in% test) nullmodel else NULL,
                     covar=covar,
                     test=test,
                     threshold=threshold,
                     oneSided=oneSided,
-                    REML = REML,
                     ID = ID
                   )
                 } else {
@@ -726,12 +725,11 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                     mappedMatrix=as.matrix(mappedMatrix[,keep,drop=FALSE]),
                     geneSetFile = geneSetFile,
                     geneSetList = geneSetList,
-                    nullmodel=if("mlm" %in% test) getNullModel(nullmodel) else NULL,
+                    nullmodel=if("mlm" %in% test) nullmodel else NULL,
                     covar=covar,
                     test=test,
                     threshold=threshold,
                     oneSided=oneSided,
-                    REML = REML,
                     ID = ID,
                     memlimit = memlimit
                   )
@@ -776,7 +774,6 @@ gsa_conditional <- function(
   test = c("lm"),
   threshold = NULL,
   oneSided = TRUE,
-  REML = TRUE,
   ID = "unit",
   memlimit = 1000
 ) {
@@ -887,7 +884,6 @@ gsa <- function(stats,
                 test = c("lm", "mlm", "fisher", "ttest", "ztest", "ACAT"),
                 threshold = NULL,
                 oneSided = TRUE,
-                REML = TRUE,
                 ID = "unit"
 ) {
   Pl=effectl=effectSEl=effectCIlowerl=effectCIupperl=list()
@@ -931,18 +927,25 @@ gsa <- function(stats,
     if("mlm" %in% test) {
       P=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, length(genesetlist))
       
-      if (is(nullmodel, "GENESIS.nullMixedModel") || is(nullmodel, "GENESIS.nullModel")) {
+      if (is(getNullModel(nullmodel), "GENESIS.nullMixedModel") || is(getNullModel(nullmodel), "GENESIS.nullModel")) {
         
-        mappedMatrix <- mappedMatrix*1.0
-        nullmod <- GENESIS:::.nullModelAsMatrix(nullmodel)
-        mappedMatrix <- GENESIS:::.genoAsMatrix(nullmodel, mappedMatrix)
-        Gtilde <- GENESIS:::calcGtilde(nullmodel, mappedMatrix)
-        
-        if(is.null(nullmodel$RSS0)){
-          nullmodel$RSS0 <- as.numeric(crossprod(nullmodel$Ytilde))
+        mat <- GWASTools::MatrixGenotypeReader(
+          genotype=t(as.matrix(mappedMatrix)), 
+          snpID=as.integer(1:ncol(mappedMatrix)),
+          chromosome=rep(1L, ncol(mappedMatrix)), 
+          position=1:ncol(mappedMatrix), 
+          scanID=1:nrow(mappedMatrix)
+        )
+        mat <- GWASTools::GenotypeBlockIterator(
+          GWASTools::GenotypeData(mat,
+                                  scanAnnot = GWASTools::ScanAnnotationDataFrame(
+                                  data.frame(scanID = stats$scanID, stringsAsFactors = FALSE))), 
+          snpBlock = ncol(mappedMatrix))
+        res <- GENESIS::assocTestSingle(gdsobj = mat, null.model = getNullModel(nullmodel), test = c("Score"))
+        ## double check
+        if(!identical(res$variant.id, as.integer(1:ncol(mappedMatrix))))  {
+          stop ("")
         }
-        res <- GENESIS:::.testGenoSingleVarScore(Gtilde, mappedMatrix, nullmodel$resid, nullmodel$RSS0)
-      
         P <- res$Score.pval
         effect <- res$Est
         effectSE <- res$Est.SE
@@ -1125,7 +1128,6 @@ enrich_test <- function(stats,
                         covar = NULL,
                         test = c("lm", "mlm"),
                         oneSided = TRUE,
-                        REML = TRUE,
                         ID = "unit"
 ) {
   Pl=effectl=effectSEl=effectCIlowerl=effectCIupperl=list()

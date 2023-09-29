@@ -710,7 +710,7 @@ setMethod("assocTest",
     test
   
   ## skip non-sensible tests
-  if( sum(colData(GT)$aggregate >= 1) < 2 ) { 
+  if( sum(colData(GT)$aggregate > 0) < 2 ) { 
     warning("Less than two samples have a non-zero burden score, skipping tests.")
     test <- c()
   }
@@ -1745,7 +1745,7 @@ setMethod("assocTest",
   # Currently, tests included for permutation:
   P <- list()
   
-  if(sum(colData(GT)$aggregate >= 1) < 2) { 
+  if(sum(colData(GT)$aggregate > 0) < 2) { 
     warning("Less than two samples have a non-zero burden score, skipping tests.")
     test <- c()
   }

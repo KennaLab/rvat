@@ -32,7 +32,10 @@ geneSetAssoc(
 
 \item{scoreMatrix}{a matrix (rows = genes, columns = features)}
 
-\item{cormatrix}{a correlation matrix with row and column names corresponding to the units in the rvbResult.}
+\item{cormatrix}{a correlation matrix with row and column names corresponding to the units in the rvbResult.
+Needs to be specified in order to run the 'mlm' (mixed linear model) test.
+A burden score correlation matrix can be generated using the \code{\link{buildCorMatrix}} method.
+The mixed mixed linear model is run using the GENESIS R package.}
 
 \item{condition}{Perform conditional analyses. Input can be a 1) a \code{\link{geneSetList}} or \code{\link{geneSetFile}}, in which case
 the genesets specified in the \code{geneSet} parameter will all be conditioned on the gene sets provided here.
@@ -68,4 +71,7 @@ Defaults to 'unit'.}
 }
 \description{
 Perform self-contained or competitive gene set analyses.
+}
+\references{
+Gogarten SM, Sofer T, Chen H, Yu C, Brody JA, Thornton TA, Rice KM, Conomos MP. Genetic association testing using the GENESIS R/Bioconductor package. Bioinformatics. 2019 Dec 15;35(24):5346-5348
 }

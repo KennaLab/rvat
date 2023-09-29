@@ -34,8 +34,9 @@ setMethod("mapVariants",
       ranges <- read.table(ranges, sep = sep, stringsAsFactors = FALSE, header = TRUE)
     } 
     if ( is.data.frame(ranges) ) {
-      if (!all(c("CHROM", "start", "end") %in% colnames(ranges))) {
-        stop("'CHROM', 'start' and 'end' should be present in ranges-file.")
+      if (!all(c("CHROM", "start", "end") %in% colnames(ranges)) && 
+          !all(c("seqnames", "start", "end") %in% colnames(ranges))) {
+        stop("either 'CHROM', 'start' and 'end' or 'seqnames', 'start' and 'end' should be present in ranges-file.")
       }
       ranges <- GenomicRanges::makeGRangesFromDataFrame(ranges, keep.extra.columns = TRUE)
     } else if (!is(ranges, "GRanges")) {
@@ -88,7 +89,15 @@ setMethod("mapVariants",
   }
   
   ## fields to keep from ranges object
-  if(!is.null(fields)) ranges <- ranges[,colnames(mcols(ranges)) %in% fields]
+  if(!is.null(fields)) {
+    ranges <- ranges[,colnames(mcols(ranges)) %in% fields]
+    # check if any of the fields are among the GRanges ranges fields 
+    if (any(fields %in% c("seqnames", "start", "end", "width", "strand"))) {
+      fields_ranges <- fields[fields %in% c("seqnames", "start", "end", "width", "strand")]
+    } else {fields_ranges <- NULL}
+  } else {
+    fields_ranges <- NULL
+  }
   
   chroms <- getAnno(object, "var_ranges", fields="CHROM")$CHROM
   
@@ -103,8 +112,14 @@ setMethod("mapVariants",
     
     ## generate overlaps 
     overlaps <- GenomicRanges::findOverlaps(gr, ranges)
-    dat <- cbind(VAR_id=gr[S4Vectors::queryHits(overlaps)]$VAR_id, 
-                 as.data.frame(GenomicRanges::mcols(ranges[S4Vectors::subjectHits(overlaps),])))
+    if(!is.null(fields_ranges) && length(fields_ranges) > 0) {
+      dat <- cbind(VAR_id=gr[S4Vectors::queryHits(overlaps)]$VAR_id, 
+                   as.data.frame(ranges[S4Vectors::subjectHits(overlaps)])[,fields_ranges,drop=FALSE],
+                   as.data.frame(GenomicRanges::mcols(ranges[S4Vectors::subjectHits(overlaps),])))
+    } else {
+      dat <- cbind(VAR_id=gr[S4Vectors::queryHits(overlaps)]$VAR_id, 
+                   as.data.frame(GenomicRanges::mcols(ranges[S4Vectors::subjectHits(overlaps),])))
+    }
     dat <- dplyr::arrange(dat, VAR_id)
     
     ## write to output (if specified)

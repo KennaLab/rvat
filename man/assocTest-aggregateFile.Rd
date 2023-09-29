@@ -15,6 +15,7 @@
   continuous = FALSE,
   covar = NULL,
   substractCovar = NULL,
+  dropUnits = NULL,
   maxitFirth = 1000,
   keep = NULL,
   output = NULL
