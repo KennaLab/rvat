@@ -333,7 +333,7 @@ setMethod("assocTest",
             if(!all(keepSamples)) object <- object[,keepSamples]
             
             if(sum(keepSamples) == 0) {
-              if(singlevar) return(singlevarResult()) else return(rvbResult())
+              .return_empty_results(singlevar = singlevar, returnDF = returnDF)
             }
             
             ### Flip to minor after sample filtering
@@ -404,7 +404,7 @@ setMethod("assocTest",
               object <- object[keepGeno,]
               
               if(sum(keepGeno) == 0) {
-                if(singlevar) return(singlevarResult()) else return(rvbResult())
+                .return_empty_results(singlevar = singlevar, returnDF = returnDF)
               }
             } else if (verbose) {
               message(sprintf("%s/%s variants are retained for analysis", nrow(object), nvar))
@@ -461,7 +461,7 @@ setMethod("assocTest",
                 object <- object[carriers>=1,]
                 
                 if(nrow(object) == 0) {
-                  if(singlevar) return(singlevarResult()) else return(rvbResult())
+                  .return_empty_results(singlevar = singlevar, returnDF = returnDF)
                 }
               }
             }
@@ -1727,6 +1727,22 @@ setMethod("assocTest",
     return(FALSE)
   } else {
     return(TRUE)
+  }
+}
+
+.return_empty_results <- function(singlevar, returnDF) {
+  if(singlevar) {
+    if(returnDF) {
+      return(as.data.frame(singlevarResult()))
+    } else {
+      return(singlevarResult())
+    }
+  } else {
+    if(returnDF) {
+      return(as.data.frame(rvbResult()))
+    } else {
+      return(rvbResult())
+    }
   }
 }
 
