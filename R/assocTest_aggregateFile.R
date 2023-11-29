@@ -85,6 +85,7 @@ setMethod("assocTest",
             ## Load cohort 
             cohort_name <- cohort
             cohort <-getCohort(object = gdb, cohort = cohort)
+            cohort <- cohort[!is.na(cohort$IID),]
             
             ## Subset if vector osamples to keep is provided
             if(!is.null(keep)) {
@@ -179,7 +180,7 @@ setMethod("assocTest",
                     # Handle character/factor covar fields 
                     covar_types <- unlist(lapply(cohort_[,cov,drop=FALSE], FUN = class))
                     if(sum(covar_types %in% c("character", "factor")) > 0) {
-                      modmatrix <-  model.matrix.lm(as.formula(sprintf("%s ~ 0 +  %s", pheno, paste(cov, collapse="+"))), 
+                      modmatrix <-  model.matrix.lm(as.formula(sprintf("%s ~ 0 +  %s", phen, paste(cov, collapse="+"))), 
                                                     data = cohort_, na.action="na.pass")
                       colnames(modmatrix) <- make.names(colnames(modmatrix))
                       cov <- colnames(modmatrix)
@@ -220,15 +221,15 @@ setMethod("assocTest",
                   geneSetName = geneset,
                   cohort = cohort_name,
                   name = name,
-                  pheno = pheno,
+                  pheno = phen,
                   covar = paste(cov, collapse = ","),
                   test = test,
                   geneSetSize = length(geneSets),
                   genesObs = nrow(dat),
-                  caseN = if(!continuous) sum(cohort_[, pheno] == 1, na.rm = TRUE) else nrow(cohort_),
-                  ctrlN = if(!continuous) sum(cohort_[, pheno] == 0, na.rm = TRUE) else 0,
-                  meanCaseScore = if(!continuous) mean(cohort_[cohort_[,pheno] == 1, "aggregate"]) else mean(cohort_[,"aggregate"]),
-                  meanCtrlScore = if(!continuous) mean(cohort_[cohort_[,pheno] == 0, "aggregate"]) else 0,
+                  caseN = if(!continuous) sum(cohort_[, phen] == 1, na.rm = TRUE) else nrow(cohort_),
+                  ctrlN = if(!continuous) sum(cohort_[, phen] == 0, na.rm = TRUE) else 0,
+                  meanCaseScore = if(!continuous) mean(cohort_[cohort_[,phen] == 1, "aggregate"]) else mean(cohort_[,"aggregate"]),
+                  meanCtrlScore = if(!continuous) mean(cohort_[cohort_[,phen] == 0, "aggregate"]) else 0,
                   effect = NA_real_,
                   effectSE = NA_real_,
                   effectCIlower = NA_real_,
