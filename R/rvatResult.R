@@ -289,8 +289,9 @@ setMethod("qqplot", c("rvatResult"),
                     case = NULL, 
                     control = NULL) {
   if (is.null(threshold)){threshold=-log10(0.05/nrow(P))} else {threshold <- -log10(threshold)}
-  if (is.null(labelThreshold)){labelThreshold=threshold}
+  if (is.null(labelThreshold)){labelThreshold=threshold} else {labelThreshold=-log10(labelThreshold)}
   
+  P=P[!is.na(P$P),,drop=FALSE]
   X=data.frame(logp=-log10(P$P))
   chisq=qchisq(P$P[!(is.na(P$P))],1,lower.tail=FALSE)
   lambda <- median(chisq) / qchisq(0.5,1)
@@ -333,7 +334,7 @@ setMethod("qqplot", c("rvatResult"),
   }
 
   if (ncol(X) == 3){qqplot = qqplot +
-    ggrepel::geom_text_repel(data= (X[!is.na(X$logp) & X$logp > labelThreshold,]),
+    ggrepel::geom_text_repel(data= (X[!is.na(X$logp) & X$logp > labelThreshold,,drop=FALSE]),
                              ggplot2::aes_string(label = "labels"), min.segment.length = 0, box.padding = 0.5)}
   return(qqplot)
 }
@@ -544,7 +545,7 @@ proto_rvbResult <- function(n=0) {
 #' @usage NULL
 #' @export
 rvbResult <- function(object, header = TRUE) {
-  if(missing(object)) {
+  if(missing(object) || is.null(object)) {
     object <- proto_rvbResult()
   } 
   
@@ -852,7 +853,7 @@ proto_singlevarResult <- function(n=0) {
 #' @usage NULL
 #' @export
 singlevarResult <- function(object, header = TRUE) {
-  if(missing(object)) {
+  if(missing(object) || is.null(object)) {
     object <- proto_singlevarResult()
   } 
   

@@ -85,7 +85,7 @@ proto_gsaResult <- S4Vectors::DataFrame(
 #' @param header Relevant if `object` is a filepath, does the data contain a header? (TRUE/FALSE).
 #' @export
 gsaResult <- function(object, header = TRUE) {
-  if(missing(object)) {
+  if(missing(object) || is.null(object)) {
     object <- proto_gsaResult
   } 
   
