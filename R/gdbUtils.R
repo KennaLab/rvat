@@ -230,8 +230,17 @@ setMethod("addRangedVarinfo",
 concatGdb=function(targets,output,skipRemap=FALSE,skipIndexes=FALSE)
 {
   gdb=scan(targets,what="character")
-  if (length(gdb)<2){stop("Require at least 2 valid gdb files for merging")}
+  
+  ## check if more than two files are included
+  if (length(gdb) < 2) {stop("Require at least 2 valid gdb files for merging")}
+  
+  ## check if no duplicate files are included
+  if (sum(duplicated(gdb)) > 0) {stop("Duplicate files are included in the targets file")}
+  
+  ## check if filepaths are valid 
   for (i in gdb){if (!file.exists(i)){stop(sprintf("Invalid file path '%s'",i))}}
+  
+  ## connect to output and check if writable
   if (file.exists(output)){file.remove(output)}
   tryCatch({db=DBI::dbConnect(DBI::dbDriver("SQLite"),output)}, error=function(e){stop(sprintf("Could not write to output path '%s'",output))})
 

@@ -1,6 +1,6 @@
 ## gdb -------------------------------------------------------------------------
 ### protected tables
-gdb_protected_tables <- c("var","var_ranges", "SM","dosage","anno","cohort","meta")
+gdb_protected_tables <- c("var","var_ranges", "SM","dosage","anno","cohort","meta","tmp")
 ## assocTest -------------------------------------------------------------------
 
 ### all implemented tests

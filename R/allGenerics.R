@@ -110,7 +110,7 @@ setGeneric("getGT", function(object, varSet = NULL, VAR_id = NULL, ranges = NULL
 #' @param overWrite Flag indicating whether `output` should be overwritten if it already exists.
 #' Defaults to `FALSE`.
 #' @export
-setGeneric("subsetGdb", function(object, output, intersection=c(),where=c(),skipIndexes=FALSE,overWrite=FALSE) standardGeneric("subsetGdb"))
+setGeneric("subsetGdb", function(object, output, intersection=c(),where=c(),tables=NULL,skipIndexes=FALSE,overWrite=FALSE) standardGeneric("subsetGdb"))
 
 #' Upload variant annotation into gdb.
 #'
