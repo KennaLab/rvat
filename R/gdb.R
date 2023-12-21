@@ -165,7 +165,7 @@ setMethod("getGT", signature="gdb",
                 unit <- varSet@unit
                 varSetName <- varSet@varSetName
                 
-                # check if duplicate VAR ids are present:
+                ## check if duplicate VAR ids are present:
                 if (length(unique(VAR_id)) < length(VAR_id)) {
                   stop("Duplicated VAR_ids are specified")
                 }
@@ -177,10 +177,13 @@ setMethod("getGT", signature="gdb",
                 stop("varSet parameter should be of class `varSet` or a `varSetList` of length 1")
               }
               
+              ## if ranges are supplied extract those, set weights to 1
             } else if (!is.null(ranges)) {
               VAR_id <- extractRanges(object, ranges = ranges)
               w <- rep(1, length(VAR_id))
               names(w) <- VAR_id
+              
+              ## if VAR_ids are supplied, select those, set weights to 1
             } else if (!is.null(VAR_id)) {
               VAR_id <- unique(sort(as.integer(VAR_id)))
               w <- rep(1, length(VAR_id))
@@ -190,10 +193,16 @@ setMethod("getGT", signature="gdb",
             }
 
             
-            # Process sample data
+            # Process sample info
+            
+            ## if no cohort is supplied, load 'SM' table
             if ( is.null(cohort) ) {
               SM <- DBI::dbGetQuery(object,'select * from SM')
               cohort_name <- "SM"
+              
+            ## if cohort is supplied as either a data.frame or a DFrame, 
+            ## infer cohort name from name of supplied object or retrieve from 
+            ## metadata if class == DFrame
             } else if (is.data.frame(cohort) || is(cohort, "DFrame")) {
                 if(is(cohort, "DFrame")) {
                   if("name" %in% names(metadata(cohort))) {
@@ -204,9 +213,11 @@ setMethod("getGT", signature="gdb",
                   cohort <- as.data.frame(cohort)
                 } else {
                     cohort_name <- as.character(as.list(match.call())[-1][["cohort"]])
-                  }
-                SM <- DBI::dbGetQuery(object,'select * from SM')
-                SM$IID <- as.character(SM$IID)
+                }
+               
+              ## check if cohort IIDs are present in gdb
+              SM <- DBI::dbGetQuery(object,'select * from SM')
+              SM$IID <- as.character(SM$IID)
               if (!all(cohort$IID %in% SM$IID)) {
                 warning(
                   sprintf("%s/%s samples in the cohort are not present in the gdb.", 
@@ -215,6 +226,8 @@ setMethod("getGT", signature="gdb",
                   )
                 )
               }
+              
+              ## match cohort with SM IIDs
               cohort <- cohort[match(SM$IID,cohort$IID),,drop = FALSE]
               SM <- cohort
             } else {
@@ -280,7 +293,7 @@ setMethod("getGT", signature="gdb",
 #' @usage NULL
 #' @export
 setMethod("subsetGdb", signature="gdb",
-          definition=function(object, output, intersection, where, skipIndexes, overWrite)
+          definition=function(object, output, intersection, where, tables, skipIndexes, overWrite)
           {
             # Check for existence of output gdb
             if (file.exists(output))
@@ -290,15 +303,21 @@ setMethod("subsetGdb", signature="gdb",
 
             # table directory
             master=DBI::dbGetQuery(object,"select * from sqlite_master")
-            tables.base=gdb_protected_tables[gdb_protected_tables!="var_ranges"]
+            tables.base=gdb_protected_tables[!gdb_protected_tables %in% c("var_ranges", "tmp")]
             tables.anno=DBI::dbGetQuery(object,"select name from anno")$name
             tables.cohort=DBI::dbGetQuery(object,"select name from cohort")$name
+           
             for (i in DBI::dbListTables(object))
             {
               if (i %in% gdb_protected_tables){next}
               if (i %in% tables.anno){next}
               if (i %in% tables.cohort){next}
               warning(sprintf("Table '%s' is not a base table or listed in anno, cohort tables. This table will not be included in output gdb.",i))
+            }
+            
+            if( !is.null(tables) ) {
+              tables.anno <- tables.anno[tables.anno %in% tables]
+              tables.cohort <- tables.cohort[tables.cohort %in% tables]
             }
 
             # create random output gdb handle
@@ -312,19 +331,19 @@ setMethod("subsetGdb", signature="gdb",
             # Export new var table to output gdb
             DBI::dbExecute(object,sprintf("ATTACH '%s' as %s",output,tmp))
             query=sprintf("create table %s.var as select distinct var.* from var", tmp)
-            if (length(intersection)>0){intersection=unlist(strsplit(intersection,split=","))}
+            if (length(intersection) > 0){intersection=unlist(strsplit(intersection,split=","))}
             for (i in intersection)
             {
               query=sprintf("%s inner join %s using (VAR_id)",query,i)
             }
-            if (length(where)>0){query=sprintf("%s where %s",query, where)}
+            if (length(where) > 0){query=sprintf("%s where %s",query, where)}
             DBI::dbExecute(object,query)
 
             # Copy remaining base tables
             DBI::dbExecute(object,sprintf("create table %s.SM as select * from SM", tmp))
             DBI::dbExecute(object,sprintf("create table %s.dosage as select dosage.VAR_id,dosage.GT from dosage inner join %s.var using (VAR_id)", tmp, tmp))
-            DBI::dbExecute(object,sprintf("create table %s.cohort as select * from cohort", tmp))
-            DBI::dbExecute(object,sprintf("create table %s.anno as select * from anno", tmp))
+            DBI::dbExecute(object,sprintf("create table %s.cohort as select * from cohort where name in (%s)", tmp, paste(paste0("'", tables.cohort,"'"),collapse=",")))
+            DBI::dbExecute(object,sprintf("create table %s.anno as select * from anno where name in (%s)", tmp, paste(paste0("'", tables.anno,"'"),collapse=",")))
             DBI::dbExecute(object,sprintf("create table %s.meta as select * from meta", tmp))
 
             # Copy cohort tables
@@ -336,7 +355,7 @@ setMethod("subsetGdb", signature="gdb",
             # Copy anno tables
             for (i in tables.anno)
             {
-              DBI::dbExecute(object,sprintf("create table %s.%s as select * from %s inner join %s.var using (VAR_id)", tmp, i, i, tmp))
+              DBI::dbExecute(object,sprintf("create table %s.%s as select %s.* from %s inner join %s.var using (VAR_id)", tmp, i, i, i, tmp))
             }
 
             # Copy indexes
