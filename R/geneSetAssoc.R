@@ -636,7 +636,7 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                                        sdev <- sd(x)
                                        mn <- mean(x)
                                        x[x < (mn - (scoreCutoffs[1] * sdev))] <- (mn - (scoreCutoffs[1] * sdev))
-                                       x[x > (mn + (scoreCutoffs[1] * sdev))] <- (mn + (scoreCutoffs[1] * sdev))
+                                       x[x > (mn + (scoreCutoffs[2] * sdev))] <- (mn + (scoreCutoffs[2] * sdev))
                                        x
                                      }
                 )
@@ -1241,7 +1241,7 @@ enrich_test <- function(stats,
                       signif(minZ, 4)))
       object$Z[is.infinite(object$Z) & object$Z < 0] <- minZ
     }
-    if(sum(is.infinite(object$Z) & object$Z) > 0) {
+    if(sum(is.infinite(object$Z) & object$Z > 0) > 0) {
       maxZ <- max(object$Z[!is.infinite(object$Z)])
       message(sprintf("%s Z-scores are +Inf, these are set to the maximum observed Z-score: %s.", 
                       sum(is.infinite(object$Z)), 
