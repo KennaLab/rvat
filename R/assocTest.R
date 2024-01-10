@@ -1246,6 +1246,7 @@ setMethod("assocTest",
                                   )
           if (.check_conv_firth(fit, maxit=maxitFirth)) {
             effect[i] <- exp(fit$coefficients["aggregate"])
+            effectSE[i] <- sqrt(exp(fit$coefficients["aggregate"]) * diag(vcov(fit)))[names(fit$coefficients) == "aggregate"]
             effectCIlower[i] <- exp(fit$ci.lower["aggregate"])
             effectCIupper[i] <- exp(fit$ci.upper["aggregate"])
             P[i] <- fit$prob["aggregate"]
