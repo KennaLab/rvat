@@ -62,14 +62,11 @@ def parse(line):
         genotype_field = genotype_field.split(":")
         genotypes = re.split(r"/|\|", genotype_field[gti])
         for i2 in range(len(alleles)):
-            if "." in genotypes:  # Ignore sites with missing genotype data
-                None
-            else:
-                a = str(i2 + 1)
-                genotype_field[gti] = "/".join(
-                    ["1" if allele == a else "0" for allele in genotypes]
-                )
-            outlist[i2].append(":".join(genotype_field))
+          a = str(i2 + 1)
+          genotype_field[gti] = "/".join(
+              ["1" if allele == a else "0" if allele != '.' else "." for allele in genotypes]
+          )
+          outlist[i2].append(":".join(genotype_field))
 
     return [r + "\n" for r in ["\t".join(out) for out in outlist]]
 
