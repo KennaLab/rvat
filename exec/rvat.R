@@ -446,7 +446,7 @@ if (!is.null(args[["buildGdb"]]))
 {
   check_help(args = args, help = help, func_name = "buildGdb")
   required <- c("output")
-  expected <- c("buildGdb","vcf", "output","skipIndexes", "skipVarRanges", "overWrite")
+  expected <- c("buildGdb","vcf", "output","skipIndexes", "skipVarRanges", "overWrite","memlimit")
   check_required_args(required = required, args = args, func_name = "buildGdb")
   check_expected_args(expected = expected, args = args, func_name = "buildGdb")
   
@@ -454,12 +454,14 @@ if (!is.null(args[["buildGdb"]]))
   if (is.null(args[["skipVarRanges"]]))  {skipVarRanges = FALSE } else{ skipVarRanges = TRUE }
   if (is.null(args[["vcf"]])) {vcf = c()} else {vcf = args[["vcf"]]}
   if (is.null(args[["overWrite"]])) {overWrite = FALSE} else {overWrite = as.logical(args[["overWrite"]])}
+  if (is.null(args[["memlimit"]])) {memlimit = 1000} else {memlimit = as.numeric(args[["memlimit"]])}
   
   rvat::buildGdb(vcf = vcf,
                  output = args[["output"]],
                  skipIndexes = skipIndexes,
                  skipVarRanges = skipVarRanges,
-                 overWrite = overWrite
+                 overWrite = overWrite,
+                 memlimit = memlimit
                  )
 }
 

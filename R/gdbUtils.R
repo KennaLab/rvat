@@ -14,7 +14,7 @@
 #' @param skipVarRanges Flag to skip generation of ranged var table. Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use
 #' @param overWrite overwrite if `output` already exists? Defaults to `FALSE`, in which case an error is raised.
 #' @export
-buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrite=FALSE)
+buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrite=FALSE,memlimit=1000)
 {
 
   # Create gdb file
@@ -35,7 +35,7 @@ buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrit
   
   # Import variant records
   if (length(c(vcf))>1){stop("Can only build gdb based on a single input file.")}
-  if (length(vcf)>0){populateGdbFromVcf(mygdb,vcf)}
+  if (length(vcf)>0){populateGdbFromVcf(mygdb,vcf,memlimit=memlimit)}
 
   # Generate Indexes
   if (! skipIndexes)
@@ -69,7 +69,7 @@ buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrit
 
 
 setMethod("populateGdbFromVcf", signature="gdb",
-          definition=function(object,vcf)
+          definition=function(object,vcf,memlimit=1000)
           {
             # Open vcf connection
             if (vcf=="-"){vcf="stdin"} else if (!file.exists(vcf)){stop(sprintf("Input vcf %s does not exist",vcf))}
@@ -94,7 +94,7 @@ setMethod("populateGdbFromVcf", signature="gdb",
             # Parse vcf records
             message(sprintf("%s\tParsing vcf records",Sys.time()))
             counter=0
-            while (length(records <- readLines(con,n=1000)) > 0)
+            while (length(records <- readLines(con,n=memlimit)) > 0)
             {
 
               # Increment row counter
@@ -147,6 +147,7 @@ setMethod("insertDosageRecord", signature="gdb",
           definition=function(object,record)
           {
             record[record=="0/0"]="0"
+            record[record=="./0"]="0"
             record[record=="0/1"]="1"
             record[record=="1/0"]="1"
             record[record=="1/1"]="2"
@@ -154,16 +155,18 @@ setMethod("insertDosageRecord", signature="gdb",
             record[record=="0|0"]="0"
             record[record=="0|1"]="1"
             record[record=="1|0"]="1"
+            record[record=="./1"]="1"
+            record[record==".|1"]="1"
             record[record=="1|1"]="2"
             record[record==".|."]="N"
             record[record==".:0"]="N"
             obs=sort(unique(c(record)))
             if (sum(! obs %in% c("0","1","2","N"))>0)
-              {
+            {
               stop(sprintf("Invalid genotype codes after parsing. Expected (0,1,2,N), observed (%s) ",
                            paste(obs,collapse=",")))
-              }
-
+            }
+            
             record=I(list(memCompress(paste(record,collapse=""),type="gzip")))
             DBI::dbExecute(object,"insert into dosage(GT) values (:record)",params=list(record=record))
           })
