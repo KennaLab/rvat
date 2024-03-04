@@ -412,7 +412,7 @@ setMethod("writeVcf", signature="gdb",
               records=DBI::dbSendQuery(object, recordQuery)
               } else
               {
-                message(sprtinf("%s variants to be retained in output",length(VAR_id)))
+                message(sprintf("%s variants to be retained in output",length(VAR_id)))
                 records=DBI::dbSendQuery(object, paste(recordQuery,
                                                        sprintf("where VAR_id in ('%s')",paste(VAR_id,collapse="','"))))
               }
