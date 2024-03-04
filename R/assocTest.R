@@ -755,7 +755,7 @@ setMethod("assocTest",
         ## check if converged, if not, set to NA
         if (.check_conv_firth(fit, maxit=maxitFirth)) {
           effect["firth"] <- exp(fit$coefficients["aggregate"])
-          effectSE["firth"] <- sqrt(effect["firth"] * diag(vcov(fit)))[names(fit$coefficients) == "aggregate"]
+          effectSE["firth"] <- sqrt(effect["firth"]^2 * diag(vcov(fit))["aggregate"])
           effectCIlower["firth"] <- exp(fit$ci.lower["aggregate"])
           effectCIupper["firth"] <- exp(fit$ci.upper["aggregate"])
           P["firth"] <- fit$prob["aggregate"]
@@ -774,7 +774,7 @@ setMethod("assocTest",
       {
         fit <- glm(model, data=colData(GT), family = "binomial")
         effect["glm"] <- exp(summary(fit)$coef["aggregate", 1])
-        effectSE["glm"] <- sqrt(effect["glm"] * diag(vcov(fit)))["aggregate"]
+        effectSE["glm"] <- sqrt(effect["glm"]^2 * diag(vcov(fit))["aggregate"])
         effectCIlower["glm"] <- exp(confint.default(fit)["aggregate",1])
         effectCIupper["glm"] <- exp(confint.default(fit)["aggregate",2])
         P["glm"] <- summary(fit)$coef["aggregate", 4]
@@ -1246,7 +1246,7 @@ setMethod("assocTest",
                                   )
           if (.check_conv_firth(fit, maxit=maxitFirth)) {
             effect[i] <- exp(fit$coefficients["aggregate"])
-            effectSE[i] <- sqrt(exp(fit$coefficients["aggregate"]) * diag(vcov(fit)))[names(fit$coefficients) == "aggregate"]
+            effectSE[i] <- sqrt(effect[i]^2 * diag(vcov(fit))["aggregate"])
             effectCIlower[i] <- exp(fit$ci.lower["aggregate"])
             effectCIupper[i] <- exp(fit$ci.upper["aggregate"])
             P[i] <- fit$prob["aggregate"]
@@ -1270,6 +1270,7 @@ setMethod("assocTest",
                      data = cbind(aggregate = assays(GT)$GT[i,], data.frame(colData(GT))), 
                      family = binomial(link = "logit"))
           effect[i] <- exp(summary(fit)$coef["aggregate", 1])
+          effectSE[i] <- sqrt(effect[i]^2 * diag(vcov(fit))["aggregate"])
           effectCIlower[i] <- exp(confint.default(fit)["aggregate",1])
           effectCIupper[i] <- exp(confint.default(fit)["aggregate",2])
           P[i] <- summary(fit)$coef["aggregate", 4]
