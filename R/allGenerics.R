@@ -192,7 +192,7 @@ setGeneric("dropTable", function(object, name) standardGeneric("dropTable"))
 
 # gdbUtils --------------------------------------------------------------------------
 
-setGeneric("populateGdbFromVcf", function(object, vcf) standardGeneric("populateGdbFromVcf"))
+setGeneric("populateGdbFromVcf", function(object, vcf,memlimit=1000) standardGeneric("populateGdbFromVcf"))
 
 setGeneric("insertVarRecord", function(object, record) standardGeneric("insertVarRecord"))
 
