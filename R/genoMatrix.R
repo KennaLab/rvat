@@ -277,7 +277,7 @@ setMethod("[",signature=c("genoMatrix"),
 #' @export
 setMethod("updateGT", signature="genoMatrix",
           definition=function(object, SM = NULL, anno = NULL)
-            {
+          {
             
             if (!is.null(SM) ) {
               if (!"IID" %in% colnames(SM)) stop("SM should contain an `IID` column")
@@ -306,17 +306,18 @@ setMethod("updateGT", signature="genoMatrix",
               if (any(c("ploidy", "w", "AF") %in% colnames(anno))) {stop("`ploidy`, `w` and `AF` are protected rowData column names")}
               if (length(unique(anno$VAR_id)) < length(anno$VAR_id)) {stop ("`anno` shouldn't contain duplicated VAR_ids!")}
               if (!all(rownames(object) %in% anno$VAR_id)) {warning("Not all variants present in the genoMatrix are present in the anno table. Fields for missing variants will be filled with NAs.")}
-              rowdata <- SummarizedExperiment::rowData(object)
+              rowdata <- rowData(object)
               rowdata$VAR_id <- rownames(object)
-              rowdata <- merge(rowdata[,c("VAR_id", "ploidy", "w", "AF")], anno, all.x = TRUE)
-              rowdata$VAR_id = NULL
-              SummarizedExperiment::rowData(object) <- rowdata
+              rowdata <- merge(rowdata[,c("VAR_id", "ploidy", "w", "AF")], anno, all.x = TRUE, by = "VAR_id")
+              rownames(rowdata) <- rowdata$VAR_id
+              rowdata$VAR_id <- NULL
+              rowData(object) <- rowdata[rownames(object),]
             }
-
+            
             # Validate and return
             validObject(object)
             return(object)
-            })
+          })
 
 #' @export
 setMethod("flipToMinor", signature="genoMatrix",
