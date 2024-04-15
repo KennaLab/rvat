@@ -1,6 +1,4 @@
-#  Rare Variant Association Toolkit (RVAT)
-
-Welcome to the beta-version of the RVAT package! 
+#  Rare Variant Association Toolkit (RVAT) 
 
 ## Introduction
 
