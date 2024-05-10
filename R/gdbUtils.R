@@ -74,14 +74,14 @@ setMethod("populateGdbFromVcf", signature="gdb",
             # Open vcf connection
             if (vcf=="-"){vcf="stdin"} else if (!file.exists(vcf)){stop(sprintf("Input vcf %s does not exist",vcf))}
             if (substr(vcf,nchar(vcf)-2,nchar(vcf))==".gz"){con=gzcon(file(vcf,open='r'))} else {con=file(vcf,open="r")}
-
+            
             # Skip over vcf meta-data
             while (length(i <- readLines(con,n=1)) > 0)
             {
               if (substr(i,1,2)=="##"){next}
               break
             }
-
+            
             # Parse vcf header line
             if (!grepl("^#CHROM",i)){stop("Invalid vcf header")}
             header=unlist(strsplit(i,split="\t"))
@@ -90,16 +90,16 @@ setMethod("populateGdbFromVcf", signature="gdb",
             if(m<=0){stop("Invalid parsing of vcf header line. No samples detected")}
             message(sprintf("%s sample IDs detected",m))
             DBI::dbWriteTable(object,name="SM",value=data.frame("IID"=header[10:(m+9)],"sex"=0),overwrite=TRUE)
-
+            
             # Parse vcf records
             message(sprintf("%s\tParsing vcf records",Sys.time()))
             counter=0
             while (length(records <- readLines(con,n=memlimit)) > 0)
             {
-
+              
               # Increment row counter
               counter=counter+length(records)
-
+              
               # Parse records
               records=matrix(unlist(stringi::stri_split_fixed(records,"\t")),ncol=width,byrow=TRUE)
               for (i in 1:nrow(records))
@@ -107,15 +107,15 @@ setMethod("populateGdbFromVcf", signature="gdb",
                 if(grepl(",",records[i,5]))
                 {
                   alleles=unlist(strsplit(records[i,5],split=","))
-                  gt=substr(records[i,-(1:9),drop=FALSE],1,3)
-                  carrierIndex=which(!(gt %in% c(".:0","./.","0/0",".|.","0|0")))
+                  gt=stringr::str_extract(records[i,-(1:9),drop=TRUE], "^[^:]+")
+                  carrierIndex=which(!(gt %in% c(".:0","./.","0/0",".|.","0|0", "0", ".")))
                   carrierGt=strsplit(gt[carrierIndex],split="\\/|\\|")
                   carrierN=length(carrierIndex)
                   for (ai in 1:length(alleles))
                   {
                     # Write variant data
                     insertVarRecord(object,record=c(records[i,1:4],alleles[ai],records[i,6:9]))
-
+                    
                     # Write genotype data
                     gtia=gt
                     for (carrier in 1:carrierN)
@@ -128,7 +128,7 @@ setMethod("populateGdbFromVcf", signature="gdb",
                   insertVarRecord(object,record=records[i,1:9])
                   insertDosageRecord(object,record=substr(records[i,-(1:9),drop=FALSE],1,3))
                 }
-
+                
               }
               # Commit
               message(sprintf("%s\tProcessing completed for %s records. Committing to db.",Sys.time(),counter))
@@ -158,6 +158,10 @@ setMethod("insertDosageRecord", signature="gdb",
             record[record=="./1"]="1"
             record[record==".|1"]="1"
             record[record=="1|1"]="2"
+            record[record=="."]="."
+            record[record=="0"]="0"
+            record[record=="1"]="1"
+            record[record=="2"]="2"
             record[record==".|."]="N"
             record[record==".:0"]="N"
             obs=sort(unique(c(record)))
