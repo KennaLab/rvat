@@ -126,7 +126,7 @@ setMethod("populateGdbFromVcf", signature="gdb",
                   }
                 } else {
                   insertVarRecord(object,record=records[i,1:9])
-                  insertDosageRecord(object,record=substr(records[i,-(1:9),drop=FALSE],1,3))
+                  rvat:::insertDosageRecord(object,record=stringr::str_extract(records[i,-(1:9),drop=TRUE], "^[^:]+"))
                 }
                 
               }
@@ -158,10 +158,10 @@ setMethod("insertDosageRecord", signature="gdb",
             record[record=="./1"]="1"
             record[record==".|1"]="1"
             record[record=="1|1"]="2"
-            record[record=="."]="."
             record[record=="0"]="0"
             record[record=="1"]="1"
             record[record=="2"]="2"
+            record[record=="."]="N"
             record[record==".|."]="N"
             record[record==".:0"]="N"
             obs=sort(unique(c(record)))
