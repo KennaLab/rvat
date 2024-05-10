@@ -158,6 +158,10 @@ setMethod("insertDosageRecord", signature="gdb",
             record[record=="./1"]="1"
             record[record==".|1"]="1"
             record[record=="1|1"]="2"
+            record[record=="."]="."
+            record[record=="0"]="0"
+            record[record=="1"]="1"
+            record[record=="2"]="2"
             record[record==".|."]="N"
             record[record==".:0"]="N"
             obs=sort(unique(c(record)))

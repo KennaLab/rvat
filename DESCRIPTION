@@ -1,6 +1,6 @@
 Package: rvat
 Title: Rare variant analysis toolkit.
-Version: 0.2.9.1
+Version: 0.2.9.2
 Authors@R: c(person(given='Kevin',family='Kenna',email='K.P.Kenna@umcutrecht.nl',role = c("aut")),person(given='Paul',family='Hop',email='P.J.Hop-2@umcutrecht.nl',role = c("aut", "cre")))
 Description: RVAT is an R package that allows for the conversion of large genetic datasets from variant call format (.vcf) to a compressed SQLite representation (.gdb). Gdb files allow for rapid loading of compressed sample genotype strings into R BioConductor-compatible classes. They also allow for the upload and integration of variant and sample annotation data and complex data querying. RVAT includes a range of methods for SQL and non-SQL based querying, as well as methods for single variant association testing, aggregate association testing, gene set analyses, (interactive) visualization and the generation of various population genetic summary statistics. RVAT methods can be called directly in R sessions or used outside of the R environment through a provided command line tool.
 License: GNU GPLv3
