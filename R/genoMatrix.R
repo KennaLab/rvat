@@ -123,16 +123,22 @@ setMethod("getAF", signature="genoMatrix",
                 
                 if( "XnonPAR" %in% S4Vectors::metadata(object)$ploidyLevels) {
                   if(sum(object$sex == 0) > 0) warning(sprintf("GT contains variants with ploidy='XnonPAR', MAF is calculated in samples with non-missing sex info. Note that sex is missing for %s samples", sum(object$sex == 0)))
-                  ac_males = Matrix::rowSums(assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 1,drop=FALSE] > 0, na.rm=TRUE)
-                  ac_females <- Matrix::rowSums(assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 2,drop=FALSE], na.rm=TRUE)
-                  non_missing_males = Matrix::rowSums(!is.na(assays(object)$GT[rowData(object)$ploidy == "XnonPAR",object$sex == 1,drop=FALSE]))
-                  non_missing_females = Matrix::rowSums(!is.na(assays(object)$GT[rowData(object)$ploidy == "XnonPAR",object$sex == 2,drop=FALSE]))
+                  if (S4Vectors::metadata(object)$imputeMethod != "none") {
+                    ac_males <- rowSums(floor(SummarizedExperiment::assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 1, drop = FALSE]), na.rm = TRUE)
+                    ac_females <- rowSums(floor(SummarizedExperiment::assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 2, drop = FALSE]), na.rm = TRUE)
+                  } else {
+                    ac_males <- rowSums(SummarizedExperiment::assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 1, drop = FALSE], na.rm = TRUE)
+                    ac_females <- rowSums(SummarizedExperiment::assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 2, drop = FALSE], na.rm = TRUE)
+                  }
+                  
+                  non_missing_males = Matrix::rowSums(!is.na(assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 1, drop = FALSE]))
+                  non_missing_females = Matrix::rowSums(!is.na(assays(object)$GT[rowData(object)$ploidy == "XnonPAR", object$sex == 2,drop = FALSE]))
                   AF[rowData(object)$ploidy == "XnonPAR"] <- (ac_males + ac_females)/(non_missing_males + (2*non_missing_females))
                 } 
                 
                 if( "YnonPAR" %in% S4Vectors::metadata(object)$ploidyLevels) {
                   if(sum(object$sex == 0) > 0) warning(sprintf("GT contains variants with ploidy='YnonPAR', MAF is calculated in samples with non-missing sex info. Note that sex is missing for %s samples", sum(object$sex == 0)))
-                  AF[rowData(object)$ploidy == "YnonPAR"] <- Matrix::rowMeans(assays(object)$GT[rowData(object)$ploidy == "YnonPAR", object$sex == 1,drop=FALSE],na.rm=TRUE)
+                  AF[rowData(object)$ploidy == "YnonPAR"] <- Matrix::rowMeans(assays(object)$GT[rowData(object)$ploidy == "YnonPAR", object$sex == 1, drop=FALSE],na.rm=TRUE)
                 } 
                 return(ifelse(is.finite(AF),AF,0))
               }
