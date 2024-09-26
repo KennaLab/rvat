@@ -1,5 +1,5 @@
 setMethod("spatialClust", signature="gdb",
-          definition = function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=c(),where=c(),weightName=1, posField="POS",minTry=5)
+          definition = function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=c(),where=c(),weightName=1, posField="POS",minTry=5,warning=TRUE)
           {
             if (length(windowSize)!=length(overlap)){stop(sprintf("Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
                                                                   paste(windowSize,collapse=","),paste(overlap,collapse=",")))}
@@ -12,11 +12,22 @@ setMethod("spatialClust", signature="gdb",
             }
             if (length(where)>0){query=sprintf("%s where %s",query, where)}
             query=sprintf("select unit, group_concat(VAR_id) as VAR_id, group_concat(weight) as weight, '%s' as varSetName, group_concat(POS) as POS from (%s) x group by unit",varSetName, query)
+            
+            metadata <- list(
+              rvatVersion = as.character(packageVersion("rvat")),
+              gdbId = getGdbId(object),
+              genomeBuild = getGenomeBuild(object),
+              creationDate = as.character(round(Sys.time(), units = "secs"))
+            )
+            .write_rvat_header(filetype = "varSetFile", 
+                               metadata = metadata, 
+                               con = output)
+            
             handle=RSQLite::dbSendQuery(object,query)
             while (!RSQLite::dbHasCompleted(handle))
             {
               varSet=RSQLite::dbFetch(handle,n=1)
-              runDistanceCluster(varSet=varSet,posField=posField,windowSize=windowSize,overlap=overlap,output=output,minTry=minTry)
+              runDistanceCluster(varSet=varSet,posField=posField,windowSize=windowSize,overlap=overlap,output=output,minTry=minTry,warning=warning)
             }
             RSQLite::dbClearResult(handle)
             close(output)
@@ -26,7 +37,7 @@ setMethod("spatialClust", signature="gdb",
 
 # runDistanceCluster
 # Parser to handle input/ output of variant data for distanceCluster
-runDistanceCluster=function(varSet,posField,windowSize,overlap,output,minTry=5)
+runDistanceCluster=function(varSet,posField,windowSize,overlap,output,minTry=5,warning=TRUE)
 {
   unit=varSet$unit
   varSetName=varSet$varSetName
@@ -37,7 +48,7 @@ runDistanceCluster=function(varSet,posField,windowSize,overlap,output,minTry=5)
   )
   
   if (nrow(varSet) < minTry ) {
-    warning(sprintf("varSet contains fewer than %s variants ('minTry' parameter), all variants are returned as a single cluster.", minTry))
+    if (warning) warning(sprintf("varSet contains fewer than %s variants ('minTry' parameter), all variants are returned as a single cluster.", minTry))
     for (wi in 1:length(windowSize)) {
       varSeti=paste(paste(unit,'0',sep="_"),paste(varSet$VAR_id,collapse=","),paste(varSet$weight,collapse=","),paste(varSetName,windowSize[wi],overlap[wi],sep="_"),sep="|")
       write(varSeti,output,append=TRUE)
@@ -53,7 +64,7 @@ runDistanceCluster=function(varSet,posField,windowSize,overlap,output,minTry=5)
   
   for (wi in 1:length(windowSize))
   {
-    parts=distanceCluster(pos=varSet$POS,names=varSet$VAR_id,windowSize=windowSize[wi],overlap=overlap[wi],return_what="names", write_output=FALSE, path_output=NA)
+    parts=distanceCluster(pos=varSet$POS,names=varSet$VAR_id,windowSize=windowSize[wi],overlap=overlap[wi],return_what="names", write_output=FALSE, path_output=NA,warning=warning)
     for (part in names(parts))
     {
       varSeti=apply(varSet[varSet$VAR_id %in% parts[[part]],],2,paste,collapse=",")
@@ -67,7 +78,7 @@ runDistanceCluster=function(varSet,posField,windowSize,overlap,output,minTry=5)
 # Adapted from https://github.com/heidefier/cluster_wgs_data (Fier, GenetEpidemiol, 2017). 
 # Partitions a supplied set of variant until the mean distance between variants equals the median (as would be expected for a homogeneous poisson process).
 
-distanceCluster<-function(pos,names,windowSize=100,overlap=50,return_what="names", write_output=TRUE, path_output=NA){
+distanceCluster<-function(pos,names,windowSize=100,overlap=50,return_what="names", write_output=TRUE, path_output=NA,warning=TRUE){
   
   if (!(return_what %in% c("names","positions"))){
     stop('Please enter "names" OR "positions" as argument for return_what')
@@ -92,7 +103,7 @@ distanceCluster<-function(pos,names,windowSize=100,overlap=50,return_what="names
   
   obsMeanWindow <- zoo::rollapply(bdiff,windowSize,mean,by=overlap,align="left")
   if (length(obsMeanWindow) == 0) {
-    warning("No valid partitioning for specified parameters, all variants are returned as a single cluster.")
+    if(warning) warning("No valid partitioning for specified parameters, all variants are returned as a single cluster.")
     return(list("0" = names))
   }
   
@@ -126,7 +137,7 @@ distanceCluster<-function(pos,names,windowSize=100,overlap=50,return_what="names
   maximaf <- sort(unique(maxima))
   
   if (length(maximaf) == 0) {
-    warning("No valid partitioning for specified parameters, all variants are returned as a single cluster.")
+    if(warning) warning("No valid partitioning for specified parameters, all variants are returned as a single cluster.")
     return(list("0" = names))
   }
   

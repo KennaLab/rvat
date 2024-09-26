@@ -54,6 +54,9 @@ Z scores below/above these cutoffs will be set equal to the cutoff.}
 
 \item{INT}{Apply inverse normal transformation to Z-scores? Defaults to \code{FALSE}.}
 
+\item{scoreCutoffs}{If \code{scoreMatrix} is specified, this parameter can be set to cap scores in the scorematrix.
+It should be a vector of length 2 (minimum and maximum sd). Defaults to \code{NULL}, in which case no score cutoffs are applied.}
+
 \item{minSetSize}{Exclude genesets with size < minSetSize}
 
 \item{maxSetSize}{Exclude genesets with size > maxSetSize}

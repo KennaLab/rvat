@@ -13,6 +13,7 @@ getAnno(
   inner = c(),
   VAR_id = c(),
   ranges = NULL,
+  padding = 250,
   where = c()
 )
 }
@@ -32,6 +33,9 @@ getAnno(
 \item{ranges}{Extract variants within specified ranges.
 Ranges can be specified as a data.frame, including at least 'CHROM','start', and 'end' columns, or
 can be a \code{\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}} object.}
+
+\item{padding}{Number of basepairs to extend the search region beyond the specified genomic ranges to capture variants where the reference allele (REF) overlaps the input ranges,
+but the POS of the variant falls outside the ranges. This accounts for variants where the REF allele spans multiple base pairs.}
 
 \item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 }

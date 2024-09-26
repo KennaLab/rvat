@@ -9,7 +9,10 @@ buildGdb(
   vcf = c(),
   skipIndexes = FALSE,
   skipVarRanges = FALSE,
-  overWrite = FALSE
+  overWrite = FALSE,
+  genomeBuild = NULL,
+  memlimit = 1000,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,6 +25,12 @@ buildGdb(
 \item{skipVarRanges}{Flag to skip generation of ranged var table. Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use}
 
 \item{overWrite}{overwrite if \code{output} already exists? Defaults to \code{FALSE}, in which case an error is raised.}
+
+\item{genomeBuild}{Optional genome build to include in the gdb metadata. If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the genome build is implemented in RVAT (currently: GRCh37, hg19, GRCh38, hg38).}
+
+\item{memlimit}{Maximum number of vcf records to parse at a time, defaults to 1000.}
+
+\item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 }
 \description{
 Creates a new \code{\link{gdb}} file and returns a connection object of type gdb-class.

@@ -6,6 +6,7 @@
 \alias{remapIDs}
 \alias{geneSetList-class}
 \alias{mapToMatrix,geneSetList,rvbResult-method}
+\alias{dropUnits,geneSetList-method}
 \alias{write,geneSetList-method}
 \title{Class to manage multiple geneSets}
 \description{

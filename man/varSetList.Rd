@@ -32,6 +32,8 @@ In the following code snippets, x is a varSetList object.
 \item \code{getVarSet(x, unit, varSetName)}: Retrieve varSets for specified units and/or varSetNames.
 \item \code{listUnits(x)}: Return a vector of all units included in the varSetList.
 \item \code{listVarSets(x)}: Return a vector of all varSetNames included in the varSetList.
+\item \code{getGdbId(x)}: Get gdb ID from metadata
+\item \code{metadata(x)}: Get metadata from varSetList
 }
 }
 

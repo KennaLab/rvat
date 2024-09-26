@@ -2,63 +2,6 @@
 
 ## Methods ---------------------------------------------------------------------
 
-### Reading & Writing ----------------------------------------------------------
-
-#' readGsaResults
-#' 
-#' Read results generated using the \code{\link{geneSetAssoc}} method.
-
-#' @param path File path to data
-#' @param header A logical value indicating whether the data contains a header. Defaults to `TRUE`.
-#' @param sep The field separator. Defaults to `\\t`, which is the default separator using in \code{\link{geneSetAssoc}}.
-#' @return An object of type \code{\link{gsaResult}}.
-#' @export
-readGsaResults <- function(path, header = TRUE, sep = "\t") {
-  
-  if (header) {
-    cols <- read.table(path, header = TRUE, nrows = 1, sep = sep)
-    cols <- colnames(cols)
-    
-    if(mean(names(columns_gsaResults) %in% cols) < 1) {
-      stop("The following columns are missing:
-             %s
-             ", 
-           names(columns_gsaResults)[!names(columns_gsaResults) %in% cols]
-      )
-    }
-    
-    dat <- read.table(file = path,
-                      header = TRUE,
-                      sep = sep,
-                      stringsAsFactors = FALSE)
-    
-  } else {
-    dat <- read.table(file = path,
-                      header = FALSE,
-                      sep = sep,
-                      stringsAsFactors = FALSE)
-    
-    if (ncol(dat) > length(columns_gsaResults)) {
-      message(sprintf("Number of columns is larger than the default, assuming that the first %s columns 
-are the default gsaResult columns.",length(columns_gsaResults)))
-      colnames(dat)[1:length(columns_gsaResults)] <- name(columns_gsaResults)
-    } else {
-      colnames(dat) <- names(columns_gsaResults)
-    }
-  }
-  
-  dat[,columns_gsaResults_numeric] <- lapply(dat[,columns_gsaResults_numeric],
-                                             as.numeric)
-  
-  dat$threshold <- as.numeric(dat$threshold)    
-  
-  dat[,columns_gsaResults_rle] <- lapply(dat[,columns_gsaResults_rle],
-                                         as.character)
-  dat <- gsaResult(dat)
-  
-  dat
-}
-
 # gsaResult --------------------------------------------------------------------
 
 ## constructor --------------------------------------------------
@@ -71,11 +14,11 @@ proto_gsaResult <- S4Vectors::DataFrame(
   threshold = numeric(),
   geneSetSize = numeric(),
   genesObs = numeric(),
-  P = numeric(),
   effect = numeric(),
   effectSE = numeric(),
   effectCIlower = numeric(),
-  effectCIupper = numeric()
+  effectCIupper = numeric(),
+  P = numeric()
 )
 
 #' Create a \code{\link{gsaResult-class}}
@@ -90,7 +33,7 @@ gsaResult <- function(object, header = TRUE) {
   } 
   
   if (is.character(object)) {
-    readGsaResults(path = object, header = header, sep = "\t")
+    readResults(path = object, type = "gsaResult", header = header, sep = "\t")
   } else if ( is.data.frame(object) || is(object, "DFrame")) {
     if (!all(names(columns_gsaResults) %in% colnames(object))) {
       stop(sprintf("The following columns are missing: %s", 

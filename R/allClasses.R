@@ -104,6 +104,7 @@ setClass("genoMatrix", contains="SummarizedExperiment")
 #' * `getCohort(x, ...)`: Get a cohort table from gdb. See the [`getCohort()`] documentation for details.
 #' * `listCohort(x)`: List sample cohort tables that have been uploaded to the gdb.
 #' * `listAnno(x)`: List variant info tables that have been uploaded to the gdb.
+#' * `getGdbId(x)`, `getGdbPath(x)`, `getCreationDate(x)`, `getGenomeBuild(x)`: various methods to retrieve indicate metadata from gdb
 #' 
 #' @section Upload and delete sample and variant info tables:
 #' In the following code snippets, x is a gdb object.
@@ -169,6 +170,8 @@ setClass("gdb", contains = "SQLiteConnection")
 #' * `getVarSet(x, unit, varSetName)`: Retrieve varSets for specified units and/or varSetNames.
 #' * `listUnits(x)`: Return a vector of all units included in the varSetList.
 #' * `listVarSets(x)`: Return a vector of all varSetNames included in the varSetList.
+#' * `getGdbId(x)`: Get gdb ID from metadata
+#' * `metadata(x)`: Get metadata from varSetList
 #' 
 #' @section Subsetting:
 #' A varSetList can be subsetted in the same way as a normal R list,
@@ -200,6 +203,8 @@ setClass("gdb", contains = "SQLiteConnection")
 #' @keywords varSetList
 NULL
 
+setClassUnion("listOrNull", c("list", "NULL"))
+
 #' Class that represents a set of variants and weights
 #'
 #' An S4 class to manage an individual varSet record. Usually multiple varSets
@@ -211,6 +216,7 @@ NULL
 #' @slot varSetName Name of the variant set (such as 'LOF', 'moderate', 'CADD')
 #' @slot VAR_id VAR_ids included in the varSet
 #' @slot w weights included in the varSet
+#' @slot metadata metadata
 #' 
 #' @section Getters:
 #' In the following code snippets, x is a varSet object.
@@ -232,7 +238,8 @@ setClass("varSet",
            unit="character",
            varSetName="character",
            VAR_id="character",
-           w="character"
+           w="character",
+           metadata="listOrNull"
          ))
 
 #' @rdname varSetList
@@ -241,7 +248,8 @@ setClass("varSet",
 setClass("varSetList", 
   representation(
     varSets="list",
-    units="character"
+    units="character",
+    metadata="list"
   ))
 
 
@@ -291,7 +299,9 @@ NULL
 setClass("varSetFile",
          representation(
            path="character",
-           units="character")
+           units="character",
+           metadata="list"
+           )
 )
 
 
@@ -364,6 +374,10 @@ setClass("varSetFile",
 #' 
 #' @section Writing:
 #' * `writeResult(x, ...)`: Write an `rvatResult` to disk, see [`writeResult`] for details.
+#' 
+#' @section Getters:
+#' * `getGdbId(x)`: Get the gdb ID
+#' * `getGenomeBuild(x)`: Get gdb genome build
 #'
 #' @seealso \code{\link{assocTest}}
 #' @seealso \code{\link{geneSetAssoc}}
@@ -523,7 +537,8 @@ NULL
 setClass("geneSetList", 
          representation(
            geneSets="list",
-           geneSetNames="character"
+           geneSetNames="character",
+           metadata="list"
          ))
 
 #' Class to manage interactions with a geneSetFile
@@ -572,20 +587,9 @@ NULL
 setClass("geneSetFile",
          representation = representation(
            path="character",
-           sets="character"),
-         validity = function(object) {
-           msg=NULL
-           
-           # Ensure varSet units have been sorted
-           if (mean(object@sets==sort(object@sets))<1)
-           {
-             msg=c(msg,"Invalid geneSetFile. Records are not correctly sorted by the 'set' field. 
-                   Resort geneSet file by set, or else regenerate the GeneSetFile using buildGeneSetFile")
-           }
-           
-           # Return
-           if (length(msg)){msg} else{TRUE}
-         }
+           sets="character",
+           metadata="list"
+           )
 )
 
 #' Class to manage interactions with an aggregateFile
@@ -633,8 +637,9 @@ setClass("aggregateFile",
          representation(
            path="character",
            units="character",
-           samples="character"))
-
+           samples="character",
+           metadata="list"
+           ))
 
 
 #' Class to facilitate merging aggregateFiles
@@ -678,8 +683,9 @@ setClass("aggregateFileList",
          representation(
            paths="character",
            units="character",
-           samples="character"))
-
+           samples="character",
+           metadata="list"
+           ))
 
 
 #' An S4 class to store and handle null models for mixed linear model gene set analysis.

@@ -8,19 +8,31 @@
 #' @export
 aggregateFile=function(path)
 {
-  con=gzfile(path,"r")
+  
+  # read in metadata
+  metadata <- .parse_rvat_header(path, 
+                                 expected_metadata = metadata_aggregate,
+                                 expected_filetype = "aggregateFile",
+                                 n = length(metadata_aggregate) + 1 # file description + metadata
+  )
+  
+  # get sample and unit IDs
+  header <- readLines(path, n = length(metadata_aggregate) + 1) # filetype + metadata
+  skip <- sum(startsWith(header, "#"))
+  con <- gzfile(path,"r")
+  if(skip > 0) skip <- readLines(con, n = skip)
   samples <- unlist(strsplit(scan(con, nlines = 1, what = "character", quiet = TRUE), split = ","))
   units <- unlist(strsplit(scan(con, nlines = 1, what = "character", quiet = TRUE), split = ","))
   close(con)
-  new("aggregateFile", path=path, units=units, samples=samples)
+  new("aggregateFile", path=path, units=units, samples=samples, metadata=metadata)
 }
 
 setMethod("show", signature = "aggregateFile",
           definition = function(object) {
-            message("rvat aggregateFile object")
-            message(sprintf("Path:%s",object@path))
-            message(sprintf("Samples:%s",length(object@samples)))
-            message(sprintf("Units:%s",length(object@units)))
+            cat(sprintf("aggregateFile object\nPath: %s\nSamples: %s\nUnits: %s\n",
+                        object@path,
+                        length(object@samples),
+                        length(object@units)))
           })
 
 setMethod("listUnits", signature = "aggregateFile",
@@ -33,18 +45,43 @@ setMethod("listSamples", signature = "aggregateFile",
             object@samples
           })
 
+setMethod("metadata", signature="aggregateFile",
+          definition=function(x)
+          {
+            x@metadata
+          })
+
+setMethod("getGdbId", signature="aggregateFile",
+          definition=function(object)
+          {
+            metadata(object)$gdbId
+          })
+
+setMethod("getRvatVersion", signature="aggregateFile",
+          definition=function(object)
+          {
+            metadata(object)$rvatVersion
+          })
 
 setMethod("getUnit", signature = "aggregateFile",
           definition = function(object, unit) {
+            
+            # check if unit is present in aggregatefile
             if(!all(unit %in% listUnits(object))) {
               stop(sprintf("The following units are not present in the aggregateFile: %s",
                            paste(unit[!unit %in% listUnits(object)], collapse=",")
               ))
             }
+            
+            # parse metadata
+            header <- readLines(object@path, n = length(metadata_aggregate) + 1) # metadata + filetype
+            skip <- sum(startsWith(header, "#"))
+            
+            # get indices
             indices <- sort(which(listUnits(object) %in% unit))
             unit <- listUnits(object)[indices]
-            if(length(indices) > 1) indices[2:length(indices)] <- (dplyr::lead(indices)-indices)[1:(length(indices)-1)]
-            indices[1] <- indices[1] + 2
+            if(length(indices) > 1) indices[2:length(indices)] <- (dplyr::lead(indices) - indices)[1:(length(indices)-1)]
+            indices[1] <- indices[1] + skip + 2
             
             con <- gzfile(object@path,"r")
             dat <- lapply(indices,
@@ -90,18 +127,45 @@ aggregateFileList <- function(filelist, checkDups = TRUE) {
   } 
   samples <- samples[[1]]
   
+  # Check and add metadata
+  metadata <- lapply(lst, metadata)
+  rvatversion <- unique(unlist(lapply(metadata, function(x) x[["rvatVersion"]])))
+  gdbid <- unique(unlist(lapply(metadata, function(x) x[["gdbId"]])))
+  genomebuild <- unique(unlist(lapply(metadata, function(x) x[["genomeBuild"]])))
+  if (length(rvatversion) > 1) {stop("AggregateFiles were generated using different rvat versions.")}
+  if (length(gdbid) > 1) {stop("AggregateFiles were generated from different gdbs")}
+  
+  metadata <- list(
+    rvatVersion = rvatversion,
+    gdbId = gdbid,
+    genomeBuild = genomebuild[1],
+    creationDate = as.character(round(Sys.time(), units = "secs"))
+  )
+  
   new("aggregateFileList", 
       paths=paths, 
       units=units, 
-      samples=samples)
+      samples=samples,
+      metadata=metadata
+      )
 }
+
+setMethod("show", signature = "aggregateFile",
+          definition = function(object) {
+            cat(sprintf("aggregateFile object\nPath: %s\nSamples: %s\nUnits: %s\n",
+                        object@path,
+                        length(object@samples),
+                        length(object@units)))
+          })
+
 
 setMethod("show", signature = "aggregateFileList",
           definition = function(object) {
-            message("rvat aggregateFileList object")
-            message(sprintf("aggregateFiles:%s",length(object@paths)))
-            message(sprintf("Samples:%s",length(object@samples)))
-            message(sprintf("Units:%s",length(object@units)))
+            cat(sprintf("aggregateFileList object\naggregateFiles: %s\nSamples: %s\nUnits: %s\n",
+                        length(object@paths),
+                        length(object@samples),
+                        length(object@units)))
+            
           })
 
 setMethod("listUnits", signature = "aggregateFileList",
@@ -118,6 +182,12 @@ setMethod("listSamples", signature = "aggregateFileList",
 setMethod("length", signature = "aggregateFileList",
           definition = function(x) {
             length(x@paths)
+          })
+
+setMethod("metadata", signature="aggregateFileList",
+          definition=function(x)
+          {
+            x@metadata
           })
 
 # mergeAggregateFiles -------------------------------------------------------------------------
@@ -164,6 +234,14 @@ setMethod("mergeAggregateFiles",
                  if(!is.null(output)) {
                    output <- gzcon(file(output,open='wb'))
                    
+                   # write metadata
+                   metadata <- metadata(object)
+                   metadata$creationDate <- as.character(round(Sys.time(), units = "secs"))
+                   .write_rvat_header(filetype = "aggregateFile", 
+                                      metadata = metadata(object), 
+                                      con = output)
+                   
+                   # write sample and unit IDs
                    write(paste(listSamples(object), collapse = ","), 
                          file = output, append = FALSE) 
                    write(paste(listUnits(object), collapse=","), 
@@ -172,7 +250,10 @@ setMethod("mergeAggregateFiles",
                      1:length(object),
                      FUN = function(i, object, verbose) {
                        if(verbose) message(sprintf("%s/%s", i, length(object)))
-                       dat <- read.table(object@paths[i], skip = 2, header = FALSE)
+                       # skip header
+                       header <- readLines(object@paths[i], n = length(metadata_aggregate) + 1) # metadata + filetype
+                       skip <- sum(startsWith(header, "#"))
+                       dat <- read.table(object@paths[i], skip = 2 + skip, header = FALSE)
                        write.table(
                          dat,
                          file = output,

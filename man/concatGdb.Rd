@@ -4,17 +4,25 @@
 \alias{concatGdb}
 \title{Concatenate gdb databases}
 \usage{
-concatGdb(targets, output, skipRemap = FALSE, skipIndexes = FALSE)
+concatGdb(
+  targets,
+  output,
+  skipRemap = FALSE,
+  skipIndexes = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{targets}{File listing full paths of gdbs to concatenate}
 
 \item{output}{Output gdb file path.}
 
-\item{skipRemap}{Flag to skip reseting of VAR_id to row id after concatenation. Defaults to \code{FALSE}.}
+\item{skipRemap}{Flag to skip resetting of VAR_id to row id after concatenation. Defaults to \code{FALSE}.}
 
 \item{skipIndexes}{Flag to skip generation of standard var and dosage table indexes (VAR_id;CHROM, POS,REF,ALT).
 Defaults to \code{FALSE}.}
+
+\item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 }
 \description{
 Function to concatenate \code{\link{gdb}} databases. Only retains content of base tables (SM, var, dosage).

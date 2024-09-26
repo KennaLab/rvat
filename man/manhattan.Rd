@@ -19,14 +19,15 @@ manhattan(
 \arguments{
 \item{object}{\code{\link{rvatResult}} object.}
 
-\item{highlight}{vector of units/VAR_ids that should be highlighted in red
-Either give a vector directly or use the method 'manhattanGeneSet'}
+\item{highlight}{vector of units/VAR_ids that should be highlighted in red}
 
 \item{label}{Column name of the labels that are used for significant results}
 
 \item{threshold}{Fwe threshold (bonferroni applied by default).}
 
 \item{labelThreshold}{P-value threshold to display labels.}
+
+\item{labelRepel}{Should the text labels repel away from each other and away from the data points? Defaults to \code{FALSE}.}
 
 \item{labelSize}{Size of the label, defaults to the default used in the ggrepel package.}
 

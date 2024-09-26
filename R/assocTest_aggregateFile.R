@@ -5,6 +5,7 @@
 
 #' @rdname assocTest-aggregateFile
 #' @name assocTest-aggregateFile
+#' @aliases assocTest,aggregateFile-method
 #' @param object a [`aggregateFile`] object (generated using the [`aggregate`] method).
 #' @param pheno field to test as response variable, the response variable
 #' can either be binary (0/1) or continuous. If the response variable is continuous set 
@@ -20,11 +21,15 @@
 #' @param substractCovar Covariate from which aggregate should be substracted.
 #' Useful when adjusting for total variant counts, by specifying the total variant count variable
 #' here, the aggregate score of the gene set tested will be substracted from the total count variable.
+#' @param dropUnits Optional, vector of units to exclude.
 #' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals.
 #' @param keep vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
 #' Defaults to `FALSE`.
 #' @param output Output file path for results. 
 #' Defaults to `NULL`, in which case results are not written but returned as a `data.frame()`.
+#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @param strict Should strict checks be performed? Defaults to `TRUE`. Strict tests currently includes
+#' checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in `object`.
 
 #' @export
 setMethod("assocTest", 
@@ -42,7 +47,9 @@ setMethod("assocTest",
                               dropUnits = NULL,
                               maxitFirth = 1000,
                               keep = NULL,
-                              output = NULL
+                              output = NULL,
+                              verbose = TRUE,
+                              strict = TRUE
           )
           {
             
@@ -54,6 +61,10 @@ setMethod("assocTest",
               ))
             }
             test <- unique(test)
+            
+            if (strict) {
+              .check_gdb_ids(gdb, object)
+            }
             
             ## Check if covar is valid
             ### note: check whether covar is either a list or a character value
@@ -75,7 +86,7 @@ setMethod("assocTest",
               output <- gzcon(file(output,open='wb'))
               write(paste(c("geneSetName", "cohort", "name", "pheno", "covar", "test",
                             "geneSetSize", "genesObs", "caseN", "ctrlN", "meanCaseScore", "meanCtrlScore",
-                            "effect", "effectSE", "effectCIlower", "effectCIupper", "P"
+                            "effect", "effectSE", "effectCIlower", "effectCIupper", "OR", "P"
                             ), collapse="\t"), 
                      file = output, append = FALSE) 
             }
@@ -84,14 +95,17 @@ setMethod("assocTest",
             
             ## Load cohort 
             cohort_name <- cohort
-            cohort <-getCohort(object = gdb, cohort = cohort)
+            cohort <- getCohort(object = gdb, cohort = cohort)
             cohort <- cohort[!is.na(cohort$IID),]
             
-            ## Subset if vector osamples to keep is provided
+            ## Subset if vector samples to keep is provided
             if(!is.null(keep)) {
-              message(sprintf("Keeping %s/%s samples that are present in the keep-list.",
-                              sum(cohort[["IID"]] %in% keep),
-                              nrow(cohort)))
+              if (verbose) {
+                message(sprintf("Keeping %s/%s samples that are present in the keep-list.",
+                                sum(cohort[["IID"]] %in% keep),
+                                nrow(cohort)))
+              }
+              
               cohort <- cohort[cohort[["IID"]] %in% keep,,drop = FALSE]
             }
             
@@ -131,9 +145,9 @@ setMethod("assocTest",
             cohort_all <- cohort
             
             for(phen in pheno) {
-              message(sprintf("Analysing phenotype: %s", phen))
+              if (verbose) message(sprintf("Analysing phenotype: %s", phen))
               if(sum(is.na(cohort_all[[phen]])) != 0) {
-                message(sprintf("'%s' is available for %s/%s samples", phen, sum(!is.na(cohort_all[[phen]])), nrow(cohort_all)))
+                if (verbose) message(sprintf("'%s' is available for %s/%s samples", phen, sum(!is.na(cohort_all[[phen]])), nrow(cohort_all)))
                 cohort <- cohort_all[!is.na(cohort[[phen]]),,drop=FALSE]
               } else {
                 cohort <- cohort_all
@@ -142,16 +156,19 @@ setMethod("assocTest",
               # Loop through units
               for(geneset in unique(names(geneSet)))
               {
-                message(sprintf("Analysing %s", geneset))
+                if (verbose) message(sprintf("Analysing %s", geneset))
                 
                 # Get varset, and retrieve all VAR_ids
                 geneSets <- getGeneSet(geneSet, geneSet = geneset)[[1]]
                 
                 # Check how many units are present in aggregateFile, throw a warning if not all are present
                 
-                message(sprintf("%s/%s units in the geneSet are present in the aggregateFile", 
-                        sum(listUnits(geneSets) %in% listUnits(object)),
-                        length(geneSets)))
+                if (verbose) {
+                  message(sprintf("%s/%s units in the geneSet are present in the aggregateFile", 
+                                  sum(listUnits(geneSets) %in% listUnits(object)),
+                                  length(geneSets)))
+                }
+                
                 if(sum(listUnits(geneSets) %in% listUnits(object)) == 0) {
                   next()
                 }
@@ -172,35 +189,17 @@ setMethod("assocTest",
                 for(cov in covar) {
                   
                   cohort_ <- cohort
-                  if(!is.null(cov) && !(length(cov) == 1 && cov == "1")) {
-                    if (length(unique(cov)) < length(cov))
-                      message("Duplicate covariates are specified, unique covariates are kept.")
-                    cov <- unique(cov)
                   
-                    # Handle character/factor covar fields 
-                    covar_types <- unlist(lapply(cohort_[,cov,drop=FALSE], FUN = class))
-                    if(sum(covar_types %in% c("character", "factor")) > 0) {
-                      modmatrix <-  model.matrix.lm(as.formula(sprintf("%s ~ 0 +  %s", phen, paste(cov, collapse="+"))), 
-                                                    data = cohort_, na.action="na.pass")
-                      colnames(modmatrix) <- make.names(colnames(modmatrix))
-                      cov <- colnames(modmatrix)
-                      cohort_ <- cbind(
-                        cohort_[,setdiff(colnames(cohort_), colnames(modmatrix))],modmatrix)
-                    }
-                    
-                    covarKeep <- c()
-                    for (i2 in cov) { 
-                      if(var(cohort_[,i2], na.rm = TRUE) > 0) {covarKeep <- c(covarKeep, i2)}
-                    }
-                    
-                    if (length(cov) > length(covarKeep)) {
-                      message(sprintf(
-                        "The following covariate(s) have zero covariance: %s",
-                        paste(cov[!cov %in% covarKeep], collapse = ",")
-                      ))
-                    }
-                    cov <- covarKeep
-                  } 
+                  ## parse covariates
+                  if(!is.null(cov) && !(length(cov) == 1 && cov == "1")) {
+                    ## remove duplicate covariates + check if covariates are present in colData(object)
+                    ## generate dummies for categorical covariates
+                    ## remove covariates with zero covariance
+                    tmp <- .handle_covar(coldata = cohort_, covar = cov, pheno = phen)
+                    cov <- tmp[["covar"]]
+                    cohort_ <- tmp[["coldata"]]
+                  }
+                  
                   
                  if (!is.null(substractCovar)) {
                    cohort_[[substractCovar]] <- cohort_[[substractCovar]] - cohort_[["aggregate"]]
@@ -229,11 +228,12 @@ setMethod("assocTest",
                   caseN = if(!continuous) sum(cohort_[, phen] == 1, na.rm = TRUE) else nrow(cohort_),
                   ctrlN = if(!continuous) sum(cohort_[, phen] == 0, na.rm = TRUE) else 0,
                   meanCaseScore = if(!continuous) mean(cohort_[cohort_[,phen] == 1, "aggregate"]) else mean(cohort_[,"aggregate"]),
-                  meanCtrlScore = if(!continuous) mean(cohort_[cohort_[,phen] == 0, "aggregate"]) else 0,
+                  meanCtrlScore = if(!continuous) mean(cohort_[cohort_[,phen] == 0, "aggregate"]) else NA_real_,
                   effect = NA_real_,
                   effectSE = NA_real_,
                   effectCIlower = NA_real_,
                   effectCIupper = NA_real_,
+                  OR = NA_real_,
                   P = NA_real_,
                   stringsAsFactors = FALSE
                 )
@@ -301,9 +301,9 @@ setMethod("assocTest",
                                   returnDF = FALSE
 ) {
   
-  P <- effect <- effectSE <- effectCIupper <- effectCIlower <-
+  P <- OR <- effect <- effectSE <- effectCIupper <- effectCIlower <-
     rep(NA_real_, length(test))
-  names(P) <- names(effect) <- names(effectSE) <- names(effectCIupper) <- names(effectCIlower) <-
+  names(P) <- names(OR) <- names(effect) <- names(effectSE) <- names(effectCIupper) <- names(effectCIlower) <-
     test
   
   if(sum(cohort[,pheno] == 1) < 2 | sum(cohort[,pheno] == 0) < 2 | sum(cohort$aggregate > 0) < 2) {
@@ -334,12 +334,13 @@ setMethod("assocTest",
         
         if (.check_conv_firth(fit, maxit=maxitFirth)) {
           effect["firth"] <- exp(fit$coefficients["aggregate"])
+          OR["firth"] <- exp(fit$coefficients["aggregate"])
           effectSE["firth"] <- sqrt(effect["firth"]^2 * diag(vcov(fit))["aggregate"])
           effectCIlower["firth"] <- exp(fit$ci.lower["aggregate"])
           effectCIupper["firth"] <- exp(fit$ci.upper["aggregate"])
           P["firth"] <- fit$prob["aggregate"]
         } else {
-          effect["firth"]=effectSE["firth"]=effectCIlower["firth"]=effectCIupper["firth"]=P["firth"]=NA
+          effect["firth"]=OR["firth"]=effectSE["firth"]=effectCIlower["firth"]=effectCIupper["firth"]=P["firth"]=NA
         }
       },
       error=function(e){message(sprintf("Failed test '%s'\n%s", "firth", e))}
@@ -352,6 +353,7 @@ setMethod("assocTest",
       {
         fit <- glm(model, data=cohort, family = "binomial")
         effect["glm"] <- exp(summary(fit)$coef["aggregate", 1])
+        OR["glm"] <- exp(summary(fit)$coef["aggregate", 1])
         effectSE["glm"] <- sqrt(effect["glm"]^2 * diag(vcov(fit))["aggregate"])
         effectCIlower["glm"] <- exp(confint.default(fit)["aggregate",1])
         effectCIupper["glm"] <- exp(confint.default(fit)["aggregate",2])
@@ -367,6 +369,7 @@ setMethod("assocTest",
       {
         fit <- MASS::glm.nb(model.nbinom, data = cohort)
         effect["nbinom"] <- summary(fit)$coefficients[pheno,1]
+        OR["nbinom"] <- NA_real_
         effectSE["nbinom"] <- summary(fit)$coefficients[pheno,2]
         effectCIlower["nbinom"] <- effect["nbinom"]-(1.96*summary(fit)$coefficients[pheno,2])
         effectCIupper["nbinom"] <- effect["nbinom"]+(1.96*summary(fit)$coefficients[pheno,2])
@@ -380,6 +383,7 @@ setMethod("assocTest",
   results$effectSE <- effectSE
   results$effectCIlower <- effectCIlower
   results$effectCIupper <- effectCIupper
+  results$OR <- OR
   results$P <- P
   
   if(!is.null(output)) {
@@ -405,9 +409,9 @@ setMethod("assocTest",
                                           returnDF = FALSE
 ) {
   
-  P <- effect <- effectSE <- effectCIupper <- effectCIlower <-
+  P <- OR <- effect <- effectSE <- effectCIupper <- effectCIlower <-
     rep(NA_real_, length(test))
-  names(P) <- names(effect) <- names(effectSE) <- names(effectCIupper) <- names(effectCIlower) <-
+  names(P) <- names(OR) <- names(effect) <- names(effectSE) <- names(effectCIupper) <- names(effectCIlower) <-
     test
   
   if(sum(cohort[["aggregate"]] > 0) < 2) { 
@@ -422,6 +426,7 @@ setMethod("assocTest",
       {
         fit <- lm(model, data = cohort)
         effect["lm"] <- fit$coefficients["aggregate"]
+        OR["lm"] <- NA_real_
         effectSE["lm"] <- summary(fit)$coef["aggregate",2]
         effectCIlower["lm"] <- confint(fit)["aggregate",1]
         effectCIupper["lm"] <- confint(fit)["aggregate",2]
@@ -435,6 +440,7 @@ setMethod("assocTest",
   results$effectSE <- effectSE
   results$effectCIlower <- effectCIlower
   results$effectCIupper <- effectCIupper
+  results$OR <- OR
   results$P <- P
   
   if(!is.null(output)) {

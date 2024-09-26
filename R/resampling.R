@@ -18,11 +18,12 @@ resamplingFile=function(path)
 
 setMethod("show", signature = "resamplingFile",
           definition = function(object) {
-            message("rvat resamplingFile object")
-            message(sprintf("Path:%s",object@path))
-            message(sprintf("Resampling method: %s",object@methodResampling))
-            message(sprintf("N samples: %s",object@nSamples))
-            message(sprintf("N resamplings: %s",object@nResampling))
+            cat(sprintf("resamplingFile object\nPath:%s\nResampling method: %s\nN samples: %s\nN resamplings: %s", 
+                        object@path, 
+                        object@methodResampling,
+                        object@nSamples,
+                        object@nResampling
+                        ))
           })
 
 #' Build a resampling matrix

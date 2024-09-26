@@ -12,7 +12,10 @@
 #' @param IID Samples to include in output.
 #' @param includeGeno Can be reset to false if individual genotypes are not required in output.
 #' Defaults to `TRUE`.
-setGeneric("writeVcf", function(object, output, VAR_id, IID, includeGeno=TRUE) standardGeneric("writeVcf"))
+#' @param includeVarId Include VAR_ids in the 'ID' field? Defaults to `FALSE`, 
+#' in which case the 'ID' field from the 'var' table is included.
+#' @export
+setGeneric("writeVcf", function(object, output, VAR_id, IID, includeGeno=TRUE,  includeVarId = FALSE) standardGeneric("writeVcf"))
 
 #' @rdname gdb
 #' @usage NULL
@@ -29,6 +32,26 @@ setGeneric("listCohort", function(object) standardGeneric("listCohort"))
 #' @export
 setGeneric("getRvatVersion", function(object) standardGeneric("getRvatVersion"))
 
+#' @rdname gdb
+#' @usage NULL
+#' @export
+setGeneric("getGdbId", function(object) standardGeneric("getGdbId"))
+
+#' @rdname gdb
+#' @usage NULL
+#' @export
+setGeneric("getGdbPath", function(object) standardGeneric("getGdbPath"))
+
+
+#' @rdname gdb
+#' @usage NULL
+#' @export
+setGeneric("getGenomeBuild", function(object) standardGeneric("getGenomeBuild"))
+
+#' @rdname gdb
+#' @usage NULL
+#' @export
+setGeneric("getCreationDate", function(object) standardGeneric("getCreationDate"))
 
 #' Extract variants from a gdb based on a set of ranges
 #' 
@@ -37,9 +60,10 @@ setGeneric("getRvatVersion", function(object) standardGeneric("getRvatVersion"))
 #' @param object a [`gdb`] object
 #' @param ranges Can be a data.frame, including at least 'CHROM','start', and 'end' columns or
 #' a [`GenomicRanges::GRanges`] object. 
-#' @param return What to return. Defaults to `VAR_id`, which returns a vector of VAR_ids that map to specified ranges.
+#' @param padding Number of basepairs to extend the search region beyond the specified genomic ranges to capture variants where the reference allele (REF) overlaps the input ranges, 
+#' but the POS of the variant falls outside the ranges. This accounts for variants where the REF allele spans multiple base pairs.
 #' @export
-setGeneric("extractRanges", function(object, ranges, return = "VAR_id") standardGeneric("extractRanges"))
+setGeneric("extractRanges", function(object, ranges, padding = 250) standardGeneric("extractRanges"))
 
 
 #' Get an annotation table from a gdb
@@ -55,10 +79,12 @@ setGeneric("extractRanges", function(object, ranges, return = "VAR_id") standard
 #' @param ranges Extract variants within specified ranges. 
 #' Ranges can be specified as a data.frame, including at least 'CHROM','start', and 'end' columns, or
 #' can be a [`GenomicRanges::GRanges`] object. 
+#' @param padding Number of basepairs to extend the search region beyond the specified genomic ranges to capture variants where the reference allele (REF) overlaps the input ranges, 
+#' but the POS of the variant falls outside the ranges. This accounts for variants where the REF allele spans multiple base pairs.
 #' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
 
 #' @export
-setGeneric("getAnno", function(object,table,fields="*",left=c(),inner=c(),VAR_id=c(),ranges=NULL,where=c()) standardGeneric("getAnno"))
+setGeneric("getAnno", function(object,table,fields="*",left=c(),inner=c(),VAR_id=c(),ranges=NULL,padding=250,where=c()) standardGeneric("getAnno"))
 
 #' Get an cohort table from a gdb
 #'
@@ -67,33 +93,47 @@ setGeneric("getAnno", function(object,table,fields="*",left=c(),inner=c(),VAR_id
 #' @param object an object of class \code{\link[=gdb-class]{gdb}}
 #' @param cohort name of cohort to get.
 #' @param fields columns to retain
+#' @param keepAll defaults to `FALSE`, for internal use.
 #' @export
-setGeneric("getCohort", function(object, cohort, fields="*") standardGeneric("getCohort"))
+setGeneric("getCohort", function(object, cohort, fields="*", keepAll = FALSE) standardGeneric("getCohort"))
 
 #' Load genotypes from a gdb.
 #'
 #' Method to retrieve a [`genoMatrix`] for variants specified by `varSet` or a vector of VAR_ids,
 #' and samples as specified by the `cohort` parameter.
 #' The `checkPloidy` parameter can be set to `GRCh37` (or `hg19`) or `GRCh38` (or `hg38`) to
-#' assign variant ploidy (diploid,XnonPAR,YnonPAR).
+#' assign variant ploidy (diploid,XnonPAR,YnonPAR). If not specified, the genome build in the [`gdb`] will be used, if available (included in the `genomeBuild` parameter was set in [`buildGdb`]).
 #' 
 #' @param object an object of class \code{\link[=gdb-class]{gdb}}
 #' @param varSet [`varSet`] object. If specified, the `VAR_id`, `varSetName` and `unit` parameters will be ignored.
-#' @param VAR_id Charaocter vector containing target VAR_id.
+#' @param VAR_id Character vector containing target VAR_id.
 #' @param ranges Extract variants within specified ranges. 
 #' Ranges can be specified as a data.frame, including at least 'CHROM','start', and 'end' columns, or
 #' can be a [`GenomicRanges::GRanges`] object. 
-#' @param cohort Optional use of cohort data previously uploaded to the gdb (see uploadCohort). 
-#' If a valid cohort name is provided, then the uploaded data for this cohort is used to filter and annotate the returned genoMatrix object. If a dataframe is provided, then this is assumed to conform to the SM table constraints required for genoMatrix objects (see genoMatrix).
-#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid,XnonPAR,YnonPAR). 
-#' Accepted inputs are GRCh37, hg19, GRCh38, hg38. 
-#' If no value is provided then all variants are assigned the default ploidy of "diploid"
+#' @param cohort Optional use of cohort data previously uploaded to the gdb (see `uploadCohort`). 
+#' If a valid cohort name is provided, then the uploaded data for this cohort is used to filter and annotate the returned genoMatrix object. 
+#' If a dataframe is provided, then this is assumed to conform to the SM table constraints required for genoMatrix objects (see genoMatrix).
+#' @param anno Optional use of variant annotation data previously uplodated to the gdb (see `uploadAnno`). 
+#' If a valid annotation table name is provided, the variant annotations will be included in the `rowData` of the `genoMatrix`.
+#' Note that currently only annotation tables that include one row per variant can be included.
+#' The `annoFields` parameter can be used to retain only specified fields from the annotation table.
+#' @param annoFields A vector of field names to retain if the `anno` parameter is set.
+#' @param includeVarInfo Include variant info ('var' table from the gdb) in the `genoMatrix`? Defaults to `FALSE`.
+#' Note that setting this parameter to `TRUE` will override the `anno`/`annoFields` parameters.
+#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
+#' Accepted inputs are GRCh37, hg19, GRCh38, hg38.
+#' If not specified, the genome build in the [`gdb`] will be used, if available (included in the `genomeBuild` parameter was set in [`buildGdb`]).
+#' Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"
 #' @param varSetName Optional name for the set of variants, for example: 'missense or 'LOF' (ignored if `varSet` is specified.)
 #' @param unit Optional 'unit' name, for example: 'SOD1' or 'ENSG00000142168' (ignored if `varSet` is specified.)
+#' @param padding Number of basepairs to extend the search region beyond the specified genomic ranges to capture variants where the reference allele (REF) overlaps the input ranges, 
+#' but the POS of the variant falls outside the ranges. This accounts for variants where the REF allele spans multiple base pairs.
 #' @param verbose Should the method be verbose? Defaults to `TRUE`.
+#' @param strict Should strict checks be performed? Defaults to `TRUE`. Strict tests currently includes
+#' checking whether supplied varSetFile/varSetList/varSet was generated from the same gdb as specified in `object`.
 #' @return A [`genoMatrix`] object.
 #' @export
-setGeneric("getGT", function(object, varSet = NULL, VAR_id = NULL, ranges = NULL, cohort = NULL, checkPloidy = NULL, varSetName = "unnamed", unit = "unnamed", verbose = TRUE) standardGeneric("getGT"))
+setGeneric("getGT", function(object, varSet = NULL, VAR_id = NULL, ranges = NULL, cohort = NULL, anno = NULL, annoFields = NULL, includeVarInfo = FALSE, checkPloidy = NULL, varSetName = "unnamed", unit = "unnamed", padding = 250, verbose = TRUE, strict = TRUE) standardGeneric("getGT"))
 
 
 #' Generate subset of gdb, retaining all tables. 
@@ -102,15 +142,18 @@ setGeneric("getGT", function(object, varSet = NULL, VAR_id = NULL, ranges = NULL
 #'
 #' @param object A [`gdb`] object.
 #' @param output Output gdb path (output will be a new gdb file).
-#' @param intersection Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
+#' @param intersection Additional tables to filter through intersection (i.e. variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
 #' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
+#' @param VAR_id retain only variants with matching VAR_id.
+#' @param tables Optional, vector of tables to retain from the gdb. By default all tables will be included in the output gdb.
 #' @param skipIndexes Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM, POS,REF,ALT). 
 #' Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use.
 #' Defaults to `FALSE`.
 #' @param overWrite Flag indicating whether `output` should be overwritten if it already exists.
 #' Defaults to `FALSE`.
+#' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @export
-setGeneric("subsetGdb", function(object, output, intersection=c(),where=c(),tables=NULL,skipIndexes=FALSE,overWrite=FALSE) standardGeneric("subsetGdb"))
+setGeneric("subsetGdb", function(object, output, intersection=c(), where=c(), VAR_id=c(), tables=NULL, skipIndexes=FALSE, overWrite=FALSE, verbose = TRUE) standardGeneric("subsetGdb"))
 
 #' Upload variant annotation into gdb.
 #'
@@ -123,9 +166,10 @@ setGeneric("subsetGdb", function(object, output, intersection=c(),where=c(),tabl
 #' @param skipRemap Flag indicating whether to skip mapping of records to VAR_id using CHROM,POS,REF,ALT. Defaults to `FALSE`.
 #' @param skipIndexes Flag indicating whether to skip indexing of imported table. Defaults to `FALSE`.
 #' @param ignoreAlleles Flag indicating whether to consider REF and ALT allele during mapping of records to VAR_id or just CHROM,POS. Defaults to `FALSE`.
+#' @param keepUnmapped Flag indicating whether to keep records which cannot be mapped to the gdb. Defaults to `FALSE`.
 #' @param mapRef Name of lookup table for VAR_id assignment. Defaults to "var".
 #' @export
-setGeneric("uploadAnno", function(object,name,value,sep="\t",skipRemap=FALSE,skipIndexes=FALSE,ignoreAlleles=FALSE,mapRef="var") standardGeneric("uploadAnno"))
+setGeneric("uploadAnno", function(object, name, value, sep="\t", skipRemap=FALSE, skipIndexes=FALSE, ignoreAlleles=FALSE, keepUnmapped=FALSE, mapRef="var") standardGeneric("uploadAnno"))
 
 #' mapVariants
 #' 
@@ -192,13 +236,13 @@ setGeneric("dropTable", function(object, name) standardGeneric("dropTable"))
 
 # gdbUtils --------------------------------------------------------------------------
 
-setGeneric("populateGdbFromVcf", function(object, vcf,memlimit=1000) standardGeneric("populateGdbFromVcf"))
+setGeneric("populateGdbFromVcf", function(object, vcf, memlimit = 1000, verbose = TRUE) standardGeneric("populateGdbFromVcf"))
 
 setGeneric("insertVarRecord", function(object, record) standardGeneric("insertVarRecord"))
 
 setGeneric("insertDosageRecord", function(object,record) standardGeneric("insertDosageRecord"))
 
-setGeneric("addRangedVarinfo", function(object, overwrite = TRUE) standardGeneric("addRangedVarinfo"))
+setGeneric("addRangedVarinfo", function(object, overwrite = TRUE, verbose = TRUE) standardGeneric("addRangedVarinfo"))
 
 # genoMatrix -------------------------------------------------------------------
 
@@ -238,7 +282,7 @@ setGeneric("getCR", function(object, var = TRUE) standardGeneric("getCR"))
 #' 
 #'  Returns a per variant summary of genotype counts, frequencies, call-rates and hwe testing.
 #'  Note, the [`gdb`] implementation is described here, `summariseGeno` can also be run directly on a 
-#'  [`genoMatrix`] object as described in the  [`genoMatrix`] documentation.
+#'  [`genoMatrix`] object as described in the [`genoMatrix`] documentation.
 #' 
 #' @param object a [`gdb`] object
 #' @param cohort If a valid cohort name is provided, then the uploaded data for this cohort is used to filter and annotate the genotypes 
@@ -271,7 +315,9 @@ setGeneric("getCR", function(object, var = TRUE) standardGeneric("getCR"))
 #' @param maxCarriers Maximum carrier count for variant retention.
 #' @param minCarrierFreq Minimum carrier frequency for variant retention.
 #' @param maxCarrierFreq Maximum carrier frequency for variant retention.
-#' 
+#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @param strict Should strict checks be performed? Defaults to `TRUE`. Strict tests currently includes
+#' checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in `object`.
 #' @return 
 #' Returns a `data.frame` with the following columns:
 #' \itemize{
@@ -291,8 +337,9 @@ setGeneric("getCR", function(object, var = TRUE) standardGeneric("getCR"))
 #'   \item \code{geno2}: When `geneticModel` = 'allelic', the number of individuals who are homozygous
 #'   for the alternate allele. 
 #'   }
+#' @usage NULL
 #' @export
-setGeneric("summariseGeno", function(object,...) standardGeneric("summariseGeno"))
+setGeneric("summariseGeno", function(object, ...) standardGeneric("summariseGeno"))
 
 #' @rdname genoMatrix
 #' @usage NULL
@@ -325,18 +372,26 @@ setGeneric("getCarriers", function(object, VAR_id = NULL, colDataFields = NULL, 
 #' Return the units included in an varSetFile/varSetList/aggregateFile
 #' 
 #' Returns a vector of all units included in a [`varSetFile`], [`varSetList`] or [`aggregateFile`]
+#'
+#' @param object An object of class [`varSetFile`], [`varSetList`] or [`aggregateFile`].
 #' @export
 setGeneric("listUnits", function(object) standardGeneric("listUnits"))
 
 #' Return names of varsets included in a varSetFile or varSetList
 #' 
 #' Returns a vector of all varSetNames included in the [`varSetFile`] or [`varSetList`]
+#'
+#' @param object An object of class [`varSetFile`], [`varSetList`]
+#' @param ... additional arguments. 
 #' @export
-setGeneric("listVarSets", function(object,...) standardGeneric("listVarSets"))
+setGeneric("listVarSets", function(object, ...) standardGeneric("listVarSets"))
 
 #' Return names of weights included in a varSet or geneSet
 #' 
 #' Returns a vector of weights included in the [`varSet`] or [`geneSet`]
+#'
+#' @param object An object of class [`varSet`] or [`geneSet`].
+#' @param ... additional arguments.
 #' @export
 setGeneric("listWeights", function(object,...) standardGeneric("listWeights"))
 
@@ -357,22 +412,17 @@ setGeneric("listVars", function(object,...) standardGeneric("listVars"))
 #' @export
 setGeneric("getVarSet", function(object, unit = NULL, varSetName = NULL) standardGeneric("getVarSet"))
 
-#' Generate weighted variant sets for use in association testing.
+#' Generate optionally weighted variant sets using annotation table(s).
+#' See the tutorials for examples.
+#' For building varSets directly from the [`gdb`]: see [`buildVarSet-gdb`] for details\cr
+#' For building varSets interactively from a data.frame  seee [`buildVarSet-data.frame`] for details\cr
+#' @usage NULL
 #'
-#' Generate weighted variant sets using annotation table(s) upload to the gdb.
-#' See tutorials for examples.
-#'
-#' @param gdb a [`gdb`] object.
-#' @param varSetName Name to assign varSet grouping. This identifier column is used to allow for subsequent mergeing of multiple varSet files for coordinated analysis of multiple variant filtering/ weighting strategies)
-#' @param unitTable Table containing aggregation unit mappings.
-#' @param unitName Field to utilize for aggregation unit names.
-#' @param intersect Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
-#' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
-#' @param weightName Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.
-#' @param output Output file name (output will be gz compressed text).
-#' @export
-setGeneric("buildVarSet", function(
-  object, ...) standardGeneric("buildVarSet"))
+#' @export 
+setGeneric("buildVarSet", 
+    function(
+        object, 
+        ...) standardGeneric("buildVarSet"))
 
 #' collapseVarSetList
 #' @rdname varSetList
@@ -385,22 +435,24 @@ setGeneric("collapseVarSetList", function(object,...) standardGeneric("collapseV
 #' Generate weighted variant sets for use in association testing, with partitioning by genomic distances as described (Fier, GenetEpidemiol, 2017).
 #' 
 #' @param object a [`gdb`] object
+#' @param output Output file name (output will be gz compressed text).
 #' @param varSetName Name to assign varSet grouping. This identifier column is used to allow for subsequent mergeing of multiple varSet files for coordinated analysis of multiple variant filtering/weighting strategies)
 #' @param unitTable Table containing aggregation unit mappings.
 #' @param unitName Field to utilize for aggregation unit names.
 #' @param windowSize Numeric vector to indicate starting fixed window size (number of variants)
 #' @param overlap Numeric vector to indicate starting fixed window overlap (number of variants, length must match windowSize)
-#' @param intersect Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
+#' @param intersection Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
 #' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
 #' @param weightName Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.
 #' @param posField Column name to take as variants position. Default is 'POS' which typically corresponds to genomics position. Can be reset to use CDS or other coordinates. "HGVSc" is a recognized identifier and CDS coordinates will be extracted automatically.
 #' @param minTry Minimum number of variants in varset to perform clustering on. If number of variants <minTry, all variants will be returned as a single cluster.
+#' @param warning Raise a warning when clusters can't be generated? Defaults to `TRUE`.
 #' Defaults to 5.
 #' 
 #' @references
 #' Loehlein Fier, H. et al. On the association analysis of genome-sequencing data: A spatial clustering approach for partitioning the entire genome into nonoverlapping windows: F ier et al . Genet. Epidemiol. 41, 332–340 (2017).
 #' @export
-setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=c(),where=c(),weightName=1, posField="POS",minTry=5) standardGeneric("spatialClust"))
+setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=c(),where=c(),weightName=1, posField="POS",minTry=5,warning=TRUE) standardGeneric("spatialClust"))
 
 # assocTest -------------------------------------------------------------------
 
@@ -463,11 +515,11 @@ setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,
 #' The columns are described below: (note that some columns are specific to either `rvbResult` or `singlevarResult`
 #' respectively)
 #' \itemize{
+#'   \item \code{unit}:  (rvbResult) name of the unit tested (from `varSet` or from `genoMatrix` metadata)
+#'   \item \code{VAR_id}:  (singlevarResult) VAR_id of the respective variant.
 #'   \item \code{cohort}:  Name of the cohort
 #'   \item \code{varSetName}:  varSetName included in the provided `varSet`, if provided, or from the `genoMatrix` metadata.
 #'   \item \code{name}:  if specified, contains the `name` argument specified in assocTest. 
-#'   \item \code{unit}:  (rvbResult) name of the unit tested (from `varSet` or from `genoMatrix` metadata)
-#'   \item \code{VAR_id}:  (singlevarResult) VAR_id of the respective variant.
 #'   \item \code{pheno}:  Phenotype tested, as specified by the `pheno` argument.
 #'   \item \code{covar}:  Covariates included, as specified by the `covar` argument.
 #'   \item \code{geneticModel}:  genetic model used, as specified by the `geneticModel` argument.
@@ -484,9 +536,9 @@ setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,
 #'   \item \code{ctrlN}:  Number of controls.
 #'   \item \code{caseCallRate}:  Variant call-rate in cases. For aggregate tests this is the average call-rate across variants.
 #'   \item \code{ctrlCallRate}:  Variant call-rate in controls For aggregate tests this is the average call-rate across variants.
-#'   \item \code{P}:  P-value for specified statistical test. 
-#'   \item \code{effect}:  Effect estimate for specified statistical test. For `glm` and `firth` tests, 
-#'   the `effect` represents the odds-ratio.
+#'   \item \code{effectAllele}:  (singlevarResult) Allele to which the effect estimate refers.
+#'   \item \code{otherAllele}:  (singlevarResult) Non-effect allele
+#'   \item \code{effect}:  Effect estimate for specified statistical test.
 #'   Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
 #'   \item \code{effectSE}:  Standard error of effect estimate of specified statistical test. 
 #'   Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
@@ -494,6 +546,9 @@ setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,
 #'   Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
 #'   \item \code{effectCIupper}:  Upper confidence interval of effect estimate of specified statistical test. 
 #'   Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
+#'   \item \code{OR}:  Odds-ratio for `glm` and `firth` tests, 
+#'   the `effect` represents the odds-ratio.
+#'   \item \code{P}:  P-value for specified statistical test. 
 #' }
 #' @usage NULL
 #' @references
@@ -564,6 +619,7 @@ setGeneric("writeResult", function(object,
 #' @param title Optional title.
 #' @param label column that significant results should be labeled with. 
 #' @param threshold Provide alternative fwe threshold (bonferroni is applied by default.)
+#' @param showThreshold Show the multiple testing threshold? Defaults to `TRUE`. The threshold can be specified using the `threshold` parameter.
 #' @param labelThreshold Provide alternative fwe threshold (bonferroni is applied by default.)
 #' @param cex Font size, defaults to 16.
 #' @param lambda1000 Show lambda1000? Defaults to `FALSE`. 
@@ -581,28 +637,15 @@ setGeneric("qqplot", function(object, title = "", label = "label", threshold = N
 #' Generate a manhattan plot for an \code{\link{rvatResult}} object.
 #' @param object \code{\link{rvatResult}} object.
 #' @param highlight vector of units/VAR_ids that should be highlighted in red
-#' Either give a vector directly or use the method 'manhattanGeneSet'
 #' @param label Column name of the labels that are used for significant results
 #' @param threshold Fwe threshold (bonferroni applied by default).
 #' @param labelThreshold P-value threshold to display labels.
+#' @param labelRepel Should the text labels repel away from each other and away from the data points? Defaults to `FALSE`.
 #' @param labelSize Size of the label, defaults to the default used in the ggrepel package.
 #' @param contigs Update contig lengths from GRCh37 defaults.
 #' @param title Optional title.
 #' @export
 setGeneric("manhattan", function(object, highlight = NULL, label = "label", threshold = NULL, labelThreshold = NULL, labelRepel=FALSE, labelSize = NULL, contigs=c(), title="") standardGeneric("manhattan"))
-
-#' Generate a manhattan plot with a set of genes highlighted
-#' 
-#' Generate a manhattan plot where the genes of the specified gene set are highlighted and the P-values of each GSA of that gene set is given
-#' 
-#' @param object a \code{\link{rvbResult}} object
-#' @param geneSet a string with the name of a \code{\link{geneSet}} object
-#' @param geneSetList a list of \code{\link{geneSet}} objects
-#' @param gsaObject a \code{\link{gsaResult}} object
-#' @export
-setGeneric("manhattanGeneSet", function(object, geneSet, geneSetList, gsaObject, label = 
-                                          "label",threshold = NULL, labelThreshold = NULL, contigs=c(), title="") 
-  standardGeneric("manhattanGeneSet")) 
 
 #' Density plot
 #' 
@@ -682,32 +725,35 @@ setGeneric("topResult", function(object, n = 10) standardGeneric("topResult"))
 
 ## dump method
 setGeneric(".dump", function(object,
-                            cohort = "SM",
-                            what = c("aggregate", "varSummary"),
-                            varSet = NULL,
-                            VAR_id = NULL,
-                            pheno = NULL,
-                            memlimit = 1000,
-                            geneticModel = "allelic",
-                            imputeMethod = "meanImpute",
-                            MAFweights = "none",
-                            checkPloidy = NULL,
-                            keep = NULL,
-                            output = NULL,
-                            signif = 3,
-                            splitBy = NULL,
-                            minCallrateVar = 0,
-                            maxCallrateVar = Inf,
-                            minCallrateSM = 0,
-                            maxCallrateSM =Inf,
-                            minMAF = 0,
-                            maxMAF = 1,
-                            minMAC = 0,
-                            maxMAC = Inf,
-                            minCarriers = 0,
-                            maxCarriers = Inf,
-                            minCarrierFreq  = 0,
-                            maxCarrierFreq = Inf) standardGeneric(".dump"))
+                             cohort = "SM",
+                             what = c("aggregate", "varSummary"),
+                             varSet = NULL,
+                             VAR_id = NULL,
+                             pheno = NULL,
+                             memlimit = 1000,
+                             geneticModel = "allelic",
+                             imputeMethod = "meanImpute",
+                             MAFweights = "none",
+                             checkPloidy = NULL,
+                             keep = NULL,
+                             output = NULL,
+                             signif = 3,
+                             splitBy = NULL,
+                             minCallrateVar = 0,
+                             maxCallrateVar = Inf,
+                             minCallrateSM = 0,
+                             maxCallrateSM =Inf,
+                             minMAF = 0,
+                             maxMAF = 1,
+                             minMAC = 0,
+                             maxMAC = Inf,
+                             minCarriers = 0,
+                             maxCarriers = Inf,
+                             minCarrierFreq  = 0,
+                             maxCarrierFreq = Inf,
+                             verbose = TRUE,
+                             strict = TRUE
+) standardGeneric(".dump"))
 
 
 # aggregateFile ----------------------------------------------------------------
@@ -731,26 +777,33 @@ setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 #' 2) `aggregate=FALSE`: Generate a new `aggregateFile` including all aggregates across aggregateFiles.
 #'
 #' @param object an [`aggregateFileList`] object.
-#' @param aggregate Aggregate values? Defaults to `TRUE`.
+#' @param collapse Collapse aggregate? Defaults to `TRUE`, which will result in one aggregate score for
+#' each sample, representing the aggregate value across aggregate files. 
+#' If set to `FALSE`, a new `aggregateFile` including all aggregates across aggregateFiles will be generated
 #' @param output Output file name (output will be gz compressed text). 
 #' Defaults to `NULL`, in which case a data.frame will be returned.
 #' @param verbose Should the function be verbose ? Defaults to `TRUE`.
 #' @export
 setGeneric("mergeAggregateFiles", function(
-  object,
-  collapse = TRUE,
-  output = NULL,
-  verbose = TRUE
+    object,
+    collapse = TRUE,
+    output = NULL,
+    verbose = TRUE
 ) standardGeneric("mergeAggregateFiles"))
 
 
 # geneSetAssoc --------------------------------------------------------
 
-#' Return the geneSets included in an geneSetFile/geneSetList
+#' Return names of geneSets included in a geneSetFile or geneSetList
 #' 
-#' Returns a vector of all units included in a [`geneSetFile`] or [`geneSetList`]
+#' Returns a vector of all geneSets included in a [`geneSetFile`] or [`geneSetList`]
+#'
+#' @param object a [`geneSetList`] or [`geneSetFile`] object
 #' @export
 setGeneric("listGeneSets", function(object) standardGeneric("listGeneSets"))
+
+#' @export
+setGeneric("listMetadata", function(object) standardGeneric("listMetadata"))
 
 setGeneric("mapToMatrix", function(object, results, ID = "unit", sparse = TRUE) standardGeneric("mapToMatrix"))
 
@@ -810,6 +863,8 @@ setGeneric("checkDuplicates", function(object, stop = TRUE) standardGeneric("che
 #' @param Zcutoffs A vector (length=2, minimum and maximum) of cutoffs to apply to the Z-scores. 
 #' Z scores below/above these cutoffs will be set equal to the cutoff.
 #' @param INT Apply inverse normal transformation to Z-scores? Defaults to `FALSE`. 
+#' @param scoreCutoffs If `scoreMatrix` is specified, this parameter can be set to cap scores in the scorematrix. 
+#' It should be a vector of length 2 (minimum and maximum sd). Defaults to `NULL`, in which case no score cutoffs are applied.
 #' @param minSetSize Exclude genesets with size < minSetSize
 #' @param maxSetSize Exclude genesets with size > maxSetSize
 #' @param oneSided Calculate a one-sided P-value? Defaults to `TRUE`.
@@ -894,6 +949,7 @@ setGeneric("getCovar", function(object) standardGeneric("getCovar"))
 #' Z scores below/above these cutoffs will be set equal to the cutoff.
 #' @param INT Apply inverse normal transformation to Z-scores? Defaults to `FALSE`.
 #' @param method Method to use to fit the mixed linear model, currently 'GENESIS' is implemented.
+#' @param ... Additional arguments to pass to [GENESIS::fitNullModel] 
 #' @export
 setGeneric("fitNullModelGSA", function(object,
                                        cormatrix = NULL, 

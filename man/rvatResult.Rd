@@ -98,6 +98,14 @@ gene set analyses. See \code{\link{geneSetAssoc}} for details.
 }
 }
 
+\section{Getters}{
+
+\itemize{
+\item \code{getGdbId(x)}: Get the gdb ID
+\item \code{getGenomeBuild(x)}: Get gdb genome build
+}
+}
+
 \seealso{
 \code{\link{assocTest}}
 

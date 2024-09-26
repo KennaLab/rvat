@@ -8,11 +8,11 @@ The object returned is of class \code{\link{rvbResult}} or \code{\link{singlevar
 The columns are described below: (note that some columns are specific to either \code{rvbResult} or \code{singlevarResult}
 respectively)
 \itemize{
+\item \code{unit}:  (rvbResult) name of the unit tested (from \code{varSet} or from \code{genoMatrix} metadata)
+\item \code{VAR_id}:  (singlevarResult) VAR_id of the respective variant.
 \item \code{cohort}:  Name of the cohort
 \item \code{varSetName}:  varSetName included in the provided \code{varSet}, if provided, or from the \code{genoMatrix} metadata.
 \item \code{name}:  if specified, contains the \code{name} argument specified in assocTest.
-\item \code{unit}:  (rvbResult) name of the unit tested (from \code{varSet} or from \code{genoMatrix} metadata)
-\item \code{VAR_id}:  (singlevarResult) VAR_id of the respective variant.
 \item \code{pheno}:  Phenotype tested, as specified by the \code{pheno} argument.
 \item \code{covar}:  Covariates included, as specified by the \code{covar} argument.
 \item \code{geneticModel}:  genetic model used, as specified by the \code{geneticModel} argument.
@@ -29,9 +29,9 @@ respectively)
 \item \code{ctrlN}:  Number of controls.
 \item \code{caseCallRate}:  Variant call-rate in cases. For aggregate tests this is the average call-rate across variants.
 \item \code{ctrlCallRate}:  Variant call-rate in controls For aggregate tests this is the average call-rate across variants.
-\item \code{P}:  P-value for specified statistical test.
-\item \code{effect}:  Effect estimate for specified statistical test. For \code{glm} and \code{firth} tests,
-the \code{effect} represents the odds-ratio.
+\item \code{effectAllele}:  (singlevarResult) Allele to which the effect estimate refers.
+\item \code{otherAllele}:  (singlevarResult) Non-effect allele
+\item \code{effect}:  Effect estimate for specified statistical test.
 Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
 \item \code{effectSE}:  Standard error of effect estimate of specified statistical test.
 Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
@@ -39,6 +39,9 @@ Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't 
 Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
 \item \code{effectCIupper}:  Upper confidence interval of effect estimate of specified statistical test.
 Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
+\item \code{OR}:  Odds-ratio for \code{glm} and \code{firth} tests,
+the \code{effect} represents the odds-ratio.
+\item \code{P}:  P-value for specified statistical test.
 }
 }
 \description{

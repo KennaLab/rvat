@@ -2,6 +2,7 @@
 % Please edit documentation in R/assocTest_gdb.R
 \name{assocTest-gdb-method}
 \alias{assocTest-gdb-method}
+\alias{assocTest,gdb-method}
 \title{assocTest-gdb}
 \usage{
 \S4method{assocTest}{gdb}(
@@ -41,7 +42,8 @@
   minCarrierFreq = 0,
   maxCarrierFreq = Inf,
   memlimit = Inf,
-  verbose = TRUE
+  verbose = TRUE,
+  strict = TRUE
 )
 }
 \arguments{
@@ -75,6 +77,8 @@ Defaults to \code{FALSE}, in which case aggregate tests are ran.}
 
 \item{covar}{Character vector of covariates, or a list of character vectors of covariates in which case each covariate set will be tested separately.}
 
+\item{offset}{Optional model offset, can be used to account for regenie LOCO predictions.}
+
 \item{geneticModel}{Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 Defaults to \code{allelic}.
 Multiple geneticModels can be specified, in which case each will be analyzed separately.}
@@ -87,9 +91,10 @@ Multiple MAFweights can be specified (comma-delimited), in which case each will 
 
 \item{maxitFirth}{Maximum number of iterations to use for estimating firth confidence intervals. Defaults to 1000.}
 
-\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid,XnonPAR,YnonPAR).
+\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
 Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-If no value is provided then all variants are assigned the default ploidy of "diploid".}
+If not specified, the genome build in the \code{\link{gdb}} will be used, if available (included in the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
+Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"}
 
 \item{keep}{Vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
 
@@ -141,8 +146,8 @@ Defaults to \code{NULL} in which case all permutations are performed.}
 
 \item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 
-\item{append}{Relevant if the \code{output} parameter is not \code{NULL}. Should results be appended to \code{output}?
-Defaults to \code{FALSE}.}
+\item{strict}{Should strict checks be performed? Defaults to \code{TRUE}. Strict tests currently includes
+checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in \code{object}.}
 }
 \description{
 Run \code{\link{assocTest}} on a \code{\link{gdb}} object. See the main \code{\link{assocTest}} page for details.

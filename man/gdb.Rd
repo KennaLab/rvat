@@ -6,6 +6,10 @@
 \alias{listAnno}
 \alias{listCohort}
 \alias{getRvatVersion}
+\alias{getGdbId}
+\alias{getGdbPath}
+\alias{getGenomeBuild}
+\alias{getCreationDate}
 \alias{gdb-class}
 \alias{show,gdb-method}
 \title{Connect and interact with a gdb}
@@ -47,6 +51,7 @@ See \code{\link[=getGT]{getGT()}} for details.
 \item \code{getCohort(x, ...)}: Get a cohort table from gdb. See the \code{\link[=getCohort]{getCohort()}} documentation for details.
 \item \code{listCohort(x)}: List sample cohort tables that have been uploaded to the gdb.
 \item \code{listAnno(x)}: List variant info tables that have been uploaded to the gdb.
+\item \code{getGdbId(x)}, \code{getGdbPath(x)}, \code{getCreationDate(x)}, \code{getGenomeBuild(x)}: various methods to retrieve indicate metadata from gdb
 }
 }
 
