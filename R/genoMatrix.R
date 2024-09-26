@@ -14,11 +14,12 @@ setMethod("show", signature="genoMatrix",
 # Constructor ------------------------------------------------------------------
 #' @rdname genoMatrix
 #' @usage NULL
-genoMatrix=function(GT, SM, VAR_id, w=1, ploidy="diploid", varSetName="unnamed", unit="unnamed", cohortname="unnamed",verbose=TRUE)
+genoMatrix=function(GT, SM, anno = NULL, VAR_id, w=1, ploidy="diploid", varSetName="unnamed", unit="unnamed", cohortname="unnamed", genomeBuild=NA_character_, gdbpath=NA_character_, gdbid=NA_character_, verbose=TRUE)
 {
 
   # Check if there are any duplicated VAR_ids
   if (sum(duplicated(VAR_id)) > 0) stop("Duplicated VAR_ids are provided.")
+  
   # Validate provided ploidy values and ensure rowData will have correct nrow
   ploidyLevels=unique(ploidy)
   if (length(w)==1){w=rep(w,length(VAR_id))}
@@ -43,6 +44,9 @@ genoMatrix=function(GT, SM, VAR_id, w=1, ploidy="diploid", varSetName="unnamed",
                                                 rowData = S4Vectors::DataFrame(ploidy=ploidy, w=unname(w)))
 
   # set meta data
+  S4Vectors::metadata(GT)$gdb=gdbpath
+  S4Vectors::metadata(GT)$gdbId=gdbid
+  S4Vectors::metadata(GT)$genomeBuild=genomeBuild
   S4Vectors::metadata(GT)$ploidyLevels=ploidyLevels
   S4Vectors::metadata(GT)$m=ncol(GT)
   S4Vectors::metadata(GT)$nvar=nrow(GT)
@@ -58,8 +62,8 @@ genoMatrix=function(GT, SM, VAR_id, w=1, ploidy="diploid", varSetName="unnamed",
   # Reset genotype dosages in accordance with male / female / missing gender at sites with XnonPAR or YnonPAR ploidy
   GT=.resetSexChromDosage(GT)
 
-  # Calculate allele frequencies
-  SummarizedExperiment::rowData(GT)$AF=getAF(GT)
+  # Add additional row annotations
+  if (!is.null(anno)) GT <- updateGT(GT, anno = anno)
 
   # return
   GT
@@ -206,31 +210,32 @@ setMethod("summariseGeno", signature="genoMatrix",
           definition=function(object)
           {
             if (metadata(object)$imputeMethod != "none") stop("Please provide a non-imputed genoMatrix.")
-            callRate=Matrix::rowSums(!is.na(SummarizedExperiment::assays(object)$GT))/S4Vectors::metadata(object)$m
-            ref=Matrix::rowSums(SummarizedExperiment::assays(object)$GT==0,na.rm=TRUE)
-            het=Matrix::rowSums(SummarizedExperiment::assays(object)$GT==1,na.rm=TRUE)
-            hom=Matrix::rowSums(SummarizedExperiment::assays(object)$GT==2,na.rm=TRUE)
+            callRate <- Matrix::rowSums(!is.na(assays(object)$GT))/S4Vectors::metadata(object)$m
+            ref <- Matrix::rowSums(assays(object)$GT == 0, na.rm = TRUE)
+            het <- Matrix::rowSums(assays(object)$GT == 1, na.rm = TRUE)
+            hom <- Matrix::rowSums(assays(object)$GT == 2, na.rm = TRUE)
             hweP <- vector("numeric", nrow(object))
               
             if("XnonPAR" %in% S4Vectors::metadata(object)$ploidyLevels) {
               if(sum(object$sex == 0) > 0) warning(sprintf("GT contains variants with ploidy='XnonPAR', hweP is calculated within females, note that sex is missing for %s samples.", sum(object$sex == 0)))
-              object_fem <- object[,SummarizedExperiment::colData(object)$sex==2]
-              hweP[SummarizedExperiment::rowData(object)$ploidy == "XnonPAR"] <- 
-                  hweTest(ref=Matrix::rowSums(SummarizedExperiment::assays(object_fem)$GT[SummarizedExperiment::rowData(object_fem)$ploidy == "XnonPAR",,drop=FALSE]==0, na.rm=TRUE),
-                          het=Matrix::rowSums(SummarizedExperiment::assays(object_fem)$GT[SummarizedExperiment::rowData(object_fem)$ploidy == "XnonPAR",,drop=FALSE]==1, na.rm=TRUE),
-                          hom=Matrix::rowSums(SummarizedExperiment::assays(object_fem)$GT[SummarizedExperiment::rowData(object_fem)$ploidy == "XnonPAR",,drop=FALSE]==2, na.rm=TRUE),
-                          af=SummarizedExperiment::rowData(object_fem)$AF[SummarizedExperiment::rowData(object_fem)$ploidy == "XnonPAR"])
+              object_fem <- object[ ,colData(object)$sex == 2]
+              hweP[rowData(object)$ploidy == "XnonPAR"] <- 
+                  hweTest(ref = Matrix::rowSums(assays(object_fem)$GT[rowData(object_fem)$ploidy == "XnonPAR",, drop = FALSE] == 0, na.rm = TRUE),
+                          het = Matrix::rowSums(assays(object_fem)$GT[rowData(object_fem)$ploidy == "XnonPAR",, drop = FALSE] == 1, na.rm = TRUE),
+                          hom = Matrix::rowSums(assays(object_fem)$GT[rowData(object_fem)$ploidy == "XnonPAR",, drop = FALSE] == 2, na.rm = TRUE),
+                          af = getAF(object_fem)[rowData(object_fem)$ploidy == "XnonPAR"])
             }
-            hweP[SummarizedExperiment::rowData(object)$ploidy == "diploid"] <- hweTest(ref[SummarizedExperiment::rowData(object)$ploidy == "diploid"],
-                                                                                       het[SummarizedExperiment::rowData(object)$ploidy == "diploid"],
-                                                                                       hom[SummarizedExperiment::rowData(object)$ploidy == "diploid"],
-                                                                                       SummarizedExperiment::rowData(object)$AF[SummarizedExperiment::rowData(object)$ploidy == "diploid"])
+            af <- getAF(object)
+            hweP[rowData(object)$ploidy == "diploid"] <- hweTest(ref[rowData(object)$ploidy == "diploid"],
+                                                                                       het[rowData(object)$ploidy == "diploid"],
+                                                                                       hom[rowData(object)$ploidy == "diploid"],
+                                                                                       af[rowData(object)$ploidy == "diploid"])
             
-            hweP[SummarizedExperiment::assays(object)$ploidy == "YnonPAR"]=1 
+            hweP[assays(object)$ploidy == "YnonPAR"] <- 1 
           
             output <- data.frame(
               VAR_id = rownames(object),
-              AF = SummarizedExperiment::rowData(object)$AF,
+              AF = af,
               callRate = callRate,
               geno0 = ref,
               geno1 = het,
@@ -241,15 +246,15 @@ setMethod("summariseGeno", signature="genoMatrix",
             return(output)
           })
 
-hweTest=function(ref,het,hom,af)
+hweTest <- function(ref,het,hom,af)
 {
-  n=ref+het+hom
-  ref0=round(n*(1-af)^2)
-  het0=round(n*2*af*(1-af))
-  hom0=round(n*(af)^2)
-  X=((ref-ref0)^2)/ref0 + ((het-het0)^2)/het0 + ((hom-hom0)^2)/hom0
+  n <- ref + het + hom
+  ref0 <- round(n*(1-af)^2)
+  het0 <- round(n*2*af*(1-af))
+  hom0 <- round(n*(af)^2)
+  X <- ((ref-ref0)^2)/ref0 + ((het-het0)^2)/het0 + ((hom-hom0)^2)/hom0
   X[!(is.finite(X))]=0
-  return(1-pchisq(X,df=1))
+  return(1 - pchisq(X, df = 1))
 }
 
 
@@ -264,17 +269,14 @@ setMethod("[",signature=c("genoMatrix"),
             #Update variant counts and ploidyLevels in event of variant filtering
             if (!missing(i))
             {
-              S4Vectors::metadata(out)$nvar=nrow(out)
-              S4Vectors::metadata(out)$ploidyLevels=unique(rowData(out)$ploidy)
+              S4Vectors::metadata(out)$nvar <- nrow(out)
+              S4Vectors::metadata(out)$ploidyLevels <- unique(rowData(out)$ploidy)
             }
 
             #Update sample counts and variant AF in event of sample filtering
             if (!missing(j))
             {
-              S4Vectors::metadata(out)$m=ncol(out)
-              if( S4Vectors::metadata(out)$nvar > 0) {
-                SummarizedExperiment::rowData(out)$AF <- getAF(out)
-              }
+              S4Vectors::metadata(out)$m <- ncol(out)
             }
 
             out
@@ -293,8 +295,7 @@ setMethod("updateGT", signature="genoMatrix",
               
               # Validate input SM table
               ## check if genoData and SM contain same IIDs
-              if (!all(SM[["IID"]] %in% colnames(object)) || !all(colnames(object) %in% SM[["IID"]])){stop("IID values in SM table do not match existing genoMatrix column names. 
-                                                                                                            Renaming of genoMatrix columns can be performed by running: colnames(genoMatrixObject)=newNames")}
+              if (!all(SM[["IID"]] %in% colnames(object)) || !all(colnames(object) %in% SM[["IID"]])){stop("IID values in SM table do not match existing genoMatrix column names.")}
               
               ## match IIDs
               SM <- SM[match(colnames(object),SM$IID),,drop = FALSE]
@@ -304,7 +305,7 @@ setMethod("updateGT", signature="genoMatrix",
                                                                                      updateGT cannot be used in this setting, please instead rerun getGT with the corrected SM data.")}
               
               # Reset colData
-              SummarizedExperiment::colData(object)=S4Vectors::DataFrame(SM)
+              colData(object) <- S4Vectors::DataFrame(SM)
             }
             
             if (!is.null(anno)) {
@@ -312,11 +313,13 @@ setMethod("updateGT", signature="genoMatrix",
               if (any(c("ploidy", "w", "AF") %in% colnames(anno))) {stop("`ploidy`, `w` and `AF` are protected rowData column names")}
               if (length(unique(anno$VAR_id)) < length(anno$VAR_id)) {stop ("`anno` shouldn't contain duplicated VAR_ids!")}
               if (!all(rownames(object) %in% anno$VAR_id)) {warning("Not all variants present in the genoMatrix are present in the anno table. Fields for missing variants will be filled with NAs.")}
-              rowdata <- SummarizedExperiment::rowData(object)
+              
+              rowdata <- rowData(object)
               rowdata$VAR_id <- rownames(object)
-              rowdata <- merge(rowdata[,c("VAR_id", "ploidy", "w", "AF")], anno, all.x = TRUE)
-              rowdata$VAR_id = NULL
-              SummarizedExperiment::rowData(object) <- rowdata
+              rowdata <- merge(rowdata[,c("VAR_id", "ploidy", "w")], anno, all.x = TRUE, by = "VAR_id")
+              rownames(rowdata) <- rowdata$VAR_id
+              rowdata$VAR_id <- NULL
+              rowData(object) <- rowdata[rownames(object),]
             }
 
             # Validate and return
@@ -332,50 +335,74 @@ setMethod("flipToMinor", signature="genoMatrix",
                 warning("flipToMinor only applies when geneticModel == 'allelic', genoMatrix is returned unchanged.")
                 return(object)
               }
-              flip=SummarizedExperiment::rowData(object)$AF>0.5
+              flip <- getAF(object) > 0.5
+              
+              # swap effect allele for flipped variants
+              if (all(c("effectAllele", "otherAllele") %in% colnames(rowData(object)))) {
+                effectAllele <- ifelse(flip, rowData(object)[["otherAllele"]], rowData(object)[["effectAllele"]])
+                rowData(object)[["otherAllele"]] <- ifelse(flip, rowData(object)[["effectAllele"]], rowData(object)[["otherAllele"]])
+                rowData(object)[["effectAllele"]] <- effectAllele
+              } else if (all(c("REF", "ALT") %in% colnames(rowData(object)))) {
+                rowData(object)[["effectAllele"]] <- ifelse(flip, rowData(object)[["REF"]], rowData(object)[["ALT"]])
+                rowData(object)[["otherAllele"]] <- ifelse(flip, rowData(object)[["ALT"]], rowData(object)[["REF"]])
+              }
               
               if(sum(flip) > 0) {
                 if (mean(S4Vectors::metadata(object)$ploidyLevels=="diploid")==1)
                 {
-                  SummarizedExperiment::assays(object)$GT=abs(SummarizedExperiment::assays(object)$GT - 2*matrix(rep(flip,each=S4Vectors::metadata(object)$m),nrow=S4Vectors::metadata(object)$nvar, byrow=TRUE))
+                  assays(object)$GT=abs(SummarizedExperiment::assays(object)$GT - 2*matrix(rep(flip,each=S4Vectors::metadata(object)$m),nrow=S4Vectors::metadata(object)$nvar, byrow=TRUE))
                 } else
                 {
-                  GT <- SummarizedExperiment::assays(object)$GT
+                  GT <- assays(object)$GT
                   for (i in which(flip))
                   {
 
-                    if (SummarizedExperiment::rowData(object)$ploidy[i]=="XnonPAR")
+                    if (rowData(object)$ploidy[i]=="XnonPAR")
                     {
                       # Flips 0s and 1s for male
-                      for (i2 in which(SummarizedExperiment::colData(object)$sex==1))
+                      for (i2 in which(colData(object)$sex==1))
                       {
                         GT[i,i2]=abs(GT[i,i2]-1)
                       }
                       # Flip 0s and 2s for female
-                      for (i2 in which(SummarizedExperiment::colData(object)$sex==2))
+                      for (i2 in which(colData(object)$sex==2))
                       {
                         GT[i,i2]=abs(GT[i,i2]-2)
                       }
                     }
-                    if (SummarizedExperiment::rowData(object)$ploidy[i]=="YnonPAR")
+                    if (rowData(object)$ploidy[i]=="YnonPAR")
                     {
                       # Flip 0s and 1s
                       GT[i,]=abs(GT[i,]-1)
                     }
                     
-                    if (SummarizedExperiment::rowData(object)$ploidy[i]=="diploid")
+                    if (rowData(object)$ploidy[i]=="diploid")
                     {
                       # Flip 0s and 2s
                       GT[i,]=abs(GT[i,]-2)
                     }
                     
                   }
-                  object <- BiocGenerics:::replaceSlots(object, assays=Assays(SimpleList(GT=GT)))
+                  object <- BiocBaseUtils::setSlots(object, assays=Assays(SimpleList(GT=GT)))
                 }
-                SummarizedExperiment::rowData(object)$AF=getAF(object)
               }
               object
             })
+
+.calc_maf_weights <- function(w, af = NULL, method = "none") {
+  if(!method %in% c("mb", "none")) stop("method should be either 'none' or 'mb'.")
+  
+  if (!is.null(af)) {
+    if(length(w) != length(af)) stop("Unequal lengths")
+  }
+  
+  if (method == "none") {
+    w
+  } else if (method == "mb") {
+    if (is.null(af)) stop("AF should be specified for 'mb' weighting")
+    w / (sqrt(af * (1 - af)))
+  }
+}
 
 #' @export
 setMethod("recode", signature = "genoMatrix",
@@ -385,6 +412,23 @@ setMethod("recode", signature = "genoMatrix",
               if(!missing(imputeMethod)) S4Vectors::metadata(object)$imputeMethod <- imputeMethod
               return(object)
             }
+            
+            if(!missing(weights)) {
+              if(length(weights) == 1) {
+                rowData(object)$w <- as.numeric(rep(weights, nrow(object)))
+              } else {
+                if(length(weights) != nrow(object)) {stop("Length of `weights` should equal the number of variants in the genoMatrix.")}
+                rowData(object)$w <- as.numeric(weights)
+              }
+            }
+            
+            if(!missing(MAFweights)) {
+              if(!MAFweights %in% c("mb", "none")) stop("`MAFweights` parameter should be either 'none' or 'mb'.")
+              if(MAFweights == "mb") {
+                rowData(object)$w <- .calc_maf_weights(w = rowData(object)$w, af = getAF(object), method = "mb")
+              }
+            }
+            
             if(!missing(geneticModel) && S4Vectors::metadata(object)$geneticModel != geneticModel) {
               if(S4Vectors::metadata(object)$geneticModel != "allelic")
                 stop("Current geneticModel should be 'allelic' in order to apply dominant or recessive models.")
@@ -392,9 +436,9 @@ setMethod("recode", signature = "genoMatrix",
                 stop("Provide a non-imputed genoMatrix to perform dominant/recessive recoding")
               object <- flipToMinor(object)
               if (geneticModel == "allelic")
-              {SummarizedExperiment::assays(object)$GT=SummarizedExperiment::assays(object)$GT} else if (geneticModel == "dominant")
-              {SummarizedExperiment::assays(object)$GT=(SummarizedExperiment::assays(object)$GT>0)*1} else if (geneticModel == "recessive")
-              {SummarizedExperiment::assays(object)$GT=(SummarizedExperiment::assays(object)$GT==2)*1} else
+              {assays(object)$GT=assays(object)$GT} else if (geneticModel == "dominant")
+              {assays(object)$GT=(assays(object)$GT>0)*1} else if (geneticModel == "recessive")
+              {assays(object)$GT=(assays(object)$GT==2)*1} else
               {stop(sprintf("%s does not represent a valid genetic model",geneticModel))}
               
               S4Vectors::metadata(object)$geneticModel <- geneticModel
@@ -417,32 +461,15 @@ setMethod("recode", signature = "genoMatrix",
                 }
                 
                 # Reset missing genotypes to 0
-                if (imputeMethod=="missingToRef")
+                if (imputeMethod == "missingToRef")
                 {
-                  SummarizedExperiment::assays(object)$GT[is.na(SummarizedExperiment::assays(object)$GT)]=0
-                  SummarizedExperiment::rowData(object)$AF=getAF(object)
+                  assays(object)$GT[is.na(assays(object)$GT)]=0
                 }
                 
                 S4Vectors::metadata(object)$imputeMethod <- imputeMethod
               }
             }
             
-            if(!missing(weights)) {
-              if(length(weights) == 1) {
-                rowData(object)$w <- as.numeric(rep(weights, nrow(object)))
-              } else {
-                if(length(weights) != nrow(object)) {stop("Length of `weights` should equal the number of variants in the genoMatrix.")}
-                rowData(object)$w <- as.numeric(weights)
-              }
-            }
-            
-            if(!missing(MAFweights)) {
-              if(!MAFweights %in% c("mb", "none")) stop("`MAFweights` parameter should be either 'none' or 'mb'.")
-              if(MAFweights == "mb") {
-                rowData(object)$w <- SummarizedExperiment::rowData(object)$w /
-                  (sqrt(SummarizedExperiment::rowData(object)$AF*(1-SummarizedExperiment::rowData(object)$AF)))
-              }
-            }
             # Update 'aggregate' column (if present)
             if("aggregate" %in% colnames(colData(object))) colData(object)$aggregate <- NA_real_
             
@@ -469,7 +496,7 @@ setMethod("aggregate", signature = "genoMatrix",
             # Generate aggregate counts
             colData(x)$aggregate <- Matrix::rowSums(
               t(as(assays(x)$GT , "sparseMatrix")) %*%
-                diag(SummarizedExperiment::rowData(x)$w,
+                diag(rowData(x)$w,
                      ncol=S4Vectors::metadata(x)$nvar,
                      nrow=S4Vectors::metadata(x)$nvar))
             

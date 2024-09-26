@@ -2,6 +2,7 @@
 % Please edit documentation in R/assocTest.R
 \name{assocTest-genoMatrix}
 \alias{assocTest-genoMatrix}
+\alias{assocTest,genoMatrix-method}
 \title{assocTest-genoMatrix}
 \usage{
 \S4method{assocTest}{genoMatrix}(
@@ -62,6 +63,8 @@ Defaults to \code{FALSE}, in which case collapsing tests are ran.}
 
 \item{covar}{Character vector of covariates. These should be present in the colData slot of the genoMatrix.}
 
+\item{offset}{Optional model offset, can be used to account for regenie LOCO predictions.}
+
 \item{overwriteAggregate}{In case there is already an \code{aggregate} column in the \code{colData} of the genoMatrix
 (i.e. \code{aggregate} has been run on the genoMatrix), should it be overwitten? Defaults to \code{TRUE}.}
 
@@ -76,11 +79,14 @@ Defaults to 'none'.}
 
 \item{maxitFirth}{Maximum number of iterations to use for estimating firth confidence intervals.}
 
+\item{keep}{Vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
+
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written to disk, but returned as an \code{\link{rvatResult}} object.}
 
-\item{append}{Relevant if the \code{output} parameter is not \code{NULL}. Should results be appended to \code{output}?
-Defaults to \code{FALSE}.}
+\item{append}{Relevant if the \code{output} parameter is not \code{NULL}. Should results be appended to \code{output}?}
+
+\item{returnDF}{Return a data.frame rather than a rvatResult. Defaults to \code{FALSE}.}
 
 \item{methodResampling}{Which method to use for resampling? ('permutation' currently implemented)
 Defaults to \code{NULL}, in which case no resampling is performed.}

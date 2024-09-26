@@ -4,6 +4,7 @@
 \name{geneSetFile}
 \alias{geneSetFile}
 \alias{geneSetFile-class}
+\alias{as.geneSetList,geneSetFile-method}
 \title{Class to manage interactions with a geneSetFile}
 \usage{
 geneSetFile(path, memlimit = 5000)

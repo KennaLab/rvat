@@ -12,6 +12,7 @@ uploadAnno(
   skipRemap = FALSE,
   skipIndexes = FALSE,
   ignoreAlleles = FALSE,
+  keepUnmapped = FALSE,
   mapRef = "var"
 )
 }
@@ -29,6 +30,8 @@ uploadAnno(
 \item{skipIndexes}{Flag indicating whether to skip indexing of imported table. Defaults to \code{FALSE}.}
 
 \item{ignoreAlleles}{Flag indicating whether to consider REF and ALT allele during mapping of records to VAR_id or just CHROM,POS. Defaults to \code{FALSE}.}
+
+\item{keepUnmapped}{Flag indicating whether to keep records which cannot be mapped to the gdb. Defaults to \code{FALSE}.}
 
 \item{mapRef}{Name of lookup table for VAR_id assignment. Defaults to "var".}
 }

@@ -19,6 +19,8 @@ will be included in a \code{\link{varSetList}} or \code{\link{varSetFile}} objec
 \item{\code{VAR_id}}{VAR_ids included in the varSet}
 
 \item{\code{w}}{weights included in the varSet}
+
+\item{\code{metadata}}{metadata}
 }}
 
 \section{Getters}{

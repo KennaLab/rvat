@@ -40,7 +40,7 @@ vcfInfo2Table=function(vcf,output,splitMultiallelic=TRUE)
     {
       out[[field[1]]]=field[2]
     }
-    if (length(out) != nfields){stop(sprintf("Observed field not described in vcf meta information - %s\n",paste(i,collapse="|")))}
+    if (length(out) != nfields){warning(sprintf("Observed field not described in vcf meta information - %s\n",paste(i,collapse="|")))}
     if (splitMultiallelic)
     {
       alleles=unlist(strsplit(i[5],split=","))

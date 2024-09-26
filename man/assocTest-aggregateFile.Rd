@@ -2,6 +2,7 @@
 % Please edit documentation in R/assocTest_aggregateFile.R
 \name{assocTest-aggregateFile}
 \alias{assocTest-aggregateFile}
+\alias{assocTest,aggregateFile-method}
 \title{assoctest-aggregateFile}
 \usage{
 \S4method{assocTest}{aggregateFile}(
@@ -18,7 +19,9 @@
   dropUnits = NULL,
   maxitFirth = 1000,
   keep = NULL,
-  output = NULL
+  output = NULL,
+  verbose = TRUE,
+  strict = TRUE
 )
 }
 \arguments{
@@ -47,6 +50,8 @@ options include firth,glm,lm, and nbinom.}
 Useful when adjusting for total variant counts, by specifying the total variant count variable
 here, the aggregate score of the gene set tested will be substracted from the total count variable.}
 
+\item{dropUnits}{Optional, vector of units to exclude.}
+
 \item{maxitFirth}{Maximum number of iterations to use for estimating firth confidence intervals.}
 
 \item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.
@@ -54,6 +59,11 @@ Defaults to \code{FALSE}.}
 
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written but returned as a \code{data.frame()}.}
+
+\item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
+
+\item{strict}{Should strict checks be performed? Defaults to \code{TRUE}. Strict tests currently includes
+checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in \code{object}.}
 }
 \description{
 Run \code{\link{assocTest}} on a \code{\link{aggregateFile}} object.

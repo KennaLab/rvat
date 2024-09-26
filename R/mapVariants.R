@@ -19,7 +19,7 @@ setMethod("mapVariants",
 ) {
   
   ## Check if at least one input is given
-  if ( sum(c(is.null(ranges), is.null(gff), is.null(bed))) == 0 ) {
+  if ( sum(c(!is.null(ranges), !is.null(gff), !is.null(bed))) == 0 ) {
     stop("At least one of `ranges`, `gff` or `bed` should be specified.")
   }
   
@@ -63,7 +63,7 @@ setMethod("mapVariants",
   ## if uploadName != NULL, check if name is valid and if already exists in gdb
   if (!is.null(uploadName)) {
     if (!is.character(uploadName)) {stop("`uploadName` should be a character string (indicating how the uploaded table in the gdb should be named)")}
-    if (grepl("\\.", uploadName)) {stop("Table name shouldn't contain '.'")}
+    if (grepl("\\+|\\-|\\.|\\,| ", uploadName)) {stop("Table name shouldn't contain '.'")}
     if (uploadName %in% gdb_protected_tables) {stop(sprintf("'%s' already exists as a protected table in gdb and cannot be replaced", uploadName))}
     
     cohort <- listCohort(object)
@@ -99,7 +99,13 @@ setMethod("mapVariants",
     fields_ranges <- NULL
   }
   
+  # chromosomes that overlap between gdb and ranges
+  ## note: convert both to NCBI format to check overlap
   chroms <- getAnno(object, "var_ranges", fields="CHROM")$CHROM
+  chroms_ncbi <- GenomicRanges::GRanges(seqnames = chroms, ranges = IRanges(start=1))
+  GenomeInfoDb::seqlevelsStyle(chroms_ncbi) <- "NCBI"
+  chroms <- setNames(as.character(seqnames(chroms_ncbi)), nm = chroms)
+  chroms <- names(chroms[chroms %in% GenomeInfoDb::seqlevels(ranges)])
   
   ## map per chromosome
   for ( chrom in chroms ) {
@@ -121,6 +127,7 @@ setMethod("mapVariants",
                    as.data.frame(GenomicRanges::mcols(ranges[S4Vectors::subjectHits(overlaps),])))
     }
     dat <- dplyr::arrange(dat, VAR_id)
+    dat[] <- lapply(dat, function(x) if(is.factor(x)) as.character(x) else x)
     
     ## write to output (if specified)
     if (!is.null(output)) {

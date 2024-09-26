@@ -7,10 +7,10 @@ License: GNU GPLv3
 Encoding: UTF-8
 LazyData: true
 biocViews:
-Imports: magrittr, dplyr, ggplot2, logistf (>= 1.24), RSQLite, SKAT, rmarkdown, MASS, Matrix, zoo, shiny,WGCNA,GenomicRanges,IRanges,DBI,methods,SPAtest,DT,ggrepel,stringr,stringi,tibble,tidyr,rtracklayer,plotly,BiocGenerics,GENESIS,GenomeInfoDb
+Imports: magrittr, dplyr, ggplot2, logistf (>= 1.24), RSQLite, SKAT, MASS, Matrix, zoo, shiny,WGCNA,GenomicRanges,IRanges,BiocBaseUtils,DBI,methods,SPAtest,DT,ggrepel,stringr,stringi,tibble,tidyr,rtracklayer,plotly,BiocGenerics,GENESIS,GenomeInfoDb,GWASTools,matrixcalc,R.utils
 Depends: R (>= 3.4.1), SummarizedExperiment,S4Vectors
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.2
 Collate: 
     'allInternalData.R'
     'allGenerics.R'
@@ -19,6 +19,7 @@ Collate:
     'assocTest.R'
     'assocTest_aggregateFile.R'
     'assocTest_gdb.R'
+    'assocTest_helper.R'
     'dump.R'
     'gdb.R'
     'gdbUtils.R'
@@ -36,8 +37,9 @@ Collate:
     'rvatViewerClass.R'
     'shiny_functions.R'
     'spatialClust.R'
+    'utils.R'
     'varSet.R'
     'vcfUtils.R'
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0), rvatData, withr, readr
 Config/testthat/edition: 3

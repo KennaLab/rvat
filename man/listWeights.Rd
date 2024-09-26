@@ -6,6 +6,11 @@
 \usage{
 listWeights(object, ...)
 }
+\arguments{
+\item{object}{An object of class \code{\link{varSet}} or \code{\link{geneSet}}.}
+
+\item{...}{additional arguments.}
+}
 \description{
 Returns a vector of weights included in the \code{\link{varSet}} or \code{\link{geneSet}}
 }
