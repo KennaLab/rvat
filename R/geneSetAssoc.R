@@ -24,11 +24,17 @@ setMethod("metadata", signature = "geneSet",
             x@metadata
           })
 
+#' @rdname geneSet
+#' @usage NULL
+#' @export
 setMethod("length", signature = "geneSet",
           definition = function(x) {
             length(listUnits(x))
           })
 
+#' @rdname geneSet
+#' @usage NULL
+#' @export
 setMethod("as.data.frame", signature = "geneSet",
           definition = function(x) {
             data.frame(geneSetName = x@geneSetName, 
@@ -39,12 +45,17 @@ setMethod("as.data.frame", signature = "geneSet",
             )
           })
 
+#' @rdname geneSet
+#' @usage NULL
+#' @export
 setMethod("listUnits", signature = "geneSet",
           definition = function(object) {
             unlist(strsplit(object@units,split=","))
           })
 
-
+#' @rdname geneSet
+#' @usage NULL
+#' @export
 setMethod("listWeights", signature = "geneSet",
           definition = function(object) {
             x <- unlist(strsplit(object@w,split=","))
@@ -64,54 +75,83 @@ geneSetList <- function(geneSets, metadata = list()) {
   new("geneSetList", geneSets = geneSets, geneSetNames = geneSetNames, metadata = metadata)
 }
 
-
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("names", signature = "geneSetList",
           definition = function(x) {
             x@geneSetNames
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("length", signature = "geneSetList",
           definition = function(x) {
             length(x@geneSets)
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("lengths", signature = "geneSetList",
           definition = function(x) {
             lengths(as.list(x))
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("show", signature = "geneSetList",
           definition = function(object) {
             cat(sprintf("geneSetList\nContains %s sets\n",
                         length(object)))
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("metadata", signature = "geneSetList",
           definition = function(x) {
             x@metadata
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("listMetadata", signature = "geneSetList",
           definition = function(object) {
             unlist(lapply(object@geneSets, FUN = metadata))
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("listGeneSets", signature = "geneSetList",
           definition = function(object) {
             names(object)
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("listUnits", signature = "geneSetList",
           definition = function(object) {
             unique(unlist(as.list(object)))
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("[[", c("geneSetList", "ANY", "missing"),
           function(x, i, j, ...)
           {
             x@geneSets[[i, ...]]
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("[", c("geneSetList", "ANY", "ANY"),
           function(x, i, j, ..., drop=TRUE)
           {
@@ -125,6 +165,9 @@ setMethod("[", c("geneSetList", "ANY", "ANY"),
           })
 
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("sort", c("geneSetList"),
           function(x)
           {
@@ -133,12 +176,18 @@ setMethod("sort", c("geneSetList"),
           })
 
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("as.data.frame", signature = "geneSetList",
           definition = function(x) {
             do.call(rbind, lapply(x@geneSets, FUN = as.data.frame))
           })
 
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("as.list", signature = "geneSetList",
           definition = function(x) {
             names <- names(x)
@@ -147,9 +196,8 @@ setMethod("as.list", signature = "geneSetList",
             x
           })
 
-#' @rdname geneSetList
-#' @usage NULL
-#' @export
+#' @keywords internal
+#' @noRd 
 setMethod("mapToMatrix", signature = c("geneSetList", "rvbResult"),
           definition = function(object, results, ID = "unit", sparse = TRUE) {
             dat <- lapply(as.list(object),
@@ -164,6 +212,9 @@ setMethod("mapToMatrix", signature = c("geneSetList", "rvbResult"),
           })
 
 
+#' @rdname getGeneSet
+#' @usage NULL
+#' @export
 setMethod("getGeneSet", signature = "geneSetList",
           definition = function(object, geneSet = NULL, unit = NULL) {
             if(is.null(geneSet) && is.null(unit)) stop("At least one of `geneSet` or `unit` should be specified.")
@@ -182,6 +233,7 @@ setMethod("getGeneSet", signature = "geneSetList",
             return(object)
           })
 
+
 #' @rdname geneSetList
 #' @usage NULL
 #' @export
@@ -198,8 +250,16 @@ setMethod("dropUnits", signature = "geneSetList",
             return(object)
           })
 
+#' @rdname geneSetList
+#' @usage NULL
+#' @export
 setMethod("remapIDs", signature = "geneSetList",
-          definition = function(object, dict, targets = NULL, duplicate_ids = c("keep_all", "keep_first")) {
+          definition = function(object, 
+                                dict, 
+                                targets = NULL, 
+                                duplicate_ids = c("keep_all", "keep_first"),
+                                verbose = TRUE
+                                ) {
             
             # Check validity of dictionary
             if(ncol(dict) != 2) stop("`dict` should be a data.frame with two columns")
@@ -209,9 +269,10 @@ setMethod("remapIDs", signature = "geneSetList",
             
             # Number of IDs in geneSetList that are present in dictionary 
             original_ids <- listUnits(object)
-            message(sprintf("%s/%s IDs in the geneSetList are present in the linker file.", 
-                            sum(original_ids %in% dict$original_id), length(original_ids)
-            ))
+            if (verbose) {
+              message(sprintf("%s/%s IDs in the geneSetList are present in the linker file.", 
+                            sum(original_ids %in% dict$original_id), length(original_ids)))
+            }
             dict <- dict[dict$original_id %in% original_ids,,drop=FALSE]
             
             # Handle IDs that map to multiple IDs
@@ -335,6 +396,9 @@ geneSetFile=function(path,memlimit=5000)
   new("geneSetFile", path=path, sets=sets,metadata=metadata)
 }
 
+#' @rdname geneSetFile
+#' @usage NULL
+#' @export
 setMethod("show", signature="geneSetFile",
           definition=function(object){
             cat(sprintf("geneSetFile\nPath: %s\nSets: %s",
@@ -343,33 +407,41 @@ setMethod("show", signature="geneSetFile",
             ))
           })
 
+#' @rdname geneSetFile
+#' @usage NULL
+#' @export
 setMethod("names", signature = "geneSetFile",
           definition = function(x) {
             x@sets
           })
 
+#' @rdname geneSetFile
+#' @usage NULL
+#' @export
 setMethod("listGeneSets", signature = "geneSetFile",
           definition = function(object) {
             names(object)
           })
 
+#' @rdname geneSetFile
+#' @usage NULL
+#' @export
 setMethod("length", signature = "geneSetFile",
           definition = function(x) {
             length(names(x))
           })
 
+#' @rdname geneSetFile
+#' @usage NULL
+#' @export
 setMethod("metadata", signature = "geneSetFile",
           definition = function(x) {
            x@metadata
           })
 
 
-#' @describeIn geneSetFile-class getGeneSet
-#' 
-#' Extract a geneSet from a \code{\link{geneSetFile-class}} object.
-#' 
-#' @param object a \code{\link{geneSetFile-class}} object
-#' @param geneSet a vector of geneSets to subset.
+#' @rdname getGeneSet
+#' @usage NULL
 #' @export
 setMethod("getGeneSet", signature="geneSetFile",
           definition=function(object, geneSet)
@@ -435,8 +507,9 @@ setMethod("as.geneSetList", signature="geneSetFile",
 #' @param output Optional output file path (output will be gz compressed text).
 #' Defaults to `NULL`, in which case a [`geneSetList`] is returned.
 #' @param sep Separator used in input file. 
+#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
 #' @export
-buildGeneSet <- function(data=NULL, gmtpath=NULL, output=NULL, sep="\t") {
+buildGeneSet <- function(data=NULL, gmtpath=NULL, output=NULL, sep="\t", verbose = TRUE) {
   if(!is.null(data)) {
     if(is.data.frame(data)) {
       ncol <- ncol(data)
@@ -491,7 +564,7 @@ buildGeneSet <- function(data=NULL, gmtpath=NULL, output=NULL, sep="\t") {
                        con = out)
     write.table(as.data.frame(genesets), out, sep="|", row.names = FALSE, col.names = FALSE, quote = FALSE, append = TRUE)
     close(out)
-    message(sprintf("Generated geneSetFile: %s",output))
+    if(verbose) message(sprintf("Generated geneSetFile: %s",output))
     return(geneSetFile(output))
   } else {
     return(genesets)
@@ -525,6 +598,7 @@ readGMT <- function(path, sep = "\t") {
 
 # geneSetAssoc -----------------------------------------------------------------
 
+
 setMethod("checkDuplicates", signature = c("rvbResult"),
           definition = function(object, stop = TRUE) {
             if (length(unique(object$unit)) != nrow(object)) {
@@ -537,7 +611,9 @@ setMethod("checkDuplicates", signature = c("rvbResult"),
           })
 
 # geneSetAssoc -----------------------------------------------------------------
-# 
+
+#' @rdname geneSetAssoc
+#' @usage NULL
 #' @export
 setMethod("geneSetAssoc", signature=c("rvbResult"),
           definition=function(object,
@@ -556,7 +632,8 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                               oneSided = TRUE,
                               memlimit = 1000, 
                               ID = "unit",
-                              output = NULL
+                              output = NULL,
+                              verbose = TRUE
           ) {
             # Check methods and available tests
             ## only 'lm' and 'mlm' are implemented for `scoreMatrix` object
@@ -586,7 +663,7 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
   
             } else {
               object <- .prepare_stats_GSA(
-                object, covar, Zcutoffs, INT
+                object, covar, Zcutoffs, INT, verbose = verbose
               )
             }
             
@@ -600,17 +677,19 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                 ## checks
                 nonoverlap <- sum(!object$unit %in% rownames(matrix))
                 if(nonoverlap > 0) {
-                  message(sprintf("%s/%s units in the results are not present in the condition matrix, these are excluded.",
+                  if (verbose) {
+                    message(sprintf("%s/%s units in the results are not present in the condition matrix, these are excluded.",
                                   nonoverlap,
                                   nrow(object)
                   ))
+                  }
                   object <- object[object$unit %in% rownames(matrix),]
                 }
                 nonoverlap <- sum(!rownames(matrix) %in% object$unit)
                 if(nonoverlap > 0) {
-                  message(sprintf("%s/%s units in the condition matrix are not present in the results, these are excluded",
+                  if (verbose) {message(sprintf("%s/%s units in the condition matrix are not present in the results, these are excluded",
                                   nonoverlap,
-                                  nrow(object)))
+                                  nrow(object)))}
                 }
                 
                 # Make sure the order is correct
@@ -624,7 +703,7 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
                 condition.type <- "vector"
                 check <- sum(condition %in% names)
                 if (check < length(condition)) {
-                  message(sprintf("%s/%s specified in `condition` are present in the %s", check, length(condition), input.type))
+                  if (verbose) message(sprintf("%s/%s specified in `condition` are present in the %s", check, length(condition), input.type))
                 }
                 condition <- condition[condition %in% names]
                 
@@ -645,17 +724,17 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
               # Check between results object and cormatrix
               nonoverlap <- sum(!object$unit %in% rownames(scoreMatrix))
               if(nonoverlap > 0) {
-                message(sprintf("%s/%s units in the results are not present in the scoreMatrix, these are excluded.",
+                if (verbose) {message(sprintf("%s/%s units in the results are not present in the scoreMatrix, these are excluded.",
                                 nonoverlap,
                                 nrow(object)
-                ))
+                ))}
                 object <- object[object$unit %in% rownames(scoreMatrix),]
               }
               nonoverlap <- sum(!rownames(scoreMatrix) %in% object$unit)
               if(nonoverlap > 0) {
-                message(sprintf("%s/%s units in the scoreMatrix are not present in the results, these are excluded",
+                if (verbose) {message(sprintf("%s/%s units in the scoreMatrix are not present in the results, these are excluded",
                                 nonoverlap,
-                                nrow(object)))
+                                nrow(object)))}
               }
               
               # Make sure the order is correct
@@ -716,7 +795,7 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
             if(sum(geneSetAssoc_tests_competitive_threshold %in% test) > 0) {
               if(is.null(threshold)) {
                 threshold <- 0.05/nrow(object)
-                message(sprintf("`threshold` not specified for defining significant genes, using a bonferroni threshold: %s", signif(threshold, 4)))
+                if (verbose) message(sprintf("`threshold` not specified for defining significant genes, using a bonferroni threshold: %s", signif(threshold, 4)))
               }
             } else {
               threshold <- NULL
@@ -794,10 +873,10 @@ setMethod("geneSetAssoc", signature=c("rvbResult"),
             metadata(result_gsa)$genomeBuild <- getGenomeBuild(object)
             metadata(result_gsa)$creationDate <- as.character(round(Sys.time(), units = "secs"))
 
-            message(sprintf("%s out of %s sets are kept.", 
+            if (verbose) {message(sprintf("%s out of %s sets are kept.", 
                             length(unique(result_list$geneSetName)), 
                             length(geneSet)
-                            ))
+                            ))}
             
             if(!is.null(output)) {
               writeResult(results, file = output, append = append)
@@ -1238,7 +1317,7 @@ enrich_test <- function(stats,
 }
 
 
-.prepare_stats_GSA <- function(object, covar, Zcutoffs, INT) {
+.prepare_stats_GSA <- function(object, covar, Zcutoffs, INT, verbose = TRUE) {
   
   if(!is.null(Zcutoffs) && length(Zcutoffs) != 2) {
     stop("`Zcutoffs should be a vector of length 2 (minimum and maximum)")
@@ -1260,13 +1339,13 @@ enrich_test <- function(stats,
   # Exclude rows with missing covariate values
   check <- complete.cases(as.data.frame(object)[,covar,drop=FALSE])
   if(sum(!check) > 0) {
-    message(sprintf("%s row(s) are excluded because of missing covariate values.", sum(!check)))
+    if (verbose) message(sprintf("%s row(s) are excluded because of missing covariate values.", sum(!check)))
     object <- object[check,]
   }
   
   # Exclude missing P-values
   if(sum(is.na(object$P)) > 0) {
-    message(sprintf("%s P-values are missing, these are excluded.", sum(is.na(object$P))))
+    if (verbose) message(sprintf("%s P-values are missing, these are excluded.", sum(is.na(object$P))))
     object <- object[!is.na(object$P),]
   } 
   
@@ -1278,24 +1357,27 @@ enrich_test <- function(stats,
     object$Z <- qnorm((rank(object$Z,na.last = "keep")-0.5)/sum(!is.na(object$Z)))
   } else if(!is.null(Zcutoffs)) {
     if(length(Zcutoffs) != 2) {stop("The length of `Zcutoffs` should be 2 (minimum and maximum).")}
-    message(sprintf("%s Z-scores <%s are set to %s", sum(object$Z < Zcutoffs[1]), Zcutoffs[1], Zcutoffs[1]))
-    message(sprintf("%s Z-scores >%s are set to %s", sum(object$Z > Zcutoffs[2]), Zcutoffs[2], Zcutoffs[2]))
+    if (verbose) message(sprintf("%s Z-scores <%s are set to %s", sum(object$Z < Zcutoffs[1]), Zcutoffs[1], Zcutoffs[1]))
+    if (verbose) message(sprintf("%s Z-scores >%s are set to %s", sum(object$Z > Zcutoffs[2]), Zcutoffs[2], Zcutoffs[2]))
     object$Z <- ifelse(object$Z < Zcutoffs[1], Zcutoffs[1], object$Z)
     object$Z <- ifelse(object$Z > Zcutoffs[2], Zcutoffs[2], object$Z)
   } else if (sum(is.infinite(object$Z)) > 0) {
     # If Z-score cutoffs are not specified, check if any Z-scores are ±infinite
     if(sum(is.infinite(object$Z) & object$Z < 0) > 0) {
       minZ <- min(object$Z[!is.infinite(object$Z)])
-      message(sprintf("%s Z-scores are -Inf, these are set to the minimum observed Z-score: %s.", 
+      if (verbose) {
+        message(sprintf("%s Z-scores are -Inf, these are set to the minimum observed Z-score: %s.", 
                       sum(is.infinite(object$Z) & object$Z < 0), 
                       signif(minZ, 4)))
+      }
       object$Z[is.infinite(object$Z) & object$Z < 0] <- minZ
     }
     if(sum(is.infinite(object$Z) & object$Z > 0) > 0) {
       maxZ <- max(object$Z[!is.infinite(object$Z)])
-      message(sprintf("%s Z-scores are +Inf, these are set to the maximum observed Z-score: %s.", 
+      if (verbose) {message(sprintf("%s Z-scores are +Inf, these are set to the maximum observed Z-score: %s.", 
                       sum(is.infinite(object$Z) & object$Z > 0), 
                       signif(maxZ, 4)))
+      }
       object$Z[is.infinite(object$Z) & object$Z > 0] <- maxZ
     }
   }

@@ -307,7 +307,7 @@ setMethod("assocTest",
             }
             
             ### Flip to minor after sample filtering
-            object <- flipToMinor(object)
+            if (metadata(object)$geneticModel == "allelic") object <- flipToMinor(object)
             
             # Variant filtering --------------------------------------------------
             
@@ -577,6 +577,7 @@ setMethod("assocTest",
                   continuous = continuous,
                   output = output,
                   append = append,
+                  nResampling = nResampling,
                   maxitFirth = maxitFirth,
                   returnDF = TRUE
                 )
@@ -611,6 +612,7 @@ setMethod("assocTest",
                   continuous = continuous,
                   output = output,
                   append = append,
+                  nResampling = nResampling,
                   maxitFirth = maxitFirth,
                   returnDF = returnDF
                 )
@@ -687,6 +689,7 @@ setMethod("assocTest",
                            output = NULL,
                            append = FALSE,
                            maxitFirth = 1000,
+                           nResampling = 1000,
                            returnDF = FALSE
 ) {
   

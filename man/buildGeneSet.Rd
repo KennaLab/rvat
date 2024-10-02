@@ -4,7 +4,13 @@
 \alias{buildGeneSet}
 \title{Build a geneSetList or geneSetFile}
 \usage{
-buildGeneSet(data = NULL, gmtpath = NULL, output = NULL, sep = "\\t")
+buildGeneSet(
+  data = NULL,
+  gmtpath = NULL,
+  output = NULL,
+  sep = "\\t",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{data}{Can be 1) data.frame where the first column includes the names of geneSets,
@@ -20,6 +26,8 @@ a vector with the genes included in the respective geneset.}
 Defaults to \code{NULL}, in which case a \code{\link{geneSetList}} is returned.}
 
 \item{sep}{Separator used in input file.}
+
+\item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 }
 \description{
 Build a \code{\link{geneSetList}} or \code{\link{geneSetFile}} for use in gene set analyses (\code{\link{geneSetAssoc}} or \code{\link{assocTest-aggregateFile}})

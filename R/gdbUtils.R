@@ -18,7 +18,7 @@
 #' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
 #' @export
 buildGdb=function(output, 
-                  vcf = c(), 
+                  vcf,
                   skipIndexes = FALSE, 
                   skipVarRanges = FALSE, 
                   overWrite = FALSE, 
@@ -45,7 +45,7 @@ buildGdb=function(output,
   
   # Import variant records
   if (length(c(vcf)) > 1){stop("Can only build gdb based on a single input file.")}
-  if (length(vcf) > 0){populateGdbFromVcf(mygdb, vcf, memlimit = memlimit, verbose = verbose)}
+  populateGdbFromVcf(mygdb, vcf, memlimit = memlimit, verbose = verbose)
 
   # Generate Indexes
   if (! skipIndexes)
@@ -265,7 +265,7 @@ setMethod("addRangedVarinfo",
 #' @export
 concatGdb=function(targets, output, skipRemap=FALSE, skipIndexes=FALSE, verbose = TRUE)
 {
-  gdb=scan(targets,what="character")
+  gdb=scan(targets,what="character", quiet = !verbose)
   
   ## check if more than two files are included
   if (length(gdb) < 2) {stop("Require at least 2 valid gdb files for merging")}

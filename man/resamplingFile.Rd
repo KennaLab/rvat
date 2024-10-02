@@ -4,6 +4,7 @@
 \name{resamplingFile}
 \alias{resamplingFile}
 \alias{resamplingFile-class}
+\alias{show,resamplingFile-method}
 \title{Generate and manage permutations}
 \description{
 This class is designed to generate and manage permutations. For some purposes

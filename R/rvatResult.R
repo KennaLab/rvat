@@ -2,6 +2,8 @@
 
 ## reading & writing ----------------------------------------------------------
 
+#' @rdname rvatResult
+#' @usage NULL
 #' @export
 setMethod("writeResult", "rvatResult",
           function(object, 
@@ -139,6 +141,8 @@ are the default gsaResult columns.",length(columns_gsaResults)))
 
 
 ## getters ----------------------------------------------------------
+#' @rdname rvatResult
+#' @usage NULL
 #' @export
 setMethod("getGdbId", signature="rvatResult",
           definition=function(object){
@@ -148,6 +152,8 @@ setMethod("getGdbId", signature="rvatResult",
           }
 )
 
+#' @rdname rvatResult
+#' @usage NULL
 #' @export
 setMethod("getGenomeBuild", signature="rvatResult",
           definition=function(object){
@@ -205,6 +211,9 @@ setMethod("merge", c("rvatResult", "DataFrame"), function(x, y, by, ...) {
 # topResult
 ### topResults --------------------------------------------------------------
 
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
 setMethod("topResult", "rvatResult",
           function(object, n = 10) {
             head(object[order(object$P),],n)
@@ -283,6 +292,9 @@ rvatResult <- function(object, class) {
 }
 
 ## plots -----------------------------------------------------------------------
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
 setMethod("qqplot", c("rvatResult"),
           function(object, 
                    title = "", 
@@ -378,7 +390,11 @@ setMethod("qqplot", c("rvatResult"),
     ggplot2::geom_text(data=l,ggplot2::aes(x=xpos,y=ypos,hjust=hjust,vjust=vjust,label=annotateText),parse=FALSE,size=cex/2.5)
 
   if(showThreshold) {
-    qqplot <- qqplot + ggplot2::geom_segment(ggplot2::aes(x=0,xend=mx,y=threshold,yend=threshold),col="red", linetype=2)
+    qqplot <- qqplot + ggplot2::geom_segment(ggplot2::aes(x=x,xend=xend,y=y,yend=yend),
+                                             col = "red", 
+                                             linetype = 2,
+                                             data = data.frame(x = 0, xend = mx, y = threshold, yend = threshold)
+                                             )
   }
 
   if (ncol(X) == 3){qqplot = qqplot +
@@ -387,6 +403,9 @@ setMethod("qqplot", c("rvatResult"),
   return(qqplot)
 }
 
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
 setMethod("manhattan", c("rvatResult"),
           function(object, 
                    highlight = NULL, 
@@ -477,24 +496,26 @@ setMethod("manhattan", c("rvatResult"),
               ggplot2::scale_y_continuous(limits = c(0,max(object$logp)+0.75), 
                                           expand = c(0, 0)) +
               ggplot2::guides(colour = "none") +
-              ggplot2::geom_segment(ggplot2::aes(x=min(POS), 
-                                                 xend=max(POS), 
-                                                 y=-log10(threshold), 
-                                                 yend=-log10(threshold)),
+              ggplot2::geom_segment(ggplot2::aes(x=x, 
+                                                 xend=xend, 
+                                                 y=y, 
+                                                 yend=yend),
                                     col="grey", 
-                                    linetype=2) +
+                                    linetype=2,
+                                    data = data.frame(x = min(object$POS), xend = max(object$POS), y = -log10(threshold), yend = -log10(threshold))
+                                    ) +
                ggplot2::geom_point() 
               
             if (label %in% names(object)){
               if(labelRepel) {
                 mplot=mplot + 
-                  ggrepel::geom_text_repel(ggplot2::aes_string(x="POS",y="logp",label=label),
+                  ggrepel::geom_text_repel(ggplot2::aes(x=POS,y=logp,label=.data[[label]]),
                                      data=(object[!is.na(object$logp) & object$P < labelThreshold,]),
                                      size = labelSize 
                                      )
               } else {
                 mplot=mplot + 
-                  ggplot2::geom_text(ggplot2::aes_string(x="POS",y="logp",label=label),
+                  ggplot2::geom_text(ggplot2::aes(x=POS,y=logp,label=.data[[label]]),
                                      data=(object[!is.na(object$logp) & object$P < labelThreshold,]), 
                                      nudge_y = 0.7, 
                                      angle=0, 
@@ -514,6 +535,9 @@ setMethod("manhattan", c("rvatResult"),
             return(mplot)
           })
 
+#' @rdname densityPlot
+#' @usage NULL
+#' @export
 setMethod("densityPlot", 
           signature = signature(object="rvatResult"),
           function(object, geneSet, geneSetList, showMeans = FALSE, INT = FALSE, Zcutoffs = NULL, title = "") {
@@ -686,6 +710,8 @@ setMethod("summary", "rvbResult",
 
 ### ACAT -----------------------------------------------------------------------
 
+#' @rdname rvatResult
+#' @usage NULL
 #' @export
 setMethod("ACAT", c("rvatResult"),
           function(object,

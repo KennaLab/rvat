@@ -4,6 +4,14 @@
 \name{varSetFile}
 \alias{varSetFile}
 \alias{varSetFile-class}
+\alias{show,varSetFile-method}
+\alias{metadata,varSetFile-method}
+\alias{getGdbId,varSetFile-method}
+\alias{getRvatVersion,varSetFile-method}
+\alias{length,varSetFile-method}
+\alias{listUnits,varSetFile-method}
+\alias{listVarSets,varSetFile-method}
+\alias{getVarSet,varSetFile-method}
 \title{Class to manage interactions with a varSetFile}
 \description{
 An S4 class to manage interactions with varSetFiles. varSets can be generated from annotations using

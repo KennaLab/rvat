@@ -12,6 +12,14 @@
 \alias{getCreationDate}
 \alias{gdb-class}
 \alias{show,gdb-method}
+\alias{listAnno,gdb-method}
+\alias{listCohort,gdb-method}
+\alias{getRvatVersion,gdb-method}
+\alias{getGdbId,gdb-method}
+\alias{getGdbPath,gdb-method}
+\alias{getCreationDate,gdb-method}
+\alias{getGenomeBuild,gdb-method}
+\alias{dropTable,gdb-method}
 \title{Connect and interact with a gdb}
 \description{
 Compressed SQLite (".gdb") representation of genotype data and associated variant annotation and sample info tables
@@ -20,12 +28,6 @@ The slots of the gdb class are inherited entirely from the RSQLite SQLiteConnect
 A host of RVAT methods described here allow for convenient querying and manipulation of a gdb, for complex queries
 users can also directly perform SQL queries on the gdb as exemplified in the examples and tutorials.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{path}}{Path to gdb object}
-}}
-
 \section{Connect}{
 
 \itemize{

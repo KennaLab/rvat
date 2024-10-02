@@ -5,6 +5,10 @@
 # general methods -------------------------------------------------------------
 
 ## show 
+
+#' @rdname varSet
+#' @usage NULL
+#' @export
 setMethod("show", signature="varSet",
           definition=function(object)
             {
@@ -15,12 +19,17 @@ setMethod("show", signature="varSet",
                             object@w))
             })
 
+#' @rdname varSet
+#' @usage NULL
+#' @export
 setMethod("metadata", signature="varSet",
           definition=function(x)
           {
             if (!is.null(x@metadata)) x@metadata else NULL
           })
 
+#' @rdname varSet
+#' @usage NULL
 #' @export
 setMethod("getGdbId", signature="varSet",
           definition=function(object){
@@ -28,6 +37,8 @@ setMethod("getGdbId", signature="varSet",
           }
 )
 
+#' @rdname varSet
+#' @usage NULL
 #' @export
 setMethod("getRvatVersion", signature="varSet",
           definition=function(object){
@@ -35,6 +46,9 @@ setMethod("getRvatVersion", signature="varSet",
           }
 )
 
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("show", signature="varSetList",
           definition=function(object)
             {
@@ -43,17 +57,25 @@ setMethod("show", signature="varSetList",
             print(head(object@varSets))
           })
 
+#' @rdname varSetFile
+#' @usage NULL
+#' @export
 setMethod("show", signature="varSetFile",
           definition=function(object){
             cat(sprintf("varSetFile object\nPath:%s\nUnits:%s\n", object@path, length(object@units)))
           })
 
+#' @rdname varSetFile
+#' @usage NULL
+#' @export
 setMethod("metadata", signature="varSetFile",
           definition=function(x)
           {
             x@metadata
           })
 
+#' @rdname varSetFile
+#' @usage NULL
 #' @export
 setMethod("getGdbId", signature="varSetFile",
           definition=function(object){
@@ -61,6 +83,8 @@ setMethod("getGdbId", signature="varSetFile",
           }
 )
 
+#' @rdname varSetFile
+#' @usage NULL
 #' @export
 setMethod("getRvatVersion", signature="varSetFile",
           definition=function(object){
@@ -70,11 +94,19 @@ setMethod("getRvatVersion", signature="varSetFile",
 
 ## length
 ### varSetList
+
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("length", signature = "varSetList",
           definition = function(x) {
             length(x@varSets)
           })
+
 ### varSetFile
+#' @rdname varSetFile
+#' @usage NULL
+#' @export
 setMethod("length", signature = "varSetFile",
           definition = function(x) {
             length(listUnits(x))
@@ -82,6 +114,9 @@ setMethod("length", signature = "varSetFile",
 
 ## subsetting
 
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("[[", c("varSetList", "ANY", "missing"),
           function(x, i, j, ...)
           {
@@ -90,7 +125,9 @@ setMethod("[[", c("varSetList", "ANY", "missing"),
             y
           })
 
-
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("[", c("varSetList", "ANY", "ANY"),
           function(x, i, j, ..., drop=TRUE)
           {
@@ -106,18 +143,27 @@ setMethod("[", c("varSetList", "ANY", "ANY"),
 
 ## listing items
 
+#' @rdname varSetFile
+#' @usage NULL
+#' @export
 setMethod("listUnits", signature="varSetFile",
           definition=function(object)
           {
             object@units
           })
 
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("listUnits", signature="varSetList",
           definition=function(object)
           {
             object@units
           })
 
+#' @rdname varSetFile
+#' @usage NULL
+#' @export
 setMethod("listVarSets", signature="varSetFile",
           definition=function(object, memlimit=5000)
           {
@@ -141,20 +187,27 @@ setMethod("listVarSets", signature="varSetFile",
             varsets
           })
 
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("listVarSets", signature="varSetList",
           definition=function(object)
           {
             unlist(lapply(object@varSets, FUN  = function(x) x@varSetName))
           })
 
-
+#' @rdname varSet
+#' @usage NULL
+#' @export
 setMethod("listVars", signature="varSet",
           definition=function(object)
           {
             unlist(strsplit(object@VAR_id,split=","))
           })
 
-
+#' @rdname varSet
+#' @usage NULL
+#' @export
 setMethod("listWeights", signature="varSet",
           definition=function(object)
           {
@@ -162,6 +215,8 @@ setMethod("listWeights", signature="varSet",
           })
 
 ## extract metadata
+#' @rdname varSetList
+#' @usage NULL
 #' @export
 setMethod("getGdbId", signature="varSetList",
           definition=function(object){
@@ -169,6 +224,8 @@ setMethod("getGdbId", signature="varSetList",
           }
 )
 
+#' @rdname varSetList
+#' @usage NULL
 #' @export
 setMethod("getRvatVersion", signature="varSetList",
           definition=function(object){
@@ -278,6 +335,9 @@ varSetFile=function(path, memlimit = 5000)
 
 
 # Getters ----------------------------------------------------------------------
+#' @rdname varSetFile
+#' @usage NULL
+#' @export
 setMethod("getVarSet", signature="varSetFile",
           definition=function(object, unit, varSetName = NULL)
           {
@@ -319,7 +379,9 @@ setMethod("getVarSet", signature="varSetFile",
             return(x)
           })
 
-
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("getVarSet", signature="varSetList",
           definition=function(object, unit = NULL, varSetName = NULL)
           {
@@ -363,18 +425,17 @@ setMethod("write", "varSetList",
 
 # varset utils -----------------------------------------------------------------
 
-#' @describeIn varSetList as.data.frame
-#' 
-#' Return the the geneSets contained in a \code{\link{varSetList}} object as a data.frame.
-#' 
-#' @param x a [`varSetList`] object
+#' @rdname varSetList
+#' @usage NULL
 #' @export
 setMethod("as.data.frame", signature = "varSetList",
           definition = function(x) {
             do.call(rbind, lapply(x@varSets, FUN = as.data.frame))
           })
 
-
+#' @rdname varSet
+#' @usage NULL
+#' @export
 setMethod("as.data.frame", signature = "varSet",
           definition = function(x) {
             data.frame(unit = x@unit,
@@ -401,6 +462,8 @@ setMethod("as.data.frame", signature = "varSet",
 #' @param intersection Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
 #' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
 #' @param weightName Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.
+#' @param verbose Should the function be verbose? Defaults to `TRUE`.
+
 #' @export
 setMethod("buildVarSet", 
           signature="gdb",
@@ -411,7 +474,9 @@ setMethod("buildVarSet",
                                 output = NULL,
                                 intersection = NULL,
                                 where = NULL,
-                                weightName = "1")
+                                weightName = "1",
+                                verbose = TRUE
+                                )
           {
 
             # Build query
@@ -431,9 +496,10 @@ setMethod("buildVarSet",
               genomeBuild = getGenomeBuild(object),
               creationDate = as.character(round(Sys.time(), units = "secs"))
             )
-            handle <- DBI::dbSendQuery(object,query)
+            
             if (!is.null(output))
             {
+              handle <- DBI::dbSendQuery(object,query)
               outhandle=gzfile(output,"w")
               
               # write metadata
@@ -448,7 +514,7 @@ setMethod("buildVarSet",
               }
               DBI::dbClearResult(handle)
               close(outhandle)
-              message(sprintf("Generated varSetFile: %s",output))
+              if (verbose) message(sprintf("Generated varSetFile: %s",output))
               return(varSetFile(output))
             } else {
               # Output to varSetList
@@ -599,6 +665,9 @@ setMethod("collapseVarSetList", signature="varSetList",
             }
           })
 
+#' @rdname varSetList
+#' @usage NULL
+#' @export
 setMethod("metadata", signature="varSetList",
           definition=function(x)
           {

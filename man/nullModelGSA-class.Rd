@@ -33,7 +33,9 @@ An S4 class to store and handle null models for gene set analysis
 \section{Slots}{
 
 \describe{
-\item{\code{nullmodel}}{the nullmodel}
+\item{\code{nullmodel}}{the null model}
+
+\item{\code{ID}}{ID field}
 
 \item{\code{results}}{the rvbResults the nullmodel was based on}
 

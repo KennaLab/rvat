@@ -17,7 +17,7 @@ If set to \code{FALSE}, a new \code{aggregateFile} including all aggregates acro
 \item{output}{Output file name (output will be gz compressed text).
 Defaults to \code{NULL}, in which case a data.frame will be returned.}
 
-\item{verbose}{Should the function be verbose ? Defaults to \code{TRUE}.}
+\item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Merge aggregrateFiles. Two types of merging can be performed

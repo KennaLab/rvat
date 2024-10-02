@@ -34,15 +34,21 @@ gdb_init=function(path)
 # -----------------------------------------------------------------------------------
 # Getters
 
-#' @export 
+#' @rdname gdb
+#' @usage NULL
+#' @export
 setMethod("listAnno", signature="gdb",
           definition=function(object){return(DBI::dbGetQuery(object,"select * from anno"))}
           )
 
+#' @rdname gdb
+#' @usage NULL
 #' @export
 setMethod("listCohort", signature="gdb",
           definition=function(object){return(DBI::dbGetQuery(object,"select * from cohort"))})
 
+#' @rdname gdb
+#' @usage NULL
 #' @export
 setMethod("getRvatVersion", signature="gdb",
           definition=function(object){
@@ -51,6 +57,8 @@ setMethod("getRvatVersion", signature="gdb",
             value
             })
 
+#' @rdname gdb
+#' @usage NULL
 #' @export
 setMethod("getGdbId", signature="gdb",
           definition=function(object){
@@ -60,6 +68,8 @@ setMethod("getGdbId", signature="gdb",
   }
 )
 
+#' @rdname gdb
+#' @usage NULL
 #' @export
 setMethod("getGdbPath", signature="gdb",
           definition=function(object){
@@ -67,6 +77,8 @@ setMethod("getGdbPath", signature="gdb",
           }
 )
 
+#' @rdname gdb
+#' @usage NULL
 #' @export
 setMethod("getCreationDate", signature="gdb",
           definition=function(object){
@@ -76,6 +88,8 @@ setMethod("getCreationDate", signature="gdb",
           }
 )
 
+#' @rdname gdb
+#' @usage NULL
 #' @export
 setMethod("getGenomeBuild", signature="gdb",
           definition=function(object){
@@ -442,16 +456,20 @@ setMethod("subsetGdb", signature="gdb",
             # Export new var table to output gdb
             DBI::dbExecute(object,sprintf("ATTACH '%s' as %s",output,tmp))
             query=sprintf("create table %s.var as select distinct var.* from var", tmp)
-            if (length(intersection) > 0){intersection=unlist(strsplit(intersection,split=","))}
+            if (!is.null(intersection)) {
+              intersection <- unlist(strsplit(intersection,split=","))
+            } else {
+                intersection <- c()
+              }
             for (i in intersection)
             {
               query=sprintf("%s inner join %s using (VAR_id)",query,i)
             }
-            if (length(where) > 0 && length(VAR_id) > 0){
+            if ( !is.null(where) && !is.null(VAR_id) ){
               query <- sprintf("%s where %s and VAR_id in (%s)", query, where, sprintf("'%s'", paste(VAR_id, collapse = "','")))
-            } else if (length(where) > 0) {
+            } else if ( !is.null(where) ) {
               query <- sprintf("%s where %s", query, where)
-            } else if (length(VAR_id) > 0) {
+            } else if ( !is.null(VAR_id) ) {
               query <- sprintf("%s where VAR_id in (%s)", query, sprintf("'%s'", paste(VAR_id, collapse = "','")))
               }
             DBI::dbExecute(object, query)
@@ -523,10 +541,11 @@ setMethod("subsetGdb", signature="gdb",
 setMethod("writeVcf", signature = "gdb",
           definition=function(object, 
                               output, 
-                              VAR_id, 
-                              IID, 
+                              VAR_id = NULL, 
+                              IID = NULL, 
                               includeGeno = TRUE,
-                              includeVarId = FALSE
+                              includeVarId = FALSE,
+                              verbose = TRUE
                               )
             {
 
@@ -538,15 +557,15 @@ setMethod("writeVcf", signature = "gdb",
 
             # Establish sample filtering rule
             SM=DBI::dbGetQuery(object, "select * from SM")
-            if (missing(IID))
+            if (is.null(IID))
               {
-              warning("WARNING: No IID provided, all samples will be included in output vcf")
+              if (verbose) message("No IID provided, all samples will be included in output vcf")
               IID=rep(TRUE,nrow(SM))
               } else
               {
               IID=SM$IID %in% IID
               }
-            message(sprintf("%s/%s samples to be retained in output", sum(IID), nrow(SM)))
+            if (verbose) message(sprintf("%s/%s samples to be retained in output", sum(IID), nrow(SM)))
 
             # Variant retrieval queries with / without genotype data
             if (includeGeno)
@@ -558,13 +577,13 @@ setMethod("writeVcf", signature = "gdb",
               }
 
             # Send variant retrieval queries with / without VAR_id filtering
-            if (missing(VAR_id))
+            if (is.null(VAR_id))
               {
-              warning("WARNING: No VAR_id provided, all variants will be included in output vcf")
+              if (verbose) message("No VAR_id provided, all variants will be included in output vcf")
               records=DBI::dbSendQuery(object, recordQuery)
               } else
               {
-                message(sprintf("%s variants to be retained in output",length(VAR_id)))
+                if (verbose) message(sprintf("%s variants to be retained in output",length(VAR_id)))
                 records=DBI::dbSendQuery(object, paste(recordQuery,
                                                        sprintf("where VAR_id in ('%s')",paste(VAR_id,collapse="','"))))
               }
@@ -609,8 +628,11 @@ setMethod("writeVcf", signature = "gdb",
 # -----------------------------------------------------------------------------------
 # Setters
 
+#' @rdname uploadAnno
+#' @usage NULL
+#' @export
 setMethod("uploadAnno", signature="gdb",
-          definition=function(object,name,value,sep,skipRemap,skipIndexes,ignoreAlleles,keepUnmapped,mapRef)
+          definition=function(object,name,value,sep,skipRemap,skipIndexes,ignoreAlleles,keepUnmapped,mapRef,verbose)
           {
             # check validity of table name:
             ## shouldn't be a protected table / no unsupported characters / shouldn't exist as cohort table
@@ -623,16 +645,16 @@ setMethod("uploadAnno", signature="gdb",
             if (!is(value)[[1]] %in% c("character","data.frame")){stop("value must be a valid filename or data frame object")}
             if (is(value)[[1]]=="character")
             {
-              message(sprintf("Loading table '%s' from '%s'\n",name, value))
+              if (verbose) message(sprintf("Loading table '%s' from '%s'\n",name, value))
               DBI::dbWriteTable(con=object,name=name,value=value,sep=sep,overwrite=TRUE)
             } else
             {
-              message(sprintf("Loading table '%s' from interactive R session'\n",name))
+              if (verbose) message(sprintf("Loading table '%s' from interactive R session'\n",name))
               DBI::dbWriteTable(con=object,name=name,value=value,overwrite=TRUE)
               value="interactive_session"
             }
             fields=DBI::dbListFields(object,name)
-            message(sprintf('%s fields detected (%s)\n',length(fields),paste(fields,collapse=",")))
+            if (verbose) message(sprintf('%s fields detected (%s)\n',length(fields),paste(fields,collapse=",")))
             
             # map positions to VAR_id (if skipRemap=TRUE)
             if (!skipRemap)
@@ -688,9 +710,11 @@ setMethod("uploadAnno", signature="gdb",
             DBI::dbExecute(object,"insert into anno values (:name, :value, :date)",params=list(name=name,value=value,date=date()))
           })
 
-
+#' @rdname uploadCohort
+#' @usage NULL
+#' @export
 setMethod("uploadCohort", signature="gdb",
-          definition = function(object,name,value,sep="\t")
+          definition = function(object,name,value,sep="\t",verbose=TRUE)
             {
             # check validity of table name:
             ## shouldn't be a protected table / no unsupported characters / shouldn't exist as anno table
@@ -703,25 +727,27 @@ setMethod("uploadCohort", signature="gdb",
             if (!is(value)[[1]] %in% c("character","data.frame")){stop("value must be a valid filename or data frame object")}
             if (is(value)[[1]]=="character")
               {
-              message(sprintf("Loading cohort '%s' from '%s'\n",name, value))
+              if (verbose) message(sprintf("Loading cohort '%s' from '%s'\n",name, value))
               upload=read.table(value,sep=sep,as.is=TRUE,h=TRUE)
               } else
                 {
-                  message(sprintf("Loading cohort '%s' from interactive R session\n",name))
+                  if (verbose) message(sprintf("Loading cohort '%s' from interactive R session\n",name))
                   upload=value
                   value="interactive_session"
                 }
             
             ## check and format IID,sex columns
-            message(sprintf('%s fields detected (%s)\n', ncol(upload), paste(colnames(upload),collapse=",")))
+            if (verbose) message(sprintf('%s fields detected (%s)\n', ncol(upload), paste(colnames(upload),collapse=",")))
             if (!("IID" %in% colnames(upload))){stop("No 'IID' field detected, aborting upload.")}
             if (!("sex" %in% colnames(upload))){stop("No 'sex' field detected, aborting upload.")}
             if (sum(duplicated(upload$IID)) > 0) {stop("The cohort contains duplicated IIDs.")}
             upload$sex[!(upload$sex %in% c(1,2))]=0
-            message(sprintf("%s males, %s females and %s unknown gender",
+            if(verbose) {
+              message(sprintf("%s males, %s females and %s unknown gender",
                             sum(upload$sex==1,na.rm=TRUE),
                             sum(upload$sex==2,na.rm=TRUE),
                             sum(upload$sex==0,na.rm=TRUE)))
+            }
             
             ## upload
             SM=DBI::dbGetQuery(object,'select * from SM')
@@ -729,7 +755,7 @@ setMethod("uploadCohort", signature="gdb",
             m=nrow(upload)
             upload=upload[match(SM$IID,upload$IID),]
             if (is.null(nrow(upload)) | is.null(ncol(upload))){stop("Table filtering error")}
-            message(sprintf("Retained %s of %s uploaded samples that could be mapped to dosage matrix",m,nrow(upload)))
+            if (verbose) message(sprintf("Retained %s of %s uploaded samples that could be mapped to dosage matrix",m,nrow(upload)))
             DBI::dbWriteTable(con=object,name=name,value=upload,overwrite=TRUE)
 
             # Update cohort meta-data table
@@ -738,8 +764,11 @@ setMethod("uploadCohort", signature="gdb",
             DBI::dbExecute(object,"insert into cohort values (:name, :value, :date)",params=list(name=name,value=value,date=date()))
             })
 
+#' @rdname gdb
+#' @usage NULL
+#' @export
 setMethod("dropTable", signature="gdb",
-          definition=function(object, name)
+          definition=function(object, name, verbose = TRUE)
           {
             anno=listAnno(object)
             cohort=listCohort(object)
@@ -748,7 +777,7 @@ setMethod("dropTable", signature="gdb",
             DBI::dbWriteTable(con=object,name="anno",value=anno,overwrite=TRUE)
             DBI::dbWriteTable(con=object,name="cohort",value=cohort,overwrite=TRUE)
             DBI::dbExecute(object,sprintf("drop table %s",name))
-            message(sprintf("Table '%s' removed from gdb",name))
+            if(verbose) message(sprintf("Table '%s' removed from gdb",name))
           }
         )
 

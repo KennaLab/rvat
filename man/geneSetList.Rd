@@ -3,10 +3,25 @@
 \docType{class}
 \name{geneSetList}
 \alias{geneSetList}
+\alias{listMetadata}
+\alias{dropUnits}
 \alias{remapIDs}
 \alias{geneSetList-class}
-\alias{mapToMatrix,geneSetList,rvbResult-method}
+\alias{names,geneSetList-method}
+\alias{length,geneSetList-method}
+\alias{lengths,geneSetList-method}
+\alias{show,geneSetList-method}
+\alias{metadata,geneSetList-method}
+\alias{listMetadata,geneSetList-method}
+\alias{listGeneSets,geneSetList-method}
+\alias{listUnits,geneSetList-method}
+\alias{[[,geneSetList,ANY,missing-method}
+\alias{[,geneSetList,ANY,ANY,ANY-method}
+\alias{sort,geneSetList-method}
+\alias{as.data.frame,geneSetList-method}
+\alias{as.list,geneSetList-method}
 \alias{dropUnits,geneSetList-method}
+\alias{remapIDs,geneSetList-method}
 \alias{write,geneSetList-method}
 \title{Class to manage multiple geneSets}
 \description{

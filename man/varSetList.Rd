@@ -5,8 +5,19 @@
 \alias{varSetList}
 \alias{collapseVarSetList}
 \alias{varSetList-class}
+\alias{show,varSetList-method}
+\alias{length,varSetList-method}
+\alias{[[,varSetList,ANY,missing-method}
+\alias{[,varSetList,ANY,ANY,ANY-method}
+\alias{listUnits,varSetList-method}
+\alias{listVarSets,varSetList-method}
+\alias{getGdbId,varSetList-method}
+\alias{getRvatVersion,varSetList-method}
+\alias{getVarSet,varSetList-method}
 \alias{write,varSetList-method}
+\alias{as.data.frame,varSetList-method}
 \alias{collapseVarSetList,varSetList-method}
+\alias{metadata,varSetList-method}
 \title{Class to manage multiple varSets}
 \description{
 An S4 class to manage varSets. varSets can be generated from annotations using

@@ -27,6 +27,9 @@ aggregateFile=function(path)
   new("aggregateFile", path=path, units=units, samples=samples, metadata=metadata)
 }
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("show", signature = "aggregateFile",
           definition = function(object) {
             cat(sprintf("aggregateFile object\nPath: %s\nSamples: %s\nUnits: %s\n",
@@ -35,34 +38,52 @@ setMethod("show", signature = "aggregateFile",
                         length(object@units)))
           })
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("listUnits", signature = "aggregateFile",
           definition = function(object) {
             object@units
           })
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("listSamples", signature = "aggregateFile",
           definition = function(object) {
             object@samples
           })
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("metadata", signature="aggregateFile",
           definition=function(x)
           {
             x@metadata
           })
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("getGdbId", signature="aggregateFile",
           definition=function(object)
           {
             metadata(object)$gdbId
           })
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("getRvatVersion", signature="aggregateFile",
           definition=function(object)
           {
             metadata(object)$rvatVersion
           })
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("getUnit", signature = "aggregateFile",
           definition = function(object, unit) {
             
@@ -150,6 +171,9 @@ aggregateFileList <- function(filelist, checkDups = TRUE) {
       )
 }
 
+#' @rdname aggregateFile
+#' @usage NULL
+#' @export
 setMethod("show", signature = "aggregateFile",
           definition = function(object) {
             cat(sprintf("aggregateFile object\nPath: %s\nSamples: %s\nUnits: %s\n",
@@ -159,6 +183,9 @@ setMethod("show", signature = "aggregateFile",
           })
 
 
+#' @rdname aggregateFileList
+#' @usage NULL
+#' @export
 setMethod("show", signature = "aggregateFileList",
           definition = function(object) {
             cat(sprintf("aggregateFileList object\naggregateFiles: %s\nSamples: %s\nUnits: %s\n",
@@ -168,22 +195,33 @@ setMethod("show", signature = "aggregateFileList",
             
           })
 
+#' @rdname aggregateFileList
+#' @usage NULL
+#' @export
 setMethod("listUnits", signature = "aggregateFileList",
           definition = function(object) {
             object@units
           })
 
+#' @rdname aggregateFileList
+#' @usage NULL
 #' @export
 setMethod("listSamples", signature = "aggregateFileList",
           definition = function(object) {
             object@samples
           })
 
+#' @rdname aggregateFileList
+#' @usage NULL
+#' @export
 setMethod("length", signature = "aggregateFileList",
           definition = function(x) {
             length(x@paths)
           })
 
+#' @rdname aggregateFileList
+#' @usage NULL
+#' @export
 setMethod("metadata", signature="aggregateFileList",
           definition=function(x)
           {

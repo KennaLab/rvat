@@ -1,3 +1,6 @@
+#' @rdname spatialClust
+#' @usage NULL
+#' @export
 setMethod("spatialClust", signature="gdb",
           definition = function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=c(),where=c(),weightName=1, posField="POS",minTry=5,warning=TRUE)
           {

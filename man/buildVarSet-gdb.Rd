@@ -13,7 +13,8 @@
   output = NULL,
   intersection = NULL,
   where = NULL,
-  weightName = "1"
+  weightName = "1",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -32,6 +33,8 @@
 \item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 
 \item{weightName}{Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.}
+
+\item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Generate optionally weighted variant sets using annotation table(s) uploaded to the gdb.
