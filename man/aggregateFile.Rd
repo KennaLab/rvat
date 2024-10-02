@@ -6,6 +6,14 @@
 \alias{aggregateFile}
 \alias{listSamples}
 \alias{getUnit}
+\alias{aggregateFile-class}
+\alias{show,aggregateFile-method}
+\alias{listUnits,aggregateFile-method}
+\alias{listSamples,aggregateFile-method}
+\alias{metadata,aggregateFile-method}
+\alias{getGdbId,aggregateFile-method}
+\alias{getRvatVersion,aggregateFile-method}
+\alias{getUnit,aggregateFile-method}
 \title{Class to manage interactions with an aggregateFile}
 \description{
 The \code{\link{aggregate}} method saves genotypes aggregates compressed on disk. The
@@ -58,3 +66,4 @@ Aggregate files can be merged using the \code{\link{mergeAggregateFiles}} method
 
 \code{\link{aggregate}}
 }
+\keyword{aggregateFile}

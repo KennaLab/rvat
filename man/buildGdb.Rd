@@ -6,7 +6,7 @@
 \usage{
 buildGdb(
   output,
-  vcf = c(),
+  vcf,
   skipIndexes = FALSE,
   skipVarRanges = FALSE,
   overWrite = FALSE,

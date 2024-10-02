@@ -67,9 +67,12 @@
 #' 
 #' @seealso \code{\link{assocTest}}
 #' @seealso \code{\link{recode}}
+#' @keywords gdb
 NULL
 
 
+#' @rdname genoMatrix
+#' @usage NULL
 #' @export
 setClass("genoMatrix", contains="SummarizedExperiment")
 
@@ -133,7 +136,6 @@ setClass("genoMatrix", contains="SummarizedExperiment")
 #' @seealso \code{\link{subsetGdb}}
 #' @seealso \code{\link{concatGdb}}
 #' @seealso  \code{\link{writeVcf}}
-#' @slot path Path to gdb object
 #' @keywords gdb
 NULL
 
@@ -230,8 +232,11 @@ setClassUnion("listOrNull", c("list", "NULL"))
 #' @seealso \code{\link{varSetFile}}
 #' @seealso \code{\link{varSetList}}
 #' @seealso \code{\link{getGT}}
-#' @seealso \code{\link{buildVarSet}}
-#' 
+#' @keywords varSet
+NULL
+
+#' @rdname varSet
+#' @usage NULL
 #' @export
 setClass("varSet",
          representation(
@@ -472,6 +477,11 @@ setClass("resamplingFile",
 #' @seealso \code{\link{geneSetFile}}
 #' @seealso \code{\link{geneSetList}}
 #' @seealso \code{\link{buildGeneSet}}
+#' @keywords geneSet
+NULL
+
+#' @rdname geneSet
+#' @usage NULL
 #' @export
 setClass("geneSet", 
          representation(
@@ -628,9 +638,10 @@ setClass("geneSetFile",
 #' @seealso \code{\link{aggregateFileList}}
 #' @seealso \code{\link{assocTest-aggregateFile}}
 #' @seealso \code{\link{aggregate}}
+#' @keywords aggregateFile
 NULL
 
-#' @name aggregateFile
+#' @rdname aggregateFile
 #' @usage NULL
 #' @export
 setClass("aggregateFile",
@@ -674,9 +685,10 @@ setClass("aggregateFile",
 #' @seealso \code{\link{mergeAggregateFiles}}
 #' @seealso \code{\link{assocTest-aggregateFile}}
 #' @seealso \code{\link{aggregate}}
+#' @keywords aggregateFileList
 NULL
 
-#' @name aggregateFileList
+#' @rdname aggregateFileList
 #' @usage NULL
 #' @export
 setClass("aggregateFileList",
@@ -717,7 +729,8 @@ NULL
 #' 
 #' An S4 class to store and handle null models for gene set analysis
 #' @name nullModelGSA-class
-#' @slot nullmodel the nullmodel
+#' @slot nullmodel the null model
+#' @slot ID ID field
 #' @slot results the rvbResults the nullmodel was based on
 #' @slot units units 
 #' @slot covar covariates included in the null model

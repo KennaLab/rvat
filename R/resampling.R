@@ -16,6 +16,9 @@ resamplingFile=function(path)
   new("resamplingFile", path=path, methodResampling=methodResampling, nSamples=as.numeric(nSamples), nResampling=as.numeric(nResampling))
 }
 
+#' @rdname resamplingFile
+#' @usage NULL
+#' @export
 setMethod("show", signature = "resamplingFile",
           definition = function(object) {
             cat(sprintf("resamplingFile object\nPath:%s\nResampling method: %s\nN samples: %s\nN resamplings: %s", 

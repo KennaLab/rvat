@@ -8,9 +8,9 @@
 subsetGdb(
   object,
   output,
-  intersection = c(),
-  where = c(),
-  VAR_id = c(),
+  intersection = NULL,
+  where = NULL,
+  VAR_id = NULL,
   tables = NULL,
   skipIndexes = FALSE,
   overWrite = FALSE,

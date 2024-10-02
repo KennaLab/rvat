@@ -4,12 +4,14 @@
 \alias{dropTable}
 \title{Drop table from gdb}
 \usage{
-dropTable(object, name)
+dropTable(object, name, verbose = TRUE)
 }
 \arguments{
 \item{object}{\code{\link{gdb}} object.}
 
 \item{name}{Name of table to drop.}
+
+\item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Drop table from \code{\link{gdb}} and clear from annotation / cohort metadata tables.

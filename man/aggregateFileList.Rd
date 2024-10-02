@@ -3,6 +3,12 @@
 \docType{class}
 \name{aggregateFileList}
 \alias{aggregateFileList}
+\alias{aggregateFileList-class}
+\alias{show,aggregateFileList-method}
+\alias{listUnits,aggregateFileList-method}
+\alias{listSamples,aggregateFileList-method}
+\alias{length,aggregateFileList-method}
+\alias{metadata,aggregateFileList-method}
 \title{Class to facilitate merging aggregateFiles}
 \description{
 Class to facilitate merging aggregateFiles. By providing a vector of aggregateFile filepaths,
@@ -45,3 +51,4 @@ all aggregatefiles into a new aggregateFile. See \code{\link{mergeAggregateFiles
 
 \code{\link{aggregate}}
 }
+\keyword{aggregateFileList}

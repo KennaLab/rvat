@@ -5,9 +5,25 @@
 \alias{writeVcf,gdb-method}
 \title{writeVcf}
 \usage{
-writeVcf(object, output, VAR_id, IID, includeGeno = TRUE, includeVarId = FALSE)
+writeVcf(
+  object,
+  output,
+  VAR_id = NULL,
+  IID = NULL,
+  includeGeno = TRUE,
+  includeVarId = FALSE,
+  verbose = TRUE
+)
 
-\S4method{writeVcf}{gdb}(object, output, VAR_id, IID, includeGeno = TRUE, includeVarId = FALSE)
+\S4method{writeVcf}{gdb}(
+  object,
+  output,
+  VAR_id = NULL,
+  IID = NULL,
+  includeGeno = TRUE,
+  includeVarId = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{Input \code{\link{gdb}}.}
@@ -23,6 +39,8 @@ Defaults to \code{TRUE}.}
 
 \item{includeVarId}{Include VAR_ids in the 'ID' field? Defaults to \code{FALSE},
 in which case the 'ID' field from the 'var' table is included.}
+
+\item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Takes input and outputs to file in vcf format.

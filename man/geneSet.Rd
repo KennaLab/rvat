@@ -3,7 +3,12 @@
 \docType{class}
 \name{geneSet}
 \alias{geneSet}
+\alias{geneSet-class}
 \alias{metadata,geneSet-method}
+\alias{length,geneSet-method}
+\alias{as.data.frame,geneSet-method}
+\alias{listUnits,geneSet-method}
+\alias{listWeights,geneSet-method}
 \title{Class that represents a geneSet}
 \description{
 An S4 class to manage an individual geneSet record. Usually multiple geneSets
@@ -37,3 +42,4 @@ In the following code snippets, x is a geneSet object.
 
 \code{\link{buildGeneSet}}
 }
+\keyword{geneSet}

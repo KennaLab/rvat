@@ -14,8 +14,9 @@
 #' Defaults to `TRUE`.
 #' @param includeVarId Include VAR_ids in the 'ID' field? Defaults to `FALSE`, 
 #' in which case the 'ID' field from the 'var' table is included.
+#' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @export
-setGeneric("writeVcf", function(object, output, VAR_id, IID, includeGeno=TRUE,  includeVarId = FALSE) standardGeneric("writeVcf"))
+setGeneric("writeVcf", function(object, output, VAR_id = NULL, IID = NULL, includeGeno=TRUE, includeVarId = FALSE, verbose = TRUE) standardGeneric("writeVcf"))
 
 #' @rdname gdb
 #' @usage NULL
@@ -153,7 +154,7 @@ setGeneric("getGT", function(object, varSet = NULL, VAR_id = NULL, ranges = NULL
 #' Defaults to `FALSE`.
 #' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @export
-setGeneric("subsetGdb", function(object, output, intersection=c(), where=c(), VAR_id=c(), tables=NULL, skipIndexes=FALSE, overWrite=FALSE, verbose = TRUE) standardGeneric("subsetGdb"))
+setGeneric("subsetGdb", function(object, output, intersection = NULL, where = NULL, VAR_id = NULL, tables = NULL, skipIndexes = FALSE, overWrite = FALSE, verbose = TRUE) standardGeneric("subsetGdb"))
 
 #' Upload variant annotation into gdb.
 #'
@@ -168,8 +169,9 @@ setGeneric("subsetGdb", function(object, output, intersection=c(), where=c(), VA
 #' @param ignoreAlleles Flag indicating whether to consider REF and ALT allele during mapping of records to VAR_id or just CHROM,POS. Defaults to `FALSE`.
 #' @param keepUnmapped Flag indicating whether to keep records which cannot be mapped to the gdb. Defaults to `FALSE`.
 #' @param mapRef Name of lookup table for VAR_id assignment. Defaults to "var".
+#' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @export
-setGeneric("uploadAnno", function(object, name, value, sep="\t", skipRemap=FALSE, skipIndexes=FALSE, ignoreAlleles=FALSE, keepUnmapped=FALSE, mapRef="var") standardGeneric("uploadAnno"))
+setGeneric("uploadAnno", function(object, name, value, sep="\t", skipRemap=FALSE, skipIndexes=FALSE, ignoreAlleles=FALSE, keepUnmapped=FALSE, mapRef="var", verbose = TRUE) standardGeneric("uploadAnno"))
 
 #' mapVariants
 #' 
@@ -223,16 +225,18 @@ setGeneric("mapVariants", function(object,
 #' @param name Name to assign to cohort.
 #' @param value Input data frame or a valid file path. Must contain an 'IID' column matching to SM table and a 'sex' column (0=missing,1=male,2=female).
 #' @param sep Field delimiter (applies only when value is a text file). Defaults to `\\t`.
+#' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @export
-setGeneric("uploadCohort", function(object,name,value,sep="\t") standardGeneric("uploadCohort"))
+setGeneric("uploadCohort", function(object,name,value,sep="\t",verbose=TRUE) standardGeneric("uploadCohort"))
 
 #' Drop table from gdb
 #'
 #' Drop table from [`gdb`] and clear from annotation / cohort metadata tables.
 #' @param object [`gdb`] object.
 #' @param name  Name of table to drop.
+#' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @export
-setGeneric("dropTable", function(object, name) standardGeneric("dropTable"))
+setGeneric("dropTable", function(object, name, verbose = TRUE) standardGeneric("dropTable"))
 
 # gdbUtils --------------------------------------------------------------------------
 
@@ -782,7 +786,7 @@ setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 #' If set to `FALSE`, a new `aggregateFile` including all aggregates across aggregateFiles will be generated
 #' @param output Output file name (output will be gz compressed text). 
 #' Defaults to `NULL`, in which case a data.frame will be returned.
-#' @param verbose Should the function be verbose ? Defaults to `TRUE`.
+#' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #' @export
 setGeneric("mergeAggregateFiles", function(
     object,
@@ -802,9 +806,13 @@ setGeneric("mergeAggregateFiles", function(
 #' @export
 setGeneric("listGeneSets", function(object) standardGeneric("listGeneSets"))
 
+#' @rdname geneSetList
+#' @usage NULL
 #' @export
 setGeneric("listMetadata", function(object) standardGeneric("listMetadata"))
 
+#' @keywords internal
+#' @noRd 
 setGeneric("mapToMatrix", function(object, results, ID = "unit", sparse = TRUE) standardGeneric("mapToMatrix"))
 
 #' Get geneset(s) from a geneSetList/geneSetFile
@@ -818,7 +826,7 @@ setGeneric("mapToMatrix", function(object, results, ID = "unit", sparse = TRUE) 
 #' @export
 setGeneric("getGeneSet", function(object, geneSet = NULL, unit = NULL) standardGeneric("getGeneSet"))
 
-#' @rdname dropUnits
+#' @rdname geneSetList
 #' @usage NULL
 #' @export
 setGeneric("dropUnits", function(object, unit = NULL) standardGeneric("dropUnits"))
@@ -829,14 +837,13 @@ setGeneric("dropUnits", function(object, unit = NULL) standardGeneric("dropUnits
 setGeneric("remapIDs", function(object, 
                                 dict, 
                                 targets = NULL, 
-                                duplicate_ids = c("keep_all", "random")) standardGeneric("remapIDs"))
+                                duplicate_ids = c("keep_all", "random"),
+                                verbose = TRUE
+                                ) standardGeneric("remapIDs"))
 
-#' @describeIn geneSetFile-class as.geneSetList
-#' 
-#' Convert a geneSetFile to a geneSetList object
-#' 
-#' @param object a \code{\link[geneSetFile]{geneSetFile-class}} object
-#' 
+#' @rdname geneSetFile
+#' @usage NULL
+#' @export
 setGeneric("as.geneSetList", function(object) standardGeneric("as.geneSetList"))
 
 setGeneric("checkDuplicates", function(object, stop = TRUE) standardGeneric("checkDuplicates"))
@@ -873,6 +880,7 @@ setGeneric("checkDuplicates", function(object, stop = TRUE) standardGeneric("che
 #' @param ID ID column in the rvbResult that corresponds with the IDs used in the geneSetList.
 #' Defaults to 'unit'.
 #' @param output Optional: save results to specified path
+#' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #' @references
 #' Gogarten SM, Sofer T, Chen H, Yu C, Brody JA, Thornton TA, Rice KM, Conomos MP. Genetic association testing using the GENESIS R/Bioconductor package. Bioinformatics. 2019 Dec 15;35(24):5346-5348
 #' @export
@@ -893,7 +901,8 @@ setGeneric("geneSetAssoc", function(object,
                                     memlimit = 1000, 
                                     REML = TRUE,
                                     ID = "unit",
-                                    output = NULL
+                                    output = NULL,
+                                    verbose = TRUE
 ) standardGeneric("geneSetAssoc"))
 
 

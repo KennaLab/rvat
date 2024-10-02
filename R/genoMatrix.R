@@ -2,7 +2,9 @@
 # genoMatrix objects
 #===============================================================================
 
-
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("show", signature="genoMatrix",
           function(object)
             {
@@ -105,7 +107,9 @@ setMethod(".resetSexChromDosage", signature="genoMatrix",
               object
             })
 
-
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("getAF", signature="genoMatrix",
           definition=function(object)
           {
@@ -154,6 +158,9 @@ setMethod("getAF", signature="genoMatrix",
             }
           })
 
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("getMAF", signature="genoMatrix",
           definition=function(object)
           {
@@ -161,6 +168,9 @@ setMethod("getMAF", signature="genoMatrix",
            getAF(object)
           })
 
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("getAC", signature="genoMatrix",
           definition=function(object)
           {
@@ -181,6 +191,9 @@ setMethod("getAC", signature="genoMatrix",
             ac
           })
 
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("getMAC", signature="genoMatrix",
           definition=function(object)
           {
@@ -188,6 +201,9 @@ setMethod("getMAC", signature="genoMatrix",
             getAC(object)
           })
 
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("getNCarriers", signature="genoMatrix",
           definition=function(object)
           {
@@ -195,6 +211,9 @@ setMethod("getNCarriers", signature="genoMatrix",
             carriers
           })
 
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("getCR", signature="genoMatrix",
           definition=function(object, var = TRUE)
           {
@@ -205,7 +224,9 @@ setMethod("getCR", signature="genoMatrix",
             }
           })
 
-
+#' @rdname genoMatrix
+#' @usage NULL
+#' @export
 setMethod("summariseGeno", signature="genoMatrix",
           definition=function(object)
           {
@@ -260,6 +281,8 @@ hweTest <- function(ref,het,hom,af)
 
 # Setters ------------------------------------------------------------------------
 
+#' @rdname genoMatrix
+#' @usage NULL
 #' @export
 setMethod("[",signature=c("genoMatrix"),
           function(x, i, j, drop=TRUE)
@@ -282,6 +305,8 @@ setMethod("[",signature=c("genoMatrix"),
             out
           })
 
+#' @rdname genoMatrix
+#' @usage NULL
 #' @export
 setMethod("updateGT", signature="genoMatrix",
           definition=function(object, SM = NULL, anno = NULL)
@@ -327,6 +352,8 @@ setMethod("updateGT", signature="genoMatrix",
             return(object)
             })
 
+#' @rdname genoMatrix
+#' @usage NULL
 #' @export
 setMethod("flipToMinor", signature="genoMatrix",
           definition=function(object)
@@ -383,7 +410,7 @@ setMethod("flipToMinor", signature="genoMatrix",
                     }
                     
                   }
-                  object <- BiocBaseUtils::setSlots(object, assays=Assays(SimpleList(GT=GT)))
+                  object <- BiocGenerics:::replaceSlots(object, assays=Assays(SimpleList(GT=GT)))
                 }
               }
               object
@@ -404,6 +431,8 @@ setMethod("flipToMinor", signature="genoMatrix",
   }
 }
 
+#' @rdname genoMatrix
+#' @usage NULL
 #' @export
 setMethod("recode", signature = "genoMatrix",
           definition = function(object, geneticModel, imputeMethod, weights, MAFweights)
@@ -478,6 +507,8 @@ setMethod("recode", signature = "genoMatrix",
           })
 
 
+#' @rdname genoMatrix
+#' @usage NULL
 #' @export
 setMethod("aggregate", signature = "genoMatrix",
           definition = function(x, returnGT = TRUE, checkMissing=TRUE)
@@ -503,6 +534,8 @@ setMethod("aggregate", signature = "genoMatrix",
             if(returnGT) return(x) else return(colData(x)$aggregate)
           })
 
+#' @rdname genoMatrix
+#' @usage NULL
 #' @export
 setMethod("getCarriers", signature = "genoMatrix",
           definition = function(object, 

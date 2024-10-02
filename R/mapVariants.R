@@ -162,7 +162,7 @@ setMethod("mapVariants",
   ## if output is written to gdb, update metadata, indexes
   if (!is.null(uploadName)) {
     fields <- DBI::dbListFields(object,uploadName)
-    message(sprintf('%s fields detected (%s)\n',length(fields),paste(fields,collapse=",")))
+    if (verbose) message(sprintf('%s fields detected (%s)\n',length(fields),paste(fields,collapse=",")))
     
     # Update annotation meta-data table
     anno <- listAnno(object)

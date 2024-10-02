@@ -85,10 +85,8 @@ setValidity2("gsaResult", function(object) {
 
 ### Summary --------------------------------------------------------------------
 
-#' @describeIn gsaResult summary
-#' @param object \code{\link{gsaResult}} object
-#' @param asList If `TRUE`, will return a list rather than printing to the console.
-#' Defaults to `FALSE`.
+#' @rdname rvatResult
+#' @usage NULL
 #' @export
 setMethod("summary", "gsaResult",
           function(object, asList=FALSE, ...)
