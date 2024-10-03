@@ -743,11 +743,11 @@ setMethod("assocTest",
         
         ## check if converged, if not, set to NA
         if (.check_conv_firth(fit, maxit=maxitFirth)) {
-          effect["firth"] <- exp(fit$coefficients["aggregate"])
+          effect["firth"] <- fit$coefficients["aggregate"]
           OR["firth"] <- exp(fit$coefficients["aggregate"])
-          effectSE["firth"] <- sqrt(effect["firth"]^2 * diag(vcov(fit))["aggregate"])
-          effectCIlower["firth"] <- exp(fit$ci.lower["aggregate"])
-          effectCIupper["firth"] <- exp(fit$ci.upper["aggregate"])
+          effectSE["firth"] <- sqrt(diag(vcov(fit)))["aggregate"]
+          effectCIlower["firth"] <- fit$ci.lower["aggregate"]
+          effectCIupper["firth"] <- fit$ci.upper["aggregate"]
           P["firth"] <- fit$prob["aggregate"]
         } else {
           effect["firth"]=OR["firth"]=effectSE["firth"]=effectCIlower["firth"]=effectCIupper["firth"]=P["firth"]=NA
@@ -762,12 +762,12 @@ setMethod("assocTest",
   {
     tryCatch(
       {
-        fit <- glm(model, data=colData(GT), family = "binomial")
-        effect["glm"] <- exp(summary(fit)$coef["aggregate", 1])
+        fit <- glm(model, data = colData(GT), family = "binomial")
+        effect["glm"] <- summary(fit)$coef["aggregate", 1]
         OR["glm"] <- exp(summary(fit)$coef["aggregate", 1])
-        effectSE["glm"] <- sqrt(effect["glm"]^2 * diag(vcov(fit))["aggregate"])
-        effectCIlower["glm"] <- exp(confint.default(fit)["aggregate",1])
-        effectCIupper["glm"] <- exp(confint.default(fit)["aggregate",2])
+        effectSE["glm"] <- summary(fit)$coef["aggregate", 2]
+        effectCIlower["glm"] <- confint.default(fit)["aggregate",1]
+        effectCIupper["glm"] <- confint.default(fit)["aggregate",2]
         P["glm"] <- summary(fit)$coef["aggregate", 4]
       },
       error=function(e){message(sprintf("Failed test '%s'\n%s", "glm", e))}
@@ -1239,10 +1239,10 @@ setMethod("assocTest",
                                   plcontrol = logistf::logistpl.control(maxit=maxitFirth)
                                   )
           if (.check_conv_firth(fit, maxit=maxitFirth)) {
-            effect[i] <- exp(fit$coefficients["aggregate"])
-            effectSE[i] <- sqrt(effect[i]^2 * diag(vcov(fit))["aggregate"])
-            effectCIlower[i] <- exp(fit$ci.lower["aggregate"])
-            effectCIupper[i] <- exp(fit$ci.upper["aggregate"])
+            effect[i] <- fit$coefficients["aggregate"]
+            effectSE[i] <- sqrt(diag(vcov(fit)))["aggregate"]
+            effectCIlower[i] <- fit$ci.lower["aggregate"]
+            effectCIupper[i] <- fit$ci.upper["aggregate"]
             P[i] <- fit$prob["aggregate"]
           } 
           
@@ -1250,7 +1250,7 @@ setMethod("assocTest",
                                              "firth", rownames(GT)[i],e))}
       )
     }
-    Pl[["firth"]]=P;ORl[["firth"]]=effect;effectl[["firth"]]=effect;effectSEl[["firth"]]=effectSE;effectCIlowerl[["firth"]]=effectCIlower;effectCIupperl[["firth"]]=effectCIupper
+    Pl[["firth"]]=P;ORl[["firth"]]=exp(effect);effectl[["firth"]]=effect;effectSEl[["firth"]]=effectSE;effectCIlowerl[["firth"]]=effectCIlower;effectCIupperl[["firth"]]=effectCIupper
   }
   
   # glm logistic regression
@@ -1263,17 +1263,17 @@ setMethod("assocTest",
           fit <- glm(model, 
                      data = cbind(aggregate = assays(GT)$GT[i,], data.frame(colData(GT))), 
                      family = binomial(link = "logit"))
-          effect[i] <- exp(summary(fit)$coef["aggregate", 1])
-          effectSE[i] <- sqrt(effect[i]^2 * diag(vcov(fit))["aggregate"])
-          effectCIlower[i] <- exp(confint.default(fit)["aggregate",1])
-          effectCIupper[i] <- exp(confint.default(fit)["aggregate",2])
+          effect[i] <- summary(fit)$coef["aggregate", 1]
+          effectSE[i] <- summary(fit)$coef["aggregate", 2]
+          effectCIlower[i] <- confint.default(fit)["aggregate", 1]
+          effectCIupper[i] <- confint.default(fit)["aggregate",2]
           P[i] <- summary(fit)$coef["aggregate", 4]
         },
         error=function(e){message(sprintf("Failed test '%s' for variant '%s'\n%s", 
                                           "glm", rownames(GT)[i],e))}
       )
     }
-    Pl[["glm"]]=P;ORl[["glm"]]=effect;effectl[["glm"]]=effect;effectSEl[["glm"]]=effectSE;effectCIlowerl[["glm"]]=effectCIlower;effectCIupperl[["glm"]]=effectCIupper
+    Pl[["glm"]]=P;ORl[["glm"]]=exp(effect);effectl[["glm"]]=effect;effectSEl[["glm"]]=effectSE;effectCIlowerl[["glm"]]=effectCIlower;effectCIupperl[["glm"]]=effectCIupper
   }
   if ("nbinom" %in% test) {
     P=OR=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
