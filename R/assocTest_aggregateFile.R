@@ -333,11 +333,11 @@ setMethod("assocTest",
                                 )
         
         if (.check_conv_firth(fit, maxit=maxitFirth)) {
-          effect["firth"] <- exp(fit$coefficients["aggregate"])
+          effect["firth"] <- fit$coefficients["aggregate"]
           OR["firth"] <- exp(fit$coefficients["aggregate"])
-          effectSE["firth"] <- sqrt(effect["firth"]^2 * diag(vcov(fit))["aggregate"])
-          effectCIlower["firth"] <- exp(fit$ci.lower["aggregate"])
-          effectCIupper["firth"] <- exp(fit$ci.upper["aggregate"])
+          effectSE["firth"] <- sqrt(diag(vcov(fit)))["aggregate"]
+          effectCIlower["firth"] <- fit$ci.lower["aggregate"]
+          effectCIupper["firth"] <- fit$ci.upper["aggregate"]
           P["firth"] <- fit$prob["aggregate"]
         } else {
           effect["firth"]=OR["firth"]=effectSE["firth"]=effectCIlower["firth"]=effectCIupper["firth"]=P["firth"]=NA
@@ -352,11 +352,11 @@ setMethod("assocTest",
     tryCatch(
       {
         fit <- glm(model, data=cohort, family = "binomial")
-        effect["glm"] <- exp(summary(fit)$coef["aggregate", 1])
+        effect["glm"] <- summary(fit)$coef["aggregate", 1]
         OR["glm"] <- exp(summary(fit)$coef["aggregate", 1])
-        effectSE["glm"] <- sqrt(effect["glm"]^2 * diag(vcov(fit))["aggregate"])
-        effectCIlower["glm"] <- exp(confint.default(fit)["aggregate",1])
-        effectCIupper["glm"] <- exp(confint.default(fit)["aggregate",2])
+        effectSE["glm"] <- summary(fit)$coef["aggregate", 2]
+        effectCIlower["glm"] <- confint.default(fit)["aggregate",1]
+        effectCIupper["glm"] <- confint.default(fit)["aggregate",2]
         P["glm"] <- summary(fit)$coef["aggregate", 4]
       },
       error=function(e){message(sprintf("Failed test '%s'\n%s", "glm", e))}
