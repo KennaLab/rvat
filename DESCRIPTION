@@ -39,6 +39,7 @@ Collate:
     'utils.R'
     'varSet.R'
     'vcfUtils.R'
+    'zzz.R'
 Suggests: 
     testthat (>= 3.0.0), rvatData, withr, readr
 Config/testthat/edition: 3

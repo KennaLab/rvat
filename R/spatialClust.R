@@ -2,18 +2,19 @@
 #' @usage NULL
 #' @export
 setMethod("spatialClust", signature="gdb",
-          definition = function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=c(),where=c(),weightName=1, posField="POS",minTry=5,warning=TRUE)
+          definition = function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=NULL,where=NULL,weightName=1, posField="POS",minTry=5,warning=TRUE)
           {
             if (length(windowSize)!=length(overlap)){stop(sprintf("Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
                                                                   paste(windowSize,collapse=","),paste(overlap,collapse=",")))}
             output=gzfile(output,"w")
             query=sprintf("select distinct %s as unit, VAR_id, %s as weight, %s as POS from %s", unitName, weightName, posField, unitTable)
-            if (length(intersection)>0){intersection=unlist(strsplit(intersection,split=","))}
+            
+            if (!is.null(intersection)){intersection=unlist(strsplit(intersection,split=","))}
             for (i in intersection)
             {
               query=sprintf("%s inner join %s using (VAR_id)",query,i)
             }
-            if (length(where)>0){query=sprintf("%s where %s",query, where)}
+            if (!is.null(where)){query <- sprintf("%s where %s",query, where)}
             query=sprintf("select unit, group_concat(VAR_id) as VAR_id, group_concat(weight) as weight, '%s' as varSetName, group_concat(POS) as POS from (%s) x group by unit",varSetName, query)
             
             metadata <- list(

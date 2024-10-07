@@ -102,7 +102,7 @@ setMethod("mapVariants",
   # chromosomes that overlap between gdb and ranges
   ## note: convert both to NCBI format to check overlap
   chroms <- getAnno(object, "var_ranges", fields="CHROM")$CHROM
-  chroms_ncbi <- GenomicRanges::GRanges(seqnames = chroms, ranges = IRanges(start=1))
+  chroms_ncbi <- GenomicRanges::GRanges(seqnames = chroms, ranges = IRanges::IRanges(start=1))
   GenomeInfoDb::seqlevelsStyle(chroms_ncbi) <- "NCBI"
   chroms <- setNames(as.character(seqnames(chroms_ncbi)), nm = chroms)
   chroms <- names(chroms[chroms %in% GenomeInfoDb::seqlevels(ranges)])

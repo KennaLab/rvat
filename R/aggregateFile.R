@@ -237,90 +237,101 @@ setMethod("mergeAggregateFiles",
           signature = signature(object="aggregateFileList"),
           definition=function(
             object,
-            collapse = TRUE,
             output = NULL,
             verbose = TRUE
           )
           {
-            if(collapse) {
-              agg <- vector(mode = "numeric", length = length(listSamples(object)))
-              
-              for(i in 1:length(object)) {
-                if(verbose) message(sprintf("%s/%s", i, length(object)))
-                dat <- aggregateFile(object@paths[i])
-                dat <- getUnit(dat, unit = listUnits(dat))
-                dat <- colSums(dat) 
-                agg <- agg + dat
-                }
-              agg <- data.frame(
-                IID = listSamples(object),
-                aggregate = agg,
-                stringsAsFactors = FALSE
-              )
-              if(is.null(output)) {
-                return(agg)
-              } else {
-                write.table(
-                  agg,
-                  file = gzfile(output),
-                  quote = FALSE,
-                  sep = "\t",
-                  row.names = FALSE
-                )
-              }
-               } else {
-                 if(!is.null(output)) {
-                   output <- gzcon(file(output,open='wb'))
-                   
-                   # write metadata
-                   metadata <- metadata(object)
-                   metadata$creationDate <- as.character(round(Sys.time(), units = "secs"))
-                   .write_rvat_header(filetype = "aggregateFile", 
-                                      metadata = metadata(object), 
-                                      con = output)
-                   
-                   # write sample and unit IDs
-                   write(paste(listSamples(object), collapse = ","), 
-                         file = output, append = FALSE) 
-                   write(paste(listUnits(object), collapse=","), 
-                         file = output, append = TRUE)
-                   dat <- lapply(
-                     1:length(object),
-                     FUN = function(i, object, verbose) {
-                       if(verbose) message(sprintf("%s/%s", i, length(object)))
-                       # skip header
-                       header <- readLines(object@paths[i], n = length(metadata_aggregate) + 1) # metadata + filetype
-                       skip <- sum(startsWith(header, "#"))
-                       dat <- read.table(object@paths[i], skip = 2 + skip, header = FALSE)
-                       write.table(
-                         dat,
-                         file = output,
-                         quote = FALSE,
-                         sep = "\t",
-                         row.names = FALSE,
-                         col.names = FALSE
-                       )
-                     },
-                     object = object,
-                     verbose = verbose
+             if(!is.null(output)) {
+               output <- gzcon(file(output,open='wb'))
+               
+               # write metadata
+               metadata <- metadata(object)
+               metadata$creationDate <- as.character(round(Sys.time(), units = "secs"))
+               .write_rvat_header(filetype = "aggregateFile", 
+                                  metadata = metadata(object), 
+                                  con = output)
+               
+               # write sample and unit IDs
+               write(paste(listSamples(object), collapse = ","), 
+                     file = output, append = FALSE) 
+               write(paste(listUnits(object), collapse=","), 
+                     file = output, append = TRUE)
+               dat <- lapply(
+                 1:length(object),
+                 FUN = function(i, object, verbose) {
+                   if(verbose) message(sprintf("%s/%s", i, length(object)))
+                   # skip header
+                   header <- readLines(object@paths[i], n = length(metadata_aggregate) + 1) # metadata + filetype
+                   skip <- sum(startsWith(header, "#"))
+                   dat <- read.table(object@paths[i], skip = 2 + skip, header = FALSE)
+                   write.table(
+                     dat,
+                     file = output,
+                     quote = FALSE,
+                     sep = "\t",
+                     row.names = FALSE,
+                     col.names = FALSE
                    )
-                   close(output)
-                 } else {
-                   dat <- lapply(
-                     1:length(object),
-                     FUN = function(i, object, verbose) {
-                       if(verbose) message(sprintf("%s/%s", i, length(object)))
-                       dat <- aggregateFile(object@paths[i])
-                       dat <- getUnit(dat, unit = listUnits(dat))
-                       dat
-                     },
-                     object = object,
-                     verbose = verbose
-                   )
-                   
-                   dat <- do.call(rbind, dat)
-                   return(dat)
-                 }
-              }
-            }
+                 },
+                 object = object,
+                 verbose = verbose
+               )
+               close(output)
+             } else {
+               dat <- lapply(
+                 1:length(object),
+                 FUN = function(i, object, verbose) {
+                   if(verbose) message(sprintf("%s/%s", i, length(object)))
+                   dat <- aggregateFile(object@paths[i])
+                   dat <- getUnit(dat, unit = listUnits(dat))
+                   dat
+                 },
+                 object = object,
+                 verbose = verbose
+               )
+               
+               dat <- do.call(rbind, dat)
+               return(dat)
+             }
+          }
+        )
+
+
+#' @rdname collapseAggregateFiles
+#' @usage NULL
+#' @export
+setMethod("collapseAggregateFiles", 
+          signature = signature(object="aggregateFileList"),
+          definition=function(
+            object,
+            output = NULL,
+            verbose = TRUE
           )
+          {
+            agg <- vector(mode = "numeric", length = length(listSamples(object)))
+            
+            for(i in 1:length(object)) {
+              if(verbose) message(sprintf("%s/%s", i, length(object)))
+              dat <- aggregateFile(object@paths[i])
+              dat <- getUnit(dat, unit = listUnits(dat))
+              dat <- colSums(dat) 
+              agg <- agg + dat
+            }
+            agg <- data.frame(
+              IID = listSamples(object),
+              aggregate = agg,
+              stringsAsFactors = FALSE
+            )
+            if(is.null(output)) {
+              return(agg)
+            } else {
+              write.table(
+                agg,
+                file = gzfile(output),
+                quote = FALSE,
+                sep = "\t",
+                row.names = FALSE
+              )
+            }
+        }
+)

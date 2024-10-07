@@ -41,7 +41,7 @@
   maxCarriers = Inf,
   minCarrierFreq = 0,
   maxCarrierFreq = Inf,
-  memlimit = Inf,
+  memlimit = 1000,
   verbose = TRUE,
   strict = TRUE
 )
