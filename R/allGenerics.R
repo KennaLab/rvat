@@ -456,7 +456,7 @@ setGeneric("collapseVarSetList", function(object,...) standardGeneric("collapseV
 #' @references
 #' Loehlein Fier, H. et al. On the association analysis of genome-sequencing data: A spatial clustering approach for partitioning the entire genome into nonoverlapping windows: F ier et al . Genet. Epidemiol. 41, 332–340 (2017).
 #' @export
-setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=c(),where=c(),weightName=1, posField="POS",minTry=5,warning=TRUE) standardGeneric("spatialClust"))
+setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection = NULL,where=NULL,weightName=1, posField="POS",minTry=5,warning=TRUE) standardGeneric("spatialClust"))
 
 # assocTest -------------------------------------------------------------------
 
@@ -774,26 +774,37 @@ setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 
 #' Merge multiple aggregate files
 #' 
-#' Merge aggregrateFiles. Two types of merging can be performed
-#' 1) `aggregate=TRUE`: Aggregate values across aggregateFiles. This will result in one aggregate score for
-#' each sample, representing the aggregate value across aggregate files. 
-#' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
-#' 2) `aggregate=FALSE`: Generate a new `aggregateFile` including all aggregates across aggregateFiles.
+#' Merge aggregrateFiles, this will generate a new `aggregateFile` including all aggregates across provided aggregateFiles.
 #'
 #' @param object an [`aggregateFileList`] object.
-#' @param collapse Collapse aggregate? Defaults to `TRUE`, which will result in one aggregate score for
-#' each sample, representing the aggregate value across aggregate files. 
-#' If set to `FALSE`, a new `aggregateFile` including all aggregates across aggregateFiles will be generated
 #' @param output Output file name (output will be gz compressed text). 
 #' Defaults to `NULL`, in which case a data.frame will be returned.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #' @export
 setGeneric("mergeAggregateFiles", function(
     object,
-    collapse = TRUE,
     output = NULL,
     verbose = TRUE
 ) standardGeneric("mergeAggregateFiles"))
+
+
+
+#' Collapse multiple aggregate files
+#' 
+#' Collapse aggregrateFiles by aggregate values across aggregateFiles. This will result in one aggregate score for
+#' each sample, representing the aggregate value across aggregate files. 
+#' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
+#'
+#' @param object an [`aggregateFileList`] object.
+#' @param output Output file name (output will be gz compressed text). 
+#' Defaults to `NULL`, in which case a data.frame will be returned.
+#' @param verbose Should the function be verbose? Defaults to `TRUE`.
+#' @export
+setGeneric("collapseAggregateFiles", function(
+    object,
+    output = NULL,
+    verbose = TRUE
+) standardGeneric("collapseAggregateFiles"))
 
 
 # geneSetAssoc --------------------------------------------------------

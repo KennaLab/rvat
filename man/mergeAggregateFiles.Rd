@@ -5,14 +5,10 @@
 \alias{mergeAggregateFiles,aggregateFileList-method}
 \title{Merge multiple aggregate files}
 \usage{
-mergeAggregateFiles(object, collapse = TRUE, output = NULL, verbose = TRUE)
+mergeAggregateFiles(object, output = NULL, verbose = TRUE)
 }
 \arguments{
 \item{object}{an \code{\link{aggregateFileList}} object.}
-
-\item{collapse}{Collapse aggregate? Defaults to \code{TRUE}, which will result in one aggregate score for
-each sample, representing the aggregate value across aggregate files.
-If set to \code{FALSE}, a new \code{aggregateFile} including all aggregates across aggregateFiles will be generated}
 
 \item{output}{Output file name (output will be gz compressed text).
 Defaults to \code{NULL}, in which case a data.frame will be returned.}
@@ -20,11 +16,5 @@ Defaults to \code{NULL}, in which case a data.frame will be returned.}
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
-Merge aggregrateFiles. Two types of merging can be performed
-\enumerate{
-\item \code{aggregate=TRUE}: Aggregate values across aggregateFiles. This will result in one aggregate score for
-each sample, representing the aggregate value across aggregate files.
-The output will be a two-column matrix including sample IDs and aggregate scores respectively.
-\item \code{aggregate=FALSE}: Generate a new \code{aggregateFile} including all aggregates across aggregateFiles.
-}
+Merge aggregrateFiles, this will generate a new \code{aggregateFile} including all aggregates across provided aggregateFiles.
 }
