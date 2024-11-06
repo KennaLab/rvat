@@ -21,3 +21,16 @@ getCohort(object, cohort, fields = "*", keepAll = FALSE)
 \description{
 Get a cohort table from a \code{\link[=gdb-class]{gdb}} object.
 }
+\examples{
+library(rvatData)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# retrieve a cohort
+cohort <- getCohort(gdb, cohort = "pheno")
+head(cohort)
+
+# retrieve a cohort, keep specified fields
+cohort <- getCohort(gdb, cohort = "pheno", fields = c("IID", "sex", "pheno"))
+head(cohort)
+
+}

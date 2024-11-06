@@ -42,3 +42,25 @@ uploadAnno(
 \description{
 Function to upload variant annotation data into gdb. Assignment of VAR_id is performed automatically through mapping to the var table, but can be skipped using the skipRemap option. Indexing of the imported table based on VAR_id is also automated but can also be skipped, this could be desirable if it is intended to concatenate many separately generated gdb as otherwise intermediate indexes are generated unecessarily.
 }
+\examples{
+library(rvatData)
+gdb <- create_example_gdb()
+
+# from data.frame
+varinfo <- read.table(rvat_example("rvatData.varinfo"), header = TRUE)
+uploadAnno(object = gdb, name = "varInfo", value = varinfo)
+
+# similarly, an annotation table can be imported directly from file
+filepath <- rvat_example("rvatData.varinfo")
+uploadAnno(object = gdb, name = "varInfo2", value = filepath)
+
+# if the annotation table already includes a 'VAR_id' field
+# the `skipRemap` parameter can be set to TRUE to skip mapping based on
+# CHROM,POS,REF,ALT.
+anno <- mapVariants(gdb, 
+                    ranges = data.frame(CHROM = "chr21", start = 31659666, end = 31668931, gene_name = "SOD1"),
+                    verbose = FALSE)
+uploadAnno(object = gdb, name = "gene", value = anno, skipRemap = TRUE)
+
+
+}

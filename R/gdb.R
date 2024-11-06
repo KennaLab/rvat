@@ -30,6 +30,18 @@ gdb_init=function(path)
   new("gdb",con)
 }
 
+# -----------------------------------------------------------------------------------
+# Close gdb
+
+#' @rdname gdb
+#' @usage NULL
+#' @export
+setMethod("close", signature="gdb",
+          definition=function(con){
+            DBI::dbDisconnect(con)
+          }
+)
+
 
 # -----------------------------------------------------------------------------------
 # Getters
@@ -249,6 +261,7 @@ setMethod("getCohort", signature="gdb",
 #' getGT
 #' @rdname getGT
 #' @import GenomicRanges
+#' @usage NULL
 #' @export
 setMethod("getGT", signature="gdb",
           definition=function(object, varSet = NULL, VAR_id = NULL, ranges = NULL, cohort = NULL, anno = NULL, annoFields = NULL, includeVarInfo = FALSE, checkPloidy = NULL, varSetName = "unnamed", unit = "unnamed", padding = 250, verbose = TRUE, strict = TRUE)
@@ -537,6 +550,7 @@ setMethod("subsetGdb", signature="gdb",
 #' writeVcf
 #' @rdname writeVcf
 #' @aliases writeVcf,gdb-method
+#' @usage NULL
 #' @export
 setMethod("writeVcf", signature = "gdb",
           definition=function(object, 

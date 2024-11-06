@@ -16,3 +16,9 @@ dropTable(object, name, verbose = TRUE)
 \description{
 Drop table from \code{\link{gdb}} and clear from annotation / cohort metadata tables.
 }
+\examples{
+library(rvatData)
+gdb <- create_example_gdb()
+dropTable(gdb, name = "varInfo")
+
+}

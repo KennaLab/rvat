@@ -57,6 +57,33 @@ An aggregateFile can be directly supplied to the \code{\link[=assocTest]{assocTe
 Aggregate files can be merged using the \code{\link{mergeAggregateFiles}} method.
 }
 
+\examples{
+library(rvatData)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# generate the aggregates based on a varSetFile
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+varset <- getVarSet(varsetfile, unit = c("NEK1", "SOD1", "ABCA4"), varSetName = "High")
+aggfile <- tempfile()
+aggregate(x = gdb,
+          varSet = varset,
+          maxMAF = 0.001,
+          output = aggfile,
+          verbose = FALSE)
+
+# connect to aggregateFile, see ?aggregateFile for more details
+aggregatefile <- aggregateFile(aggfile)
+
+# list units and samples in aggregatefile 
+head(listUnits(aggregatefile))
+head(listSamples(aggregatefile))
+
+# retrieve aggregates 
+aggregates <- getUnit(aggregatefile, unit = "SOD1")
+
+# see ?`assocTest-aggregateFile` for details on running association tests on an aggregateFile
+
+}
 \seealso{
 \code{\link{mergeAggregateFiles}}
 

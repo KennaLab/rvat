@@ -65,6 +65,121 @@
 #' By default, an updated genoMatrix is returned with an `aggregate` field in `colData`. Set `returnGT` to `FALSE` to return a vector of aggregates.
 #' * `assocTest()`: Perform aggregate (burden) and single variant assocation test. See [`assocTest()`] for details.
 #' 
+#' @examples
+#' 
+#' 
+#' library(rvatData)
+#' data(GT)
+#' 
+#' # Basic operations -------------------------------------------------------------
+#' 
+#' # retrieve rowData (i.e. variant info)
+#' rowData(GT)
+#' 
+#' # retrieve colData (i.e. sample info)
+#' colData(GT)
+#' 
+#' # retrieve sample IDs
+#' samples <- colnames(GT)
+#' head(samples)
+#' 
+#' # retrieve VAR ids
+#' vars <- rownames(GT)
+#' head(vars)
+#' 
+#' # check dimensions
+#' nrow(GT)
+#' ncol(GT)
+#' dim(GT)
+#' 
+#' # A genoMatrix object can be subsetted similarly as a data.frame:
+#' GT[1:5, 1:5]
+#' 
+#' # Subset samples based on sample info
+#' GT[ ,GT$pheno == 1]
+#' 
+#' # Subset first two variants
+#' GT[1:2,]
+#' 
+#' # Extract variant/sample summaries --------------------------------------------------
+#' 
+#' # calculate allele frequencies, allele counts etc.
+#' af <- getAF(GT)
+#' maf <- getMAF(GT)
+#' ac <- getAC(GT)
+#' mac <- getMAC(GT)
+#' carriers <- getNCarriers(GT)
+#' 
+#' # generate call-rates
+#' var_cr <- getCR(GT) # variant call-rates
+#' sample_cr <- getCR(GT, var = FALSE) # sample call-rates
+#' 
+#' # generate variant summaries
+#' varsummary <- summariseGeno(GT)
+#' 
+#' # Recode genotypes  --------------------------------------------------
+#' 
+#' # flip variants with AF > 0.5 to the minor allele
+#' GT <- flipToMinor(GT)
+#' 
+#' # recode genotypes to domiant/recessive models
+#' recode(GT, geneticModel = "dominant")
+#' recode(GT, geneticModel = "recessive")
+#' # see ?recode for details
+#' 
+#' # recode missing genotypes 
+#' recode(GT, imputeMethod = "meanImpute")
+#' recode(GT, imputeMethod = "missingToRef")
+#' # see ?recode for details
+#' 
+#' # generate aggregate (burden) scores
+#' 
+#' # by default, scores will be added to the colData
+#' aggregate(recode(GT, imputeMethod = "meanImpute"))
+#' 
+#' # set `returnGT = FALSE` to return aggregates as a vector instead
+#' aggregate <- aggregate(recode(GT, imputeMethod = "meanImpute"), returnGT = FALSE)
+#' head(aggregate)
+#' 
+#' # Update cohort and variant info in genoMatrix --------------------------
+#' gdb <- gdb(rvat_example("rvatData.gdb"))
+#' anno <- getAnno(gdb, "varInfo", fields = c("VAR_id", "CADDphred", "PolyPhen"))
+#' updateGT(GT, anno = anno )
+#' pheno <- colData(GT)
+#' updateGT(GT, SM = colData(GT)[,1:4])
+#' 
+#' # Get variant carriers
+#' 
+#' # retrieve a data.frame that lists the samples carrying each respective 
+#' # variant in the genoMatrix. Additional variant and sample info can be included
+#' # using the `rowDataFields` and `colDataFields` respectively.
+#' carriers <- getCarriers(
+#'   GT,
+#'   rowDataFields = c("REF", "ALT"),
+#'   colDataFields = c("superPop")
+#' )
+#' head(carriers)
+#' 
+#' # Perform rare variant tests:
+#' 
+#' # burden test (firth)
+#' rvb <- assocTest(
+#'   GT,
+#'   pheno = "pheno",
+#'   covar = c("sex", "PC1", "PC2", "PC3", "PC4"),
+#'   test = "firth"
+#' )
+#' 
+#' # single variant tests
+#' sv <- assocTest(
+#'   GT,
+#'   pheno = "pheno",
+#'   covar = c("sex", "PC1", "PC2", "PC3", "PC4"),
+#'   test = "scoreSPA",
+#'   singlevar = TRUE
+#' )
+#' # see ?assocTest for details
+#'
 #' @seealso \code{\link{assocTest}}
 #' @seealso \code{\link{recode}}
 #' @keywords gdb
@@ -126,6 +241,77 @@ setClass("genoMatrix", contains="SummarizedExperiment")
 #' @section Exports:
 #' * `writeVcf`: Convert a gdb to a vcf-file. See [`writeVcf()`] for details.
 #' 
+#' @examples
+#' 
+#' library(rvatData)
+#'  
+#' # build a gdb directly from a vcf file
+#' vcfpath <- rvat_example("rvatData.vcf.gz") # example vcf from rvatData package
+#' gdbpath <- tempfile() # write gdb to temporary file
+#' gdb <- buildGdb(vcf = vcfpath,
+#'                 output = gdbpath, 
+#'                 genomeBuild = "GRCh38")
+#' 
+#' 
+#' # upload variant info
+#' varinfo <- rvat_example("rvatData.varinfo") # example variant info from rvatData package
+#' uploadAnno(gdb, name = "varInfo", value = varinfo)
+#' 
+#' # upload cohort info
+#' pheno <- rvat_example("rvatData.pheno") # example cohort info from rvatData package
+#' uploadCohort(gdb, name = "pheno", value = pheno)
+#' 
+#' # list annotations and cohorts present in gdb
+#' listAnno(gdb)
+#' listCohort(gdb)
+#' 
+#' # retrieve annotations for a genomic interval
+#' varinfo <- getAnno(gdb, 
+#'                    table = "varinfo", 
+#'                    ranges = data.frame(CHROM = "chr1", start = 11013847, end = 11016874))
+#' head(varinfo)
+#' # see ?getAnno for more details
+#' 
+#' # retrieve cohort
+#' pheno <- getCohort(gdb, cohort = "pheno")
+#' head(pheno)
+#' # see ?getCohort for more details
+#' 
+#' # delete table
+#' uploadAnno(gdb, name = "varInfo2", value = varinfo)
+#' dropTable(gdb,  "varInfo2")
+#' 
+#' # retrieve gdb metadata
+#' getGdbPath(gdb)
+#' getGenomeBuild(gdb)
+#' 
+#' # retrieve genotypes
+#' # first extract variant ids that we want to retrieve the genotypes for
+#' # note that `where` here is an SQL compliant
+#' varinfo <- getAnno(gdb, 
+#'                    table = "varinfo", 
+#'                    where = "gene_name = 'SOD1' and ModerateImpact = 1")
+#' 
+#' # retrieve genotypes for variants extracted above 
+#' GT <- getGT(gdb, 
+#'             VAR_id = varinfo$VAR_id,
+#'             cohort = "pheno")
+#' 
+#' # retrieve genotypes for a given genomic interval
+#' GT_fromranges <- getGT(
+#'  gdb,
+#'  ranges = data.frame(CHROM = "chr21", start = 31659666, end = 31668931),
+#'  cohort = "pheno",
+#'  anno = "varInfo",
+#'  annoFields = c("VAR_id", "CHROM", "POS", "REF", "ALT", "HighImpact", "ModerateImpact", "Synonymous")
+#' )
+#' # Learn about the getGT method in ?getGT
+#' # Learn about the genoMatrix format in ?genoMatrix
+#'  
+#' # Learn more about the downstream methods available for the gdb class in the relevant help pages
+#' # e.g. ?mapVariants, ?subsetGdb, ?assocTest, ?writeVcf
+#' close(gdb)
+ 
 #' @seealso \code{\link{getGT}}
 #' @seealso \code{\link{buildGdb}}
 #' @seealso \code{\link{getAnno}}
@@ -196,7 +382,50 @@ setClass("gdb", contains = "SQLiteConnection")
 #' in a varSetList using [`getGT()`]. 
 #' * `write(x, file = "data", append = "FALSE")`: Write the varSetList to disk, in 
 #' the [`varSetFile`] format.
+#'
+#' @examples
+#' library(rvatData)
 #' 
+#' # connect to varsetfile from rvatData package
+#' # to build a varsetfile, see ?buildVarSet
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' 
+#' # extract a couple of genes from the varSetFile, which whill return a varSetList
+#' varsetlist <- getVarSet(varsetfile, c("SOD1", "FUS"))
+#' varsetlist
+#' 
+#' # many of the varSetFile methods are also available for a varSetList
+#' # for example, getVarSet can also be used to extract specific genes or varSets from a varSetList
+#' getVarSet(varsetlist, unit = "SOD1")
+#' 
+#' # list included units and varSets 
+#' units <- listUnits(varsetlist)
+#' head(units)
+#' varsets <- listVarSets(varsetlist)
+#' head(varsets)
+#' 
+#' # several basic list operations work on a varSetList
+#' length(varsetlist)
+#' varsetlist[1:2]
+#' varsetlist[[1]]
+#' 
+#' # extract metadata
+#' metadata(varsetlist)
+#' getRvatVersion(varsetlist)
+#' getGdbId(varsetlist)
+#' 
+#' # all varsets in in a varsetlist can be collapsed into one varSet using the
+#' # collapseVarSetList method
+#' collapseVarSetList(varsetlist)
+#' 
+#' # varSetLists can be written to a varSetFile on disk using the write method
+#' output <- tempfile() 
+#' write(varsetlist, output)
+#' varsetfile <- varSetFile(output)
+#' varsetfile
+#' 
+#' # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varSets included in a varSetlist
+# 
 #' 
 #' @seealso \code{\link{varSetFile}}
 #' @seealso \code{\link{buildVarSet}}
@@ -228,6 +457,18 @@ setClassUnion("listOrNull", c("list", "NULL"))
 #' @section Retrieve genotypes:
 #' A varSet object can be supplied to the `varSet` parameter in the [`getGT()`] method to load the 
 #' variants included in the varSet. 
+#' 
+#' @examples
+#' library(rvatData)
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' varset <- getVarSet(varsetfile, unit = c("NEK1"), varSetName = "High")[[1]]
+#' 
+#' # list variants and weights included in the varSet
+#' listVars(varset)
+#' listWeights(varset)
+#' 
+#' # note that usually you'll work with varSets in either a varSetList or 
+#' # a varSetFile (see ?varSetList and ?varSetFile)
 #' 
 #' @seealso \code{\link{varSetFile}}
 #' @seealso \code{\link{varSetList}}
@@ -288,6 +529,44 @@ setClass("varSetList",
 #' A varSetFile can be directly supplied to the [`assocTest()`] gdb method, using the 
 #' `varSet` parameter. Association tests will then be performed for each varSet included
 #' in the varSetFile.
+#'
+#' @examples
+#' library(rvatData)
+#' 
+#' # Build a varSetFile including variants with a moderate predicted impact
+#' gdb <- create_example_gdb()
+#' varsetfile_moderate <- tempfile()
+#' buildVarSet(object = gdb, 
+#'             output = varsetfile_moderate,
+#'             varSetName = "Moderate", 
+#'             unitTable = "varInfo", 
+#'             unitName = "gene_name",
+#'             where = "ModerateImpact = 1")
+#' 
+#' # connect to the varSetFile
+#' varsetfile <- varSetFile(varsetfile_moderate)
+#' 
+#' # list included units and varSets 
+#' units <- listUnits(varsetfile)
+#' head(units)
+#' varsets <- listVarSets(varsetfile)
+#' head(varsets)
+#' 
+#' # basic operations
+#' length(varsetfile)
+#' 
+#' # metadata
+#' metadata(varsetfile)
+#' getRvatVersion(varsetfile)
+#' getGdbId(varsetfile)
+#' 
+#' # retrieve varSets 
+#' varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
+#' # this returns a varSetList, which is an in-memory representation of varSets
+#' # most of the methods that work on a varSetFile also work on a varSetList (see ?varSetLit for details)
+#' getVarSet(varsets, unit = "SOD1")
+#' 
+#' # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
 #' 
 #' 
 #' @seealso \code{\link{varSetList}}
@@ -384,6 +663,64 @@ setClass("varSetFile",
 #' * `getGdbId(x)`: Get the gdb ID
 #' * `getGenomeBuild(x)`: Get gdb genome build
 #'
+#' @examples
+#' 
+#' library(rvatData)
+#' data(rvbresults)
+#' 
+#' # rvatResult inherits from the DataFrame classes
+#' # standard methods also work on an rvatResult
+#' head(rvbresults)
+#' nrow(rvbresults)
+#' ncol(rvbresults)
+#' dim(rvbresults)
+#' rvbresults_df <- as.data.frame(rvbresults)
+#' head(rvbresults_df)
+#' rvbresults[1:3,]
+#' rvbresults[,1:10]
+#' rvbresults[["unit"]][1:5]
+#' 
+#' # write results
+#' file <- tempfile()
+#' writeResult(rvbresults, file = file)
+#' rvbresults <- rvbResult(file)
+#' 
+#' # similarly, for single variant results
+#' data(GTsmall)
+#' sv <- assocTest(
+#'   GTsmall,
+#'   covar = c("sex", paste0("PC", 1:4)),
+#'   pheno = "pheno",
+#'   test = "scoreSPA",
+#'   singlevar = TRUE,
+#'   verbose = FALSE
+#' )
+#' svresultfile <- tempfile()
+#' writeResult(sv, file = svresultfile)
+#' sv <- singlevarResult(sv)
+#' head(sv)
+#' 
+#' # merge 
+#' merge <- merge(rvbresults[1:23], as.data.frame(rvbresults[,c(1, 23:28)]), by = "unit")
+#' 
+#' # show summary
+#' summary(rvbresults)
+#' 
+#' # show top results
+#' topResult(rvbresults, n = 10)
+#' 
+#' # qqplot
+#' man <- qqplot(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
+#'                  label = "unit")
+#' 
+#' # generate a manhattan plot
+#' man <- manhattan(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
+#'                  label = "unit", 
+#'                  contigs = "GRCh38")
+#' 
+#' 
+#' # see ?ACAT and ?geneSetAssoc for downstream analyses on rvatResults
+#' 
 #' @seealso \code{\link{assocTest}}
 #' @seealso \code{\link{geneSetAssoc}}
 #' @seealso \code{\link{qqplot}}
@@ -444,6 +781,27 @@ setClass("gsaResult",
 
 #' @section Association testing:
 #' A resamplingFile can be directly provided to [`assocTest()`], to run resampled association tests.
+#' @examples
+#' library(rvatData)
+#' # build and connect to a resamplingFile
+#' file <- tempfile(fileext = ".gz")
+#' buildResamplingFile(nSamples = 25000, 
+#'                     nResampling = 100,
+#'                     output = file)
+#' resamplingfile <- resamplingFile(file)
+#' 
+#' # perform resampled association tests 
+#' gdb <- gdb(rvat_example("rvatData.gdb"))
+#' assoc <- assocTest(
+#'   gdb,
+#'   VAR_id = 1:10,
+#'   cohort = "pheno",
+#'   pheno = "pheno",
+#'   covar = paste0("PC", 1:4),
+#'   test = c("skat"),
+#'   resamplingFile = resamplingfile,
+#'   verbose = FALSE
+#' )
 NULL
 
 
@@ -473,6 +831,22 @@ setClass("resamplingFile",
 #' In the following code snippets, x is a geneSet object.
 #' * `listUnits(x)`: Return a vector of all units included in the geneSet
 #' * `listWeights(x)`: Return a vector of all weights in the geneSet
+#' 
+#' @examples
+#' genesetlist <- buildGeneSet(
+#'   list("geneset1" = c("SOD1", "NEK1"),
+#'        "geneset2" = c("ABCA4", "SOD1", "NEK1"),
+#'        "geneset3" = c("FUS", "NEK1")
+#'        ))
+#' geneset <- genesetlist[[1]]
+#' 
+#' # list units and weights included in the geneSet
+#' listUnits(geneset)
+#' listWeights(geneset)
+#' 
+#' # note that usually you'll work with geneSets in either a geneSetList or 
+#' # a geneSetFile (see ?geneSetList and ?geneSetFile)
+#' 
 #' 
 #' @seealso \code{\link{geneSetFile}}
 #' @seealso \code{\link{geneSetList}}
@@ -533,6 +907,49 @@ setClass("geneSet",
 #' * `remapIDs(x,...)`: Remap IDs used in geneSets, see [`remapIDs`] for details.
 #' * `dropUnits(x, unit = NULL)`: Remove specified units from geneSets included in the geneSetList.
 #' 
+#' @examples
+#' library(rvatData)
+#' 
+#' # build a geneSetList
+#' # can also be build based on a GMT-file (see ?buildGeneSet)
+#' genesetlist <- buildGeneSet(
+#'   list("geneset1" = c("SOD1", "NEK1"),
+#'        "geneset2" = c("ABCA4", "SOD1", "NEK1"),
+#'        "geneset3" = c("FUS", "NEK1")
+#'        )
+#'   )
+#' 
+#' # extract a couple of gene sets from the geneSetList, which will return a new geneSetList
+#' getGeneSet(genesetlist, c("geneset1", "geneset2"))
+#' 
+#' # list included gene sets and units
+#' genesets <- listGeneSets(genesetlist)
+#' head(genesets)
+#' units <- listUnits(genesetlist)
+#' head(units)
+#' 
+#' # several basic list operations work on a geneSetList
+#' length(genesetlist)
+#' genesetlist[1:2]
+#' genesetlist[[1]]
+#' 
+#' # write a geneset list to a geneSetFile on disk (see ?geneSetFile)
+#' file <- tempfile()
+#' write(genesetlist, file)
+#' genesetfile <- geneSetFile(file)
+#' 
+#' # exclude units from all genesets included in a geneSetList
+#' dropUnits(genesetlist, unit = "NEK1")
+#' 
+#' # remap IDs
+#' linker <- data.frame(
+#'   gene_name = c("SOD1", "NEK1", "FUS", "ABCA4"),
+#'   gene_id = c("ENSG00000142168","ENSG00000137601", "ENSG00000089280", "ENSG00000198691")
+#' )
+#' genesetlist_remapped <- remapIDs(genesetlist, linker)
+#' listUnits(genesetlist_remapped)
+#' 
+#' # see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses
 #' 
 #' @seealso \code{\link{geneSetFile}}
 #' @seealso \code{\link{geneSet}}
@@ -582,6 +999,32 @@ setClass("geneSetList",
 #' `geneSet` parameter, in combination with an [`rvbResult`] object.
 #' To perform gene set burden analyses, [`assocTest`] can be used.
 #' 
+#' @examples
+#' 
+#' library(rvatData)
+#' 
+#' # build a geneSetList
+#' # can also be build based on a GMT-file (see ?buildGeneSet)
+#' file <- tempfile()
+#' genesetfile <- buildGeneSet(
+#'   list("geneset1" = c("SOD1", "NEK1"),
+#'        "geneset2" = c("ABCA4", "SOD1", "NEK1"),
+#'        "geneset3" = c("FUS", "NEK1")
+#'        ),
+#'   output = file
+#'   )
+#' 
+#' # connect to a geneSetFile
+#' genesetfile <- geneSetFile(file)
+#' 
+#' # extract a couple of gene sets from the geneSetFile, which will return a geneSetList (see ?geneSetList)
+#' getGeneSet(genesetfile, c("geneset1", "geneset2"))
+#' 
+#' # list included gene sets 
+#' genesets <- listGeneSets(genesetfile)
+#' head(genesets)
+#' 
+#' # see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses
 #' 
 #' @seealso \code{\link{geneSetList}}
 #' @seealso \code{\link{buildGeneSet}}
@@ -633,7 +1076,32 @@ setClass("geneSetFile",
 #' @section Merging:
 #' Aggregate files can be merged using the [`mergeAggregateFiles`] method. 
 #' 
-#'
+#' @examples
+#' library(rvatData)
+#' gdb <- gdb(rvat_example("rvatData.gdb"))
+#' 
+#' # generate the aggregates based on a varSetFile
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' varset <- getVarSet(varsetfile, unit = c("NEK1", "SOD1", "ABCA4"), varSetName = "High")
+#' aggfile <- tempfile()
+#' aggregate(x = gdb,
+#'           varSet = varset,
+#'           maxMAF = 0.001,
+#'           output = aggfile,
+#'           verbose = FALSE)
+#' 
+#' # connect to aggregateFile, see ?aggregateFile for more details
+#' aggregatefile <- aggregateFile(aggfile)
+#' 
+#' # list units and samples in aggregatefile 
+#' head(listUnits(aggregatefile))
+#' head(listSamples(aggregatefile))
+#' 
+#' # retrieve aggregates 
+#' aggregates <- getUnit(aggregatefile, unit = "SOD1")
+#' 
+#' # see ?`assocTest-aggregateFile` for details on running association tests on an aggregateFile
+#' 
 #' @seealso \code{\link{mergeAggregateFiles}}
 #' @seealso \code{\link{aggregateFileList}}
 #' @seealso \code{\link{assocTest-aggregateFile}}
@@ -676,13 +1144,19 @@ setClass("aggregateFile",
 #' * `listUnits(x)`: Return a vector of all units included across aggregateFiles in the aggregateFileList.
 #' * `listSamples(x)`: Return a vector of all samples included across aggregateFiles in the aggregateFileList.
 #' 
-#' @section Merge aggregateFiles:
-#' * `mergeAggregateFiles(object,aggregate = TRUE,output = NULL,verbose = TRUE)`: 
-#' Merge the aggregatefiles included in the aggregateFileList. 
-#' Either aggregate all aggregates into one single aggregate per sample, or merge
-#' all aggregatefiles into a new aggregateFile. See [`mergeAggregateFiles`] for details.
+#' @section Merge or collapse aggregateFiles:
+#' * `mergeAggregateFiles(object, output = NULL, verbose = TRUE)`: 
+#' Merge aggregrateFiles, this will generate a new `aggregateFile` including all aggregates across provided aggregateFiles.
+#' See [`mergeAggregateFiles`] for details.
+#' * `collapseAggregateFiles(object, output = NULL, verbose = TRUE)`: Collapse aggregrateFiles by aggregating values across aggregateFiles. 
+#' This will result in one aggregate score for each sample, representing the aggregate value across aggregate files. 
+#' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
+#' See [`collapseAggregateFiles`] for details.
+#'
+#' @inherit mergeAggregateFiles examples
 #' 
 #' @seealso \code{\link{mergeAggregateFiles}}
+#' @seealso \code{\link{collapseAggregateFiles}}
 #' @seealso \code{\link{assocTest-aggregateFile}}
 #' @seealso \code{\link{aggregate}}
 #' @keywords aggregateFileList

@@ -109,6 +109,44 @@ setMethod("summariseGeno",
 #' @param strict Should strict checks be performed? Defaults to `TRUE`. Strict tests currently includes
 #' checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in `object`.
 #' 
+#' @examples
+#' library(rvatData)
+#' aggregatefile <- tempfile()
+#' gdb <- gdb(rvat_example("rvatData.gdb"))
+#' 
+#' # generate aggregates for varSets
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High")
+#' aggregate(x = gdb,
+#'           varSet = varsets,
+#'           maxMAF = 0.001,
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#' # generate for aggregates for list of variants
+#' aggregate(x = gdb,
+#'           VAR_id = 1:100,
+#'           maxMAF = 0.001,
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#' # use recessive model
+#' aggregate(x = gdb,
+#'           varSet = varsets,
+#'           maxMAF = 0.001,
+#'           geneticModel = "recessive",
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#' # apply MAF weighting 
+#' aggregate(x = gdb,
+#'           varSet = varsets,
+#'           maxMAF = 0.001,
+#'           MAFweights = "mb",
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#'
 #' @export
 setMethod("aggregate", 
           signature = signature(x="gdb"),
@@ -362,7 +400,7 @@ setMethod(".dump",
                 
                 if (geneticModel %in% c("allelic", "dominant")) {
                   carriers = (sumgeno[,"geno1"] + sumgeno[,"geno2"])
-                } else if (model == "recessive") {
+                } else if (geneticModel == "recessive") {
                   carriers = (sumgeno[,"geno2"])
                 }
                 
@@ -421,11 +459,12 @@ setMethod(".dump",
                   write.table(sumgeno, file = output, append = TRUE, row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
                 }
               } else if(what == "aggregate") {
+                GT <- flipToMinor(GT)
                 GT <- recode(GT,
                              imputeMethod = imputeMethod,
                              geneticModel = geneticModel)
                 weight <- w[rownames(GT)]
-                counts <- aggregate(flipToMinor(recode(GT, weights = weight, MAFweights = MAFweights)), returnGT=FALSE,checkMissing=FALSE)
+                counts <- aggregate(recode(GT, weights = weight, MAFweights = MAFweights), returnGT=FALSE,checkMissing=FALSE)
                 names(counts) <- colnames(GT)
                 counts <- counts[samples]
                 

@@ -6,7 +6,7 @@
 \usage{
 buildResamplingFile(
   nSamples,
-  nResampling,
+  nResampling = 1000,
   memlimit = 1000,
   methodResampling = "permutation",
   output = NULL
@@ -15,7 +15,7 @@ buildResamplingFile(
 \arguments{
 \item{nSamples}{Number of samples}
 
-\item{nResampling}{Number of resamplings}
+\item{nResampling}{Number of resamplings. Defaults to 1000.}
 
 \item{memlimit}{Chunk sizes (when writing to output)}
 
@@ -28,4 +28,26 @@ Currently the 'permutation' approach is implemented. If \code{output} is specifi
 the resampling matrix will be written to disk, and can be connected to with \code{\link{resamplingFile}},
 otherwise a matrix is returned. Can be used in combination with \code{\link{assocTest}} to perform
 resampling tests.
+}
+\examples{
+library(rvatData)
+# build and connect to a resamplingFile
+file <- tempfile(fileext = ".gz")
+buildResamplingFile(nSamples = 25000, 
+                    nResampling = 100,
+                    output = file)
+resamplingfile <- resamplingFile(file)
+
+# perform resampled association tests 
+gdb <- gdb(rvat_example("rvatData.gdb"))
+assoc <- assocTest(
+  gdb,
+  VAR_id = 1:10,
+  cohort = "pheno",
+  pheno = "pheno",
+  covar = paste0("PC", 1:4),
+  test = c("skat"),
+  resamplingFile = resamplingfile,
+  verbose = FALSE
+)
 }

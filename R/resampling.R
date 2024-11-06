@@ -37,13 +37,14 @@ setMethod("show", signature = "resamplingFile",
 #' resampling tests.
 #' 
 #' @param nSamples Number of samples
-#' @param nResampling Number of resamplings
+#' @param nResampling Number of resamplings. Defaults to 1000.
 #' @param memlimit Chunk sizes (when writing to output)
 #' @param methodResampling Resampling method, currently 'permutation' is implemented.
 #' @param output File path (.gz extension) to write output to. If not specified, a matrix with resamplings is returned.
+#' @inherit resamplingFile examples
 #' @export
 buildResamplingFile <- function(nSamples,
-                                nResampling, 
+                                nResampling=1000, 
                                 memlimit=1000,
                                 methodResampling = "permutation", 
                                 output = NULL)  {

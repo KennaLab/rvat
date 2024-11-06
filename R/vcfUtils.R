@@ -9,6 +9,15 @@
 #' @param vcf vcf file path.
 #' @param output output path
 #' @param splitMultiallelic Returns one row per alternative allele instead of one row per variant. Default=TRUE.
+#' @examples
+#' library(rvatData)
+#' vcf <- rvat_example("rvatData.vcf.gz")
+#' output <- tempfile()
+#' vcfInfo2Table(
+#'   vcf = vcf,
+#'   output = output
+#' )
+#' 
 #' @export
 vcfInfo2Table=function(vcf,output,splitMultiallelic=TRUE)
 {
@@ -53,4 +62,5 @@ vcfInfo2Table=function(vcf,output,splitMultiallelic=TRUE)
       write(paste(c(i[1:7],unlist(out)),collapse="\t"), file=output, append=TRUE)
     }
   }
+  close(con)
 }

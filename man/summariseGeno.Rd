@@ -39,10 +39,10 @@
 \item{cohort}{If a valid cohort name is provided, then the uploaded data for this cohort is used to filter and annotate the genotypes
 If not specified, all samples in the gdb will be loaded.}
 
-\item{varSet}{a \code{\link{varSetList}} or \code{\link{varSetFile}} object.}
+\item{varSet}{a \code{\link{varSetList}} or \code{\link{varSetFile}} object. Alternatively the VAR_id parameter can be specified.}
 
 \item{VAR_id}{A list of VAR_ids, alternatively the varSet parameter can be specified.
-If single variant tests are ran, the \code{memlimit} argument controls how many variants to analyze at a time.}
+The \code{memlimit} argument controls how many variants to analyze at a time.}
 
 \item{pheno}{colData field to test as response variable, although not used within this method,
 this can be useful to filter samples which have missing data for the response variable.}
@@ -52,17 +52,17 @@ this can be useful to filter samples which have missing data for the response va
 \item{geneticModel}{Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 Defaults to \code{allelic}.}
 
-\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid,XnonPAR,YnonPAR).
+\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
 Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-If no value is provided then all variants are assigned the default ploidy of "diploid".}
+If not specified, the genome build in the \code{\link{gdb}} will be used, if available (included if the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
+Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"}
 
 \item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
 
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written.}
 
-\item{splitBy}{Split variant summaries by labels indicated in the field
-specified by \code{splitBy}.}
+\item{splitBy}{Split variant summaries by labels indicated in the specified field.}
 
 \item{minCallrateVar}{Minimum genotype rate for variant retention.}
 
@@ -88,8 +88,8 @@ specified by \code{splitBy}.}
 
 \item{maxCarrierFreq}{Maximum carrier frequency for variant retention.}
 
-\item{strict}{Should strict checks be performed? Defaults to \code{TRUE}. Strict tests currently includes
-checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in \code{object}.}
+\item{strict}{Should strict checks be performed? Defaults to \code{TRUE}.
+Strict checks currently includes checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in \code{object}.}
 
 \item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 }
@@ -117,4 +117,38 @@ for the alternate allele.
 Returns a per variant summary of genotype counts, frequencies, call-rates and hwe testing.
 Note, the \code{\link{gdb}} implementation is described here, \code{summariseGeno} can also be run directly on a
 \code{\link{genoMatrix}} object as described in the \code{\link{genoMatrix}} documentation.
+}
+\examples{
+library(rvatData)
+gdb <- create_example_gdb()
+
+# generate for variant summaries for list of variants
+sumgeno <- tempfile()
+summariseGeno(gdb,
+              cohort = "pheno",
+              VAR_id = 1:100,
+              output = sumgeno)
+
+# generate for variant summaries for varSetFile
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High")
+summariseGeno(gdb,
+              cohort = "pheno",
+              varSet = varsets,
+              output = sumgeno)
+
+# variant summaries can be generated for subgroups using the `splitBy` parameter.
+# this will result in an additional column in the output for the subgroups
+summariseGeno(gdb,
+              cohort = "pheno",
+              VAR_id = 1:100,
+              splitBy = "pheno",
+              output = sumgeno)
+data <- read.table(sumgeno, header = TRUE)
+# contains 'pheno' column
+head(data)
+
+# summariseGeno can be ran directly on a genoMatrix
+data(GT)
+sumgeno <- summariseGeno(GT)
 }

@@ -10,11 +10,40 @@ mergeAggregateFiles(object, output = NULL, verbose = TRUE)
 \arguments{
 \item{object}{an \code{\link{aggregateFileList}} object.}
 
-\item{output}{Output file name (output will be gz compressed text).
+\item{output}{Output file name (output will be an aggregateFile).
 Defaults to \code{NULL}, in which case a data.frame will be returned.}
 
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Merge aggregrateFiles, this will generate a new \code{aggregateFile} including all aggregates across provided aggregateFiles.
+}
+\examples{
+library(rvatData)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# generate two aggregate files
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+aggregatefile1 <- tempfile()
+aggregate(x = gdb,
+          varSet = getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High"),
+          maxMAF = 0.001,
+          output = aggregatefile1,
+          verbose = FALSE)
+
+aggregatefile2 <- tempfile()
+aggregate(x = gdb,
+          varSet = getVarSet(varsetfile, unit = c("NEK1"), varSetName = "High"),
+          maxMAF = 0.001,
+          output = aggregatefile2,
+          verbose = FALSE)
+
+# merge using mergeAggregateFiles
+aggregatefile <- tempfile()
+agglist <- aggregateFileList(c(aggregatefile1, aggregatefile2))
+mergeAggregateFiles(
+  agglist,
+  output = aggregatefile
+  )
+
 }

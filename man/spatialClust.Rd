@@ -15,7 +15,7 @@ spatialClust(
   overlap,
   intersection = NULL,
   where = NULL,
-  weightName = 1,
+  weightName = "1",
   posField = "POS",
   minTry = 5,
   warning = TRUE
@@ -44,7 +44,7 @@ spatialClust(
 
 \item{posField}{Column name to take as variants position. Default is 'POS' which typically corresponds to genomics position. Can be reset to use CDS or other coordinates. "HGVSc" is a recognized identifier and CDS coordinates will be extracted automatically.}
 
-\item{minTry}{Minimum number of variants in varset to perform clustering on. If number of variants <minTry, all variants will be returned as a single cluster.}
+\item{minTry}{Minimum number of variants in varset to perform clustering on. If number of variants < minTry, all variants will be returned as a single cluster.}
 
 \item{warning}{Raise a warning when clusters can't be generated? Defaults to \code{TRUE}.
 Defaults to 5.}

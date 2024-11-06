@@ -39,8 +39,7 @@ Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't 
 Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
 \item \code{effectCIupper}:  Upper confidence interval of effect estimate of specified statistical test.
 Note that SKAT tests, ACAT-v tests, SPA tests and negative binomial tests don't yield effect estimates.
-\item \code{OR}:  Odds-ratio for \code{glm} and \code{firth} tests,
-the \code{effect} represents the odds-ratio.
+\item \code{OR}:  Odds-ratio for \code{glm} and \code{firth} tests.
 \item \code{P}:  P-value for specified statistical test.
 }
 }
@@ -57,7 +56,7 @@ a \code{\link{varSetFile}} or \code{\link{varSetList}} as input.
 Moreover, assocTest can be run on sets of genes ('gene set burden'),
 for which gene burden scores have been generated using \code{\link{aggregate}} and stored in an \code{\link{aggregateFile}}.
 For running assocTest on a \code{\link{genoMatrix}} object see: \code{\link{assocTest-genoMatrix}} for details\cr
-for running assocTest on a \code{\link{gdb}}  object see: \code{\link{assocTest-gdb-method}} for details
+for running assocTest on a \code{\link{gdb}}  object see: \code{\link{assocTest-gdb}} for details
 for running assocTest on a \code{\link{aggregateFile}}  object see: \code{\link{assocTest-aggregateFile}} for details
 }
 \details{
@@ -87,6 +86,7 @@ can be specified using the \code{maxitFirth} parameter
 \item \code{skat_burden_robust}: robust burden test (robust in the presence of an unbalanced case/control ratio) as implemented in the \code{SKAT} R package (Zhao \emph{et al.}, 2020).
 \item \code{skato_robust}: robust SKAT-O test (robust in the presence of an unbalanced case/control ratio) (Zhao \emph{et al.}, 2020)
 \item \code{acatvSPA}: adjusted ACAT-v test, using a score test using saddlepoint approximation.
+\item \code{acatvfirth}: adjusted ACAT-v test, using Firth's logistic regression to perform single variant tests.
 }
 
 \strong{Single variant tests}

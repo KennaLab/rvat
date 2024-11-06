@@ -21,23 +21,6 @@ getGT(
   verbose = TRUE,
   strict = TRUE
 )
-
-\S4method{getGT}{gdb}(
-  object,
-  varSet = NULL,
-  VAR_id = NULL,
-  ranges = NULL,
-  cohort = NULL,
-  anno = NULL,
-  annoFields = NULL,
-  includeVarInfo = FALSE,
-  checkPloidy = NULL,
-  varSetName = "unnamed",
-  unit = "unnamed",
-  padding = 250,
-  verbose = TRUE,
-  strict = TRUE
-)
 }
 \arguments{
 \item{object}{an object of class \code{\link[=gdb-class]{gdb}}}
@@ -89,4 +72,65 @@ Method to retrieve a \code{\link{genoMatrix}} for variants specified by \code{va
 and samples as specified by the \code{cohort} parameter.
 The \code{checkPloidy} parameter can be set to \code{GRCh37} (or \code{hg19}) or \code{GRCh38} (or \code{hg38}) to
 assign variant ploidy (diploid,XnonPAR,YnonPAR). If not specified, the genome build in the \code{\link{gdb}} will be used, if available (included in the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
+}
+\examples{
+library(rvatData)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# retrieve genotypes of a set of variants based on their VAR_ids
+varinfo <- getAnno(gdb, table = "varinfo", where = "gene_name = 'SOD1' and ModerateImpact = 1")
+GT <- getGT(
+  gdb,
+  VAR_id = varinfo$VAR_id,
+  cohort = "pheno")
+
+# retrieve genotypes of a set of variants in a varSet
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+varset <- getVarSet(varsetfile, unit = "NEK1", varSetName = "High")
+GT <- getGT(
+  gdb,
+  varSet = varset,
+  cohort = "pheno")
+# see ?varSetFile and ?getVarSet for more details
+
+# retrieve genotypes for a genomic interval
+GT <- getGT(
+  gdb,
+  ranges = data.frame(CHROM = "chr21", start = 31659666, end = 31668931),
+  cohort = "pheno")
+
+# the `anno` parameter can be specified to include variant annotations in the rowData of the genoMatrix
+GT <- getGT(
+  gdb,
+  ranges = data.frame(CHROM = "chr21", start = 31659666, end = 31668931),
+  cohort = "pheno",
+  anno = "varInfo",
+  annoFields = c("VAR_id", "CHROM", "POS", "REF", "ALT", "HighImpact", "ModerateImpact", "Synonymous")
+)
+head(rowData(GT))
+
+# the includeVarInfo parameter is a shorthand for include the "var" table
+GT <- getGT(
+  gdb,
+  ranges = data.frame(CHROM = "chr21", start = 31659666, end = 31668931),
+  cohort = "pheno",
+  includeVarInfo = TRUE
+)
+head(rowData(GT))
+
+# The `checkPloidy` parameter can be set to the version of the human genome to use
+# to assign variant ploidy. (diploid, XnonPAR, YnonPAR). Accepted inputs are GRCh37, hg19, GRCh38, hg38.
+# We recommend, however, to set the genome build when building the gdb: the genome build will theb
+# be included in the gdb metadata and used automatically. see ?buildGdb for details
+varinfo <- getAnno(gdb, table = "varinfo", where = "gene_name = 'UBQLN2' and ModerateImpact = 1")
+GT <- getGT(
+  gdb,
+  VAR_id = varinfo$VAR_id,
+  cohort = "pheno",
+  includeVarInfo = TRUE,
+  checkPloidy = "GRCh38"
+)
+
+# see ?genoMatrix for more details on the genoMatric class.
+
 }
