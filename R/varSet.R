@@ -459,11 +459,41 @@ setMethod("as.data.frame", signature = "varSet",
 #' @param unitTable Table containing aggregation unit mappings.
 #' @param unitName Field to utilize for aggregation unit names.
 #' @param output Output file name (output will be gz compressed text).
-#' @param intersection Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
+#' @param intersection Additional tables to filter through intersection (i.e. variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
 #' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
 #' @param weightName Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
-
+#' 
+#' @examples
+#'
+#' library(rvatData)
+#'
+#' # Build a varset including variants with a moderate predicted impact
+#' gdb <- create_example_gdb()
+#' varsetfile_moderate <- tempfile()
+#' buildVarSet(object = gdb, 
+#'             output = varsetfile_moderate,
+#'             varSetName = "Moderate", 
+#'             unitTable = "varInfo", 
+#'             unitName = "gene_name",
+#'             where = "ModerateImpact = 1")
+#' 
+#' # Build a varset that contains CADD scores
+#' varsetfile_cadd <- tempfile()
+#' buildVarSet(object = gdb, 
+#'             output = varsetfile_cadd,
+#'             varSetName = "CADD", 
+#'             unitTable = "varInfo", 
+#'             unitName = "gene_name",
+#'             weightName = "CADDphred")
+#'             
+#' # connect to varsetfile and retrieve variant sets
+#' varsetfile <- varSetFile(varsetfile_moderate)
+#' varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
+#' 
+#' # see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
+#' # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
+#'
 #' @export
 setMethod("buildVarSet", 
           signature="gdb",
@@ -544,6 +574,28 @@ setMethod("buildVarSet",
 #' @param memlimit Defaults to `NULL`, currently not implemented.
 #' @param mask If the annotation field is a 0,1 or FALSE/TRUE indicator, should variants with 0/FALSE be dropped? Defaults to `TRUE`.
 #' If `FALSE`, all variants will be included, and will be assigned weights 0 and 1.
+#'
+#' @examples
+#' 
+#' library(rvatData)
+#' 
+#' gdb <- create_example_gdb()
+#' anno <- getAnno(gdb, "varinfo", where = "gene_name in ('SOD1', 'FUS')")
+#' varsetfile_from_df <- tempfile()
+#' buildVarSet(
+#'   anno,
+#'   unitName = "gene_name",
+#'   fields = c("HighImpact"),
+#'   output = varsetfile_from_df
+#' )
+#' 
+#' # connect to varsetfile and retrieve variant sets
+#' varsetfile <- varSetFile(varsetfile_from_df)
+#' varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
+#' 
+#' # see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
+#' # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
+#'
 #' @export
 setMethod("buildVarSet", 
           signature="data.frame",

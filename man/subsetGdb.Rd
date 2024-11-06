@@ -26,7 +26,7 @@ subsetGdb(
 
 \item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 
-\item{VAR_id}{retain only variants with matching VAR_id.}
+\item{VAR_id}{Retain only variants with matching VAR_id.}
 
 \item{tables}{Optional, vector of tables to retain from the gdb. By default all tables will be included in the output gdb.}
 
@@ -41,4 +41,46 @@ Defaults to \code{FALSE}.}
 }
 \description{
 Function to allow for generation of a child gdb from a parent gdb, with the option to filter retained variants through table intersection operations and SQL where statements
+}
+\examples{
+
+library(rvatData)
+gdb <- create_example_gdb()
+
+# Make a gdb subset that includes only variants annotated to SOD1
+output <- tempfile()
+subsetGdb(
+  gdb,
+  intersection = "varInfo",
+  where = "gene_name = 'SOD1'",
+  output = output
+)
+gdb_subset <- gdb(output)
+
+# Specific tables can be selected to include.
+# all other user-uploaded annotation and cohort tables will be excluded
+subsetGdb(
+  gdb,
+  intersection = "varInfo",
+  where = "gene_name = 'SOD1'",
+  tables = "varInfo",
+  output = output,
+  overWrite = TRUE
+)
+gdb_subset <- gdb(output)
+
+# subset gdbs based on list of VAR ids
+anno <- getAnno(gdb, 
+                "var",
+                range = data.frame(CHROM = "chr16", start = 31191399, end = 31191605)
+                )
+
+subsetGdb(
+  gdb,
+  VAR_id = anno$VAR_id,
+  output = output,
+  overWrite = TRUE
+)
+gdb_subset <- gdb(output)
+
 }

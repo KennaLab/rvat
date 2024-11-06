@@ -14,16 +14,6 @@ writeVcf(
   includeVarId = FALSE,
   verbose = TRUE
 )
-
-\S4method{writeVcf}{gdb}(
-  object,
-  output,
-  VAR_id = NULL,
-  IID = NULL,
-  includeGeno = TRUE,
-  includeVarId = FALSE,
-  verbose = TRUE
-)
 }
 \arguments{
 \item{object}{Input \code{\link{gdb}}.}
@@ -43,5 +33,19 @@ in which case the 'ID' field from the 'var' table is included.}
 \item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
 }
 \description{
-Takes input and outputs to file in vcf format.
+Export gdb to vcf format.
+By setting \code{includeGeno = TRUE}, a sites-only vcf is created.
+By setting \code{includeVarId = TRUE}, VAR_ids will be inserted into the \code{ID} field rather
+than the original ID in the vcf. This can be useful when running external tools, such
+as annotation software, and then upload the results back into the gdb, without
+having to map the variants to VAR_ids again.
+}
+\examples{
+
+library(rvatData)
+
+output <- tempfile()
+gdb <- create_example_gdb()
+writeVcf(gdb, VAR_id = 1:100, output = output)
+
 }

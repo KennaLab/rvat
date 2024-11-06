@@ -28,7 +28,7 @@
 
 \item{output}{Output file name (output will be gz compressed text).}
 
-\item{intersection}{Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.}
+\item{intersection}{Additional tables to filter through intersection (i.e. variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.}
 
 \item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 
@@ -39,4 +39,35 @@
 \description{
 Generate optionally weighted variant sets using annotation table(s) uploaded to the gdb.
 See the tutorials for examples.
+}
+\examples{
+
+library(rvatData)
+
+# Build a varset including variants with a moderate predicted impact
+gdb <- create_example_gdb()
+varsetfile_moderate <- tempfile()
+buildVarSet(object = gdb, 
+            output = varsetfile_moderate,
+            varSetName = "Moderate", 
+            unitTable = "varInfo", 
+            unitName = "gene_name",
+            where = "ModerateImpact = 1")
+
+# Build a varset that contains CADD scores
+varsetfile_cadd <- tempfile()
+buildVarSet(object = gdb, 
+            output = varsetfile_cadd,
+            varSetName = "CADD", 
+            unitTable = "varInfo", 
+            unitName = "gene_name",
+            weightName = "CADDphred")
+            
+# connect to varsetfile and retrieve variant sets
+varsetfile <- varSetFile(varsetfile_moderate)
+varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
+
+# see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
+# see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
+
 }

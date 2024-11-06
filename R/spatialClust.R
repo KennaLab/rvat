@@ -2,7 +2,7 @@
 #' @usage NULL
 #' @export
 setMethod("spatialClust", signature="gdb",
-          definition = function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=NULL,where=NULL,weightName=1, posField="POS",minTry=5,warning=TRUE)
+          definition = function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection=NULL,where=NULL,weightName="1", posField="POS",minTry=5,warning=TRUE)
           {
             if (length(windowSize)!=length(overlap)){stop(sprintf("Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
                                                                   paste(windowSize,collapse=","),paste(overlap,collapse=",")))}
