@@ -282,8 +282,8 @@ Aggregate genotype counts across variants, creating a single aggregate
 score per individual (i.e. a burden score):
 
 ```{r}
-GT <- aggregate(GT, returnGT = TRUE)
-summary(GT$aggregate)
+GT_agg <- aggregate(recode(GT, imputeMethod = "meanImpute"), returnGT = TRUE)
+summary(GT_agg$aggregate)
 ```
 
 Retrieve IDs of carriers per variants:
