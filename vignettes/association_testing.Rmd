@@ -339,7 +339,7 @@ burden_pheno_4PCs_permuted2 <- assocTest(GT,
                                      methodResampling = "permutation",
                                      nResampling = 100
                                      )
-identical(burden_pheno_4PCs_permuted1, burden_pheno_4PCs_permuted2)
+waldo::compare(burden_pheno_4PCs_permuted1, burden_pheno_4PCs_permuted2)
 ```
 
 Alternatively, a resamplingmatrix can be build using `buildResamplingFile()` and supplied to the `resamplingMatrix` parameter.
