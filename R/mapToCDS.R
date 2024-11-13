@@ -1,28 +1,6 @@
-#' mapToCDS
-#'
-#' Maps variants from genomic coordinates to CDS (coding sequence) positions. 
-#'
-#' @param object Input [`gdb`].
-#' @param gff Can be 1) a path to a valid gff- or gtf-file or 
-#' 2) a GenomicRanges::GRanges object. Generated, for example, using the [`rtracklayer::import`] function
-#' @param exonPadding Remap variants within `exonPadding` base pairs from the exon border to the border. Defaults to 12.
-#' @param output Optional output (.gz). If `NULL` remapped coordinates will be returned to session.
-#' @param gene_id Optional vector of gene ids to keep in the gff/gtf file.
-#' @param transcript_id Optional vector of transcript ids to keep in the gff/gtf file.
-#' @param biotype Optional vector of biotypes to keep in the gff/gtf file.
-#' @param verbose Should the function be verbose? Defaults to `TRUE`.
+#' @rdname varSet
+#' @usage NULL
 #' @export
-setGeneric("mapToCDS",
-           function(object,
-                    gff,
-                    exonPadding = 12,
-                    output = NULL,
-                    gene_id = NULL,
-                    transcript_id = NULL,
-                    biotype = NULL,
-                    verbose = TRUE
-                    ) standardGeneric("mapToCDS"))
-
 setMethod("mapToCDS", 
           signature = signature(object="gdb"),
           definition=function(object,
