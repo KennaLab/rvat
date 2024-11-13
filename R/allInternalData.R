@@ -1,6 +1,26 @@
 ## gdb -------------------------------------------------------------------------
+
 ### protected tables
-gdb_protected_tables <- c("var","var_ranges", "SM","dosage","anno","cohort","meta")
+gdb_protected_tables <- c("var","var_ranges", "SM","dosage","anno","cohort","meta","tmp")
+
+# Hardcoded ploidy configurations
+# https://www.ncbi.nlm.nih.gov/grc/human
+nonPAR <- list(
+  hg19 = GRanges(
+    seqnames = c("chrX","chrX","chrX","chrY","chrY","chrY"),
+    ranges = IRanges::IRanges(start = c(1, 2699521, 155260561, 1, 2649521, 59363567),
+                              end = c(60000, 154931043, 155270560, 10000, 59034049, 59373566)),
+    ploidy = c(rep("XnonPAR",3), rep("YnonPAR",3))),
+  hg38 = GRanges(
+    seqnames = c("chrX", "chrX", "chrX", "chrY", "chrY", "chrY"),
+    ranges = IRanges::IRanges(start = c(1, 2781480, 156030896, 1, 2781480, 57217416),
+                              end = c(10000, 155701383, 156040895, 10000, 56887902, 57227415)),
+    ploidy = c(rep("XnonPAR", 3), rep("YnonPAR", 3))))
+nonPAR[["GRCh37"]] <- nonPAR[["hg19"]]
+GenomeInfoDb::seqlevelsStyle(nonPAR[["GRCh37"]]) <- "NCBI"
+nonPAR[["GRCh38"]] <- nonPAR[["hg38"]]
+GenomeInfoDb::seqlevelsStyle(nonPAR[["GRCh38"]]) <- "NCBI"
+
 ## assocTest -------------------------------------------------------------------
 
 ### all implemented tests
@@ -8,7 +28,7 @@ assocTest_tests <- c("firth", "glm", "lm", "scoreSPA", "nbinom",
                      "skat_burden","skat","skato", 
                      "skat_burden_robust","skat_robust", 
                      "skato_robust", "skat_burden_fwe","skat_fwe",
-                     "skato_fwe", "acatv","acatvSPA")
+                     "skato_fwe", "acatv","acatvSPA","acatvfirth")
 
 ### singlevariant tests
 assocTest_sv_tests <- c("lm", "firth", "glm", "nbinom", "scoreSPA")
@@ -27,7 +47,7 @@ assocTest_rvb_cont_tests <- c("lm", "skat_burden", "skat", "skato",
 
 #### binary rvb tests
 assocTest_rvb_bin_tests <- c("firth", "glm", "scoreSPA", "nbinom", "skat_robust", "skato_robust", "skat_burden_robust",
-                             "skat_burden_fwe", "skat_fwe", "skato_fwe", "acatv", "acatvSPA",
+                             "skat_burden_fwe", "skat_fwe", "skato_fwe", "acatv", "acatvSPA","acatvfirth",
                              "skat_burden", "skat", "skato")
 
 #### skat tests
@@ -40,7 +60,7 @@ assocTest_resampling_tests <- c("skat", "skat_robust", "skat_burden", "skat_burd
 #### tests for which an offset is implemented
 assocTest_offset_tests <- c("firth", "glm", "lm", "scoreSPA", "nbinom", "skat_burden", "skat", "skato",
                             "skat_burden_robust", "skat_robust", "skato_robust", "skat_burden_fwe", "skat_fwe",
-                            "skato_fwe", "acatvSPA"
+                            "skato_fwe", "acatvSPA","acatvfirth"
                             )
 
 #### tests for which an aggregate should be calculated
@@ -56,10 +76,11 @@ geneSetAssoc_tests_selfcontained <- c("ttest","ztest", "ACAT")
 geneSetAssoc_tests_score <- c("lm", "mlm")
 
 ## rvatResult ------------------------------------------------------------------
-columns_rvbResults <- list(cohort = c("character", "Rle"),
+columns_rvbResults <- list(
+                           unit = c("character", "Rle"),
+                           cohort = c("character", "Rle"),
                            varSetName = c("character", "Rle"),
                            name = c("character", "Rle"),
-                           unit = c("character", "Rle"),
                            pheno = c("character", "Rle"),
                            covar = c("character", "Rle"),
                            geneticModel = c("character", "Rle"),
@@ -74,19 +95,22 @@ columns_rvbResults <- list(cohort = c("character", "Rle"),
                            ctrlN = c("integer", "numeric"),
                            caseCallRate =  c("numeric", "integer"),
                            ctrlCallRate = c("numeric", "integer"),
-                           P = "numeric",
                            effect = "numeric",
                            effectSE = "numeric",
                            effectCIlower = "numeric",
-                           effectCIupper = "numeric")
+                           effectCIupper = "numeric",
+                           OR = "numeric",
+                           P = "numeric"
+                           )
 columns_rvbResults_rle <- c("cohort", "varSetName", "name", "pheno", "covar", "geneticModel", "MAFweight", "test")
 columns_rvbResults_numeric <- c("nvar", "caseCarriers", "ctrlCarriers", "meanCaseScore", "meanCtrlScore", "caseN", "ctrlN", "caseCallRate",
-                                "ctrlCallRate", "P", "effect", "effectSE", "effectCIlower", "effectCIupper")
+                                "ctrlCallRate", "effect", "effectSE", "effectCIlower", "effectCIupper", "OR", "P")
 
-columns_singlevarResults <- list(cohort = c("character", "Rle"),
+columns_singlevarResults <- list(
+                                VAR_id = c("character", "Rle"),
+                                cohort = c("character", "Rle"),
                                 varSetName = c("character", "Rle"),
                                 name = c("character", "Rle"),
-                                VAR_id = c("character", "Rle"),
                                 pheno = c("character", "Rle"),
                                 covar = c("character", "Rle"),
                                 geneticModel = c("character", "Rle"),
@@ -99,14 +123,18 @@ columns_singlevarResults <- list(cohort = c("character", "Rle"),
                                 ctrlN = c("integer", "numeric"),
                                 caseCallRate =  c("numeric", "integer"),
                                 ctrlCallRate = c("numeric", "integer"),
-                                P = "numeric",
+                                effectAllele = c("character", "Rle"),
+                                otherAllele = c("character", "Rle"),
                                 effect = "numeric",
                                 effectSE = "numeric",
                                 effectCIlower = "numeric",
-                                effectCIupper = "numeric")
-columns_singlevarResults_rle <- c("cohort", "varSetName", "name", "pheno", "covar", "geneticModel", "test")
+                                effectCIupper = "numeric",
+                                OR = "numeric",
+                                P = "numeric"
+                                )
+columns_singlevarResults_rle <- c("cohort", "varSetName", "name", "pheno", "covar", "geneticModel", "test", "effectAllele", "otherAllele")
 columns_singlevarResults_numeric <- c("caseMAC", "ctrlMAC", "caseMAF", "ctrlMAF", "caseN", "ctrlN", "caseCallRate",
-                                      "ctrlCallRate", "P", "effect", "effectSE", "effectCIlower", "effectCIupper")
+                                      "ctrlCallRate", "effect", "effectSE", "effectCIlower", "effectCIupper", "OR", "P")
 
 columns_gsaResults <- list(geneSetName = c("character", "Rle"),
                            test = c("character", "Rle"),
@@ -114,14 +142,15 @@ columns_gsaResults <- list(geneSetName = c("character", "Rle"),
                            threshold = c("numeric","double"),
                            geneSetSize = c("integer","numeric"),
                            genesObs = c("integer","numeric"),
-                           P = "numeric",
                            effect = "numeric",
                            effectSE = "numeric",
                            effectCIlower = "numeric",
-                           effectCIupper = "numeric")
+                           effectCIupper = "numeric",
+                           P = "numeric"
+                           )
 
 columns_gsaResults_rle <- c("geneSetName", "test", "covar")
-columns_gsaResults_numeric <- c("threshold", "geneSetSize", "genesObs", "P", "effect", "effectSE", "effectCIlower", "effectCIupper")
+columns_gsaResults_numeric <- c("threshold", "geneSetSize", "genesObs", "effect", "effectSE", "effectCIlower", "effectCIupper", "P")
 
 columns_rvatResult <- list(
   singlevarResult = columns_singlevarResults,
@@ -134,3 +163,9 @@ filtercolumns_rvatResult <- list(
   singlevarResult = c("VAR_id", "cohort", "varSetName","name", "pheno", "covar", "geneticModel", "test"),
   gsaResult = c("geneSetName", "test","covar", "threshold")
 )
+
+## varSets ----------------------------------------------------------------------
+metadata_varsets <- c("rvatVersion", "gdbId","genomeBuild", "creationDate")
+metadata_aggregate <- c("rvatVersion", "gdbId", "genomeBuild", "creationDate")
+metadata_genesets <- c( "rvatVersion", "source", "creationDate")
+metadata_rvatresult <- c("rvatVersion", "gdbId", "genomeBuild", "creationDate")

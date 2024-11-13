@@ -5,7 +5,7 @@
 \alias{extractRanges,gdb-method}
 \title{Extract variants from a gdb based on a set of ranges}
 \usage{
-extractRanges(object, ranges, return = "VAR_id")
+extractRanges(object, ranges, padding = 250)
 }
 \arguments{
 \item{object}{a \code{\link{gdb}} object}
@@ -13,7 +13,8 @@ extractRanges(object, ranges, return = "VAR_id")
 \item{ranges}{Can be a data.frame, including at least 'CHROM','start', and 'end' columns or
 a \code{\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}} object.}
 
-\item{return}{What to return. Defaults to \code{VAR_id}, which returns a vector of VAR_ids that map to specified ranges.}
+\item{padding}{Number of basepairs to extend the search region beyond the specified genomic ranges to capture variants where the reference allele (REF) overlaps the input ranges,
+but the POS of the variant falls outside the ranges. This accounts for variants where the REF allele spans multiple base pairs.}
 }
 \description{
 Extract variant IDs from a \code{\link{gdb}} based on a set of ranges.

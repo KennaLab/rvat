@@ -2,6 +2,8 @@
 
 ## reading & writing ----------------------------------------------------------
 
+#' @rdname rvatResult
+#' @usage NULL
 #' @export
 setMethod("writeResult", "rvatResult",
           function(object, 
@@ -16,11 +18,31 @@ setMethod("writeResult", "rvatResult",
                    qmethod = c("escape", "double"),
                    fileEncoding = "")
           {
-            write.table(object, file = file, append = append, quote = quote,
-                        sep = sep, eol = eol, na = na, dec = dec,
-                        row.names = FALSE, col.names=col.names, 
-                        qmethod=qmethod,
-                        fileEncoding=fileEncoding)
+            if (!append) {
+              file <- file(file, "w") 
+              
+              # write metadata
+              metadata <- metadata(object)
+              metadata <- metadata[names(metadata) %in% metadata_rvatresult]
+              .write_rvat_header(filetype = as.character(class(object)[1]),
+                                 metadata = metadata, 
+                                 con = file)
+              
+              # write results
+              write.table(object, file = file, append = FALSE, quote = quote,
+                          sep = sep, eol = eol, na = na, dec = dec,
+                          row.names = FALSE, col.names=col.names, 
+                          qmethod=qmethod,
+                          fileEncoding=fileEncoding)
+              
+              close(file) 
+            } else {
+              write.table(object, file = file, append = append, quote = quote,
+                          sep = sep, eol = eol, na = na, dec = dec,
+                          row.names = FALSE, col.names=col.names, 
+                          qmethod=qmethod,
+                          fileEncoding=fileEncoding)
+            }
           })
 
 
@@ -36,6 +58,12 @@ setMethod("writeResult", "rvatResult",
 #' @return An object of type \code{\link{rvbResult}} or \code{\link{singlevarResult}}.
 #' @export
 readResults <- function(path, header = TRUE, type = NULL, sep = "\t") {
+  
+  metadata <- .parse_rvat_header(path, 
+                                 expected_metadata = metadata_rvatresult,
+                                 expected_filetype = if (!is.null(type)) type else names(columns_rvatResult),
+                                 n = length(metadata_rvatresult) + 1 # file description + metadata
+                                 )
   
   if (header) {
     type <- checkClassrvatResult(object = path, type = type, sep = sep)
@@ -105,9 +133,35 @@ are the default gsaResult columns.",length(columns_gsaResults)))
       }
     }
   }
-  rvatResult(dat, class = type)
+  
+  result <-  rvatResult(dat, class = type)
+  metadata(result) <- metadata
+  result
 }
 
+
+## getters ----------------------------------------------------------
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
+setMethod("getGdbId", signature="rvatResult",
+          definition=function(object){
+            value <- metadata(object)$gdbId
+            if (length(value) == 0) value <- NA_character_
+            value
+          }
+)
+
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
+setMethod("getGenomeBuild", signature="rvatResult",
+          definition=function(object){
+            value <- metadata(object)$genomeBuild
+            if (length(value) == 0) value <- NA_character_
+            value
+          }
+)
 
 ## combine -------------------------------------------------------------------
 #' merge.rvatResult.data.frame
@@ -157,6 +211,9 @@ setMethod("merge", c("rvatResult", "DataFrame"), function(x, y, by, ...) {
 # topResult
 ### topResults --------------------------------------------------------------
 
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
 setMethod("topResult", "rvatResult",
           function(object, n = 10) {
             head(object[order(object$P),],n)
@@ -235,6 +292,9 @@ rvatResult <- function(object, class) {
 }
 
 ## plots -----------------------------------------------------------------------
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
 setMethod("qqplot", c("rvatResult"),
           function(object, 
                    title = "", 
@@ -289,8 +349,9 @@ setMethod("qqplot", c("rvatResult"),
                     case = NULL, 
                     control = NULL) {
   if (is.null(threshold)){threshold=-log10(0.05/nrow(P))} else {threshold <- -log10(threshold)}
-  if (is.null(labelThreshold)){labelThreshold=threshold}
+  if (is.null(labelThreshold)){labelThreshold=threshold} else {labelThreshold=-log10(labelThreshold)}
   
+  P=P[!is.na(P$P),,drop=FALSE]
   X=data.frame(logp=-log10(P$P))
   chisq=qchisq(P$P[!(is.na(P$P))],1,lower.tail=FALSE)
   lambda <- median(chisq) / qchisq(0.5,1)
@@ -329,15 +390,22 @@ setMethod("qqplot", c("rvatResult"),
     ggplot2::geom_text(data=l,ggplot2::aes(x=xpos,y=ypos,hjust=hjust,vjust=vjust,label=annotateText),parse=FALSE,size=cex/2.5)
 
   if(showThreshold) {
-    qqplot <- qqplot + ggplot2::geom_segment(ggplot2::aes(x=0,xend=mx,y=threshold,yend=threshold),col="red", linetype=2)
+    qqplot <- qqplot + ggplot2::geom_segment(ggplot2::aes(x=x,xend=xend,y=y,yend=yend),
+                                             col = "red", 
+                                             linetype = 2,
+                                             data = data.frame(x = 0, xend = mx, y = threshold, yend = threshold)
+                                             )
   }
 
   if (ncol(X) == 3){qqplot = qqplot +
-    ggrepel::geom_text_repel(data= (X[!is.na(X$logp) & X$logp > labelThreshold,]),
+    ggrepel::geom_text_repel(data= (X[!is.na(X$logp) & X$logp > labelThreshold,,drop=FALSE]),
                              ggplot2::aes_string(label = "labels"), min.segment.length = 0, box.padding = 0.5)}
   return(qqplot)
 }
 
+#' @rdname rvatResult
+#' @usage NULL
+#' @export
 setMethod("manhattan", c("rvatResult"),
           function(object, 
                    highlight = NULL, 
@@ -345,8 +413,10 @@ setMethod("manhattan", c("rvatResult"),
                    threshold = NULL, 
                    labelThreshold = NULL, 
                    labelRepel = FALSE, 
-                   contigs = c(), 
-                   title = "")
+                   labelSize = 3.88,
+                   contigs = c(),
+                   title = ""
+                   )
           {
             # Check if 'CHROM' and 'POS' are present in the rvatResult object
             if(mean(c("CHROM", "POS") %in% colnames(object)) < 1) {
@@ -426,27 +496,33 @@ setMethod("manhattan", c("rvatResult"),
               ggplot2::scale_y_continuous(limits = c(0,max(object$logp)+0.75), 
                                           expand = c(0, 0)) +
               ggplot2::guides(colour = "none") +
-              ggplot2::geom_segment(ggplot2::aes(x=min(POS), 
-                                                 xend=max(POS), 
-                                                 y=-log10(threshold), 
-                                                 yend=-log10(threshold)),
+              ggplot2::geom_segment(ggplot2::aes(x=x, 
+                                                 xend=xend, 
+                                                 y=y, 
+                                                 yend=yend),
                                     col="grey", 
-                                    linetype=2) +
+                                    linetype=2,
+                                    data = data.frame(x = min(object$POS), xend = max(object$POS), y = -log10(threshold), yend = -log10(threshold))
+                                    ) +
                ggplot2::geom_point() 
               
             if (label %in% names(object)){
               if(labelRepel) {
                 mplot=mplot + 
-                  ggrepel::geom_text_repel(ggplot2::aes_string(x="POS",y="logp",label=label),
-                                     data=(object[!is.na(object$logp) & object$P < labelThreshold,]))
+                  ggrepel::geom_text_repel(ggplot2::aes(x=POS,y=logp,label=.data[[label]]),
+                                     data=(object[!is.na(object$logp) & object$P < labelThreshold,]),
+                                     size = labelSize 
+                                     )
               } else {
                 mplot=mplot + 
-                  ggplot2::geom_text(ggplot2::aes_string(x="POS",y="logp",label=label),
+                  ggplot2::geom_text(ggplot2::aes(x=POS,y=logp,label=.data[[label]]),
                                      data=(object[!is.na(object$logp) & object$P < labelThreshold,]), 
                                      nudge_y = 0.7, 
                                      angle=0, 
                                      vjust = "inward",
-                                     hjust = "inward")
+                                     hjust = "inward",
+                                     size = labelSize
+                                     )
               }
               }
             
@@ -459,17 +535,9 @@ setMethod("manhattan", c("rvatResult"),
             return(mplot)
           })
 
-setMethod("manhattanGeneSet", c("rvatResult"), 
-          function(object, geneSet, geneSetList, gsaObject,label = "label", threshold = NULL, 
-                   labelThreshold = NULL, contigs=c(), title="") { 
-            
-            pValues <- toString(round(-log10(gsaObject[gsaObject$geneSetName == geneSet,"P"]),5)) 
-            title <- paste(geneSet, ":\n", pValues) 
-            units <- listUnits(getGeneSet(geneSetList, geneSet = geneSet)) 
-            manhattan(object, highlight = units, label = label, threshold = threshold, 
-                      labelThreshold = labelThreshold, contigs=contigs, title=title)
-          })
-
+#' @rdname densityPlot
+#' @usage NULL
+#' @export
 setMethod("densityPlot", 
           signature = signature(object="rvatResult"),
           function(object, geneSet, geneSetList, showMeans = FALSE, INT = FALSE, Zcutoffs = NULL, title = "") {
@@ -506,10 +574,10 @@ setMethod("densityPlot",
 # Constructor
 proto_rvbResult <- function(n=0) {
   object <- S4Vectors::DataFrame(
+    unit = rep(NA_character_, n),
     cohort = Rle(rep(NA_character_, n)),
     varSetName = Rle(rep(NA_character_, n)),
     name = Rle(rep(NA_character_, n)),
-    unit = rep(NA_character_, n),
     pheno = Rle(rep(NA_character_, n)),
     covar = Rle(rep(NA_character_, n)),
     geneticModel = Rle(rep(NA_character_, n)),
@@ -524,11 +592,12 @@ proto_rvbResult <- function(n=0) {
     ctrlN = rep(NA_real_, n),
     caseCallRate = rep(NA_real_, n),
     ctrlCallRate = rep(NA_real_, n),
-    P = rep(NA_real_, n),
     effect = rep(NA_real_, n),
     effectSE = rep(NA_real_, n),
     effectCIlower = rep(NA_real_, n),
-    effectCIupper = rep(NA_real_, n)
+    effectCIupper = rep(NA_real_, n),
+    OR = rep(NA_real_, n),
+    P = rep(NA_real_, n)
   )
 }
 
@@ -538,7 +607,7 @@ proto_rvbResult <- function(n=0) {
 #' @usage NULL
 #' @export
 rvbResult <- function(object, header = TRUE) {
-  if(missing(object)) {
+  if(missing(object) || is.null(object)) {
     object <- proto_rvbResult()
   } 
   
@@ -641,6 +710,8 @@ setMethod("summary", "rvbResult",
 
 ### ACAT -----------------------------------------------------------------------
 
+#' @rdname rvatResult
+#' @usage NULL
 #' @export
 setMethod("ACAT", c("rvatResult"),
           function(object,
@@ -816,10 +887,10 @@ fixP_Liu <- function(x, d) {
 
 proto_singlevarResult <- function(n=0) {
   object <- S4Vectors::DataFrame(
+    VAR_id = rep(NA_character_, n),
     cohort = Rle(rep(NA_character_, n)),
     varSetName = Rle(rep(NA_character_, n)),
     name = Rle(rep(NA_character_, n)),
-    VAR_id = rep(NA_character_, n),
     pheno = Rle(rep(NA_character_, n)),
     covar = Rle(rep(NA_character_, n)),
     geneticModel = Rle(rep(NA_character_, n)),
@@ -832,11 +903,14 @@ proto_singlevarResult <- function(n=0) {
     ctrlN = rep(NA_real_, n),
     caseCallRate = rep(NA_real_, n),
     ctrlCallRate = rep(NA_real_, n),
-    P = rep(NA_real_, n),
+    effectAllele = rep(NA_character_, n),
+    otherAllele = rep(NA_character_, n),
     effect = rep(NA_real_, n),
     effectSE = rep(NA_real_, n),
     effectCIlower = rep(NA_real_, n),
-    effectCIupper = rep(NA_real_, n)
+    effectCIupper = rep(NA_real_, n),
+    OR = rep(NA_real_, n),
+    P = rep(NA_real_, n)
   )
 }
 
@@ -846,7 +920,7 @@ proto_singlevarResult <- function(n=0) {
 #' @usage NULL
 #' @export
 singlevarResult <- function(object, header = TRUE) {
-  if(missing(object)) {
+  if(missing(object) || is.null(object)) {
     object <- proto_singlevarResult()
   } 
   

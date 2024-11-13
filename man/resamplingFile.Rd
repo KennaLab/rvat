@@ -4,6 +4,7 @@
 \name{resamplingFile}
 \alias{resamplingFile}
 \alias{resamplingFile-class}
+\alias{show,resamplingFile-method}
 \title{Generate and manage permutations}
 \description{
 This class is designed to generate and manage permutations. For some purposes
@@ -28,3 +29,25 @@ which can be achieved by storing the permutations in a resamplingFile.
 A resamplingFile can be directly provided to \code{\link[=assocTest]{assocTest()}}, to run resampled association tests.
 }
 
+\examples{
+library(rvatData)
+# build and connect to a resamplingFile
+file <- tempfile(fileext = ".gz")
+buildResamplingFile(nSamples = 25000, 
+                    nResampling = 100,
+                    output = file)
+resamplingfile <- resamplingFile(file)
+
+# perform resampled association tests 
+gdb <- gdb(rvat_example("rvatData.gdb"))
+assoc <- assocTest(
+  gdb,
+  VAR_id = 1:10,
+  cohort = "pheno",
+  pheno = "pheno",
+  covar = paste0("PC", 1:4),
+  test = c("skat"),
+  resamplingFile = resamplingfile,
+  verbose = FALSE
+)
+}

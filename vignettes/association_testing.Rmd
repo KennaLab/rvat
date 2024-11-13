@@ -1,13 +1,14 @@
 ---
 title: "Association testing"
-output: 
+output:
   html_document:
+    theme: united
+    df_print: kable
     toc: true
-bibliography: rvat.bib
-editor_options: 
-  markdown: 
-    wrap: 72
+  pdf_document: default
+bibliography: rvat_package.bib
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -289,7 +290,7 @@ burden_pheno_4PCs_dominant_minCarrierFreq0.01 <- assocTest(GT,
 
 By default mean imputation is applied to missing values when performing
 burden tests (note that by default no imputation is applied for single
-variant tests), alternatively missings can be set to the reference
+variant tests), alternatively missing calls can be set to the reference
 allele:
 
 ```{r}

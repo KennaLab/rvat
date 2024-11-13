@@ -11,6 +11,7 @@ manhattan(
   threshold = NULL,
   labelThreshold = NULL,
   labelRepel = FALSE,
+  labelSize = NULL,
   contigs = c(),
   title = ""
 )
@@ -18,8 +19,7 @@ manhattan(
 \arguments{
 \item{object}{\code{\link{rvatResult}} object.}
 
-\item{highlight}{vector of units/VAR_ids that should be highlighted in red
-Either give a vector directly or use the method 'manhattanGeneSet'}
+\item{highlight}{vector of units/VAR_ids that should be highlighted in red}
 
 \item{label}{Column name of the labels that are used for significant results}
 
@@ -27,10 +27,44 @@ Either give a vector directly or use the method 'manhattanGeneSet'}
 
 \item{labelThreshold}{P-value threshold to display labels.}
 
+\item{labelRepel}{Should the text labels repel away from each other and away from the data points? Defaults to \code{FALSE}.}
+
+\item{labelSize}{Size of the label, defaults to the default used in the ggrepel package.}
+
 \item{contigs}{Update contig lengths from GRCh37 defaults.}
 
 \item{title}{Optional title.}
 }
 \description{
 Generate a manhattan plot for an \code{\link{rvatResult}} object.
+}
+\examples{
+library(rvatData)
+data(rvbresults)
+
+# generate manhatan plot
+man <- manhattan(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
+                 label = "unit", 
+                 contigs = "GRCh38")
+
+# if many overlapping gene label, try setting `labelRepel = TRUE`
+man <- manhattan(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
+                 label = "unit", 
+                 labelRepel = TRUE,
+                 contigs = "GRCh38")
+
+# alter the significane threshold using the `threshold` parameter
+man <- manhattan(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
+                 label = "unit", 
+                 labelRepel = TRUE,
+                 threshold = 1e-5,
+                 contigs = "GRCh38")
+
+# the threshold for displaying labels can be set using the `labelTrheshold` parameter
+man <- manhattan(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
+                 label = "unit", 
+                 labelRepel = TRUE,
+                 labelThreshold = 1e-12,
+                 contigs = "GRCh38")
+
 }

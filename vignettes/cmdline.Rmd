@@ -1,13 +1,14 @@
 ---
 title: "RVAT in the command-line"
-output: 
+output:
   html_document:
+    theme: united
+    df_print: kable
     toc: true
-bibliography: rvat.bib
-editor_options: 
-  markdown: 
-    wrap: 72
+  pdf_document: default
+bibliography: rvat_package.bib
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)

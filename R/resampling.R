@@ -16,13 +16,17 @@ resamplingFile=function(path)
   new("resamplingFile", path=path, methodResampling=methodResampling, nSamples=as.numeric(nSamples), nResampling=as.numeric(nResampling))
 }
 
+#' @rdname resamplingFile
+#' @usage NULL
+#' @export
 setMethod("show", signature = "resamplingFile",
           definition = function(object) {
-            message("rvat resamplingFile object")
-            message(sprintf("Path:%s",object@path))
-            message(sprintf("Resampling method: %s",object@methodResampling))
-            message(sprintf("N samples: %s",object@nSamples))
-            message(sprintf("N resamplings: %s",object@nResampling))
+            cat(sprintf("resamplingFile object\nPath:%s\nResampling method: %s\nN samples: %s\nN resamplings: %s", 
+                        object@path, 
+                        object@methodResampling,
+                        object@nSamples,
+                        object@nResampling
+                        ))
           })
 
 #' Build a resampling matrix
@@ -33,13 +37,14 @@ setMethod("show", signature = "resamplingFile",
 #' resampling tests.
 #' 
 #' @param nSamples Number of samples
-#' @param nResampling Number of resamplings
+#' @param nResampling Number of resamplings. Defaults to 1000.
 #' @param memlimit Chunk sizes (when writing to output)
 #' @param methodResampling Resampling method, currently 'permutation' is implemented.
 #' @param output File path (.gz extension) to write output to. If not specified, a matrix with resamplings is returned.
+#' @inherit resamplingFile examples
 #' @export
 buildResamplingFile <- function(nSamples,
-                                nResampling, 
+                                nResampling=1000, 
                                 memlimit=1000,
                                 methodResampling = "permutation", 
                                 output = NULL)  {

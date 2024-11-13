@@ -1,0 +1,114 @@
+---
+title: "Spatial clustering"
+output:
+  html_document:
+    theme: united
+    df_print: kable
+  pdf_document: default
+bibliography: rvat_package.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+```{r, message = FALSE}
+library(rvat)
+library(rvatData)
+```
+
+This tutorial shows how regional analyses can be performed in RVAT using `spatialClust()` that is based on an unsupervised approach based on the spatial clustering method by[@loehleinfierAssociationAnalysisGenomesequencing2017a]. It partitions variants within genes into consecutive non-overlapping windows. In brief, this algorithm applies a sliding window approach and models the mutation intensity within windows using a non-homogeneous Poisson point process. Within each window variants are then divided at points where the distance is larger than expected under the exponential distribution, thus defining spatially clustered groups of variants.
+
+# setup 
+
+Initialize gdb and output directory use in this tutorial:
+
+```{r}
+gdb <- create_example_gdb()
+outdir <- tempdir()
+```
+
+# Map CDS positions
+
+To perform spatial clustering of coding variants, we'll first map genomic coordinates to CDS coordinates using the `mapToCDS` method.
+
+```{r, message = FALSE}
+# The mapToCds method relies on an ensembl gtf/gff file for remapping 
+gtf <- rtracklayer::import("https://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz")
+
+## subset relevant genes
+genes <- unique(getAnno(gdb, "varInfo", fields = "gene_name")$gene_name)
+gtf <- gtf[gtf$gene_biotype %in% "protein_coding" & 
+           gtf$transcript_biotype %in% "protein_coding" & 
+           gtf$gene_name %in% genes]
+
+## transcript ids
+transcripts <- unique(gtf$transcript_id)
+
+# perform remapping
+## note that the `exonPadding` parameter will cause remapping of variants that are 12 base pairs from the exon border to the border.
+mapToCDS(
+  gdb,
+  gff = gtf,
+  transcript_id = transcripts,
+  exonPadding = 12,
+  output = paste0(outdir, "/cdsPOS.txt.gz"),
+  biotype = "protein_coding"
+)
+
+# upload to gdb
+R.utils::gunzip( paste0(outdir, "/cdsPOS.txt.gz"), remove = FALSE, overwrite = TRUE)
+uploadAnno(gdb, value = paste0(outdir, "/cdsPOS.txt"), name = "cdsPOS", skipRemap = TRUE)
+```
+
+
+# Perform spatial clustering
+
+Here, we perform spatial clustering for each transcript as described in [@loehleinfierAssociationAnalysisGenomesequencing2017a] and implemented in the `spatialClust()` method. It is similar to the `buildVarSet()` method, and will likewise generate
+a `varSetFile`. The 'windowSize' parameter controls the window size, and the 'posField` parameter can be used to specify the position field to use, in this case 'cdsPOS' as generated above. 
+
+```{r, warning = FALSE, message = FALSE}
+spatialClust(
+  gdb,
+  unitTable = "varInfo", 
+  varSetName = "ModerateHigh",
+  unitName = "transcript_id",
+  where = "ModerateImpact = 1 or HighImpact = 1",
+  windowSize = 30,
+  overlap = 15,
+  intersection = "cdsPOS",
+  posField = "cdsPOS",
+  output = paste0(outdir, "/moderatehigh_clusters.txt.gz")
+)
+```
+
+# Association testing
+
+Given that `spatialClust()` generates a `varSetFile()`, we can as described in other tutorials like the `vignette("association_testing")` tutorial.
+
+```{r, warning = FALSE, message = FALSE}
+# connect ot the varSetFile
+varsetfile <- varSetFile(paste0(outdir, "/moderatehigh_clusters.txt.gz"))
+
+# for this example we'll focus on the ALS gene FUS
+units <- listUnits(varsetfile)[stringr::str_detect(listUnits(varsetfile), "ENST00000254108")]
+
+# perform burden tests
+burden_spatialclusters <- assocTest(gdb,
+                               varSet = getVarSet(varsetfile, unit = units),
+                               cohort="pheno",
+                               pheno = "pheno",
+                               covar = c("sex", "PC1", "PC2", "PC3", "PC4"),
+                               test = "firth",
+                               name = "spatial_clustering",
+                               verbose = FALSE)
+burden_spatialclusters
+```
+
+
+# generate mutation plot
+
+coming soon!
+
+# References
+

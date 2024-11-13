@@ -5,9 +5,9 @@
 \alias{getCohort,gdb-method}
 \title{Get an cohort table from a gdb}
 \usage{
-getCohort(object, cohort, fields = "*")
+getCohort(object, cohort, fields = "*", keepAll = FALSE)
 
-\S4method{getCohort}{gdb}(object, cohort, fields = "*")
+\S4method{getCohort}{gdb}(object, cohort, fields = "*", keepAll = FALSE)
 }
 \arguments{
 \item{object}{an object of class \code{\link[=gdb-class]{gdb}}}
@@ -15,7 +15,22 @@ getCohort(object, cohort, fields = "*")
 \item{cohort}{name of cohort to get.}
 
 \item{fields}{columns to retain}
+
+\item{keepAll}{defaults to \code{FALSE}, for internal use.}
 }
 \description{
 Get a cohort table from a \code{\link[=gdb-class]{gdb}} object.
+}
+\examples{
+library(rvatData)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# retrieve a cohort
+cohort <- getCohort(gdb, cohort = "pheno")
+head(cohort)
+
+# retrieve a cohort, keep specified fields
+cohort <- getCohort(gdb, cohort = "pheno", fields = c("IID", "sex", "pheno"))
+head(cohort)
+
 }

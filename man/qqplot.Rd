@@ -26,6 +26,8 @@ qqplot(
 
 \item{threshold}{Provide alternative fwe threshold (bonferroni is applied by default.)}
 
+\item{showThreshold}{Show the multiple testing threshold? Defaults to \code{TRUE}. The threshold can be specified using the \code{threshold} parameter.}
+
 \item{labelThreshold}{Provide alternative fwe threshold (bonferroni is applied by default.)}
 
 \item{cex}{Font size, defaults to 16.}

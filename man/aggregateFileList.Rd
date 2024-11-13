@@ -3,6 +3,12 @@
 \docType{class}
 \name{aggregateFileList}
 \alias{aggregateFileList}
+\alias{aggregateFileList-class}
+\alias{show,aggregateFileList-method}
+\alias{listUnits,aggregateFileList-method}
+\alias{listSamples,aggregateFileList-method}
+\alias{length,aggregateFileList-method}
+\alias{metadata,aggregateFileList-method}
 \title{Class to facilitate merging aggregateFiles}
 \description{
 Class to facilitate merging aggregateFiles. By providing a vector of aggregateFile filepaths,
@@ -28,20 +34,55 @@ In the following code snippets, x is an aggregateFileList object.
 }
 }
 
-\section{Merge aggregateFiles}{
+\section{Merge or collapse aggregateFiles}{
 
 \itemize{
-\item \code{mergeAggregateFiles(object,aggregate = TRUE,output = NULL,verbose = TRUE)}:
-Merge the aggregatefiles included in the aggregateFileList.
-Either aggregate all aggregates into one single aggregate per sample, or merge
-all aggregatefiles into a new aggregateFile. See \code{\link{mergeAggregateFiles}} for details.
+\item \code{mergeAggregateFiles(object, output = NULL, verbose = TRUE)}:
+Merge aggregrateFiles, this will generate a new \code{aggregateFile} including all aggregates across provided aggregateFiles.
+See \code{\link{mergeAggregateFiles}} for details.
+\item \code{collapseAggregateFiles(object, output = NULL, verbose = TRUE)}: Collapse aggregrateFiles by aggregating values across aggregateFiles.
+This will result in one aggregate score for each sample, representing the aggregate value across aggregate files.
+The output will be a two-column matrix including sample IDs and aggregate scores respectively.
+See \code{\link{collapseAggregateFiles}} for details.
 }
 }
 
+\examples{
+library(rvatData)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# generate two aggregate files
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+aggregatefile1 <- tempfile()
+aggregate(x = gdb,
+          varSet = getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High"),
+          maxMAF = 0.001,
+          output = aggregatefile1,
+          verbose = FALSE)
+
+aggregatefile2 <- tempfile()
+aggregate(x = gdb,
+          varSet = getVarSet(varsetfile, unit = c("NEK1"), varSetName = "High"),
+          maxMAF = 0.001,
+          output = aggregatefile2,
+          verbose = FALSE)
+
+# merge using mergeAggregateFiles
+aggregatefile <- tempfile()
+agglist <- aggregateFileList(c(aggregatefile1, aggregatefile2))
+mergeAggregateFiles(
+  agglist,
+  output = aggregatefile
+  )
+
+}
 \seealso{
 \code{\link{mergeAggregateFiles}}
+
+\code{\link{collapseAggregateFiles}}
 
 \code{\link{assocTest-aggregateFile}}
 
 \code{\link{aggregate}}
 }
+\keyword{aggregateFileList}

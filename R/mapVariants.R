@@ -19,7 +19,7 @@ setMethod("mapVariants",
 ) {
   
   ## Check if at least one input is given
-  if ( sum(c(is.null(ranges), is.null(gff), is.null(bed))) == 0 ) {
+  if ( sum(c(!is.null(ranges), !is.null(gff), !is.null(bed))) == 0 ) {
     stop("At least one of `ranges`, `gff` or `bed` should be specified.")
   }
   
@@ -34,8 +34,9 @@ setMethod("mapVariants",
       ranges <- read.table(ranges, sep = sep, stringsAsFactors = FALSE, header = TRUE)
     } 
     if ( is.data.frame(ranges) ) {
-      if (!all(c("CHROM", "start", "end") %in% colnames(ranges))) {
-        stop("'CHROM', 'start' and 'end' should be present in ranges-file.")
+      if (!all(c("CHROM", "start", "end") %in% colnames(ranges)) && 
+          !all(c("seqnames", "start", "end") %in% colnames(ranges))) {
+        stop("either 'CHROM', 'start' and 'end' or 'seqnames', 'start' and 'end' should be present in ranges-file.")
       }
       ranges <- GenomicRanges::makeGRangesFromDataFrame(ranges, keep.extra.columns = TRUE)
     } else if (!is(ranges, "GRanges")) {
@@ -62,7 +63,7 @@ setMethod("mapVariants",
   ## if uploadName != NULL, check if name is valid and if already exists in gdb
   if (!is.null(uploadName)) {
     if (!is.character(uploadName)) {stop("`uploadName` should be a character string (indicating how the uploaded table in the gdb should be named)")}
-    if (grepl("\\.", uploadName)) {stop("Table name shouldn't contain '.'")}
+    if (grepl("\\+|\\-|\\.|\\,| ", uploadName)) {stop("Table name shouldn't contain '.'")}
     if (uploadName %in% gdb_protected_tables) {stop(sprintf("'%s' already exists as a protected table in gdb and cannot be replaced", uploadName))}
     
     cohort <- listCohort(object)
@@ -88,9 +89,23 @@ setMethod("mapVariants",
   }
   
   ## fields to keep from ranges object
-  if(!is.null(fields)) ranges <- ranges[,colnames(mcols(ranges)) %in% fields]
+  if(!is.null(fields)) {
+    ranges <- ranges[,colnames(mcols(ranges)) %in% fields]
+    # check if any of the fields are among the GRanges ranges fields 
+    if (any(fields %in% c("seqnames", "start", "end", "width", "strand"))) {
+      fields_ranges <- fields[fields %in% c("seqnames", "start", "end", "width", "strand")]
+    } else {fields_ranges <- NULL}
+  } else {
+    fields_ranges <- NULL
+  }
   
+  # chromosomes that overlap between gdb and ranges
+  ## note: convert both to NCBI format to check overlap
   chroms <- getAnno(object, "var_ranges", fields="CHROM")$CHROM
+  chroms_ncbi <- GenomicRanges::GRanges(seqnames = chroms, ranges = IRanges::IRanges(start=1))
+  GenomeInfoDb::seqlevelsStyle(chroms_ncbi) <- "NCBI"
+  chroms <- setNames(as.character(seqnames(chroms_ncbi)), nm = chroms)
+  chroms <- names(chroms[chroms %in% GenomeInfoDb::seqlevels(ranges)])
   
   ## map per chromosome
   for ( chrom in chroms ) {
@@ -103,9 +118,16 @@ setMethod("mapVariants",
     
     ## generate overlaps 
     overlaps <- GenomicRanges::findOverlaps(gr, ranges)
-    dat <- cbind(VAR_id=gr[S4Vectors::queryHits(overlaps)]$VAR_id, 
-                 as.data.frame(GenomicRanges::mcols(ranges[S4Vectors::subjectHits(overlaps),])))
+    if(!is.null(fields_ranges) && length(fields_ranges) > 0) {
+      dat <- cbind(VAR_id=gr[S4Vectors::queryHits(overlaps)]$VAR_id, 
+                   as.data.frame(ranges[S4Vectors::subjectHits(overlaps)])[,fields_ranges,drop=FALSE],
+                   as.data.frame(GenomicRanges::mcols(ranges[S4Vectors::subjectHits(overlaps),])))
+    } else {
+      dat <- cbind(VAR_id=gr[S4Vectors::queryHits(overlaps)]$VAR_id, 
+                   as.data.frame(GenomicRanges::mcols(ranges[S4Vectors::subjectHits(overlaps),])))
+    }
     dat <- dplyr::arrange(dat, VAR_id)
+    dat[] <- lapply(dat, function(x) if(is.factor(x)) as.character(x) else x)
     
     ## write to output (if specified)
     if (!is.null(output)) {
@@ -140,7 +162,7 @@ setMethod("mapVariants",
   ## if output is written to gdb, update metadata, indexes
   if (!is.null(uploadName)) {
     fields <- DBI::dbListFields(object,uploadName)
-    message(sprintf('%s fields detected (%s)\n',length(fields),paste(fields,collapse=",")))
+    if (verbose) message(sprintf('%s fields detected (%s)\n',length(fields),paste(fields,collapse=",")))
     
     # Update annotation meta-data table
     anno <- listAnno(object)

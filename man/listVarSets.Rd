@@ -6,6 +6,11 @@
 \usage{
 listVarSets(object, ...)
 }
+\arguments{
+\item{object}{An object of class \code{\link{varSetFile}}, \code{\link{varSetList}}}
+
+\item{...}{additional arguments.}
+}
 \description{
 Returns a vector of all varSetNames included in the \code{\link{varSetFile}} or \code{\link{varSetList}}
 }

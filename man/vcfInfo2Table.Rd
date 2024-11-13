@@ -16,3 +16,13 @@ vcfInfo2Table(vcf, output, splitMultiallelic = TRUE)
 \description{
 Convert vcf info field to table format. Requires valid vcf where INFO fields are specified in header.
 }
+\examples{
+library(rvatData)
+vcf <- rvat_example("rvatData.vcf.gz")
+output <- tempfile()
+vcfInfo2Table(
+  vcf = vcf,
+  output = output
+)
+
+}
