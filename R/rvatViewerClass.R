@@ -176,12 +176,17 @@ extract_metadata_rvatResults_sql <- function(conn) {
 
 # -----------------------------------------------------------------------------------
 # convenience methods
+
+#' @rdname rvatViewer
+#' @usage NULL
 setMethod("metadata", c("rvatViewerClass"),
           function(x)
           {
             x@metadata
           })
 
+#' @rdname rvatViewer
+#' @usage NULL
 setMethod("metadata", c("rvatViewerClassSQL"),
           function(x)
           {
