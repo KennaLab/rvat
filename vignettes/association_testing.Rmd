@@ -447,7 +447,15 @@ Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
 # identify executable path:
 varset=$outdir/moderate.txt.gz
 
-Rscript $rvat --assocTest --gdb=$gdbpath --varSet=$varset --test=firth,acatv,skat_robust --geneticModel=allelic --cohort=pheno --pheno=pheno --covar=PC1,PC2,PC3,PC4 -output=$outdir/burden_cmdline1.txt.gz
+Rscript $rvat --assocTest \
+--gdb $gdbpath \
+--varSet $varset \
+--test firth,acatv,skat_robust \
+--geneticModel allelic \
+--cohort pheno \
+--pheno pheno \
+--covar PC1,PC2,PC3,PC4 \
+--output $outdir/burden_cmdline1.txt.gz
 ```
 
 Multiple phenotypes, tests, geneticModels, MAFweights and covars can be
@@ -457,7 +465,15 @@ for two covar sets:
 ```{bash}
 varset=$outdir/moderate.txt.gz
 
-Rscript $rvat --assocTest --gdb=$gdbpath --varSet=$varset --test=firth,acatv,skat_robust --geneticModel=allelic,recessive --cohort=pheno --pheno=pheno --covar=PC1,PC2,PC3,PC4/PC1,PC2,PC3,PC4,age --output=$outdir/burden_cmdline2.txt.gz
+Rscript $rvat --assocTest \
+--gdb $gdbpath \
+--varSet $varset \
+--test firth,acatv,skat_robust \
+--geneticModel allelic,recessive \
+--cohort pheno \
+--pheno pheno \
+--covar PC1,PC2,PC3,PC4/PC1,PC2,PC3,PC4,age \
+--output $outdir/burden_cmdline2.txt.gz
 ```
 
 # References

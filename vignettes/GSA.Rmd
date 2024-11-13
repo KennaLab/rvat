@@ -387,15 +387,15 @@ Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
 
 ```{bash}
 Rscript $rvat --assocTest \
---gdb=$gdbpath \
---geneSetFile=$outdir/genesetfile.txt.gz \
---aggregateFile=$outdir/moderate.aggregate.txt.gz \
---name=maxMAF001 \
---covar=PC1,PC2,PC3,PC4 \
---cohort=pheno \
---pheno=pheno \
---test=glm,firth \
---output=$outdir/agg_burden_tests_merged_cmdline.txt.gz
+--gdb $gdbpath \
+--geneSet $outdir/genesetfile.txt.gz \
+--aggregateFile $outdir/moderate.aggregate.txt.gz \
+--name maxMAF001 \
+--covar PC1,PC2,PC3,PC4 \
+--cohort pheno \
+--pheno pheno \
+--test glm,firth \
+--output $outdir/agg_burden_tests_merged_cmdline.txt.gz
 ```
 
 
