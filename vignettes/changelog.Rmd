@@ -1,0 +1,38 @@
+---
+title: "Changelog"
+output:
+  html_document:
+    theme: united
+    df_print: kable
+---
+
+# v.0.3
+
+## v.0.3.0
+
+Large update! In particular, changes have been made to:
+
+- **Documentation and tutorials**
+	- All methods/classes/functions now contain examples in their documentation.
+	- New tutorials are included on [variant annotation](variant_annotation.html), [gene set analysis](GSA.html) and [spatial clustering](spatial_clustering.html).  
+	  Existing workflows have been updated with new features/functions .
+- **Association testing**
+	- RVAT results now include a `OR` field indicating the odds-ratio for logistic tests (firth and glm). <ins>**Importantly:**</ins> For firth and flm tests `effect`/`effectSE`/`effectCIlower`/`effectCIupper` are now on the log-scale!
+	- Effect alleles (i.e. the allele to which the effect estimate refers) and non-effect alleles are now included in the results of single variant tests.
+- **Metadata**
+	- GDB now includes additional metadata, including a unique identifier, the genome build and creation date and can be retrieved using corresponding getters (e.g. `getGenomeBuild` and `getGdbId`). The genome build can be set when building the gdb (`genomeBuild` parameter), and will then be used correctly assign ploidies on the sex-chromosomes in downstream analyses (so no need to set the `checkPloidy` parameter anymore, although this is still an option). The gdb identifier can be useful to track which gdb was used to generate results, as the id will be included in the metadata of downstream files such as results files and varSetFiles (see below). Also, it is used methods such as `assocTest` and `summariseGeno` to check whether supplied varSetFile/varSetList files were generated from the specified gdb.
+	- Files generated using RVAT, such as rvatResult and varSetFiles, now include a header with metadata, including the RVAT version used to generate the file, the gdb identifier, the genome build and the creation date. This metadata will be included when loading or connecting to these files with the corresponding RVAT methods (e.g. `rvbResult(<file>)` and `varSetFile(<file>)`). Note that if you read in RVAT results using non-RVAT functions (e.g. `read.table`), then you will have to skip lines that start with '#'. 
+- **Robustness, fixes & efficiency**
+	- Unit tests are now included that cover the majority of code.
+	- RVAT now passes R CMD CHECK without errors / warnings.
+	- Complete rewrite of the RVAT command-line interface. This is mostly an 'under-the-hood' update to increase robustness and maintainability. For users it is relevant that 1) CLI + help pages are now in-sync with interactive version 2) parameters can now be provided without an '=', e.g. `--gdb <path to gdb>` rather than `--gdb=<path to gdb>`
+	- Increased efficiency: significant speed-up of extracting ranges (`ranges` parameter in `getGT` and `getAnno`).
+	- Several bug fixes / improvements.
+- **Miscellanous**
+	- Annotations can now be included directly when loading genotypes using `getGT()`by setting the `anno` parameter, or  setting `inludeVarInfo = TRUE` to include the 'var' table. If 'REF' and 'ALT' alleles are included in the annotations, 'effectAllele' and 'otherAllele' are assigned in the `genoMatrix` and automatically updated when alleles are flipped. effectAllele and otherAllele are passed on as a fields in single variant results.
+	- `subsetGdb`: Now has a `VAR_id` parameter to directly subset VAR_ids and a `tables` parameter to specify which tables to keep.
+	- `getCohort` now returns records only for the samples included in the respective cohort, rather than running NA fields for all excluded samples. The `keepAll` parameter can be set to `TRUE` to return all records, like in previous versions.
+	- `uploadAnno`: now has a `keepUnmapped` flag, if set to TRUE (default) variants that do not map to gdb are discarded.
+	-  `writeVcf` now includes a `includeVarId` parameter that controls whether VAR_ids should be included in the 'ID' field. This parameter defaults to `FALSE`, in which case the 'ID' field from the 'var' table is included. *Note*: this is a change relative to the previous version, in which VAR_ids were written to the 'ID' field by default. Also, FORMAT field not included anymore when generating a sites-only vcf (`includeGeno=TRUE`).
+	- 'AF' field in rowData slot of genoMatrix is removed.
+	- `mergeAggregateFiles` is now split into two methods: `mergeAggregateFiles` and `collapseAggregateFiles`. `mergeAggregateFiles` behaves identically to former `mergeAggregateFiles` method with `collapse = FALSE`, whereas `collapseAggregateFiles` behaved identically to former `mergeAggregateFiles` method with `collapse = TRUE`.
