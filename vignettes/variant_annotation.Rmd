@@ -1,0 +1,193 @@
+---
+title: "Variant annotation"
+output:
+  html_document:
+    theme: united
+    df_print: kable
+    toc: true
+  pdf_document: default
+bibliography: rvat_package.bib
+---
+
+
+```{r, message = FALSE, warning = FALSE, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, warning = FALSE}
+library(rvat)
+library(rvatData)
+```
+
+Initialize environment:
+
+```{r}
+outdir <- tempdir()
+gdbpath = paste0(outdir,"/rvat_tutorials.gdb")
+Sys.setenv(outdir = outdir,
+           rvat = system.file('exec/rvat.R', package = 'rvat'),
+           gdbrvatdata = rvatData::rvat_example('rvatData.gdb'),
+           gdbpath = paste0(outdir,"/rvat_tutorials.gdb")
+           )
+```
+
+```{bash}
+cp $gdbrvatdata $gdbpath
+```
+
+Connect to the example gdb:
+
+```{r}
+gdb <- gdb(paste0(outdir,"/rvat_tutorials.gdb"))
+```
+
+# annotate variants with genomic features
+
+In this example, we'll annotate variants in the gdb with genomic
+features from ensembl.
+
+First, we import the ensembl features in gtf format using
+[rtracklayer](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html),
+resulting in a
+[GenomicRanges](https://bioconductor.org/packages/release/bioc/html/GenomicRanges.html)
+object:
+
+```{r, message = FALSE}
+gtf <- rtracklayer::import("https://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz")
+```
+
+Then, we'll use the `mapVariants` method to map the variants to
+protein-coding genes:
+
+```{r, message = FALSE}
+gtf_gene <- gtf[gtf$gene_biotype == "protein_coding" & gtf$type == "gene"]
+mapVariants(gdb,
+            ranges = gtf_gene, 
+            uploadName = "gene",
+            overWrite = TRUE,
+            verbose = FALSE
+            )
+```
+
+Similarly, we can map to other features included in ensembl:
+
+```{r, message = FALSE}
+gtf_coding <- gtf[gtf$gene_biotype == "protein_coding" & gtf$type == "CDS"]
+mapVariants(gdb,
+            ranges = gtf_gene, 
+            uploadName = "CDS",
+            overWrite = TRUE,
+            verbose = FALSE
+            )
+```
+
+Of course, sets of custom ranges can be used in the same manner:
+
+```{r, message = FALSE}
+custom_ranges <- GRanges(
+  seqnames = c("chr15", "chr15"),
+  ranges = IRanges(
+    start = c(51218500, 51227800),
+    end = c(51219500, 51228000)
+  ),
+ annotation = c("A", "B")
+)
+
+mapVariants(gdb,
+            ranges = custom_ranges, 
+            uploadName = "custom_annotation",
+            overWrite = TRUE,
+            verbose = TRUE
+            )
+```
+
+The `mapVariants` method can also read directly from various file
+formats including gtf,gff,bed and text files that contain ranges (CHROM,
+start, end fields).
+
+For example, below we map variants based on a gtf-file stored on disk:
+
+```{r, message = FALSE}
+# export gene features as gtf
+mcols(gtf_gene) <- mcols(gtf_gene)[,c("gene_id", "gene_name")]
+gtf_path <- paste0(outdir, "/gtf_gene.gtf")
+rtracklayer::export(gtf_gene, format = "gtf", con = gtf_path)
+
+# mapVariants by specifying gff parameter:
+mapVariants(gdb,
+            gff = gtf_path, 
+            uploadName = "gene_from_gtf",
+            overWrite = TRUE,
+            verbose = FALSE
+            )
+```
+
+# annotate variants with variant effect predictions
+
+In this example we'll annotate variants with AlphaMissense scores as
+described in [@chengAccurateProteomewideMissense2023].
+
+## import AlphaMissense
+
+First, we'll download the AlphaMissense scores. Note that this takes up
+\~5Gb of storage.
+
+```{bash, message=FALSE}
+wget --no-verbose -O - https://storage.googleapis.com/dm_alphamissense/AlphaMissense_hg38.tsv.gz | gunzip -c | sed '1,3d; 4s/#//g' > ${outdir}/AlphaMissense_hg38.tsv
+```
+
+annotations which contain variant positions (CHROM, POS) and optionally
+REF/ALT fields can be directly imported using `uploadAnno`. By default
+`uploadAnno` will discard all variants that do not map to the gdb. Note
+that this does take a little while since we're uploading a rather bulky
+table:
+
+```{r, message = FALSE, warning = FALSE}
+uploadAnno(
+  gdb,
+  name = "AlphaMissense",
+  value = paste0(outdir, "/AlphaMissense_hg38.tsv")
+)
+```
+
+## run burden based on AlphaMissense predictions
+
+Build a varset including variants that are predicted to be 'likely
+pathogenic' by AlphaMissense
+
+```{r, message = FALSE}
+buildVarSet(object = gdb, 
+            output = paste0(outdir, "/AlphaMissense_likelypathogenic.txt.gz"),
+            varSetName = "AlphaMissense_likelypathogenic", 
+            unitTable = "AlphaMissense", 
+            unitName = "transcript_id",
+            weightName = "am_pathogenicity",
+            where = "am_class = 'likely_pathogenic'"
+            )
+am_likely_pathogenic_path <- paste0(outdir, "/AlphaMissense_likelypathogenic.txt.gz")
+```
+
+Run a burden test for NEK1 including only variant predicted to be likely
+pathogenic:
+
+```{r}
+## Initialize a GT object
+varsetfile <- varSetFile(am_likely_pathogenic_path)
+varset <- getVarSet(varsetfile, unit = "ENST00000439128.6")
+GT <- getGT(
+    gdb,
+    varSet = varset,
+    cohort = "pheno")
+burden <- assocTest(GT,
+                    pheno = "pheno",
+                    covar = c("PC1", "PC2", "PC3", "PC4"),
+                    test = "firth",
+                    verbose = FALSE
+                    )
+burden
+```
+
+More details on creating variant sets and burden testing can be found in
+`vignette("association_testing")`
+
+# References

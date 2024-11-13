@@ -1,18 +1,18 @@
 ---
 title: "Exploring and visualizing results"
-output: 
+output:
   html_document:
+    theme: united
+    df_print: kable
     toc: true
-editor_options: 
-  markdown: 
-    wrap: 72
+  pdf_document: default
+bibliography: rvat_package.bib
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-IN PROGRESS
 
 # rvatResult
 
