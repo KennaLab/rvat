@@ -12,13 +12,13 @@ To date RVAT been used to conduct gene discovery analyses in large exome sequenc
 
 ### Install directly from github
 
-```{r}
+```
 remotes::install_github("kennalab/rvat")
 ```
 
 Many of the examples and tutorials rely on example data which can be installed similarly:
 
-```{r}
+```
 remotes::install_github("kennalab/rvatData")
 ```
 
