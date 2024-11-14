@@ -1,5 +1,5 @@
 ---
-title: "RVAT in the command-line"
+title: "Command-line interface"
 output:
   html_document:
     theme: united
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Some output will be written during the tutorials, a temporary directory will be used for that:
 
 ```{r, include = FALSE, echo = FALSE, message = FALSE, warning = FALSE}
-outdir=tempdir()
+outdir <- tempdir()
 Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
            vcfpath = rvatData::rvat_example('rvatData.vcf.gz'),
            phenopath = rvatData::rvat_example('rvatData.pheno'),
@@ -50,7 +50,7 @@ Rscript $rvat --buildGdb
 
 ## Import VCF:
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat \
 --buildGdb \
 --vcf ${vcfpath} \
@@ -61,7 +61,7 @@ Rscript $rvat \
 
 ## Import sample metadata  
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat --uploadCohort \
 --gdb $outdir/rvat_tutorials_cmdline.gdb \
 --name pheno \
@@ -70,15 +70,14 @@ Rscript $rvat --uploadCohort \
 
 list imported cohorts:
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat --listCohort --gdb $outdir/rvat_tutorials_cmdline.gdb
 ```
 
 
-
 ## Import variant annotation tables
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat --uploadAnno \
 --gdb $outdir/rvat_tutorials_cmdline.gdb \
 --name varInfo \
@@ -87,7 +86,7 @@ Rscript $rvat --uploadAnno \
 
 list anno tables:
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat --listAnno --gdb $outdir/rvat_tutorials_cmdline.gdb
 ```
 
@@ -98,7 +97,7 @@ Rscript $rvat --listAnno --gdb $outdir/rvat_tutorials_cmdline.gdb
 
 build varSet containing moderate variants:
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat --buildVarSet \
 --gdb $outdir/rvat_tutorials_cmdline.gdb \
 --varSetName Moderate \
@@ -110,7 +109,7 @@ Rscript $rvat --buildVarSet \
 
 build multiple varSets
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 tables=(HighImpact ModerateImpact CADDphred PolyPhen)
 weights=(1 1 CADDphred 1)
 wheres=("HighImpact = 1" "ModerateImpact = 1" "CADDphred is not 'NA'" "PolyPhen is 'D'")
@@ -128,11 +127,6 @@ for ((i=0;i<${n};i++))
    done &> $outdir/varsets.log
 ```
 
-```{bash}
-echo $outdir
-```
-
-
 Merge variant sets for coordinated set based association testing of multiple filters
 
 ```{bash}
@@ -145,7 +139,7 @@ varSets=(HighImpact ModerateImpact CADDphred PolyPhen)
 
 ## Run burden tests
 
-```{bash, message = FALSE, warning = FALSE}
+```{bash, message = FALSE, warning = FALSE, results = 'hide'}
 Rscript $rvat \
 --assocTest \
 --gdb $outdir/rvat_tutorials_cmdline.gdb \
@@ -160,7 +154,7 @@ Rscript $rvat \
 
 ## Run singlevar tests
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat \
 --assocTest \
 --singlevar \
