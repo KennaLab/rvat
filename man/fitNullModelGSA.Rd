@@ -38,6 +38,8 @@ Z scores below/above these cutoffs will be set equal to the cutoff.}
 \item{INT}{Apply inverse normal transformation to Z-scores? Defaults to \code{FALSE}.}
 
 \item{method}{Method to use to fit the mixed linear model, currently 'GENESIS' is implemented.}
+
+\item{...}{Additional arguments to pass to \link[GENESIS:fitNullModel]{GENESIS::fitNullModel}}
 }
 \description{
 Fit a null model for a mixed linear model gene set analysis.

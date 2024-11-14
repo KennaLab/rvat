@@ -68,11 +68,12 @@ setMethod("addBlocks", signature = "rvatResult",
 ## build block correlation matrix
 ## partly based on: https://github.com/opain/TWAS-GSEA/blob/master/TWAS-GSEA.V1.2.R
 #' @rdname buildCorMatrix
+#' @usage NULL
 #' @export
 setMethod("buildCorMatrix", signature = c("rvatResult", "aggregateFile"),
           definition = function(object, 
                                 aggregateFile, 
-                                memlimit = 5000, 
+                                memlimit = 1000, 
                                 minR2 = 1e-04, 
                                 makePD = TRUE, 
                                 absolute = TRUE, 

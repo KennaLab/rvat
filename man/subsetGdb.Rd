@@ -8,10 +8,13 @@
 subsetGdb(
   object,
   output,
-  intersection = c(),
-  where = c(),
+  intersection = NULL,
+  where = NULL,
+  VAR_id = NULL,
+  tables = NULL,
   skipIndexes = FALSE,
-  overWrite = FALSE
+  overWrite = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -19,9 +22,13 @@ subsetGdb(
 
 \item{output}{Output gdb path (output will be a new gdb file).}
 
-\item{intersection}{Additional tables to filter through intersection (ie variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.}
+\item{intersection}{Additional tables to filter through intersection (i.e. variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.}
 
 \item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
+
+\item{VAR_id}{Retain only variants with matching VAR_id.}
+
+\item{tables}{Optional, vector of tables to retain from the gdb. By default all tables will be included in the output gdb.}
 
 \item{skipIndexes}{Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM, POS,REF,ALT).
 Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use.
@@ -29,7 +36,51 @@ Defaults to \code{FALSE}.}
 
 \item{overWrite}{Flag indicating whether \code{output} should be overwritten if it already exists.
 Defaults to \code{FALSE}.}
+
+\item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Function to allow for generation of a child gdb from a parent gdb, with the option to filter retained variants through table intersection operations and SQL where statements
+}
+\examples{
+
+library(rvatData)
+gdb <- create_example_gdb()
+
+# Make a gdb subset that includes only variants annotated to SOD1
+output <- tempfile()
+subsetGdb(
+  gdb,
+  intersection = "varInfo",
+  where = "gene_name = 'SOD1'",
+  output = output
+)
+gdb_subset <- gdb(output)
+
+# Specific tables can be selected to include.
+# all other user-uploaded annotation and cohort tables will be excluded
+subsetGdb(
+  gdb,
+  intersection = "varInfo",
+  where = "gene_name = 'SOD1'",
+  tables = "varInfo",
+  output = output,
+  overWrite = TRUE
+)
+gdb_subset <- gdb(output)
+
+# subset gdbs based on list of VAR ids
+anno <- getAnno(gdb, 
+                "var",
+                range = data.frame(CHROM = "chr16", start = 31191399, end = 31191605)
+                )
+
+subsetGdb(
+  gdb,
+  VAR_id = anno$VAR_id,
+  output = output,
+  overWrite = TRUE
+)
+gdb_subset <- gdb(output)
+
 }

@@ -1,0 +1,403 @@
+---
+title: "Gene set analysis"
+output:
+  html_document:
+    theme: united
+    df_print: kable
+    toc: true
+  pdf_document: default
+bibliography: rvat_package.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, warning = FALSE}
+# Libraries
+library(rvat)
+library(rvatData)
+```
+
+Some output will be written during the tutorials, please change
+`outdir`, defined below to your preferred directory:
+
+```{r}
+outdir <- tempdir()
+```
+
+# Getting started
+
+Load set of example rare variant results
+
+```{r}
+data(rvbresults)
+```
+
+# Data formats
+
+## geneSetList
+
+-   a `geneSetList()` is a class for storing gene sets (+ metadata) and
+    several methods for working with them.\
+
+-   Gene set lists can be generated from multiple sources, currently the
+    following formats are supported:
+
+    -   GMT-format (see [MSigDB]
+        (<https://www.gsea-msigdb.org/gsea/msigdb/>).\
+    -   data.frame\
+    -   list
+
+### Generating a geneSetList object
+
+The `buildGeneSet()` function can be used to load in data from one of
+the formats described above. For example, below we build a genesetlist
+based on a [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb) GMT file
+including Gene Ontology (molecular function) terms:
+
+```{r}
+## Build a geneSetList from a gmt-file
+genesetlist <- buildGeneSet(gmtpath = "data/c5.go.mf.v2023.2.Hs.symbols.gmt")
+
+# Check genesets:
+genesetlist
+head(names(genesetlist))
+```
+
+Alternatively, custom genesets can be provided like so:
+
+```{r}
+genesets_custom <-  list(
+  "ALS_genes" = c("SOD1", "NEK1", "FUS"),
+  "PD_genes" = c("LRRK2", "GBA", "SNCA")
+)
+genesetlist_custom <- buildGeneSet(
+    genesets_custom
+)
+genesetlist_custom
+```
+
+
+### Basic usage
+
+Some basic geneSetList methods:
+
+```{r}
+length(genesetlist)
+lengths(genesetlist) %>% head()
+metadata(genesetlist) %>% head()
+genesetlist[[2]]
+genesetlist[1:3]
+head(as.list(genesetlist))
+```
+
+The `getGeneSet()` method can be used to extract one or more genesets
+from a `geneSetList:`
+
+```{r}
+# Extract one specific geneset:
+geneset <- getGeneSet(genesetlist, 
+                      geneSet = "GOMF_E_BOX_BINDING")
+geneset[[1]]
+```
+
+It can also be used to retrieve gene sets that contain one or more genes
+of interest:
+
+```{r}
+# Extract all genesets that contain SOD1:
+geneset = getGeneSet(genesetlist, unit = "SOD1")
+head(names(geneset))
+```
+
+Specific units/genes can also be dropped from the `geneSetList()`, which
+is useful if you want to exclude top genes for gene set analysis for
+example:
+
+```{r}
+genesetlist_noSOD1 <- dropUnits(genesetlist, unit = "SOD1")
+```
+
+Convert `geneSetList()` to a data.frame or a list:
+
+```{r}
+head(as.list(genesetlist), 2)
+head(as.data.frame(genesetlist), 3)
+```
+
+### Remapping IDs
+
+The IDs in a `geneSetList()` can be remapped using the `remapIDs()`
+method to match those used in the analyses.
+
+Below we remap the gene symbols to Ensembl IDs, based on a linker-file.
+
+```{r}
+# Linker file mapping Entrez gene IDs to Ensembl IDs:
+linker <- readr::read_tsv("data/Homo_sapiens.GRCh38.105.gene.txt.gz", show_col_types = FALSE)
+linker <- linker[,c("gene_id", "gene_name")]
+
+# note: the `duplicated_ids` parameter indicates what to do with IDs that map to multiple IDs 
+genesetlist_remapped <- remapIDs(genesetlist, 
+                                 dict = linker[,c(2,1)], 
+                                 targets = unique(rvbresults$unit), 
+                                 duplicate_ids = "keep_first")
+genesetlist_remapped[[1]]
+```
+
+## geneSetFile
+
+We have also implemented a gene set file structure (`geneSetFile()`)
+akin to a `varSetFile()`, from which gene sets can be loaded without
+loading the entire file to memory. The `buildGeneSet()` function can
+convert a file in one of the formats mentioned in [geneSetList]. Below
+we build a GO and KEGG `geneSetFile()`:
+
+```{r, message = FALSE, results = 'hide'}
+# build a genesetfile
+buildGeneSet(gmtpath = "data/c5.go.mf.v2023.2.Hs.symbols.gmt",
+            output = paste0(outdir, "/genesetfile.txt.gz")
+            )
+
+```
+
+```{r}
+# connect 
+genesetfile <- geneSetFile(paste0(outdir, "/genesetfile.txt.gz"))
+genesetfile
+```
+
+Extract a gene set:
+
+```{r}
+# extract a geneset from a genesetfile
+genesetlist <- getGeneSet(genesetfile, 
+                          geneSet = c("GOMF_UBIQUITIN_LIKE_MODIFIER_ACTIVATING_ENZYME_ACTIVITY"))
+listUnits(genesetlist[[1]])
+```
+
+Convert to a `geneSetList()` (i.e. load all sets):
+
+```{r}
+genesetlist <- as.geneSetList(genesetfile)
+```
+
+# Gene-set analyses
+
+Broadly, the GSA methods implemented in RVAT can be divided into competitive and self-contained tests, where the former tests whether genes in the gene set are more associated with the phenotype than genes outside the gene set, while the latter jointly tests whether genes in the gene set are associated with the phenotype without considering genes outside the set [@deleeuwStatisticalPropertiesGeneset2016]. Because competitive GSA tests for an enrichment relative to the genes outside the gene set, it controls for polygenicity as well as biases such as confounding and technical variability. Self-contained tests, on the other hand, are generally more powerful but may result in inflated test-statistics in case of polygenicity or residual biases in the data. See [@deleeuwStatisticalPropertiesGeneset2016] for a brilliant review of GSA methods.
+
+## Competitive GSA
+
+-   Currently the following competitive methods are implemented:
+
+    -   **linear model (test = "lm")**: tests whether gene set
+        membership predicts higher gene-association scores. Allows for
+        adjustment for covariates such as gene size and number of
+        variants in a gene.
+
+    -   **hypergeometric test (test = "fisher")**: tests whether the
+        proportion of *P*-values below the specified threshold is
+        greater than the proportion outside of it.
+
+In below example, we perform competitive gene set analysis using a
+linear model on gene burden results:
+
+```{r, message = FALSE}
+# Adjust for the number of variants in a gene
+res <- rvbresults[rvbresults$test=="firth" & 
+                    rvbresults$varSetName == "ModerateImpact", ]
+GSAresults <- geneSetAssoc(
+  res,
+  genesetlist,
+  covar = c("nvar"),
+  test = c("lm"), 
+  minSetSize = 10,
+  maxSetSize = 500
+)
+
+topResult(GSAresults)
+```
+
+The gene association scores can be visualized using the `densityPlot`
+method, which compares the Z-scores for a given gene set with the
+background, this can be useful to inspect whether the association is
+driven by few genes or not:
+
+```{r, message = FALSE}
+densityPlot(res, 
+            geneSet = "GOMF_MRNA_METHYLTRANSFERASE_ACTIVITY", 
+            geneSetList = genesetlist)
+```
+
+
+Outlying gene association scores can be remedied by either setting Z-score cutoffs (i.e. all Z-scores exceeding these values will be set to the respective cutoff), or inverse normal transforming the Z-scores:
+
+```{r, message = FALSE}
+GSAresults_Zcutoffs <- geneSetAssoc(
+  res,
+  genesetlist,
+  covar = c("nvar"),
+  test = c("lm"), 
+  minSetSize = 10,
+  maxSetSize = 500,
+  Zcutoffs = c(-4, 4) # lower and upper bounds
+)
+
+GSAresults_INT <- geneSetAssoc(
+  res,
+  genesetlist,
+  covar = c("nvar"),
+  test = c("lm"), 
+  minSetSize = 10,
+  maxSetSize = 500,
+  INT = TRUE
+)
+```
+
+Conditional gene set analyses can be performed to testher whether gene sets are associated independently with the phenotype of interest. In the example below we condition the most significant geneset on the top 10 most significant genesets. The result includes a `condition` field, indicating for which gene set the given was adjusted:
+
+```{r, message = FALSE}
+topresults <- topResult(GSAresults)
+GSAresults_conditional <- geneSetAssoc(
+  res,
+  getGeneSet(genesetlist, topresults$geneSetName[1]),
+  condition = getGeneSet(genesetlist, topresults$geneSetName[2:10]),
+  covar = c("nvar"),
+  test = c("lm"), 
+  minSetSize = 10,
+  maxSetSize = 500
+)
+GSAresults_conditional
+```
+
+Finally, instead of the linear model, a hypergeometric test (test = "fisher"), can be performed if you'd like to 
+tests whether the proportion of *P*-values below a specified threshold is greater than the proportion outside of it.
+The `threshold` parameter specifies the *P*-value cutoff to define significant genes:
+
+```{r, message = FALSE}
+GSAresults_fisher <- geneSetAssoc(
+  res,
+  genesetlist,
+  test = c("fisher"), 
+  threshold = 1e-4,
+  minSetSize = 10,
+  maxSetSize = 500
+)
+topResult(GSAresults_fisher)
+```
+
+## Self-contained GSA
+
+Self-contained gene set analyses have been implemented in the form of 'gene set burden' analysis.Gene set burden analyses extend the rationale behind gene burden tests to sets of genes, aggregating variants across gene sets rather than single genes. Since this follows the same principle as gene burden testing, the same approach can be used as described in `vignette("association_testing")`. However, these types of analyses can be computationally demanding since the number of variants to aggregate, especially for large gene sets, is often many times larger than in single gene analyses. Therefore, RVAT also includes an alternative two-step approach. In the first step, burden scores are generated for each gene and stored in a compressed format. In the second step, gene set analyses are performed by aggregating the gene burden scores for each gene set, followed by testing for an association between the gene set burden score and the phenotype of interest. An example of this approach is shown below.
+
+
+### Step 1: generate burden scores per gene
+
+First, we'll generate a varsetfile, including variants that we want to include in the gene burden scores:
+
+```{r, message = FALSE, results = 'hide'}
+gdb <- gdb(rvat_example("rvatData.gdb"))
+buildVarSet(object = gdb, 
+            output = paste0(outdir, "/moderate.txt.gz"),
+            varSetName = "Moderate", 
+            unitTable = "varInfo", 
+            unitName = "gene_name",
+            where = "ModerateImpact = 1")
+```
+
+Second, burden scores are generated per gene using the `aggregate` method:
+
+```{r}
+aggregate(x = gdb, 
+          varSet=varSetFile(paste0(outdir, "/moderate.txt.gz")),
+          maxMAF=0.001,
+          output=paste0(outdir, "/moderate.aggregate.txt.gz"),
+          verbose = FALSE
+          )
+```
+
+### Step 2: run gene set burden tests
+
+Note that the example gdb we're using contains only a small number of genes, therefore most of the genes included in GO, KEGG etc. are missing from this gdb. Therefore, for this example, I'll just create some dummy genesets that contain genes which are present in the gdb:
+
+```{r}
+varsetfile <- varSetFile(paste0(outdir, "/moderate.txt.gz"))
+genesetlist <- buildGeneSet(
+  list("geneset1" = listUnits(varsetfile)[c(1,3,4,9)],
+       "geneset2" = listUnits(varsetfile)[c(2,4,5,6,10)],
+       "geneset3" = listUnits(varsetfile)[c(1,2)],
+       "geneset4" = listUnits(varsetfile)[c(7,9,10)],
+       "geneset5" = listUnits(varsetfile)))
+write(genesetlist,
+      file = paste0(outdir, "/genesetfile.txt.gz"))
+```
+
+Perform the gene set burden tests, for this we can use the `assocTest` method, with the first argument being a `aggregateFile` connection. Similar to a `varSetFile` or `geneSetFile` we can connect to the file containing aggregates (burden scores) using the `aggregateFile` method:
+
+```{r}
+aggfile <- aggregateFile(paste0(outdir, "/moderate.aggregate.txt.gz"))
+```
+
+We can then run gene set burden tests using the `aggregateFile`, by passing it as the first argument to `assocTest` as shown below. Note that, in contrast to running `assocTest` directly on a genoMatrix or gdb, we cannot perform any variant filters when running `assocTest` on an `aggregateFile`. Any variant filters should be applied when generating the aggregates, as shown in step 1.
+
+```{r}
+aggAssoc <- assocTest(
+  aggfile,
+  gdb = gdb,
+  test = c("glm", "firth"),
+  cohort = "pheno",
+  pheno="pheno",
+  geneSet = genesetlist,
+  covar = paste0("PC", 1:4),
+  verbose = FALSE
+)
+```
+
+As noted above, the same results can be obtained by running `assocTest` directing on a `gdb` or `genoMatrix` object, as shown below. However, the two-step approach using is way more more efficient when running large-scale analyses (i.e. ~20,000 genes).
+
+```{r}
+varsetfile <- varSetFile(paste0(outdir, "/moderate.txt.gz"))
+units <- listUnits(getGeneSet(genesetlist, "geneset1"))
+test <- assocTest(
+  object = gdb,
+  test = c("glm", "firth"),
+  varSet = collapseVarSetList(getVarSet(varsetfile, unit = units), drop = FALSE), # collapse variants across genes into one varSet
+  cohort = "pheno",
+  pheno="pheno",
+  maxMAF=0.001,
+  covar = paste0("PC", 1:4),
+  verbose = FALSE
+)
+
+test
+aggAssoc[aggAssoc$geneSetName == "geneset1",]
+```
+
+
+Finally, gene set burden analyses can be run from the command-line, just like other types of assocation tests:
+
+```{r}
+Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
+           vcfpath = rvatData::rvat_example('rvatData.vcf.gz'),
+           phenopath = rvatData::rvat_example('rvatData.pheno'),
+           varinfopath = rvatData::rvat_example('rvatData.varinfo'),
+           gdbpath = gdb@dbname,
+           outdir = outdir)
+```
+
+```{bash, message = FALSE, results = 'hide'}
+Rscript $rvat --assocTest \
+--gdb $gdbpath \
+--geneSet $outdir/genesetfile.txt.gz \
+--aggregateFile $outdir/moderate.aggregate.txt.gz \
+--name maxMAF001 \
+--covar PC1,PC2,PC3,PC4 \
+--cohort pheno \
+--pheno pheno \
+--test glm,firth \
+--output $outdir/agg_burden_tests_merged_cmdline.txt.gz
+```
+
+
+# References

@@ -6,6 +6,9 @@
 \usage{
 listUnits(object)
 }
+\arguments{
+\item{object}{An object of class \code{\link{varSetFile}}, \code{\link{varSetList}} or \code{\link{aggregateFile}}.}
+}
 \description{
 Returns a vector of all units included in a \code{\link{varSetFile}}, \code{\link{varSetList}} or \code{\link{aggregateFile}}
 }

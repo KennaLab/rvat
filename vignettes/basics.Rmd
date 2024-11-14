@@ -1,12 +1,12 @@
 ---
-title: "Basics"
-output: 
+title: "Getting started"
+output:
   html_document:
+    theme: united
+    df_print: kable
     toc: true
-bibliography: rvat.bib
-editor_options: 
-  markdown: 
-    wrap: 72
+  pdf_document: default
+bibliography: rvat_package.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -22,7 +22,7 @@ library(SummarizedExperiment)
 
 ## Example data
 
-In these tutorials, we'll use simulated example data that we included in the `rvatData` package. 
+In these tutorials, we'll use simulated example data that we included in the [rvatData](https://github.com/kennalab/rvatData) package. 
 
 Included in-memory datasets:
 ```{r}
@@ -33,9 +33,8 @@ Included on-disk datasets, note that the paths to the on-disk datasets can be re
 
 ```{r}
 rvat_example()
-rvat_example("rvatData.gdb")
+gdbpath <- rvat_example("rvatData.gdb")
 ```
-
 
 Some output will be written during the tutorials, use a temporary directory for that:
 
@@ -57,20 +56,23 @@ to allow for complex data
 Here, we show how to create a `gdb()` object from a VCF-file. Note that
 RVAT will assign a unique `VAR_id` to each variant, which allow rapid
 querying of variants, these IDs have no inherent meaning (i.e. they do
-not refer to chromosomal position or the like).
+not refer to chromosomal position or the like). 
+Note that providing a genome build is optional, this will be stored in the gdb metadata,
+and will be used in downstream analyses to assign ploidy on sex chromosomes (diploid, XnonPAR, YnonPAR).
 
-```{r}
+
+```{r message=FALSE,  results='hide'}
 vcfpath <- rvat_example("rvatData.vcf.gz")
 buildGdb(vcf = vcfpath,
          output = paste0(outdir,"/rvat_tutorials.gdb"), 
-         overWrite = TRUE)
+         overWrite = TRUE,
+         genomeBuild = "GRCh38")
 ```
 
 Connect to the gdb you just created using the `gdb()` function:
 
 ```{r}
 gdb <- gdb(paste0(outdir,"/rvat_tutorials.gdb"))
-gdb
 ```
 
 ### Import variant info
@@ -78,13 +80,13 @@ gdb
 add variant info to the gdb using the `uploadAnno()` method, 
 variants are mapped to the gdb `VAR_id` based on the CHROM,POS,REF,ALT fields.
 
-```{r}
+```{r, message = FALSE, results = 'hide'}
 # example file including info such as chromosomal location, annotated gene and variant impact.
 varinfopath <- rvat_example("rvatData.varinfo")
 varinfo <- read.table(varinfopath, header = TRUE)
 
 # the `name` parameter specifies the name of the table in the gdb, 
-# the variant info that should be important is specified using the `value` parameter
+# the variant info that should be imported is specified using the `value` parameter
 uploadAnno(object = gdb, name = "varInfo",value = varinfo)
 ```
 
@@ -113,7 +115,7 @@ head(varinfo)
 
 add phenotype info to the gdb using the `uploadCohort()` method:
 
-```{r}
+```{r, message = FALSE, results = 'hide'}
 # First we'll read in the phenotype data
 phenopath <- rvat_example("rvatData.pheno")
 pheno <- read.table( phenopath, header = TRUE)
@@ -152,9 +154,10 @@ for genoMatrix objects, which we'll explore in this section.
 
 First, we'll build a genoMatrix object using the `getGT()` method.
 Variants to include can be specified in two main ways: 1) by directly
-passing the VAR_ids to the `getGT()` method, 2) by supplying a `varSet`.
-Here we'll start with the first method, varSets are discussed in the
-`vignette("association_testing")`
+passing the VAR_ids to the `getGT()` method, 2) by providing a set of genomic ranges to retrieve and 23 by supplying a `varSet` (discussed later).
+
+Here we'll start with methods 1-2, varSets are discussed in 
+`vignette("association_testing")` tutorial.
 
 ```{r}
 # get varinfo
@@ -164,8 +167,22 @@ GT <- getGT(gdb,
             VAR_id = varinfo$VAR_id,
             cohort = "pheno")
 GT
-            
 ```
+
+Similarly we can retrieve variants within a given range, like below. 
+Annotations can be included by specifying the `anno` parameter, and will be available in the `rowData` of the `genoMatrix`:
+
+```{r}
+GT_fromranges <- getGT(
+  gdb,
+  ranges = data.frame(CHROM = "chr21", start = 31659666, end = 31668931),
+  cohort = "pheno",
+  anno = "varInfo",
+  annoFields = c("VAR_id", "CHROM", "POS", "REF", "ALT", "HighImpact", "ModerateImpact", "Synonymous")
+)
+GT_fromranges <- GT_fromranges[rowData(GT_fromranges)$ModerateImpact == 1,]
+```
+
 
 ### Basic operations
 
@@ -194,7 +211,7 @@ show metadata:
 metadata(GT)
 ```
 
-A `genoMatrix` object can be subsetted similarly as a dataframe:
+A `genoMatrix` object can be subsetted similarly as a data.frame:
 
 ```{r}
 GT[1:5, 1:5]
@@ -263,8 +280,8 @@ Aggregate genotype counts across variants, creating a single aggregate
 score per individual (i.e. a burden score):
 
 ```{r}
-GT <- aggregate(GT, returnGT = TRUE)
-summary(GT$aggregate)
+GT_agg <- aggregate(recode(GT, imputeMethod = "meanImpute"), returnGT = TRUE)
+summary(GT_agg$aggregate)
 ```
 
 Retrieve IDs of carriers per variants:
@@ -280,7 +297,7 @@ methods, while allowing for MAF weighting, filtering etc. There is a
 dedicated tutorial for association testing
 `vignette("association_testing")` , but we include a brief primer here:
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 burden_results <- assocTest(GT,
                             pheno = "pheno",
                             covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -295,7 +312,7 @@ burden_results
 
 A gdb can be subsetted, retaining queried variants. This can be useful to downsize a (big) gdb for targeted local analyses. 
 
-```{r}
+```{r, message = FALSE}
 subsetGdb(gdb, 
           output = paste0(outdir, "/rvat_tutorials_subset.gdb"),
           where = "gene_name = 'ABCA4'",

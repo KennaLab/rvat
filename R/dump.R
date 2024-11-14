@@ -1,4 +1,7 @@
 # dump -------------------------------------------------------------------------
+#' @rdname summariseGeno
+#' @aliases summariseGeno,gdb-method
+#' @export
 setMethod("summariseGeno", 
           signature = signature(object="gdb"),
           definition=function(object, 
@@ -23,7 +26,10 @@ setMethod("summariseGeno",
                               minCarriers = 0,
                               maxCarriers = Inf,
                               minCarrierFreq  = 0,
-                              maxCarrierFreq = Inf)
+                              maxCarrierFreq = Inf,
+                              strict = TRUE,
+                              verbose = TRUE
+                              )
           {
             .dump(
               object = object, 
@@ -49,7 +55,9 @@ setMethod("summariseGeno",
               minCarriers = minCarriers,
               maxCarriers = maxCarriers,
               minCarrierFreq  = minCarrierFreq,
-              maxCarrierFreq = maxCarrierFreq
+              maxCarrierFreq = maxCarrierFreq,
+              verbose = verbose,
+              strict = strict
             )
           }
 )
@@ -77,12 +85,14 @@ setMethod("summariseGeno",
 #' @param imputeMethod Which imputation method to apply? ('meanImpute' or 'missingToRef').
 #' Defaults to `meanImpute`.
 #' @param MAFweights MAF weighting method. Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.
-#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid,XnonPAR,YnonPAR). 
-#' Accepted inputs are GRCh37, hg19, GRCh38, hg38. 
-#' If no value is provided then all variants are assigned the default ploidy of "diploid".
+#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
+#' Accepted inputs are GRCh37, hg19, GRCh38, hg38.
+#' If not specified, the genome build in the [`gdb`] will be used, if available (included in the `genomeBuild` parameter was set in [`buildGdb`]).
+#' Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"
 #' @param keep vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
 #' @param output Output file path for results.
 #' Defaults to `NULL`, in which case results are not written.
+#' @param signif Number of significant digits to store. Defaults to 6.
 #' @param minCallrateVar Minimum genotype rate for variant retention.
 #' @param maxCallrateVar Maximum genotype rate for variant retention.
 #' @param minCallrateSM Minimum genotype rate for sample retention.
@@ -95,8 +105,48 @@ setMethod("summariseGeno",
 #' @param maxCarriers Maximum carrier count for variant retention.
 #' @param minCarrierFreq Minimum carrier frequency for variant retention.
 #' @param maxCarrierFreq Maximum carrier frequency for variant retention.
+#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @param strict Should strict checks be performed? Defaults to `TRUE`. Strict tests currently includes
+#' checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in `object`.
 #' 
-#' @return 
+#' @examples
+#' library(rvatData)
+#' aggregatefile <- tempfile()
+#' gdb <- gdb(rvat_example("rvatData.gdb"))
+#' 
+#' # generate aggregates for varSets
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High")
+#' aggregate(x = gdb,
+#'           varSet = varsets,
+#'           maxMAF = 0.001,
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#' # generate for aggregates for list of variants
+#' aggregate(x = gdb,
+#'           VAR_id = 1:100,
+#'           maxMAF = 0.001,
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#' # use recessive model
+#' aggregate(x = gdb,
+#'           varSet = varsets,
+#'           maxMAF = 0.001,
+#'           geneticModel = "recessive",
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#' # apply MAF weighting 
+#' aggregate(x = gdb,
+#'           varSet = varsets,
+#'           maxMAF = 0.001,
+#'           MAFweights = "mb",
+#'           output = aggregatefile,
+#'           verbose = FALSE)
+#' 
+#'
 #' @export
 setMethod("aggregate", 
           signature = signature(x="gdb"),
@@ -112,7 +162,7 @@ setMethod("aggregate",
                               checkPloidy = NULL,
                               keep = NULL,
                               output = NULL,
-                              signif = 3,
+                              signif = 6,
                               minCallrateVar = 0,
                               maxCallrateVar = Inf,
                               minCallrateSM = 0,
@@ -124,7 +174,10 @@ setMethod("aggregate",
                               minCarriers = 0,
                               maxCarriers = Inf,
                               minCarrierFreq  = 0,
-                              maxCarrierFreq = Inf)
+                              maxCarrierFreq = Inf,
+                              verbose = TRUE,
+                              strict = TRUE
+                              )
           {
             .dump(object=x, 
               cohort = cohort,
@@ -151,7 +204,10 @@ setMethod("aggregate",
               minCarriers = minCarriers,
               maxCarriers = maxCarriers,
               minCarrierFreq  = minCarrierFreq,
-              maxCarrierFreq = maxCarrierFreq)
+              maxCarrierFreq = maxCarrierFreq,
+              verbose = verbose,
+              strict = strict
+              )
           }
 )
 
@@ -183,7 +239,10 @@ setMethod(".dump",
                               minCarriers = 0,
                               maxCarriers = Inf,
                               minCarrierFreq  = 0,
-                              maxCarrierFreq = Inf)
+                              maxCarrierFreq = Inf,
+                              verbose = TRUE,
+                              strict = TRUE
+                              )
           {
             what <- match.arg(what)
             if(!what %in% c("aggregate","varSummary")) stop("Available options are 'aggregate' and 'varSummary', please check the documentation.")
@@ -193,6 +252,12 @@ setMethod(".dump",
             if((!is.null(varSet) & !is.null(VAR_id)) || (is.null(VAR_id) && is.null(varSet))) {
               stop("Either of `varSet` or `VAR_id` should be specified")
             }
+            
+            # check if varSet was generated from the current gdb
+            if (!is.null(varSet) && strict) {
+              .check_gdb_ids(object, varSet)
+            }
+            
             if (!is.null(VAR_id)) {
               varSet <- .varsTovarSetList(VAR_id, chunkSize = memlimit)
             }
@@ -224,7 +289,7 @@ setMethod(".dump",
             {
               # Get varset, and retrieve all VAR_ids
               unit <- unique(listUnits(varSet))[i]
-              message(sprintf("Analysing %s", unit))
+              if (verbose) message(sprintf("Analysing %s", unit))
               varset <- getVarSet(varSet, unit = unit)
               if(length(varset) > 1) {
                 stop("Only 1 annotation per unit should be included in the varSet")
@@ -235,13 +300,18 @@ setMethod(".dump",
               GT <- getGT(object, 
                           cohort = cohort,
                           varSet = varset,
-                          checkPloidy = checkPloidy)
+                          checkPloidy = checkPloidy,
+                          verbose = verbose,
+                          strict = strict
+                          )
               
               ## subset samples based on keep list
               if(!is.null(keep)) {
-                message(sprintf("Keeping %s/%s samples that are present in the keep-list.",
+                if (verbose) {
+                  message(sprintf("Keeping %s/%s samples that are present in the keep-list.",
                                 sum(colnames(GT) %in% keep),
                                 ncol(GT)))
+                }
                 GT <- GT[,colnames(GT) %in% keep]
               }
               
@@ -260,8 +330,17 @@ setMethod(".dump",
                 splitByfct <- splitByfct[!is.na(splitByfct)]
               }
               
-              ## write samples/units to aggregateFile
+              ## write metadata/samples/units to aggregateFile
               if(j == 1 && what == "aggregate") {
+                  metadata <- list(
+                    rvatVersion = as.character(packageVersion("rvat")),
+                    gdbId = getGdbId(object),
+                    genomeBuild = getGenomeBuild(object),
+                    creationDate = as.character(round(Sys.time(), units = "secs"))
+                  )
+                  .write_rvat_header(filetype = "aggregateFile", 
+                                     metadata = metadata, 
+                                     con = output)
                   samples <- colnames(GT)
                   write(paste(samples, collapse = ","), 
                         file = output, append = FALSE) 
@@ -272,7 +351,7 @@ setMethod(".dump",
                 ## pull weights and remove variants with missing weights
                 w <- listWeights(varset)
                 names(w) <- listVars(varset)
-                message(sprintf("Analysing unit %s; varSet %s", unit, varset@varSetName))
+                if (verbose) message(sprintf("Analysing unit %s; varSet %s", unit, varset@varSetName))
                 w <- w[!is.na(w)]
                 
                 ## Check duplicated variants
@@ -321,7 +400,7 @@ setMethod(".dump",
                 
                 if (geneticModel %in% c("allelic", "dominant")) {
                   carriers = (sumgeno[,"geno1"] + sumgeno[,"geno2"])
-                } else if (model == "recessive") {
+                } else if (geneticModel == "recessive") {
                   carriers = (sumgeno[,"geno2"])
                 }
                 
@@ -380,11 +459,12 @@ setMethod(".dump",
                   write.table(sumgeno, file = output, append = TRUE, row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
                 }
               } else if(what == "aggregate") {
+                GT <- flipToMinor(GT)
                 GT <- recode(GT,
                              imputeMethod = imputeMethod,
                              geneticModel = geneticModel)
                 weight <- w[rownames(GT)]
-                counts <- aggregate(flipToMinor(recode(GT, weights = weight, MAFweights = MAFweights)), returnGT=FALSE,checkMissing=FALSE)
+                counts <- aggregate(recode(GT, weights = weight, MAFweights = MAFweights), returnGT=FALSE,checkMissing=FALSE)
                 names(counts) <- colnames(GT)
                 counts <- counts[samples]
                 

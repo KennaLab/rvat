@@ -17,7 +17,7 @@
   checkPloidy = NULL,
   keep = NULL,
   output = NULL,
-  signif = 3,
+  signif = 6,
   minCallrateVar = 0,
   maxCallrateVar = Inf,
   minCallrateSM = 0,
@@ -29,7 +29,9 @@
   minCarriers = 0,
   maxCarriers = Inf,
   minCarrierFreq = 0,
-  maxCarrierFreq = Inf
+  maxCarrierFreq = Inf,
+  verbose = TRUE,
+  strict = TRUE
 )
 }
 \arguments{
@@ -56,14 +58,17 @@ Defaults to \code{meanImpute}.}
 
 \item{MAFweights}{MAF weighting method. Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.}
 
-\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid,XnonPAR,YnonPAR).
+\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
 Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-If no value is provided then all variants are assigned the default ploidy of "diploid".}
+If not specified, the genome build in the \code{\link{gdb}} will be used, if available (included in the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
+Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"}
 
 \item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
 
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written.}
+
+\item{signif}{Number of significant digits to store. Defaults to 6.}
 
 \item{minCallrateVar}{Minimum genotype rate for variant retention.}
 
@@ -88,9 +93,11 @@ Defaults to \code{NULL}, in which case results are not written.}
 \item{minCarrierFreq}{Minimum carrier frequency for variant retention.}
 
 \item{maxCarrierFreq}{Maximum carrier frequency for variant retention.}
-}
-\value{
 
+\item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
+
+\item{strict}{Should strict checks be performed? Defaults to \code{TRUE}. Strict tests currently includes
+checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in \code{object}.}
 }
 \description{
 Returns an aggregate of genotypes for each individual.
@@ -99,4 +106,43 @@ Note, the \code{\link{gdb}} implementation is described here, \code{aggregate} c
 Specified genetic model, weights, MAF-weighting are taken into account when aggregating.
 Aggregates are written to disk in the \code{\link{aggregateFile}} format, which can be used as input
 for \code{\link{assocTest-aggregateFile}} to perform gene set burden analyses.
+}
+\examples{
+library(rvatData)
+aggregatefile <- tempfile()
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# generate aggregates for varSets
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High")
+aggregate(x = gdb,
+          varSet = varsets,
+          maxMAF = 0.001,
+          output = aggregatefile,
+          verbose = FALSE)
+
+# generate for aggregates for list of variants
+aggregate(x = gdb,
+          VAR_id = 1:100,
+          maxMAF = 0.001,
+          output = aggregatefile,
+          verbose = FALSE)
+
+# use recessive model
+aggregate(x = gdb,
+          varSet = varsets,
+          maxMAF = 0.001,
+          geneticModel = "recessive",
+          output = aggregatefile,
+          verbose = FALSE)
+
+# apply MAF weighting 
+aggregate(x = gdb,
+          varSet = varsets,
+          maxMAF = 0.001,
+          MAFweights = "mb",
+          output = aggregatefile,
+          verbose = FALSE)
+
+
 }

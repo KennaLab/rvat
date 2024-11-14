@@ -8,18 +8,7 @@
 buildCorMatrix(
   object,
   aggregateFile,
-  memlimit = 5000,
-  minR2 = 1e-04,
-  makePD = TRUE,
-  absolute = TRUE,
-  maxDist = 2500000,
-  verbose = TRUE
-)
-
-\S4method{buildCorMatrix}{rvatResult,aggregateFile}(
-  object,
-  aggregateFile,
-  memlimit = 5000,
+  memlimit = 1000,
   minR2 = 1e-04,
   makePD = TRUE,
   absolute = TRUE,
@@ -49,6 +38,31 @@ Build a block-wise burden correlation matrix, in order to correct for gene-gene 
 Burden scores should be stored in an \code{\link{aggregateFile}} object (see \code{\link{aggregate}}).
 The size of the blocks are controlled using the \code{maxDist} parameter, all gene-gene correlations beyond the block are set to zero.
 This function is based on previous work (\url{https://github.com/opain/TWAS-GSEA}).
+}
+\examples{
+
+library(rvatData)
+data(rvbresults)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# generate the aggregates based on a varSetFile
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+varset <- getVarSet(varsetfile, 
+                    unit = c("NEK1", "SOD1", "ABCA4"), 
+                    varSetName = "High")
+aggfile <- tempfile()
+aggregate(x = gdb,
+          varSet = varset,
+          maxMAF = 0.001,
+          output = aggfile,
+          verbose = FALSE)
+
+# build a block-wise correlation matrix
+cormatrix <- buildCorMatrix(
+  rvbresults,
+  aggregateFile = aggregateFile(aggfile)
+)
+
 }
 \references{
 \url{https://github.com/opain/TWAS-GSEA}
