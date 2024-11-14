@@ -7,10 +7,16 @@
     <loc>/LICENSE.html</loc>
   </url>
   <url>
+    <loc>/articles/GSA.html</loc>
+  </url>
+  <url>
     <loc>/articles/association_testing.html</loc>
   </url>
   <url>
     <loc>/articles/basics.html</loc>
+  </url>
+  <url>
+    <loc>/articles/changelog.html</loc>
   </url>
   <url>
     <loc>/articles/cmdline.html</loc>
@@ -23,6 +29,12 @@
   </url>
   <url>
     <loc>/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>/articles/spatial_clustering.html</loc>
+  </url>
+  <url>
+    <loc>/articles/variant_annotation.html</loc>
   </url>
   <url>
     <loc>/authors.html</loc>
@@ -49,10 +61,16 @@
     <loc>/reference/assocTest-gdb-method.html</loc>
   </url>
   <url>
+    <loc>/reference/assocTest-gdb.html</loc>
+  </url>
+  <url>
     <loc>/reference/assocTest-genoMatrix.html</loc>
   </url>
   <url>
     <loc>/reference/assocTest.html</loc>
+  </url>
+  <url>
+    <loc>/reference/buildCorMatrix.html</loc>
   </url>
   <url>
     <loc>/reference/buildGdb.html</loc>
@@ -64,7 +82,16 @@
     <loc>/reference/buildResamplingFile.html</loc>
   </url>
   <url>
+    <loc>/reference/buildVarSet-data.frame.html</loc>
+  </url>
+  <url>
+    <loc>/reference/buildVarSet-gdb.html</loc>
+  </url>
+  <url>
     <loc>/reference/buildVarSet.html</loc>
+  </url>
+  <url>
+    <loc>/reference/collapseAggregateFiles.html</loc>
   </url>
   <url>
     <loc>/reference/concatGdb.html</loc>
@@ -80,6 +107,9 @@
   </url>
   <url>
     <loc>/reference/extractRanges.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fitNullModelGSA.html</loc>
   </url>
   <url>
     <loc>/reference/forestplot.html</loc>
@@ -142,6 +172,9 @@
     <loc>/reference/manhattanGeneSet.html</loc>
   </url>
   <url>
+    <loc>/reference/mapToCDS.html</loc>
+  </url>
+  <url>
     <loc>/reference/mapToMatrix.html</loc>
   </url>
   <url>
@@ -149,6 +182,9 @@
   </url>
   <url>
     <loc>/reference/mergeAggregateFiles.html</loc>
+  </url>
+  <url>
+    <loc>/reference/nullModelGSA-class.html</loc>
   </url>
   <url>
     <loc>/reference/pipe.html</loc>

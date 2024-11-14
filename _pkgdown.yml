@@ -7,20 +7,28 @@ navbar:
  left:
   - icon: fa-home fa-lg
     href: index.html
-  - text: "Basics"
+  - text: "Getting started"
     href: articles/basics.html
   - text: "Reference"
     href: reference/index.html
   - text: "Tutorials"
     menu:
-     - text: "Basics"
+     - text: "Getting started"
        href: articles/basics.html
      - text: "Association testing"
        href: articles/association_testing.html
      - text: "Visualization"
        href: articles/explore_visualize_results.html
+     - text: "Variant annotation"
+       href: articles/variant_annotation.html
+     - text: "Gene set analysis"
+       href: articles/GSA.html
+     - text: "Spatial clustering"
+       href: articles/spatial_clustering.html
      - text: "Command-line tool"
        href: articles/cmdline.html
+  - text: "Changelog"
+    href: articles/changelog.html
   - text: "F.A.Q."
     href: articles/faq.html
  right:
