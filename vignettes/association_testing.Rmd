@@ -41,7 +41,7 @@ For this tutorial, we'll create a varSet containing variants with a
 moderate impact (unweighted), and a varSet that contains weights based
 on CADD scores. (more information on building varSets will be included later)
 
-```{r, message = FALSE}
+```{r, message = FALSE, results = 'hide'}
 # Build a varset including variants with a moderate predicted impact
 buildVarSet(object = gdb, 
             output = paste0(outdir, "/moderate.txt.gz"),
@@ -76,11 +76,12 @@ GT <- getGT(
 
 ## Run burden tests
 
-Run a simple burden test:\
-- with 'pheno' column as (binary) outcome\
-- adjusting for 4 PCs - Using the 'firth' method
+Run a simple burden test:  
+- with 'pheno' column as (binary) outcome  
+- adjusting for 4 PCs  
+- Using the 'firth' method     
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs_firth <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -90,11 +91,11 @@ burden_pheno_4PCs_firth <- assocTest(GT,
 burden_pheno_4PCs_firth
 ```
 
-Also include the SKAT [@wuRareVariantAssociationTesting2011] and ACAT-V
+Also include the SKAT [@wuRareVariantAssociationTesting2011b] and ACAT-V
 [@liuACATFastPowerful2019] tests, all available tests are described in
 `assocTest()`:
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs <- assocTest(GT,
                                pheno = "pheno",
                                covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -107,7 +108,7 @@ burden_pheno_4PCs
 Run burden tests on a continuous phenotype, indicate that the phenotype
 is continuous by setting `continuous = TRUE`.
 
-```{r}
+```{r, message = FALSE}
 burden_age_4PCs <- assocTest(GT,
                                pheno = "age",
                                continuous = TRUE,
@@ -123,7 +124,7 @@ The `assocTest()` method applies the weights as included in the
 `genoMatrix()` object. For instance, if we load the varSet including the
 CADD weights, the genoMatrix includes these weights in the `w` field:
 
-```{r}
+```{r, warning = FALSE}
 varsetfile <- varSetFile(CADDpath)
 varset_CADD <- getVarSet(varsetfile, unit = "NEK1")
 GT_CADD <- getGT(
@@ -136,7 +137,7 @@ head(rowData(GT_CADD)$w)
 If we now run a burden test using this genoMatrix, the weights will be
 applied (note that variants with missing weights are excluded):
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 burden_pheno_4PCs_firth_CADD <- assocTest(GT_CADD,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -152,7 +153,7 @@ Running single variant tests is very similar to running burden tests. By
 setting the `singlevar` parameter to `TRUE` an association test is
 performed for each individual variant in the genotype matrix.
 
-```{r}
+```{r, message = FALSE}
 singlevar_pheno_4PCs_firth <- assocTest(GT,
                                      pheno = "pheno",
                                      singlevar = TRUE,
@@ -183,7 +184,7 @@ head(varsetlist,2)
 
 Perform association tests on selected varSets:
 
-```{r}
+```{r, message = FALSE}
 burden_varsetlist <- assocTest(gdb,
                                varSet = varsetlist,
                                cohort="pheno",
@@ -243,7 +244,7 @@ Currently Madsen-Browning weighting is implemented
 [@madsenGroupwiseAssociationTest2009], and can be applied by setting the `MAFweights`
 parameter:
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs_mb <- assocTest(GT,
                                pheno = "pheno",
                                covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -258,7 +259,7 @@ By default the 'allelic' genetic model is applied (with 0,1,2 being the
 number of minor alleles). Alternative models ('recessive' and
 'dominant') can be specified using the `geneticModel` parameter:
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs_recessive <- assocTest(GT,
                                pheno = "pheno",
                                covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -276,7 +277,7 @@ Note that the `minCarrier`, `maxCarrier`, `minCarrierFreq` and
 `maxCarrierFreq` parameters can be used to filter variants based on the
 number of carriers *after* applying the genetic model:
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs_dominant_minCarrierFreq0.01 <- assocTest(GT,
                                pheno = "pheno",
                                covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -293,7 +294,7 @@ burden tests (note that by default no imputation is applied for single
 variant tests), alternatively missing calls can be set to the reference
 allele:
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs_missingToRef <- assocTest(GT,
                                pheno = "pheno",
                                covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -301,11 +302,11 @@ burden_pheno_4PCs_missingToRef <- assocTest(GT,
                                imputeMethod = "missingToRef")
 ```
 
-# Permuted P-values
+# Permutation P-values
 
 Resampling is implemented for various tests (see the `assocTest()` help page for details). Simply set `methodResampling` to 'permutation' and specify the number of resamplings using the `nResampling` parameter:
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs_permuted <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -318,7 +319,8 @@ burden_pheno_4PCs_permuted
 ```
 
 Make sure to set a seed to ensure that the results are reproducible:
-```{r}
+
+```{r, message = FALSE}
 # reproducibility 
 set.seed(10)
 burden_pheno_4PCs_permuted1 <- assocTest(GT,
@@ -344,7 +346,7 @@ waldo::compare(burden_pheno_4PCs_permuted1, burden_pheno_4PCs_permuted2)
 
 Alternatively, a resamplingmatrix can be build using `buildResamplingFile()` and supplied to the `resamplingMatrix` parameter.
 
-```{r}
+```{r, message = FALSE}
 # reproducibility 
 set.seed(10)
 resamplingmatrix <- buildResamplingFile(nSamples = ncol(GT), nResampling = 100)
@@ -359,12 +361,12 @@ burden_pheno_4PCs_permuted
 ```
 
 ```{r}
-identical(burden_pheno_4PCs_permuted, burden_pheno_4PCs_permuted1)
+waldo::compare(burden_pheno_4PCs_permuted, burden_pheno_4PCs_permuted1)
 ```
 
 Instead of calculating resampled P-values, the individual resampled P-values can be obtained by setting `outputResampling=TRUE`.
 
-```{r}
+```{r, message = FALSE}
 burden_pheno_4PCs_permutations <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -389,7 +391,7 @@ weighting schemes, variant sets, covariate sets, MAF filters etc.
 First, we'll use ACAT to combine P-values across three statistical tests
 (firth, SKAT, and ACAT-V):
 
-```{r}
+```{r, message = FALSE}
 burden_results <- assocTest(GT,
                             pheno = "pheno",
                             covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -407,7 +409,7 @@ ACAT(burden_results, aggregate = "test")
 Step-wise ACAT is performed by supplying a list of the variables (in order), 
 for example, below we first ACAT across statistical tests, followed by ACAT across varSets:
 
-```{r}
+```{r, warning = FALSE, message = FALSE}
 varsetfile <- varSetFile(CADDpath)
 varset_CADD <- getVarSet(varsetfile, unit = "NEK1")
 GT_CADD <- getGT(
@@ -443,7 +445,7 @@ Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
            )
 ```
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 # identify executable path:
 varset=$outdir/moderate.txt.gz
 
@@ -462,7 +464,7 @@ Multiple phenotypes, tests, geneticModels, MAFweights and covars can be
 specified, for example, apply both allelic and recessive models and run
 for two covar sets:
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 varset=$outdir/moderate.txt.gz
 
 Rscript $rvat --assocTest \
