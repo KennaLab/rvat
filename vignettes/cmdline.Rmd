@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Some output will be written during the tutorials, a temporary directory will be used for that:
 
-```{r, include = FALSE, echo = FALSE, message = FALSE, warning = FALSE}
+```{r, include = TRUE, echo = TRUE, message = FALSE, warning = FALSE}
 outdir <- tempdir()
 Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
            vcfpath = rvatData::rvat_example('rvatData.vcf.gz'),
