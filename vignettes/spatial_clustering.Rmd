@@ -32,7 +32,7 @@ outdir <- tempdir()
 
 To perform spatial clustering of coding variants, we'll first map genomic coordinates to CDS coordinates using the `mapToCDS` method.
 
-```{r, message = FALSE}
+```{r, message = FALSE, results = 'hide'}
 # The mapToCds method relies on an ensembl gtf/gff file for remapping 
 gtf <- rtracklayer::import("https://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz")
 

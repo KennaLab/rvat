@@ -132,7 +132,7 @@ described in [@chengAccurateProteomewideMissense2023].
 First, we'll download the AlphaMissense scores. Note that this takes up
 \~5Gb of storage.
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, results = 'hide'}
 wget --no-verbose -O - https://storage.googleapis.com/dm_alphamissense/AlphaMissense_hg38.tsv.gz | gunzip -c | sed '1,3d; 4s/#//g' > ${outdir}/AlphaMissense_hg38.tsv
 ```
 
@@ -142,7 +142,7 @@ REF/ALT fields can be directly imported using `uploadAnno`. By default
 that this does take a little while since we're uploading a rather bulky
 table:
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, results = 'hide'}
 uploadAnno(
   gdb,
   name = "AlphaMissense",
@@ -155,7 +155,7 @@ uploadAnno(
 Build a varset including variants that are predicted to be 'likely
 pathogenic' by AlphaMissense
 
-```{r, message = FALSE}
+```{r, message = FALSE, results = 'hide'}
 buildVarSet(object = gdb, 
             output = paste0(outdir, "/AlphaMissense_likelypathogenic.txt.gz"),
             varSetName = "AlphaMissense_likelypathogenic", 
@@ -170,7 +170,7 @@ am_likely_pathogenic_path <- paste0(outdir, "/AlphaMissense_likelypathogenic.txt
 Run a burden test for NEK1 including only variant predicted to be likely
 pathogenic:
 
-```{r}
+```{r, message = FALSE}
 ## Initialize a GT object
 varsetfile <- varSetFile(am_likely_pathogenic_path)
 varset <- getVarSet(varsetfile, unit = "ENST00000439128.6")

@@ -78,6 +78,7 @@ genesetlist_custom <- buildGeneSet(
 genesetlist_custom
 ```
 
+
 ### Basic usage
 
 Some basic geneSetList methods:
@@ -151,9 +152,9 @@ We have also implemented a gene set file structure (`geneSetFile()`)
 akin to a `varSetFile()`, from which gene sets can be loaded without
 loading the entire file to memory. The `buildGeneSet()` function can
 convert a file in one of the formats mentioned in [geneSetList]. Below
-we build a GO and KEGG `geneSetFile():`
+we build a GO and KEGG `geneSetFile()`:
 
-```{r}
+```{r, message = FALSE, results = 'hide'}
 # build a genesetfile
 buildGeneSet(gmtpath = "data/c5.go.mf.v2023.2.Hs.symbols.gmt",
             output = paste0(outdir, "/genesetfile.txt.gz")
@@ -202,7 +203,7 @@ Broadly, the GSA methods implemented in RVAT can be divided into competitive and
 In below example, we perform competitive gene set analysis using a
 linear model on gene burden results:
 
-```{r}
+```{r, message = FALSE}
 # Adjust for the number of variants in a gene
 res <- rvbresults[rvbresults$test=="firth" & 
                     rvbresults$varSetName == "ModerateImpact", ]
@@ -223,7 +224,7 @@ method, which compares the Z-scores for a given gene set with the
 background, this can be useful to inspect whether the association is
 driven by few genes or not:
 
-```{r}
+```{r, message = FALSE}
 densityPlot(res, 
             geneSet = "GOMF_MRNA_METHYLTRANSFERASE_ACTIVITY", 
             geneSetList = genesetlist)
@@ -232,7 +233,7 @@ densityPlot(res,
 
 Outlying gene association scores can be remedied by either setting Z-score cutoffs (i.e. all Z-scores exceeding these values will be set to the respective cutoff), or inverse normal transforming the Z-scores:
 
-```{r}
+```{r, message = FALSE}
 GSAresults_Zcutoffs <- geneSetAssoc(
   res,
   genesetlist,
@@ -256,7 +257,7 @@ GSAresults_INT <- geneSetAssoc(
 
 Conditional gene set analyses can be performed to testher whether gene sets are associated independently with the phenotype of interest. In the example below we condition the most significant geneset on the top 10 most significant genesets. The result includes a `condition` field, indicating for which gene set the given was adjusted:
 
-```{r}
+```{r, message = FALSE}
 topresults <- topResult(GSAresults)
 GSAresults_conditional <- geneSetAssoc(
   res,
@@ -274,7 +275,7 @@ Finally, instead of the linear model, a hypergeometric test (test = "fisher"), c
 tests whether the proportion of *P*-values below a specified threshold is greater than the proportion outside of it.
 The `threshold` parameter specifies the *P*-value cutoff to define significant genes:
 
-```{r}
+```{r, message = FALSE}
 GSAresults_fisher <- geneSetAssoc(
   res,
   genesetlist,
@@ -295,7 +296,7 @@ Self-contained gene set analyses have been implemented in the form of 'gene set 
 
 First, we'll generate a varsetfile, including variants that we want to include in the gene burden scores:
 
-```{r}
+```{r, message = FALSE, results = 'hide'}
 gdb <- gdb(rvat_example("rvatData.gdb"))
 buildVarSet(object = gdb, 
             output = paste0(outdir, "/moderate.txt.gz"),
@@ -385,7 +386,7 @@ Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
            outdir = outdir)
 ```
 
-```{bash}
+```{bash, message = FALSE, results = 'hide'}
 Rscript $rvat --assocTest \
 --gdb $gdbpath \
 --geneSet $outdir/genesetfile.txt.gz \

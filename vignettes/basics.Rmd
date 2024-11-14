@@ -22,7 +22,7 @@ library(SummarizedExperiment)
 
 ## Example data
 
-In these tutorials, we'll use simulated example data that we included in the `rvatData` package. 
+In these tutorials, we'll use simulated example data that we included in the [rvatData](https://github.com/kennalab/rvatData) package. 
 
 Included in-memory datasets:
 ```{r}
@@ -33,9 +33,8 @@ Included on-disk datasets, note that the paths to the on-disk datasets can be re
 
 ```{r}
 rvat_example()
-rvat_example("rvatData.gdb")
+gdbpath <- rvat_example("rvatData.gdb")
 ```
-
 
 Some output will be written during the tutorials, use a temporary directory for that:
 
@@ -62,7 +61,7 @@ Note that providing a genome build is optional, this will be stored in the gdb m
 and will be used in downstream analyses to assign ploidy on sex chromosomes (diploid, XnonPAR, YnonPAR).
 
 
-```{r}
+```{r message=FALSE,  results='hide'}
 vcfpath <- rvat_example("rvatData.vcf.gz")
 buildGdb(vcf = vcfpath,
          output = paste0(outdir,"/rvat_tutorials.gdb"), 
@@ -74,7 +73,6 @@ Connect to the gdb you just created using the `gdb()` function:
 
 ```{r}
 gdb <- gdb(paste0(outdir,"/rvat_tutorials.gdb"))
-gdb
 ```
 
 ### Import variant info
@@ -82,7 +80,7 @@ gdb
 add variant info to the gdb using the `uploadAnno()` method, 
 variants are mapped to the gdb `VAR_id` based on the CHROM,POS,REF,ALT fields.
 
-```{r}
+```{r, message = FALSE, results = 'hide'}
 # example file including info such as chromosomal location, annotated gene and variant impact.
 varinfopath <- rvat_example("rvatData.varinfo")
 varinfo <- read.table(varinfopath, header = TRUE)
@@ -117,7 +115,7 @@ head(varinfo)
 
 add phenotype info to the gdb using the `uploadCohort()` method:
 
-```{r}
+```{r, message = FALSE, results = 'hide'}
 # First we'll read in the phenotype data
 phenopath <- rvat_example("rvatData.pheno")
 pheno <- read.table( phenopath, header = TRUE)
@@ -299,7 +297,7 @@ methods, while allowing for MAF weighting, filtering etc. There is a
 dedicated tutorial for association testing
 `vignette("association_testing")` , but we include a brief primer here:
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 burden_results <- assocTest(GT,
                             pheno = "pheno",
                             covar = c("PC1", "PC2", "PC3", "PC4"),
@@ -314,7 +312,7 @@ burden_results
 
 A gdb can be subsetted, retaining queried variants. This can be useful to downsize a (big) gdb for targeted local analyses. 
 
-```{r}
+```{r, message = FALSE}
 subsetGdb(gdb, 
           output = paste0(outdir, "/rvat_tutorials_subset.gdb"),
           where = "gene_name = 'ABCA4'",
