@@ -3,9 +3,25 @@
 \docType{class}
 \name{geneSetList}
 \alias{geneSetList}
+\alias{listMetadata}
+\alias{dropUnits}
 \alias{remapIDs}
 \alias{geneSetList-class}
-\alias{mapToMatrix,geneSetList,rvbResult-method}
+\alias{names,geneSetList-method}
+\alias{length,geneSetList-method}
+\alias{lengths,geneSetList-method}
+\alias{show,geneSetList-method}
+\alias{metadata,geneSetList-method}
+\alias{listMetadata,geneSetList-method}
+\alias{listGeneSets,geneSetList-method}
+\alias{listUnits,geneSetList-method}
+\alias{[[,geneSetList,ANY,missing-method}
+\alias{[,geneSetList,ANY,ANY,ANY-method}
+\alias{sort,geneSetList-method}
+\alias{as.data.frame,geneSetList-method}
+\alias{as.list,geneSetList-method}
+\alias{dropUnits,geneSetList-method}
+\alias{remapIDs,geneSetList-method}
 \alias{write,geneSetList-method}
 \title{Class to manage multiple geneSets}
 \description{
@@ -63,6 +79,51 @@ the \code{\link{geneSetFile}} format.
 }
 }
 
+\examples{
+library(rvatData)
+
+# build a geneSetList
+# can also be build based on a GMT-file (see ?buildGeneSet)
+genesetlist <- buildGeneSet(
+  list("geneset1" = c("SOD1", "NEK1"),
+       "geneset2" = c("ABCA4", "SOD1", "NEK1"),
+       "geneset3" = c("FUS", "NEK1")
+       )
+  )
+
+# extract a couple of gene sets from the geneSetList, which will return a new geneSetList
+getGeneSet(genesetlist, c("geneset1", "geneset2"))
+
+# list included gene sets and units
+genesets <- listGeneSets(genesetlist)
+head(genesets)
+units <- listUnits(genesetlist)
+head(units)
+
+# several basic list operations work on a geneSetList
+length(genesetlist)
+genesetlist[1:2]
+genesetlist[[1]]
+
+# write a geneset list to a geneSetFile on disk (see ?geneSetFile)
+file <- tempfile()
+write(genesetlist, file)
+genesetfile <- geneSetFile(file)
+
+# exclude units from all genesets included in a geneSetList
+dropUnits(genesetlist, unit = "NEK1")
+
+# remap IDs
+linker <- data.frame(
+  gene_name = c("SOD1", "NEK1", "FUS", "ABCA4"),
+  gene_id = c("ENSG00000142168","ENSG00000137601", "ENSG00000089280", "ENSG00000198691")
+)
+genesetlist_remapped <- remapIDs(genesetlist, linker)
+listUnits(genesetlist_remapped)
+
+# see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses
+
+}
 \seealso{
 \code{\link{geneSetFile}}
 

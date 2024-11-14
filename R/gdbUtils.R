@@ -8,13 +8,49 @@
 #' The gdb can be structured and populated using a provided vcf file. 
 #' If no input variant file is provided then only an empty gdb is created.
 #'
-#' @param output Path for output [`gdb`] file
 #' @param vcf Input vcf file used to structure and populate gdb. Warning this function makes the following of assumptions: 1) strict adherence to vcf format (GT subfield first element in genotype firelds), 2) multiallelic records have been split, 3) desired genotype QC has already been applied (DP,GQ filters), 4) GT values conform to the set {0/0,0/1,1/0,1/1,./.,0|0,0|1,1|0,1|1,.|.}. Multiallelic parsing and genotype QC can be performed using vcftools and/or accompanying parser scripts included on the rvat github.
+#' @param output Path for output [`gdb`] file
 #' @param skipIndexes Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM, POS,REF,ALT). Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use
 #' @param skipVarRanges Flag to skip generation of ranged var table. Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use
 #' @param overWrite overwrite if `output` already exists? Defaults to `FALSE`, in which case an error is raised.
+#' @param genomeBuild Optional genome build to include in the gdb metadata. If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the genome build is implemented in RVAT (currently: GRCh37, hg19, GRCh38, hg38).
+#' @param memlimit Maximum number of vcf records to parse at a time, defaults to 1000. 
+#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @examples
+#' 
+#' library(rvatData)
+#' vcfpath <- rvat_example("rvatData.vcf.gz")
+#' gdbpath <- tempfile()
+#' 
+#' # build a gdb from vcf. 
+#' # the genomeBuild parameters stores the genome build in the gdb metadata
+#' # this will be used to assign ploidies on sex chromosomes (diploid, XnonPAR, YnonPAR)
+#' buildGdb(
+#'   vcf = vcfpath,
+#'   output = gdbpath,
+#'   genomeBuild = "GRCh38"
+#' )
+#' 
+#' # for large vcfs, the memlimit parameter can be lowered
+#' buildGdb(
+#'   vcf = vcfpath,
+#'   output = gdbpath,
+#'   genomeBuild = "GRCh38",
+#'   memlimit = 100,
+#'   overWrite = TRUE
+#' )
+#' 
+#' # see ?gdb for more information on gdb-files, see ?concatGdb for concatenate gdb databases
 #' @export
-buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrite=FALSE,memlimit=1000)
+buildGdb <- function(
+                  vcf,
+                  output, 
+                  skipIndexes = FALSE, 
+                  skipVarRanges = FALSE, 
+                  overWrite = FALSE, 
+                  genomeBuild = NULL, 
+                  memlimit = 1000, 
+                  verbose = TRUE)
 {
 
   # Create gdb file
@@ -22,10 +58,10 @@ buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrit
   {
     if (overWrite){file.remove(output)} else {stop(sprintf("output gdb already exists '%s'. Must set overWrite=TRUE to replace existing files.",output))}
   }
-  mygdb=gdb(output)
+  mygdb <- gdb_init(output)
 
   # Create tables
-  message(sprintf("%s\tCreating gdb tables",Sys.time()))
+  if (verbose) message(sprintf("%s\tCreating gdb tables", as.character(round(Sys.time(), units = "secs"))))
   DBI::dbExecute(mygdb,"create table var (VAR_id integer primary key, CHROM text, POS int, ID text, REF text, ALT text, QUAL text, FILTER text, INFO text, FORMAT text);")
   DBI::dbExecute(mygdb,"create table SM (IID text, sex int)")
   DBI::dbExecute(mygdb,"create table dosage (VAR_id integer primary key, GT BLOB);")
@@ -34,25 +70,25 @@ buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrit
   DBI::dbExecute(mygdb,"create table meta (name text,value text)")
   
   # Import variant records
-  if (length(c(vcf))>1){stop("Can only build gdb based on a single input file.")}
-  if (length(vcf)>0){populateGdbFromVcf(mygdb,vcf,memlimit=memlimit)}
+  if (length(c(vcf)) > 1){stop("Can only build gdb based on a single input file.")}
+  populateGdbFromVcf(mygdb, vcf, memlimit = memlimit, verbose = verbose)
 
   # Generate Indexes
   if (! skipIndexes)
   {
-    message(sprintf("%s\tCreating var table indexes",Sys.time()))
+    if(verbose) message(sprintf("%s\tCreating var table indexes", as.character(round(Sys.time(), units = "secs"))))
     DBI::dbExecute(mygdb,"create index var_idx on var (VAR_id)")
     DBI::dbExecute(mygdb,"create index var_idx2 on var (CHROM,POS,REF,ALT)")
-    message(sprintf("%s\tCreating SM table index",Sys.time()))
+    if(verbose) message(sprintf("%s\tCreating SM table index", as.character(round(Sys.time(), units = "secs"))))
     DBI::dbExecute(mygdb,"create index SM_idx on SM (IID)")
-    message(sprintf("%s\tCreating dosage table index",Sys.time()))
+    if(verbose) message(sprintf("%s\tCreating dosage table index", as.character(round(Sys.time(), units = "secs"))))
     DBI::dbExecute(mygdb,"create index dosage_idx on dosage (VAR_id)")
   }
   
   # Generate var_ranges table
   if(!skipVarRanges) {
-    message(sprintf("%s\tCreating ranged var table",Sys.time()))
-    addRangedVarinfo(mygdb, overwrite=TRUE)
+    if (verbose) message(sprintf("%s\tCreating ranged var table", as.character(round(Sys.time(), units = "secs"))))
+    addRangedVarinfo(mygdb, overwrite = TRUE, verbose = verbose)
   }
   
   # Add rvat version to meta table
@@ -60,16 +96,37 @@ buildGdb=function(output,vcf=c(),skipIndexes=FALSE, skipVarRanges=FALSE,overWrit
                  params = list(name = "rvatVersion", 
                                value = as.character(packageVersion("rvat"))))
   
+  # Add random identifier
+  DBI::dbExecute(mygdb,"insert into meta values (:name, :value)",
+                 params = list(name = "id", 
+                               value = paste(sample(c(letters, 0:9), 28, replace = TRUE), collapse = "")))
+  
+  # add genome build
+  if (!is.null(genomeBuild) && !genomeBuild %in% names(nonPAR)) {
+    warning(sprintf("The supplied genomeBuild is not supported by RVAT.
+  The build will be included in the gdb metadata, but won't be used in downstream RVAT analyses, such as correctly assigning ploidies in pseudoautosomal regions.
+  Supported builds include: %s.", paste(names(nonPAR), collapse=",")))
+  }
+  DBI::dbExecute(mygdb,"insert into meta values (:name, :value)",
+                 params = list(name = "genomeBuild", 
+                               value = if (is.null(genomeBuild)) NA_character_ else genomeBuild))
+  
+  # add creation date
+  DBI::dbExecute(mygdb,"insert into meta values (:name, :value)",
+                 params = list(name = "creationDate", 
+                               value = as.character(round(Sys.time(), units = "secs"))))
+  
   # Complete
-  message(sprintf("%s\tComplete",Sys.time()))
+  if(verbose) message(sprintf("%s\tComplete", as.character(round(Sys.time(), units = "secs"))))
 
+  
   # Return gdb-class object
   return(mygdb)
 }
 
 
 setMethod("populateGdbFromVcf", signature="gdb",
-          definition=function(object,vcf,memlimit=1000)
+          definition=function(object, vcf, memlimit = 1000, verbose = TRUE)
           {
             # Open vcf connection
             if (vcf=="-"){vcf="stdin"} else if (!file.exists(vcf)){stop(sprintf("Input vcf %s does not exist",vcf))}
@@ -88,11 +145,11 @@ setMethod("populateGdbFromVcf", signature="gdb",
             width=length(header)
             m=width-9
             if(m<=0){stop("Invalid parsing of vcf header line. No samples detected")}
-            message(sprintf("%s sample IDs detected",m))
+            if (verbose) message(sprintf("%s sample IDs detected",m))
             DBI::dbWriteTable(object,name="SM",value=data.frame("IID"=header[10:(m+9)],"sex"=0),overwrite=TRUE)
 
             # Parse vcf records
-            message(sprintf("%s\tParsing vcf records",Sys.time()))
+            if (verbose) message(sprintf("%s\tParsing vcf records", as.character(round(Sys.time(), units = "secs"))))
             counter=0
             while (length(records <- readLines(con,n=memlimit)) > 0)
             {
@@ -131,8 +188,9 @@ setMethod("populateGdbFromVcf", signature="gdb",
 
               }
               # Commit
-              message(sprintf("%s\tProcessing completed for %s records. Committing to db.",Sys.time(),counter))
+              if (verbose) message(sprintf("%s\tProcessing completed for %s records. Committing to db.", as.character(round(Sys.time(), units = "secs")), counter))
             }
+            close(con)
           })
 
 
@@ -175,13 +233,13 @@ setMethod("insertDosageRecord", signature="gdb",
 setMethod("addRangedVarinfo", 
           signature="gdb",
           definition=
-            function(object, overwrite = FALSE){
+            function(object, overwrite = FALSE, verbose = TRUE){
               
               ## check if 'var_ranges' is already present in the gdb
               if("var_ranges" %in% DBI::dbListTables(object)) {
                 if (!overwrite) stop("'var_ranges' is already present in the gdb. Set `overwrite = TRUE` to overwrite.")
                 if (overwrite) {
-                  message("'var_ranges' is already present in the gdb, it will be overwritten.")
+                  if (verbose) message("'var_ranges' is already present in the gdb, it will be overwritten.")
                   dropTable(object, "var_ranges")
                 }
               }
@@ -209,7 +267,8 @@ setMethod("addRangedVarinfo",
                 
                 ## insert GRanges into gdb as blobs per chromosome
                 DBI::dbExecute(object, 
-                               statement = "insert into var_ranges(CHROM,ranges) values (:CHROM, :ranges)",                                params = list(
+                               statement = "insert into var_ranges(CHROM,ranges) values (:CHROM, :ranges)",                                
+                               params = list(
                                  CHROM = chrom,
                                  ranges = list(serialize(gr,connection=NULL))))
                 
@@ -226,13 +285,45 @@ setMethod("addRangedVarinfo",
 #'
 #' @param targets File listing full paths of gdbs to concatenate
 #' @param output Output gdb file path.
-#' @param skipRemap Flag to skip reseting of VAR_id to row id after concatenation. Defaults to `FALSE`.
+#' @param skipRemap Flag to skip resetting of VAR_id to row id after concatenation. Defaults to `FALSE`.
 #' @param skipIndexes Flag to skip generation of standard var and dosage table indexes (VAR_id;CHROM, POS,REF,ALT).
 #' Defaults to `FALSE`.
+#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @examples
+#' 
+#' library(rvatData)
+#' gdb <- gdb(rvat_example("rvatData.gdb"))
+#' 
+#' # to illustrate how concatGdb we'll first generate two small gdbs to concatenate
+#' gdb1 <- tempfile()
+#' subsetGdb(
+#'   gdb, 
+#'   VAR_id = 1:100,
+#'   output = gdb1
+#' )
+#' 
+#' gdb2 <- tempfile()
+#' subsetGdb(
+#'   gdb, 
+#'   VAR_id = 101:200,
+#'   output = gdb2
+#' )
+#' 
+#' # write filepaths of gdbs to concatenate to a file
+#' targets <- tempfile()
+#' readr::write_lines(c(gdb1, gdb2), file = targets)
+#' concatgdb <- tempfile()
+#' 
+#' # concatenate
+#' concatGdb(
+#'   targets = targets,
+#'   output = concatgdb,
+#' )
+#'
 #' @export
-concatGdb=function(targets,output,skipRemap=FALSE,skipIndexes=FALSE)
+concatGdb <- function(targets, output, skipRemap = FALSE, skipIndexes = FALSE, verbose = TRUE)
 {
-  gdb=scan(targets,what="character")
+  gdb=scan(targets,what="character", quiet = !verbose)
   
   ## check if more than two files are included
   if (length(gdb) < 2) {stop("Require at least 2 valid gdb files for merging")}
@@ -248,14 +339,14 @@ concatGdb=function(targets,output,skipRemap=FALSE,skipIndexes=FALSE)
   tryCatch({db=DBI::dbConnect(DBI::dbDriver("SQLite"),output)}, error=function(e){stop(sprintf("Could not write to output path '%s'",output))})
 
   # Create tables
-  message(sprintf("%s\tCreating db tables",Sys.time()))
+  if(verbose) message(sprintf("%s\tCreating db tables", as.character(round(Sys.time(), units = "secs"))))
   DBI::dbExecute(db,"drop table if exists var;")
   DBI::dbExecute(db,"create table var (VAR_id integer, CHROM text, POS int, ID text, REF text, ALT text, QUAL text, FILTER text, INFO text, FORMAT text);")
   DBI::dbExecute(db,"drop table if exists dosage;")
   DBI::dbExecute(db,"create table dosage (VAR_id integer, GT BLOB);")
 
   # Copy SM table and create new anno and cohort metadata tables
-  message("Creating SM, anno and cohort tables")
+  if(verbose) message("Creating SM, anno and cohort tables")
   DBI::dbExecute(db,"attach :src as src", params=list(src=gdb[1]))
   DBI::dbExecute(db,"create table SM as select * from src.SM")
   DBI::dbExecute(db,"detach src")
@@ -264,28 +355,36 @@ concatGdb=function(targets,output,skipRemap=FALSE,skipIndexes=FALSE)
 
   # Copy var and dosage data from source db
   versions <- vector(mode = "character", length = length(gdb))
+  builds <- vector(mode = "character", length = length(gdb))
   names(versions) <- gdb
+  names(builds) <- gdb
   for (i in gdb)
   {
-    message(sprintf("Merging '%s'",i))
+    if (verbose) message(sprintf("Merging '%s'",i))
     DBI::dbExecute(db,"attach :src as src", params=list(src=i))
     DBI::dbExecute(db,"insert into var select * from src.var")
     DBI::dbExecute(db,"insert into dosage select * from src.dosage")
     versions[i] <- dbGetQuery(db, "select * from src.meta where name = 'rvatVersion'")$value
+    builds[i] <- dbGetQuery(db, "select * from src.meta where name = 'genomeBuild'")$value
     DBI::dbExecute(db,"detach src")
   }
   version <- unique(versions)
+  build <- unique(builds)
   if ( length(version) > 1 ) {
     warning("Not all input gdbs were created with the same RVAT version, 
 we recommend generating the input gdbs with the same RVAT version.")
     version <- version[1]
   }
   
+  if ( length(build) > 1 ) {
+    stop("Not all input gdbs share the same genome build.")
+  }
+  
 
   # Reset VAR_id to row id
   if (!(skipRemap))
   {
-    message(sprintf("%s\tReseting VAR_id to rowid",Sys.time()))
+    if (verbose) message(sprintf("%s\tReseting VAR_id to rowid", as.character(round(Sys.time(), units = "secs"))))
     DBI::dbExecute(db,"update var set VAR_id=rowid")
     DBI::dbExecute(db,"update dosage set VAR_id=rowid")
   }
@@ -293,21 +392,38 @@ we recommend generating the input gdbs with the same RVAT version.")
   # Create indexes
   if (!(skipIndexes))
   {
-    message(sprintf("%s\tCreating var table indexes",Sys.time()))
+    if (verbose) message(sprintf("%s\tCreating var table indexes", as.character(round(Sys.time(), units = "secs"))))
     DBI::dbExecute(db,"create index var_idx on var (VAR_id)")
     DBI::dbExecute(db,"create index var_idx2 on var (CHROM,POS,REF,ALT)")
-    message(sprintf("%s\tCreating dosage table index",Sys.time()))
+    if (verbose) message(sprintf("%s\tCreating dosage table index", as.character(round(Sys.time(), units = "secs"))))
     DBI::dbExecute(db,"create index dosage_idx on dosage (VAR_id)")
   }
   
-  message(sprintf("%s\tCreating ranged var table",Sys.time()))
-  addRangedVarinfo(gdb(output), overwrite=TRUE)
+  if (verbose) message(sprintf("%s\tCreating ranged var table", as.character(round(Sys.time(), units = "secs"))))
+  addRangedVarinfo(gdb(output), overwrite=TRUE, verbose = verbose)
   
   DBI::dbExecute(db,"create table meta (name text,value text)")
-  DBI::dbExecute(db,"insert into meta values (:name, :value)",
-                 params = list(name = "rvatVersion", 
-                               value = version))
   
-  message(sprintf("%s\tComplete",Sys.time()))
+  # Add rvat version to meta table
+  DBI::dbExecute(db, "insert into meta values (:name, :value)",
+                 params = list(name = "rvatVersion", 
+                               value = as.character(packageVersion("rvat"))))
+  
+  # Add random identifier
+  DBI::dbExecute(db,"insert into meta values (:name, :value)",
+                 params = list(name = "id", 
+                               value = paste(sample(c(letters, 0:9), 28, replace = TRUE), collapse = "")))
+  
+  # Add genome build
+  DBI::dbExecute(db,"insert into meta values (:name, :value)",
+                 params = list(name = "genomeBuild", 
+                               value = build))
+  
+  # add creation date
+  DBI::dbExecute(db,"insert into meta values (:name, :value)",
+                 params = list(name = "creationDate", 
+                               value = as.character(round(Sys.time(), units = "secs"))))
+  
+  if (verbose) message(sprintf("%s\tComplete", as.character(round(Sys.time(), units = "secs"))))
 }
 

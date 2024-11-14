@@ -2,8 +2,9 @@
 #' 
 #' Run [`assocTest`] on a [`gdb`] object. See the main [`assocTest`] page for details.
 #' 
-#' @rdname assocTest-gdb-method
-#' @name assocTest-gdb-method
+#' @rdname assocTest-gdb
+#' @name assocTest-gdb
+#' @aliases assocTest,gdb-method
 #' @param object a [`gdb`] object
 #' @param pheno colData field to test as response variable, the response variable
 #' can either be binary (0/1) or continuous. 
@@ -24,17 +25,19 @@
 #' @param singlevar Run single variant tests? (TRUE/FALSE).
 #' Defaults to `FALSE`, in which case aggregate tests are ran.
 #' @param covar Character vector of covariates, or a list of character vectors of covariates in which case each covariate set will be tested separately.
+#' @param offset Optional model offset, can be used to account for regenie LOCO predictions.
 #' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 #' Defaults to `allelic`.
 #' Multiple geneticModels can be specified, in which case each will be analyzed separately.
 #' @param imputeMethod Which imputation method to apply? ('meanImpute' or 'missingToRef').
 #' Defaults to `meanImpute`.
 #' @param MAFweights MAF weighting method. Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.
-#' Multiple MAFweights can be specified (comma-delimited), in which case each will be analyzed separately.
+#' Multiple MAFweights can be specified, in which case each will be analyzed separately.
 #' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals. Defaults to 1000.
-#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid,XnonPAR,YnonPAR). 
-#' Accepted inputs are GRCh37, hg19, GRCh38, hg38. 
-#' If no value is provided then all variants are assigned the default ploidy of "diploid".
+#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
+#' Accepted inputs are GRCh37, hg19, GRCh38, hg38.
+#' If not specified, the genome build in the [`gdb`] will be used, if available (included if the `genomeBuild` parameter was set in [`buildGdb`]).
+#' Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"
 #' @param keep Vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
 #' @param output Output file path for results.
 #' Defaults to `NULL`, in which case results are not written.
@@ -50,8 +53,6 @@
 #' Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
 #' thus, for large number of resamplings it can be more efficient to split the permutations in chunks of size `memlimitResampling`.
 #' Defaults to `NULL` in which case all permutations are performed.
-#' @param append Relevant if the `output` parameter is not `NULL`. Should results be appended to `output`?
-#' Defaults to `FALSE`.
 #' @param minCallrateVar Minimum genotype rate for variant retention.
 #' @param maxCallrateVar Maximum genotype rate for variant retention.
 #' @param minCallrateSM Minimum genotype rate for sample retention.
@@ -66,8 +67,125 @@
 #' @param maxCarrierFreq Maximum carrier frequency for variant retention.
 #' @param memlimit Maximum number of variants to load at once (if `VAR_id` is specified).
 #' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @param strict Should strict checks be performed? Defaults to `TRUE`. Strict tests currently includes
+#' checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in `object`.
+#' @examples
+#'
+#' library(rvatData)
+#' gdb <- create_example_gdb()
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' 
+#' # for example purposes, upload a small cohort
+#' cohort <- getCohort(gdb, "pheno")
+#' cohort <- cohort[cohort$IID %in% colnames(GTsmall),]
+#' uploadCohort(gdb, name = "phenosmall", value = cohort)
+#' 
+#' # run a firth burden test on a binary phenotype
+#' varsetlist <- getVarSet(varsetfile, unit = c("SOD1", "NEK1"), varSetName = "High")
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist,
+#'                  cohort = "phenosmall",
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = "firth",
+#'                  name = "example")
+#' 
+#' 
+#' # run ACAT-v and SKAT tests
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist,
+#'                  cohort = "phenosmall",
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("acatvfirth", "skat_burden_robust", "skato_robust"),
+#'                  name = "example")
+#' 
+#' # run a burden test on a continuous phenotype
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist,
+#'                  cohort = "phenosmall",
+#'                  pheno = "age",
+#'                  continuous = TRUE,
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("lm", "skat", "acatv"),
+#'                  name = "example")
+#' 
+#' # run single variant tests on a binary phenotype 
+#' sv <- assocTest(gdb,
+#'                 varSet = varsetlist,
+#'                 cohort = "phenosmall",
+#'                 pheno = "pheno",
+#'                 singlevar = TRUE,
+#'                 covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                 test = c("firth", "glm", "scoreSPA"),
+#'                 name = "example",
+#'                 minCarriers = 1)
+#' 
+#' # similarly a list of VAR_ids can be specified instead of a varSetList/varSetFile
+#' sv <- assocTest(gdb,
+#'                 VAR_id = 1:20,
+#'                 cohort = "phenosmall",
+#'                 pheno = "pheno",
+#'                 singlevar = TRUE,
+#'                 covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                 test = c("firth", "glm", "scoreSPA"),
+#'                 name = "example",
+#'                 minCarriers = 1)
+#' 
+#' # apply variant filters
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist,
+#'                  cohort = "phenosmall",
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"),
+#'                  name = "example", 
+#'                  maxMAF = 0.05,
+#'                  minCarriers = 1,
+#'                  minCallrateVar = 0.9,
+#'                  minCallrateSM = 0.95)
+#' 
+#' # Perform MAF-weighted burden tests (madsen-browning)
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist,
+#'                  cohort = "phenosmall",
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"),
+#'                  MAFweights = "mb")
+#' 
+#' # CADD-weighted burden test
+#' varsetlist_cadd <- getVarSet(varsetfile, unit = c("SOD1", "NEK1"), varSetName = "CADD")
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist_cadd,
+#'                  cohort = "phenosmall",
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"))
+#' 
+#' # Perform recessive burden test
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist,
+#'                  cohort = "phenosmall",
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"),
+#'                  geneticModel = "recessive")
+#' 
+#' # Resampled burden test 
+#' rvb <- assocTest(gdb,
+#'                  varSet = varsetlist[1],
+#'                  cohort = "phenosmall",
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("skat", "skat_burden", "acatv"),
+#'                  name = "example",
+#'                  methodResampling = "permutation",
+#'                  nResampling = 100)
+#' 
+#'
 #' @export
-
+#'
 setMethod("assocTest", 
           signature = signature(object="gdb"),
           definition=function(object, 
@@ -105,8 +223,9 @@ setMethod("assocTest",
                               maxCarriers = Inf,
                               minCarrierFreq  = 0,
                               maxCarrierFreq = Inf,
-                              memlimit = Inf,
-                              verbose = TRUE
+                              memlimit = 1000,
+                              verbose = TRUE,
+                              strict = TRUE
                               )
           {
             
@@ -121,6 +240,11 @@ setMethod("assocTest",
               stop("Either of one of `varSet` or `VAR_id` should be specified, not both.")
             }
             
+            # check if varSet was generated from the current gdb
+            if (!is.null(varSet) && strict) {
+              .check_gdb_ids(object, varSet)
+              }
+
             ## Default imputeMethod = "meanImpute" for burden tests. For singlevar the default is not  to impute.
             if(is.null(imputeMethod)) {
               if(!singlevar) imputeMethod <- "meanImpute"
@@ -150,7 +274,7 @@ setMethod("assocTest",
             
             ## Check if covar is valid
             ### note: check whether covar is either a list or a character value
-            ### whether the s[pecified covariates are available is checked at a later stage (when the cohort is loaded)
+            ### whether the specified covariates are available is checked at a later stage (when the cohort is loaded)
             if(!is.list(covar)) {
               if(is.null(covar)) {
                 covar <- list(NULL) 
@@ -231,12 +355,28 @@ setMethod("assocTest",
                 vector("list", length(varSet) * length(pheno) * length(geneticModel) * length(MAFweights) * length(covar))
             } else {
               output <- gzcon(file(output,open='wb'))
+              
+              # write metadata
+              metadata <- list(
+                rvatVersion = as.character(packageVersion("rvat")),
+                gdbId = getGdbId(object),
+                genomeBuild = getGenomeBuild(object),
+                creationDate = as.character(round(Sys.time(), units = "secs"))
+                
+              )
+              .write_rvat_header(filetype = if (singlevar) "singlevarResult" else "rvbResult", 
+                                 metadata = metadata, 
+                                 con = output)
+              
               if(singlevar) {
+                # write header
                 write(paste(names(columns_singlevarResults), collapse="\t"), 
-                                  file = output, append = FALSE) } else {
-                                    write(paste(names(columns_rvbResults), collapse="\t"), 
-                                          file = output, append = FALSE) 
-                                  }
+                      file = output, append = FALSE) } 
+              else {
+                # write header
+                write(paste(names(columns_rvbResults), collapse="\t"), 
+                      file = output, append = FALSE) 
+              }
             }
             
            # load cohort
@@ -260,10 +400,28 @@ setMethod("assocTest",
                 if (loadGT || reloadGT) {
                   
                   # Load genotypes
-                  GT <- getGT(object, 
-                              cohort = chrt,
-                              varSet = if( length(varSets) > 1) collapseVarSetList(varSets) else varSets,
-                              checkPloidy = checkPloidy)
+                  if (singlevar) {
+                    GT <- getGT(object, 
+                                cohort = chrt,
+                                varSet = if( length(varSets) > 1) collapseVarSetList(varSets) else varSets,
+                                checkPloidy = checkPloidy,
+                                anno = "var",
+                                annoFields = c("VAR_id", "REF", "ALT"),
+                                verbose = verbose,
+                                strict = strict
+                                )
+                    colnames(rowData(GT))[colnames(rowData(GT)) == "REF"] <- "otherAllele"
+                    colnames(rowData(GT))[colnames(rowData(GT)) == "ALT"] <- "effectAllele"
+                    
+                  } else {
+                    GT <- getGT(object, 
+                                cohort = chrt,
+                                varSet = if( length(varSets) > 1) collapseVarSetList(varSets) else varSets,
+                                checkPloidy = checkPloidy,
+                                verbose = verbose,
+                                strict = strict
+                                )
+                  }
                   metadata(GT)$cohort <- cohort
                 
                   loadGT <- FALSE
@@ -320,7 +478,7 @@ setMethod("assocTest",
                     vars <- varSets[[i]]
                     w <- listWeights(vars)
                     names(w) <- listVars(vars)
-                    message(sprintf("Analysing unit %s; varSet %s", unit, vars@varSetName))
+                    if (verbose) message(sprintf("Analysing unit %s; varSet %s", unit, vars@varSetName))
                     
                     ## checks + filtering weights
                     
@@ -430,18 +588,22 @@ setMethod("assocTest",
                         next
                       }
                       GT_ <- GT_[varKeep, sampleKeep]
+                      # calculate AF_ if 'mb' is among mafweights
+                      if (length(MAFweights) > 1 || MAFweights != "none") AF_ <- getAF(GT_) else AF_ <- NULL
+                      GT_ <- recode(GT_,
+                                    geneticModel = model
+                                    )
                       
                       ## calculate call-rates before imputing
                       if(!singlevar) {
-                        callRate <- colMeans(!is.na(assays(GT_)$GT))
+                        callRate <- Matrix::colMeans(!is.na(assays(GT_[getNCarriers(GT_) >= 1,])$GT))
                         caseCallRate = if(!continuous) mean(callRate[colData(GT_)[,phen] == 1]) else mean(callRate)
                         ctrlCallRate = if(!continuous) mean(callRate[colData(GT_)[,phen] == 0]) else NA_real_
                       }
                       
                       ## impute GT
                       GT_ <- recode(GT_,
-                                    imputeMethod = imputeMethod,
-                                    geneticModel = model)
+                                    imputeMethod = imputeMethod)
                     } 
                     metadata(GT_)$unit <- vars@unit
                     metadata(GT_)$varSetName <- if(is.null(VAR_id)) vars@varSetName else "none"
@@ -452,9 +614,13 @@ setMethod("assocTest",
                       
                       ## calculate aggregate if mode = rvb and a test is included that is based on aggregates 
                       if(!singlevar) {
-                        GT_ <- aggregate(recode(GT_, weights = weight, MAFweights = MAFweight), returnGT=TRUE,checkMissing=FALSE)
+                        GT_ <- aggregate(recode(GT_, weights = .calc_maf_weights(w = as.numeric(weight), af = AF_, method = MAFweight)), 
+                                                returnGT = TRUE, 
+                                                checkMissing = FALSE)
                       } else {
-                        GT_ <- recode(GT_, weights = weight, MAFweights = MAFweight)
+                        GT_ <- recode(GT_, 
+                                      weights = .calc_maf_weights(w = as.numeric(weight), af = AF_, method = MAFweight),
+                                      MAFweights = MAFweight)
                       }
                        
                       # Loop through covariates --------------------------------
@@ -490,7 +656,8 @@ setMethod("assocTest",
                             minMAC = 0,
                             maxMAC = Inf,
                             minCarriers = 0,
-                            maxCarriers = Inf
+                            maxCarriers = Inf,
+                            verbose = verbose
                           )
                           
                           # Replace callrate (calculated before imputation)
@@ -560,7 +727,8 @@ setMethod("assocTest",
                                 minMAC = 0,
                                 maxMAC = Inf,
                                 minCarriers = 0,
-                                maxCarriers = Inf
+                                maxCarriers = Inf,
+                                verbose = verbose
                               )
                               
                               ## if output is a connection, if output = TRUE store in listResampling, otherwise, 
@@ -626,8 +794,15 @@ setMethod("assocTest",
                               minMAC = 0,
                               maxMAC = Inf,
                               minCarriers = 0,
-                              maxCarriers = Inf
+                              maxCarriers = Inf,
+                              verbose = verbose
                             )
+                            
+                            if(nrow(resResampling) > 0) {
+                              resResampling$caseCallRate <- caseCallRate
+                              resResampling$ctrlCallRate <- ctrlCallRate
+                            }
+                            
                             if(is(outputResampling, "connection")) {
                               write.table(resResampling, file = outputResampling, append = TRUE, sep = "\t", 
                                           col.names = FALSE, row.names = FALSE, quote = FALSE)
@@ -667,7 +842,16 @@ setMethod("assocTest",
             if(is.null(output) && (is.null(outputResampling) || !outputResampling)) {
               resContainer <- do.call(rbind, resContainer)
               rownames(resContainer) <- NULL
-              return(if(singlevar) singlevarResult(resContainer) else rvbResult(resContainer))
+              if (singlevar) {
+                resContainer <- singlevarResult(resContainer)
+              } else {
+                resContainer <- rvbResult(resContainer)
+              }
+              metadata(resContainer)$rvatVersion <- as.character(packageVersion("rvat"))
+              metadata(resContainer)$gdbId <- getGdbId(object)
+              metadata(resContainer)$genomeBuild <- getGenomeBuild(object)
+              metadata(resContainer)$creationDate <- as.character(round(Sys.time(), units = "secs"))
+              return(resContainer)
             } else {
               if(!is.null(output) && is(output, "connection")) close(output)
             }

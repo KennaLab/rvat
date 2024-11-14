@@ -3,7 +3,12 @@
 \docType{class}
 \name{geneSet}
 \alias{geneSet}
+\alias{geneSet-class}
 \alias{metadata,geneSet-method}
+\alias{length,geneSet-method}
+\alias{as.data.frame,geneSet-method}
+\alias{listUnits,geneSet-method}
+\alias{listWeights,geneSet-method}
 \title{Class that represents a geneSet}
 \description{
 An S4 class to manage an individual geneSet record. Usually multiple geneSets
@@ -30,6 +35,23 @@ In the following code snippets, x is a geneSet object.
 }
 }
 
+\examples{
+genesetlist <- buildGeneSet(
+  list("geneset1" = c("SOD1", "NEK1"),
+       "geneset2" = c("ABCA4", "SOD1", "NEK1"),
+       "geneset3" = c("FUS", "NEK1")
+       ))
+geneset <- genesetlist[[1]]
+
+# list units and weights included in the geneSet
+listUnits(geneset)
+listWeights(geneset)
+
+# note that usually you'll work with geneSets in either a geneSetList or 
+# a geneSetFile (see ?geneSetList and ?geneSetFile)
+
+
+}
 \seealso{
 \code{\link{geneSetFile}}
 
@@ -37,3 +59,4 @@ In the following code snippets, x is a geneSet object.
 
 \code{\link{buildGeneSet}}
 }
+\keyword{geneSet}

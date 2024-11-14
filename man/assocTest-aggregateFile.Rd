@@ -2,7 +2,8 @@
 % Please edit documentation in R/assocTest_aggregateFile.R
 \name{assocTest-aggregateFile}
 \alias{assocTest-aggregateFile}
-\title{assoctest-aggregateFile}
+\alias{assocTest,aggregateFile-method}
+\title{assocTest-aggregateFile}
 \usage{
 \S4method{assocTest}{aggregateFile}(
   object,
@@ -18,7 +19,9 @@
   dropUnits = NULL,
   maxitFirth = 1000,
   keep = NULL,
-  output = NULL
+  output = NULL,
+  verbose = TRUE,
+  strict = TRUE
 )
 }
 \arguments{
@@ -47,6 +50,8 @@ options include firth,glm,lm, and nbinom.}
 Useful when adjusting for total variant counts, by specifying the total variant count variable
 here, the aggregate score of the gene set tested will be substracted from the total count variable.}
 
+\item{dropUnits}{Optional, vector of units to exclude.}
+
 \item{maxitFirth}{Maximum number of iterations to use for estimating firth confidence intervals.}
 
 \item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.
@@ -54,8 +59,52 @@ Defaults to \code{FALSE}.}
 
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written but returned as a \code{data.frame()}.}
+
+\item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
+
+\item{strict}{Should strict checks be performed? Defaults to \code{TRUE}. Strict tests currently includes
+checking whether supplied aggregateFile was generated from the same gdb as specified in \code{gdb}.}
 }
 \description{
 Run \code{\link{assocTest}} on a \code{\link{aggregateFile}} object.
 See the main \code{\link{assocTest}} page for details.
+}
+\examples{
+library(rvatData)
+gdb <- gdb(rvat_example("rvatData.gdb"))
+
+# assocTest-aggregateFile allows for running association tests on pre-constructed aggregates.
+# below we first generate the aggregates based on a varSetFile
+varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+varset <- getVarSet(varsetfile, unit = c("NEK1", "SOD1", "ABCA4"), varSetName = "High")
+aggfile <- tempfile()
+aggregate(x = gdb,
+          varSet = varset,
+          maxMAF = 0.001,
+          output = aggfile,
+          verbose = FALSE)
+
+# connect to aggregateFile, see ?aggregateFile for more details
+aggregatefile <- aggregateFile(aggfile)
+
+# build an example genesetlist, see ?buildGeneSet for details
+genesetlist <- buildGeneSet(
+  list("geneset1" = c("SOD1", "NEK1"),
+       "geneset2" = c("ABCA4", "SOD1", "NEK1")))
+
+# perform association tests using assocTest
+# note that this is very similar to running association tests on a genoMatrix (?`assocTest-genoMatrix`)
+# or on a gdb (?`assocTest-gdb`). The main difference being that pre-constructed aggregates are used from 
+# the aggregateFile, and requires a genesetFile/geneSetList (?geneSetFile) to be provided to the `geneSet` argument.
+aggAssoc <- assocTest(
+  aggregatefile,
+  gdb = gdb,
+  test = c("glm", "firth"),
+  cohort = "pheno",
+  pheno = "pheno",
+  geneSet = genesetlist,
+  covar = paste0("PC", 1:4),
+  verbose = FALSE
+)
+
 }

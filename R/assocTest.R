@@ -4,6 +4,7 @@
 #' 
 #' @rdname assocTest-genoMatrix
 #' @name assocTest-genoMatrix
+#' @aliases assocTest,genoMatrix-method
 #' @param object a [`genoMatrix`] object
 #' @param pheno colData field to test as response variable, the response variable
 #' can either be binary (0/1) or continuous. If the response variable is continuous set 
@@ -16,6 +17,7 @@
 #' @param singlevar Run single variant tests? (TRUE/FALSE). 
 #' Defaults to `FALSE`, in which case collapsing tests are ran.
 #' @param covar Character vector of covariates. These should be present in the colData slot of the genoMatrix.
+#' @param offset Optional model offset, can be used to account for regenie LOCO predictions.
 #' @param overwriteAggregate In case there is already an `aggregate` column in the `colData` of the genoMatrix 
 #' (i.e. `aggregate` has been run on the genoMatrix), should it be overwitten? Defaults to `TRUE`.
 #' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
@@ -25,10 +27,11 @@
 #' @param MAFweights Apply MAF weighting? Currently Madsen-Browning ('mb') is implemented.
 #' Defaults to 'none'.
 #' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals.
+#' @param keep Vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
 #' @param output Output file path for results. 
 #' Defaults to `NULL`, in which case results are not written to disk, but returned as an [`rvatResult`] object.
 #' @param append Relevant if the `output` parameter is not `NULL`. Should results be appended to `output`?
-#' Defaults to `FALSE`.
+#' @param returnDF Return a data.frame rather than a rvatResult. Defaults to `FALSE`.
 #' @param methodResampling Which method to use for resampling? ('permutation' currently implemented)
 #' Defaults to `NULL`, in which case no resampling is performed. 
 #' @param resamplingMatrix Pre-calculated resampling matrix (n x p), where n = number of samples, and p number of resamplings. 
@@ -55,6 +58,88 @@
 #' @param minCarrierFreq Minimum carrier frequency for variant retention.
 #' @param maxCarrierFreq Maximum carrier frequency for variant retention.
 #' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @examples
+#' 
+#' library(rvatData)
+#' data(GTsmall)
+#' 
+#' # run a firth burden test on a binary phenotype
+#' rvb <- assocTest(GTsmall,
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = "firth",
+#'                  name = "example")
+#' 
+#' # run ACAT-v and SKAT tests
+#' rvb <- assocTest(GTsmall,
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("acatvfirth", "skat_burden_robust", "skato_robust"),
+#'                  name = "example")
+#' 
+#' # run a burden test on a continuous phenotype
+#' rvb <- assocTest(GTsmall,
+#'                  pheno = "age",
+#'                  continuous = TRUE,
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("lm", "skat", "acatv"),
+#'                  name = "example")
+#' 
+#' # run single variant tests on a binary phenotype 
+#' sv <- assocTest(GTsmall,
+#'                 pheno = "pheno",
+#'                 singlevar = TRUE,
+#'                 covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                 test = c("firth", "glm", "scoreSPA"),
+#'                 name = "example",
+#'                 minCarriers = 1
+#'                 )
+#' 
+#' # apply variant filters
+#' rvb <- assocTest(GTsmall,
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"),
+#'                  name = "example", 
+#'                  maxMAF = 0.001,
+#'                  minCarriers = 2,
+#'                  minCallrateVar = 0.9,
+#'                  minCallrateSM = 0.95)
+#' 
+#' # Perform MAF-weighted burden tests (madsen-browning)
+#' rvb <- assocTest(GTsmall,
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"),
+#'                  MAFweights = "mb")
+#' 
+#' # Perform weighted burden tests with custom weights
+#' gdb <- gdb(rvat_example("rvatData.gdb"))
+#' # add cadd scores
+#' caddscores <- getAnno(gdb, "varInfo", VAR_id = rownames(GTsmall))
+#' caddscores <- caddscores[match(rownames(GTsmall), caddscores$VAR_id),]
+#' # CADD-weighted burden test
+#' rvb <- assocTest(recode(GTsmall, weights = caddscores$CADDphred),
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"))
+#' 
+#' # Perform recessive burden test
+#' rvb <- assocTest(GTsmall,
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("firth", "skat_robust", "acatv"),
+#'                  geneticModel = "recessive")
+#' 
+#' # Resampled burden test 
+#' rvb <- assocTest(GTsmall,
+#'                  pheno = "pheno",
+#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
+#'                  test = c("skat", "skat_burden", "acatv"),
+#'                  name = "example",
+#'                  methodResampling = "permutation",
+#'                  nResampling = 100)
+#' 
 #' @export
 setMethod("assocTest", 
           signature = signature(object="genoMatrix"),
@@ -263,7 +348,7 @@ setMethod("assocTest",
             
             ### check if binary phenotype is coded as 0,1
             if (!continuous) {
-              if(!all(colData(object)[,pheno][!is.na(colData(object)[,pheno])] %in% c(0,1))) stop("Binary phenotypes should be coded 0,1! If the phenotype is continuous, set `continuous = TRUE")
+              if(!all(colData(object)[,pheno][!is.na(colData(object)[,pheno])] %in% c(0,1))) stop("Binary phenotypes should be coded 0,1! If the phenotype is continuous, set `continuous = TRUE`")
             }
             
             ## Add precomputed score (if specified)
@@ -271,53 +356,20 @@ setMethod("assocTest",
               colData(object)$aggregate <- NA_real_
             } 
             
-            ## covariates
-            
-            ### check if covariates are present in colData
+            ## parse covariates
             if(!is.null(covar) && !(length(covar) == 1 && covar == "1")) {
-              if (length(unique(covar)) < length(covar))
-                warning("Duplicate covariates are specified, unique covariates are kept.")
-              covar <- unique(covar)
-              if (mean(covar %in% colnames(colData(object))) < 1) {
-                stop(sprintf("The following covariate(s) are not available: %s",
-                             paste(covar[!covar %in% colnames(colData(object))], collapse=",")))
-              }
-              
-              ### Handle character/factor covar fields 
-              covar_types <- unlist(lapply(colData(object)[,covar,drop=FALSE], FUN = class))
-              if(sum(covar_types %in% c("character", "factor")) > 0) {
-                modmatrix <- as.data.frame(colData(object))
-                modmatrix[names(covar_types[covar_types=="character"])] <- lapply( modmatrix[names(covar_types[covar_types=="character"])],
-                                                                                   factor)
-                modmatrix <-  model.matrix.lm(as.formula(sprintf("%s ~ %s", pheno, paste(covar, collapse="+"))), 
-                                              data = modmatrix, na.action="na.pass")
-                modmatrix <- modmatrix[,-1]
-                colnames(modmatrix) <- make.names(colnames(modmatrix))
-                covar <- colnames(modmatrix)
-                colData(object) <- cbind(
-                  colData(object)[,setdiff(colnames(colData(object)), colnames(modmatrix))],modmatrix)
-              }
-              
-              ### drop covariates with zero variance.
-              covarKeep <- c()
-              for (i2 in covar) { 
-                if(var(colData(object)[,i2], na.rm = TRUE) > 0) {covarKeep <- c(covarKeep, i2)}
-              }
-              
-              if (length(covar) > length(covarKeep)) {
-                warning(sprintf(
-                  "The following covariate(s) have zero covariance: %s",
-                  paste(covar[!covar %in% covarKeep], collapse = ",")
-                ))
-              }
-              covar <- covarKeep
-              
-              ## Remove samples with missing covariates 
-              
-              kp <- complete.cases(colData(object)[,covar])
-              if (!all(kp) && verbose) message(sprintf("%s samples have missing values for one or more covariates, these will be dropped.", sum(!kp)))
-              keepSamples <- keepSamples & kp
-            } 
+              ## remove duplicate covariates + check if covariates are present in colData(object)
+              ## generate dummies for categorical covariates
+              ## remove covariates with zero covariance
+              tmp <- .handle_covar(coldata = colData(object), covar = covar, pheno = pheno)
+              covar <- tmp[["covar"]]
+              colData(object) <- tmp[["coldata"]]
+
+               ## Remove samples with missing covariates 
+               kp <- complete.cases(colData(object)[,covar])
+               if (!all(kp) && verbose) message(sprintf("%s samples have missing values for one or more covariates, these will be dropped.", sum(!kp)))
+               keepSamples <- keepSamples & kp
+            }
             
             
             # Sample filtering --------------------------------------------------
@@ -333,11 +385,11 @@ setMethod("assocTest",
             if(!all(keepSamples)) object <- object[,keepSamples]
             
             if(sum(keepSamples) == 0) {
-              .return_empty_results(singlevar = singlevar, returnDF = returnDF)
+              return(.return_empty_results(singlevar = singlevar, returnDF = returnDF))
             }
             
             ### Flip to minor after sample filtering
-            object <- flipToMinor(object)
+            if (metadata(object)$geneticModel == "allelic") object <- flipToMinor(object)
             
             # Variant filtering --------------------------------------------------
             
@@ -404,7 +456,7 @@ setMethod("assocTest",
               object <- object[keepGeno,]
               
               if(sum(keepGeno) == 0) {
-                .return_empty_results(singlevar = singlevar, returnDF = returnDF)
+                return(.return_empty_results(singlevar = singlevar, returnDF = returnDF))
               }
             } else if (verbose) {
               message(sprintf("%s/%s variants are retained for analysis", nrow(object), nvar))
@@ -447,34 +499,39 @@ setMethod("assocTest",
               
             }
             
+            ## add MAFweights
+            if( overwriteAggregate ) {
+              object <- recode(object, MAFweights = MAFweights)
+            }
+            
             ## Recode genetic model
             if(geneticModel != S4Vectors::metadata(object)$geneticModel) {
               object <- recode(object, geneticModel = geneticModel)
             }
             
-            ## drop variants with 0 carriers
-            if (minCarriers  == 0) {
-              carriers <- getNCarriers(object)
-              if (any(carriers == 0)) {
-                if(verbose) message(sprintf("%s/%s variants have zero carriers, these are dropped.",
-                                            sum(carriers == 0), nrow(object)))
-                object <- object[carriers>=1,]
-                
-                if(nrow(object) == 0) {
-                  .return_empty_results(singlevar = singlevar, returnDF = returnDF)
-                }
-              }
-            }
-            
             # rvb -------------------------------------------------------------
             
             if ( !singlevar ) {
+              ## drop variants with 0 carriers
+              if (minCarriers == 0) {
+                carriers <- getNCarriers(object)
+                if (any(carriers == 0)) {
+                  if(verbose) message(sprintf("%s/%s variants have zero carriers, these are dropped.",
+                                              sum(carriers == 0), nrow(object)))
+                  object <- object[carriers>=1,]
+                  
+                  if(nrow(object) == 0) {
+                    .return_empty_results(singlevar = singlevar, returnDF = returnDF)
+                  }
+                }
+              }
+            
               callRate <- Matrix::colMeans(!is.na(SummarizedExperiment::assays(object)$GT))
               results <- data.frame(
+                unit = S4Vectors::metadata(object)$unit,
                 varSetName = S4Vectors::metadata(object)$varSetName,
                 cohort = S4Vectors::metadata(object)$cohort,
                 name = name,
-                unit = S4Vectors::metadata(object)$unit,
                 pheno = pheno,
                 covar = paste(covar, collapse = ","),
                 geneticModel = S4Vectors::metadata(object)$geneticModel,
@@ -493,14 +550,15 @@ setMethod("assocTest",
                 effectSE = NA_real_,
                 effectCIlower = NA_real_,
                 effectCIupper = NA_real_,
+                OR = NA_real_,
                 P = NA_real_,
                 stringsAsFactors = FALSE
               )
               
               if( overwriteAggregate ) {
                 object <- aggregate(recode(object, 
-                                             imputeMethod = imputeMethod, 
-                                             MAFweights = MAFweights),checkMissing=FALSE)
+                                           imputeMethod = imputeMethod),
+                                    checkMissing=FALSE)
               } else {
                 if(S4Vectors::metadata(object)$imputeMethod != imputeMethod) {
                   object <- recode(object, 
@@ -533,7 +591,7 @@ setMethod("assocTest",
               } else if(!is.null(methodResampling)) {
                 
                 ## Chunks 
-                chunks <-rep(memlimitResampling, times = nResampling %/% memlimitResampling)
+                chunks <- rep(memlimitResampling, times = nResampling %/% memlimitResampling)
                 if(sum(chunks)-nResampling != 0) chunks <- c(chunks, nResampling-sum(chunks))
                 
                 permResult <- list()
@@ -601,10 +659,19 @@ setMethod("assocTest",
                   continuous = continuous,
                   output = output,
                   append = append,
+                  nResampling = nResampling,
                   maxitFirth = maxitFirth,
                   returnDF = TRUE
                 )
                 results <- rbind(res,get_perm_pvals(res,permResult))
+                
+                if (!is.null(output) || !returnDF) {
+                  results <- rvbResult(results)
+                  metadata(results)$rvatVersion <- as.character(packageVersion("rvat"))
+                  metadata(results)$gdbId <- metadata(object)$gdbId
+                  metadata(results)$genomeBuild <- metadata(object)$genomeBuild
+                  metadata(results)$creationDate <- as.character(round(Sys.time(), units = "secs"))
+                }
                 
                 if(!is.null(output)) {
                   results <- rvbResult(results)
@@ -627,6 +694,7 @@ setMethod("assocTest",
                   continuous = continuous,
                   output = output,
                   append = append,
+                  nResampling = nResampling,
                   maxitFirth = maxitFirth,
                   returnDF = returnDF
                 )
@@ -652,6 +720,8 @@ setMethod("assocTest",
                 ctrlMAF = rep(ctrlMAF[rownames(object)], each = length(test)),
                 ctrlMAC = if(!continuous) rep(Matrix::rowSums(assays(object)$GT[,colData(object)[,pheno] == 0,drop=FALSE], na.rm = TRUE), each = length(test)) else NA_real_,
                 ctrlCallRate =  NA_real_,
+                effectAllele = if("effectAllele" %in% colnames(rowData(object))) rep(rowData(object)$effectAllele, each = length(test)) else NA_character_,
+                otherAllele = if("otherAllele" %in% colnames(rowData(object))) rep(rowData(object)$otherAllele, each = length(test)) else NA_character_,
                 stringsAsFactors = FALSE
               )
               if (!continuous) {
@@ -701,12 +771,13 @@ setMethod("assocTest",
                            output = NULL,
                            append = FALSE,
                            maxitFirth = 1000,
+                           nResampling = 1000,
                            returnDF = FALSE
 ) {
   
-  P <- effect <- effectSE <- effectCIupper <- effectCIlower <-
+  P <- OR <- effect <- effectSE <- effectCIupper <- effectCIlower <-
     rep(NA_real_, length(test))
-  names(P) <- names(effect) <- names(effectSE) <- names(effectCIupper) <- names(effectCIlower) <-
+  names(P) <- names(OR) <- names(effect) <- names(effectSE) <- names(effectCIupper) <- names(effectCIlower) <-
     test
   
   ## skip non-sensible tests
@@ -754,13 +825,14 @@ setMethod("assocTest",
         
         ## check if converged, if not, set to NA
         if (.check_conv_firth(fit, maxit=maxitFirth)) {
-          effect["firth"] <- exp(fit$coefficients["aggregate"])
-          effectSE["firth"] <- sqrt(effect["firth"]^2 * diag(vcov(fit))["aggregate"])
-          effectCIlower["firth"] <- exp(fit$ci.lower["aggregate"])
-          effectCIupper["firth"] <- exp(fit$ci.upper["aggregate"])
+          effect["firth"] <- fit$coefficients["aggregate"]
+          OR["firth"] <- exp(fit$coefficients["aggregate"])
+          effectSE["firth"] <- sqrt(diag(vcov(fit)))["aggregate"]
+          effectCIlower["firth"] <- fit$ci.lower["aggregate"]
+          effectCIupper["firth"] <- fit$ci.upper["aggregate"]
           P["firth"] <- fit$prob["aggregate"]
         } else {
-          effect["firth"]=effectSE["firth"]=effectCIlower["firth"]=effectCIupper["firth"]=P["firth"]=NA
+          effect["firth"]=OR["firth"]=effectSE["firth"]=effectCIlower["firth"]=effectCIupper["firth"]=P["firth"]=NA
         }
         
       },
@@ -772,11 +844,12 @@ setMethod("assocTest",
   {
     tryCatch(
       {
-        fit <- glm(model, data=colData(GT), family = "binomial")
-        effect["glm"] <- exp(summary(fit)$coef["aggregate", 1])
-        effectSE["glm"] <- sqrt(effect["glm"]^2 * diag(vcov(fit))["aggregate"])
-        effectCIlower["glm"] <- exp(confint.default(fit)["aggregate",1])
-        effectCIupper["glm"] <- exp(confint.default(fit)["aggregate",2])
+        fit <- glm(model, data = colData(GT), family = "binomial")
+        effect["glm"] <- summary(fit)$coef["aggregate", 1]
+        OR["glm"] <- exp(summary(fit)$coef["aggregate", 1])
+        effectSE["glm"] <- summary(fit)$coef["aggregate", 2]
+        effectCIlower["glm"] <- confint.default(fit)["aggregate",1]
+        effectCIupper["glm"] <- confint.default(fit)["aggregate",2]
         P["glm"] <- summary(fit)$coef["aggregate", 4]
       },
       error=function(e){message(sprintf("Failed test '%s'\n%s", "glm", e))}
@@ -822,7 +895,6 @@ setMethod("assocTest",
   # SKAT analyses
   if (sum(c("skat_burden","skat","skato", "skat_burden_robust", "skat_robust", "skato_robust") %in% test) > 0)
   {
-    af <- rowData(GT)$AF
     skat.null <- SKAT::SKAT_Null_Model(null, data = colData(GT), out_type = out_type)
     
     if ("skat_burden" %in% test)
@@ -912,11 +984,7 @@ setMethod("assocTest",
     }
     
     if(sum(c("skat_burden_robust", "skat_robust", "skato_robust") %in% test) > 0) {
-      if(S4Vectors::metadata(GT)$geneticModel != "allelic") {
-        varkeep <- Matrix::rowSums(assays(GT)$GT) > 0
-      } else {
-        varkeep <- af > 0
-      }
+      varkeep <- Matrix::rowSums(assays(GT)$GT) > 0
     }
     
     if ("skat_burden_robust" %in% test)
@@ -988,7 +1056,7 @@ setMethod("assocTest",
       null,
       data = colData(GT),
       out_type = out_type,
-      n.Resampling = skatResampling
+      n.Resampling = nResampling
     )
     
     if ("skat_burden_fwe" %in% test)
@@ -1171,14 +1239,22 @@ setMethod("assocTest",
   results$effectSE <- effectSE
   results$effectCIlower <- effectCIlower
   results$effectCIupper <- effectCIupper
+  results$OR <- OR
   results$P <- P
   
-  if(!is.null(output)) {
+  if (!is.null(output) || !returnDF) {
     results <- rvbResult(results)
+    metadata(results)$rvatVersion <- as.character(packageVersion("rvat"))
+    metadata(results)$gdbId <- metadata(GT)$gdbId
+    metadata(results)$genomeBuild <- metadata(GT)$genomeBuild
+    metadata(results)$creationDate <- as.character(round(Sys.time(), units = "secs"))
+  }
+  
+  if(!is.null(output)) {
     writeResult(results, file = output, append = append)
     return(results)
   } else {
-    if(returnDF) return(results[,names(columns_rvbResults)]) else return(rvbResult(results))
+    if(returnDF) return(results[,names(columns_rvbResults)]) else return(results)
   }
 }
 
@@ -1208,12 +1284,12 @@ setMethod("assocTest",
                          nrow(GT)
                          ))
   }
-  Pl=effectl=effectSEl=effectCIlowerl=effectCIupperl=list()
+  Pl=ORl=effectl=effectSEl=effectCIlowerl=effectCIupperl=list()
   
   # linear model (continuous pheno)
   if ("lm" %in% test)
   {
-    P=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
+    P=OR=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
     for(i in testable) {
       tryCatch(
         {
@@ -1228,13 +1304,13 @@ setMethod("assocTest",
                                           "lm", rownames(GT)[i],e))}
       )
     }
-    Pl[["lm"]]=P;effectl[["lm"]]=effect;effectSEl[["lm"]]=effectSE;effectCIlowerl[["lm"]]=effectCIlower;effectCIupperl[["lm"]]=effectCIupper
+    Pl[["lm"]]=P;ORl[["lm"]]=OR;effectl[["lm"]]=effect;effectSEl[["lm"]]=effectSE;effectCIlowerl[["lm"]]=effectCIlower;effectCIupperl[["lm"]]=effectCIupper
   }
   
   # Firth logistic regression
   if ("firth" %in% test)
   {
-    P=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
+    P=OR=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
     for(i in testable) {
       tryCatch(
         {
@@ -1245,10 +1321,10 @@ setMethod("assocTest",
                                   plcontrol = logistf::logistpl.control(maxit=maxitFirth)
                                   )
           if (.check_conv_firth(fit, maxit=maxitFirth)) {
-            effect[i] <- exp(fit$coefficients["aggregate"])
-            effectSE[i] <- sqrt(effect[i]^2 * diag(vcov(fit))["aggregate"])
-            effectCIlower[i] <- exp(fit$ci.lower["aggregate"])
-            effectCIupper[i] <- exp(fit$ci.upper["aggregate"])
+            effect[i] <- fit$coefficients["aggregate"]
+            effectSE[i] <- sqrt(diag(vcov(fit)))["aggregate"]
+            effectCIlower[i] <- fit$ci.lower["aggregate"]
+            effectCIupper[i] <- fit$ci.upper["aggregate"]
             P[i] <- fit$prob["aggregate"]
           } 
           
@@ -1256,33 +1332,33 @@ setMethod("assocTest",
                                              "firth", rownames(GT)[i],e))}
       )
     }
-    Pl[["firth"]]=P;effectl[["firth"]]=effect;effectSEl[["firth"]]=effectSE;effectCIlowerl[["firth"]]=effectCIlower;effectCIupperl[["firth"]]=effectCIupper
+    Pl[["firth"]]=P;ORl[["firth"]]=exp(effect);effectl[["firth"]]=effect;effectSEl[["firth"]]=effectSE;effectCIlowerl[["firth"]]=effectCIlower;effectCIupperl[["firth"]]=effectCIupper
   }
   
   # glm logistic regression
   if ("glm" %in% test)
   {
-    P=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
+    P=OR=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
     for(i in testable) {
       tryCatch(
         {
           fit <- glm(model, 
                      data = cbind(aggregate = assays(GT)$GT[i,], data.frame(colData(GT))), 
                      family = binomial(link = "logit"))
-          effect[i] <- exp(summary(fit)$coef["aggregate", 1])
-          effectSE[i] <- sqrt(effect[i]^2 * diag(vcov(fit))["aggregate"])
-          effectCIlower[i] <- exp(confint.default(fit)["aggregate",1])
-          effectCIupper[i] <- exp(confint.default(fit)["aggregate",2])
+          effect[i] <- summary(fit)$coef["aggregate", 1]
+          effectSE[i] <- summary(fit)$coef["aggregate", 2]
+          effectCIlower[i] <- confint.default(fit)["aggregate", 1]
+          effectCIupper[i] <- confint.default(fit)["aggregate",2]
           P[i] <- summary(fit)$coef["aggregate", 4]
         },
         error=function(e){message(sprintf("Failed test '%s' for variant '%s'\n%s", 
                                           "glm", rownames(GT)[i],e))}
       )
     }
-    Pl[["glm"]]=P;effectl[["glm"]]=effect;effectSEl[["glm"]]=effectSE;effectCIlowerl[["glm"]]=effectCIlower;effectCIupperl[["glm"]]=effectCIupper
+    Pl[["glm"]]=P;ORl[["glm"]]=exp(effect);effectl[["glm"]]=effect;effectSEl[["glm"]]=effectSE;effectCIlowerl[["glm"]]=effectCIlower;effectCIupperl[["glm"]]=effectCIupper
   }
   if ("nbinom" %in% test) {
-    P=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
+    P=OR=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
     for(i in testable) {
       tryCatch(
         {
@@ -1298,11 +1374,11 @@ setMethod("assocTest",
       )
       
     }
-    Pl[["nbinom"]]=P;effectl[["nbinom"]]=effect;effectSEl[["nbinom"]]=effectSE;effectCIlowerl[["nbinom"]]=effectCIlower;effectCIupperl[["nbinom"]]=effectCIupper
+    Pl[["nbinom"]]=P;ORl[["nbinom"]]=OR;effectl[["nbinom"]]=effect;effectSEl[["nbinom"]]=effectSE;effectCIlowerl[["nbinom"]]=effectCIlower;effectCIupperl[["nbinom"]]=effectCIupper
   }
   
   if ("scoreSPA" %in% test) {
-    P=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
+    P=OR=effect=effectSE=effectCIupper=effectCIlower <- rep(NA_real_, nrow(GT))
     
     if ( length(testable) > 0 ) {
       score.null <- SPAtest::ScoreTest_wSaddleApprox_NULL_Model(
@@ -1318,7 +1394,7 @@ setMethod("assocTest",
       P[testable] <- fit$p.value
     }
     
-    Pl[["scoreSPA"]]=P;effectl[["scoreSPA"]]=effect;effectSEl[["scoreSPA"]]=effectSE;effectCIlowerl[["scoreSPA"]]=effectCIlower;effectCIupperl[["scoreSPA"]]=effectCIupper
+    Pl[["scoreSPA"]]=P;ORl[["scoreSPA"]]=OR;effectl[["scoreSPA"]]=effect;effectSEl[["scoreSPA"]]=effectSE;effectCIlowerl[["scoreSPA"]]=effectCIlower;effectCIupperl[["scoreSPA"]]=effectCIupper
   }
   
   if(continuous) {
@@ -1327,30 +1403,34 @@ setMethod("assocTest",
                  effectSE = effectSEl[["lm"]],
                  effectCIlower = effectCIlowerl[["lm"]],
                  effectCIupper= effectCIupperl[["lm"]],
+                 OR = ORl[["lm"]],
                  P = Pl[["lm"]]
     )
   } else {
     res <- cbind(results,
-                 P = c(do.call(rbind, Pl[test])),
                  effect = c(do.call(rbind, effectl[test])),
                  effectSE = c(do.call(rbind, effectSEl[test])),
                  effectCIlower = c(do.call(rbind, effectCIlowerl[test])),
-                 effectCIupper= c(do.call(rbind, effectCIupperl[test])))
+                 effectCIupper= c(do.call(rbind, effectCIupperl[test])),
+                 OR = c(do.call(rbind, ORl[test])),
+                 P = c(do.call(rbind, Pl[test]))
+                 )
   }
   
-  if(is.null(output)) {
-    if(returnDF) return(res[,names(columns_singlevarResults)]) else return(singlevarResult(res))
-  } else {
-    writeResult(singlevarResult(res), file = output, append = append)
+  if (!is.null(output) || !returnDF) {
+    res <- singlevarResult(res)
+    metadata(res)$rvatVersion <- as.character(packageVersion("rvat"))
+    metadata(res)$gdbId <- metadata(GT)$gdbId
+    metadata(res)$genomeBuild <- metadata(GT)$genomeBuild
+    metadata(res)$creationDate <- as.character(round(Sys.time(), units = "secs"))
   }
   
   if(!is.null(output)) {
-    res <- singlevarResult(res)
     writeResult(res, file = output, append = append)
     return(res)
   } else {
     rownames(res) <- NULL
-    if(returnDF) return(res[,names(columns_singlevarResults)]) else return(singlevarResult(res))
+    if(returnDF) {return(res[,names(columns_singlevarResults)])} else {return(res)}
   }
 }
 
@@ -1781,7 +1861,6 @@ setMethod("assocTest",
   # SKAT analyses
   if (sum(c("skat_burden","skat","skato", "skat_burden_robust", "skat_robust", "skato_robust") %in% test) > 0)
   {
-    af <- rowData(GT)$AF
     skat.null <- SKAT::SKAT_Null_Model(null, 
                                        data = colData(GT), 
                                        out_type = out_type)
@@ -1879,11 +1958,7 @@ setMethod("assocTest",
     }
     
     if(sum(c("skat_burden_robust", "skat_robust", "skato_robust") %in% test) > 0) {
-      if(S4Vectors::metadata(GT)$geneticModel != "allelic") {
         varkeep <- Matrix::rowSums(assays(GT)$GT) > 0
-      } else {
-        varkeep <- af > 0
-      }
       
       if(sum(varkeep) > 0) {
         skat_robust_perms <- lapply(
