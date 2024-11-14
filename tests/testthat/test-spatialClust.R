@@ -36,7 +36,7 @@ test_that("spatialClust snapshot is identical",{
     output = output
   ))
 
-  varset <- varSetFile(output)
+  varsetfile <- varSetFile(output)
   assoc <- assocTest(gdb,
                      varSet = getVarSet(varsetfile, unit = listUnits(varsetfile)[1:10]),
                      cohort="pheno",
