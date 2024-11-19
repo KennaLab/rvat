@@ -108,7 +108,166 @@ burden_spatialclusters
 
 # generate mutation plot
 
-coming soon!
+RVAT's `mutationPlot()` function provides a convenient way to visualize variants across a gene in a lollipop-plot,
+while also visualizing additional tracks such as protein domains or mutation clusters as generated above.
+
+## prepare data
+
+First, we'll need to prepare some additional data:  
+- Single variant statistics to plot along with the spatial clusters.    
+- Extract cds ranges for spatial clusters (using the `getRanges()` method). 
+- Retrieve CDS coordinates of the entire transcript.  
+
+```{r, message = FALSE}
+# perform single variant association tests
+sv <- assocTest(gdb,
+                varSet = getVarSet(varsetfile, unit = units),
+                cohort = "pheno",
+                pheno = "pheno",
+                covar = c("sex", "PC1", "PC2", "PC3", "PC4"),
+                test = "firth",
+                name = "sv",
+                singlevar = TRUE,
+                verbose = FALSE)
+
+
+# extract CDS ranges for spatial clusters using the `getRanges` method
+units <- listUnits(varsetfile)[stringr::str_detect(listUnits(varsetfile), "ENST00000254108")]
+varsetlist <- getVarSet(varsetfile, 
+                        unit = units)
+where <- sprintf("transcript_id = '%s'", stringr::str_split(listUnits(varsetlist), pattern = "_", simplify = TRUE)[,1])
+spatialcluster_ranges <- getRanges(
+  varsetlist,
+  gdb,
+  table = "cdsPOS",
+  POS = "cdsPOS",
+  where = where
+)
+
+## add ranges to results
+burden_spatialclusters <- merge(
+  burden_spatialclusters,
+  spatialcluster_ranges[,c("CHROM", "start", "end", "unit")],
+  by = "unit"
+)
+
+# get CDS positions for single variants
+sv_cdsPOS <- getAnno(
+  gdb, 
+  table = "cdsPOS",
+  where = "transcript_id = 'ENST00000254108'"
+)
+sv_cdsPOS$VAR_id <- as.character(sv_cdsPOS$VAR_id)
+sv <- merge(sv, sv_cdsPOS[,c("VAR_id", "cdsPOS")] %>% dplyr::rename(POS = cdsPOS), by = "VAR_id")
+
+# get CDS coordinates using ensembldb
+library(ensembldb)
+gtf <- gtf[!is.na(gtf$transcript_id) & gtf$transcript_id == "ENST00000254108"]
+ensdb_path <- tempfile()
+ensdb <- ensembldb::ensDbFromGRanges(
+  gtf, 
+  outfile = ensdb_path,
+  organism = "Homo_sapiens",
+  genomeVersion = "GRCh38",
+  version = "105"
+  )
+ensdb <- EnsDb(ensdb_path)
+
+cds <- unlist(genomeToTranscript(sort(gtf[gtf$type == "CDS",]), db = ensdb))
+cds <- sort(transcriptToCds(cds, db = ensdb))
+```
+
+## generate mutation plot
+
+Generate a mutation plot, including the spatial cluster burden results as a custom track:
+
+```{r}
+plt <- mutationPlot(
+  singleVar = sv,
+  cds = cds,
+  customTracks = burden_spatialclusters
+  
+  )
+plt
+```
+
+The shapes of the points can be set to indicate the impact of the variant. Below we by visualize moderate impact variants as points and high impact variants by triangles.
+
+```{r}
+# add variant effect predictors to single variant results
+varinfo <- getAnno(gdb, "varInfo", VAR_id =  sv$VAR_id)
+varinfo$VAR_id <- as.character(varinfo$VAR_id)
+varinfo <- varinfo %>%
+  dplyr::mutate(
+    impact = dplyr::case_when(
+      HighImpact == 1 ~ "HIGH",
+      ModerateImpact == 1 ~ "MODERATE",
+      TRUE ~ NA_character_
+    )
+  )
+sv <- merge(sv, varinfo[,c("VAR_id", "impact")], by = "VAR_id")
+
+# generate mutation plot
+plt <- mutationPlot(
+  cds = cds,
+  customTracks = burden_spatialclusters,
+  singleVar = sv,
+  impactScale = c("HIGH" = 17, "MODERATE" = 19)
+  )
+plt
+```
+
+Multiple sets of tracks can be included. In below example we add a whole-gene track. By setting `splitByTrackType = TRUE`, the spatial cluster and whole gene tracks will be plotted separately. The order of the track types can be set using the `trackOrder` parameter.
+
+```{r}
+# generate whole-gene test-statistics
+burden_wholegene <- assocTest(gdb,
+                              VAR_id = sv$VAR_id,
+                              cohort = "pheno",
+                              pheno = "pheno",
+                              covar = c("sex", "PC1", "PC2", "PC3", "PC4"),
+                              test = "firth",
+                              name = "whole gene",
+                              verbose = FALSE)
+burden_wholegene$unit <- "ENST00000254108"
+burden_wholegene$CHROM <- unique(burden_spatialclusters$CHROM)
+burden_wholegene$start <- min(start(cds))
+burden_wholegene$end <- max(end(cds))
+burden_wholegene$trackType = "gene"
+burden_spatialclusters$trackType = "spatial clusters"
+
+# updated custom tracks
+tracks <- rbind(burden_wholegene, burden_spatialclusters)
+
+# generate mutation plot
+plt <- mutationPlot(
+  cds = cds,
+  customTracks = tracks,
+  singleVar = sv,
+  splitByTrackType = TRUE,
+  trackOrder = c("gene", "spatial clusters"),
+  impactScale = c("HIGH" = 24, "MODERATE" = 21)
+  )
+plt
+```
+
+## interactive mutation plot
+
+```{r}
+plt <- mutationPlot(
+  cds = cds,
+  customTracks = tracks,
+  singleVar = sv,
+  splitByTrackType = TRUE,
+  trackOrder = c("gene", "spatial clusters"),
+  impactScale = c("HIGH" = 24, "MODERATE" = 21),
+  interactive = TRUE,
+  trackHoverFields = c("unit", "OR", "P"),
+  svHoverFields = c("OR", "P")
+  )
+plt
+```
+
 
 # References
 

@@ -6,7 +6,7 @@ Description: RVAT is an R package that allows for the conversion of large geneti
 License: GPL-3
 Encoding: UTF-8
 biocViews:
-Imports: magrittr, dplyr, ggplot2 (>= 3.3.0), logistf (>= 1.24), RSQLite, SKAT, MASS, Matrix, zoo, shiny,WGCNA,GenomicRanges,IRanges,DBI,methods,SPAtest,DT,ggrepel,stringr,stringi,tibble,tidyr,rtracklayer,plotly,BiocGenerics,GENESIS,GenomeInfoDb,GWASTools,matrixcalc,R.utils,optparse,readr
+Imports: magrittr, dplyr, ggplot2 (>= 3.3.0), logistf (>= 1.24), RSQLite, SKAT, MASS, Matrix, zoo, shiny,WGCNA,GenomicRanges,IRanges,DBI,methods,SPAtest,DT,ggrepel,stringr,stringi,tibble,tidyr,rtracklayer,plotly,BiocGenerics,GENESIS,GenomeInfoDb,GWASTools,matrixcalc,R.utils,optparse,readr,ggh4x
 Depends: R (>= 3.4.1), SummarizedExperiment,S4Vectors
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -27,9 +27,11 @@ Collate:
     'geneSetAssoc.R'
     'genoMatrix.R'
     'getArgs.R'
+    'getRanges.R'
     'manhattanly.R'
     'mapToCDS.R'
     'mapVariants.R'
+    'mutationPlot.R'
     'nullmodelGSA.R'
     'pipe.R'
     'resampling.R'
