@@ -118,7 +118,7 @@ First, we'll need to prepare some additional data:
 - Extract cds ranges for spatial clusters (using the `getRanges()` method). 
 - Retrieve CDS coordinates of the entire transcript.  
 
-```{r, message = FALSE}
+```{r, message = FALSE, warning = FALSE}
 # perform single variant association tests
 sv <- assocTest(gdb,
                 varSet = getVarSet(varsetfile, unit = units),
@@ -252,7 +252,16 @@ plt
 
 ## interactive mutation plot
 
+Generate an interactive mutation plot by setting `interactive = TRUE`. Field to be shown when hovering over elements can be set using the `trackHoverFields` and `svHoverFields` parameters. 
+
 ```{r}
+# round fields that will be shown upon hovering
+sv$OR <- signif(sv$OR, 3)
+sv$P <- signif(sv$P, 3)
+tracks$OR <- signif(tracks$OR, 3)
+tracks$P <- signif(tracks$P, 3)
+
+# generate interactive mutation plot
 plt <- mutationPlot(
   cds = cds,
   customTracks = tracks,
@@ -264,7 +273,8 @@ plt <- mutationPlot(
   trackHoverFields = c("unit", "OR", "P"),
   svHoverFields = c("OR", "P")
   )
-plt
+plt %>% 
+  plotly::layout(margin = list(l=175))
 ```
 
 
