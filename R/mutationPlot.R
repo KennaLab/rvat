@@ -312,10 +312,14 @@ mutationPlot <- function(
     ) +
     ggplot2::xlab("CDS position") +
     ggplot2::ylab("") +
-    ggplot2::labs(fill = bquote("-log"[10]~(italic(P))),
-                  size = bquote("| Log"~(OR)~"|"),
-                  shape = "impact"
-    ) +
+    {if(!interactive)  ggplot2::labs(fill = bquote("-log"[10]~(italic(P))),
+                                     size = bquote("| Log"~(OR)~"|"),
+                                     shape = "impact"
+                                    ) }  + 
+    {if(interactive)  ggplot2::labs(fill = "",
+                                    size = "",
+                                    shape = "impact"
+    ) }  + 
     ggh4x::force_panelsizes(rows = panelsizes)
   
   ## if interactive, use ggplotly to convert ggplot to plotly

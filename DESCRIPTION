@@ -27,7 +27,6 @@ Collate:
     'geneSetAssoc.R'
     'genoMatrix.R'
     'getArgs.R'
-    'getRanges.R'
     'manhattanly.R'
     'mapToCDS.R'
     'mapVariants.R'
