@@ -272,7 +272,7 @@ setMethod("getGT", signature="gdb",
               
               ## check if varSet was generated from the current gdb
               if (!is.null(varSet) && strict) {
-                .check_gdb_ids(object, varSet)
+                .check_gdb_ids(object, varSet, minVersion = "0.3.0")
               }
               
               if (is(varSet, "varSetList") && length(varSet) == 1) {

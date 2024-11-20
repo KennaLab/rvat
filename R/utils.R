@@ -72,7 +72,7 @@
 }
 
 # input checks
-.check_gdb_ids <- function(gdb, object) {
+.check_gdb_ids <- function(gdb, object, minVersion = NULL) {
   # check if gdb id in object and gdb match
   if ( !is.null(getGdbId(object)) && !is.na(getGdbId(object)) &
        !is.null(getGdbId(gdb)) && !is.na(getGdbId(gdb))) {
@@ -81,10 +81,26 @@
     }
   }
   
-  if ( !is.null(getRvatVersion(object)) && !is.na(getRvatVersion(object)) &
-       !is.null(getRvatVersion(gdb)) && !is.na(getRvatVersion(gdb))) {
-    if (getRvatVersion(gdb) != getRvatVersion(object)) {
-      warning (sprintf("The gdb and %s were generated using different RVAT versions", as.character(class(object))))
+  if (is.null(minVersion)) {
+    if ( !is.null(getRvatVersion(object)) && !is.na(getRvatVersion(object)) &
+         !is.null(getRvatVersion(gdb)) && !is.na(getRvatVersion(gdb))) {
+      if (getRvatVersion(gdb) != getRvatVersion(object)) {
+        warning (sprintf("The gdb and %s were generated using different RVAT versions", as.character(class(object))))
+      }
+    }
+  } else {
+    version_gdb <- getRvatVersion(gdb)
+    version_object <- getRvatVersion(object)
+    if ( !is.null(version_object) && !is.na(version_object) &
+         !is.null(version_gdb) && !is.na(version_gdb) ) {
+      if ((version_gdb < minVersion && version_object >= minVersion) ||
+          (version_object < minVersion && version_gdb >= minVersion)) {
+        warning (sprintf("The gdb was generated with RVAT version %s, while the %s was generated with RVAT version %s",
+                         version_gdb,
+                         as.character(class(object)),
+                         version_object
+                         ))
+      }
     }
   }
 }
