@@ -8,6 +8,12 @@ output:
 
 # v.0.3
 
+## v.0.3.1
+
+- Includes new *mutationPlot* function to create mutation plots that visualize variant-level and gene-level association results along a transcript structure. Optionally, custom tracks such as protein domains or mutation clusters can be overlaid.  
+- The *mutationPlot* function is demonstrated in the updated [spatial clustering](spatial_clustering.html) tutorial.   
+- Includes a new method *getRanges* for `varSetList` and `varSetFile` that retrieves genomic ranges for variant sets. Can be used to retrieve either genomic coordinates or other user-defined coordinates such as CDS coordinates genearated with the `mapCDS` method.  
+
 ## v.0.3.0
 
 Large update! In particular, changes have been made to:
