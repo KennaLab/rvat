@@ -100,7 +100,7 @@ setMethod("assocTest",
             test <- unique(test)
             
             if (strict) {
-              .check_gdb_ids(gdb, object)
+              .check_gdb_ids(gdb, object, minVersion = "0.3.0")
             }
             
             ## Check if covar is valid

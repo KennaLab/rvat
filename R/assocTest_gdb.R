@@ -242,7 +242,7 @@ setMethod("assocTest",
             
             # check if varSet was generated from the current gdb
             if (!is.null(varSet) && strict) {
-              .check_gdb_ids(object, varSet)
+              .check_gdb_ids(object, varSet, minVersion = "0.3.0")
               }
 
             ## Default imputeMethod = "meanImpute" for burden tests. For singlevar the default is not  to impute.
@@ -408,7 +408,7 @@ setMethod("assocTest",
                                 anno = "var",
                                 annoFields = c("VAR_id", "REF", "ALT"),
                                 verbose = verbose,
-                                strict = strict
+                                strict = FALSE
                                 )
                     colnames(rowData(GT))[colnames(rowData(GT)) == "REF"] <- "otherAllele"
                     colnames(rowData(GT))[colnames(rowData(GT)) == "ALT"] <- "effectAllele"
@@ -419,7 +419,7 @@ setMethod("assocTest",
                                 varSet = if( length(varSets) > 1) collapseVarSetList(varSets) else varSets,
                                 checkPloidy = checkPloidy,
                                 verbose = verbose,
-                                strict = strict
+                                strict = FALSE
                                 )
                   }
                   metadata(GT)$cohort <- cohort

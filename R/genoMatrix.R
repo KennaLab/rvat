@@ -310,7 +310,7 @@ setMethod("[",signature=c("genoMatrix"),
 #' @export
 setMethod("updateGT", signature="genoMatrix",
           definition=function(object, SM = NULL, anno = NULL)
-            {
+          {
             
             if (!is.null(SM) ) {
               if (!"IID" %in% colnames(SM)) stop("SM should contain an `IID` column")
@@ -346,11 +346,11 @@ setMethod("updateGT", signature="genoMatrix",
               rowdata$VAR_id <- NULL
               rowData(object) <- rowdata[rownames(object),]
             }
-
+            
             # Validate and return
             validObject(object)
             return(object)
-            })
+          })
 
 #' @rdname genoMatrix
 #' @usage NULL
