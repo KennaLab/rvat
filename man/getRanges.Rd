@@ -36,7 +36,11 @@ where clause is applied for each varSet, or of length equal to the number of var
 in which case each where clause is applied to the corresponding varSet.}
 }
 \description{
-getRanges
+Retrieve genomic ranges for variant sets.
+}
+\details{
+This function method retrieves genomic ranges (chromosome, start, and end positions) for variant sets defined in a \code{varSetFile} or \code{varSetList}.
+It will map positions based on a variant annotations table in provided \code{gdb} (default = "var").
 }
 \examples{
 
