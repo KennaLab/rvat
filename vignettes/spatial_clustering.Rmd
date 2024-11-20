@@ -273,8 +273,7 @@ plt <- mutationPlot(
   trackHoverFields = c("unit", "OR", "P"),
   svHoverFields = c("OR", "P")
   )
-plt %>% 
-  plotly::layout(margin = list(l=175))
+plotly::layout(plt, margin = list(l=175))
 ```
 
 
