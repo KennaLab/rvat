@@ -186,7 +186,6 @@ plt <- mutationPlot(
   singleVar = sv,
   cds = cds,
   customTracks = burden_spatialclusters
-  
   )
 plt
 ```

@@ -1,4 +1,9 @@
 #' getRanges
+#' 
+#' Retrieve genomic ranges for variant sets.
+#'
+#' This function method retrieves genomic ranges (chromosome, start, and end positions) for variant sets defined in a `varSetFile` or `varSetList`.  
+#' It will map positions based on a variant annotations table in provided `gdb` (default = "var").
 #'
 #' @param object Input [`varSetFile`] or [`varSetList`].
 #' @param gdb A [`gdb`] object.
