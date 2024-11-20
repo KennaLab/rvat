@@ -255,7 +255,7 @@ setMethod(".dump",
             
             # check if varSet was generated from the current gdb
             if (!is.null(varSet) && strict) {
-              .check_gdb_ids(object, varSet)
+              .check_gdb_ids(object, varSet, minVersion = "0.3.0")
             }
             
             if (!is.null(VAR_id)) {
@@ -302,7 +302,7 @@ setMethod(".dump",
                           varSet = varset,
                           checkPloidy = checkPloidy,
                           verbose = verbose,
-                          strict = strict
+                          strict = FALSE
                           )
               
               ## subset samples based on keep list
