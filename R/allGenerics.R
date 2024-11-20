@@ -808,6 +808,43 @@ setGeneric("buildVarSet",
 #' @export
 setGeneric("collapseVarSetList", function(object,...) standardGeneric("collapseVarSetList"))
 
+#' getRanges
+#' 
+#' Retrieve genomic ranges for variant sets.
+#'
+#' This function method retrieves genomic ranges (chromosome, start, and end positions) for variant sets defined in a `varSetFile` or `varSetList`.  
+#' It will map positions based on a variant annotations table in provided `gdb` (default = "var").
+#'
+#' @param object Input [`varSetFile`] or [`varSetList`].
+#' @param gdb A [`gdb`] object.
+#' @param output Output file path. Output will be gz-compressed. Defaults to `NULL`,
+#' in which case ranges are returned as a data.frame.
+#' @param table Name of lookup table for extracting variant positions. Defaults to "var".
+#' @param CHROM If the name of the column in `table` that specifies the chromosome is not named `CHROM`, 
+#' the column name can be specified here.
+#' @param POS If the name of the column in `table` that specifies variant position is not named `POS`, 
+#' the column name can be specified here.
+#' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')". Can be either of length 1, in which case the same
+#' where clause is applied for each varSet, or of length equal to the number of varSets in the provided varSetList or varSetFile,
+#' in which case each where clause is applied to the corresponding varSet.
+#' @examples
+#' 
+#' library(rvatData)
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' gdb <- create_example_gdb()
+#' ranges <- getRanges(varsetfile, gdb = gdb)
+#' 
+#' @export
+setGeneric("getRanges", function(object,
+                                 gdb,
+                                 output = NULL,
+                                 table = "var",
+                                 CHROM = "CHROM",
+                                 POS = "POS",
+                                 where = c()
+) standardGeneric("getRanges"))
+
+
 #' Generate variant sets based on spatial clustering
 #'
 #' Generate weighted variant sets for use in association testing, with partitioning by genomic distances as described (Fier, GenetEpidemiol, 2017).
