@@ -135,7 +135,7 @@ setGeneric("extractRanges", function(object, ranges, padding = 250) standardGene
 #'                    table = "varInfo")
 #' 
 #' @export
-setGeneric("getAnno", function(object,table,fields="*",left=c(),inner=c(),VAR_id=c(),ranges=NULL,padding=250,where=c()) standardGeneric("getAnno"))
+setGeneric("getAnno", function(object,table,fields="*",left=c(),inner=c(),VAR_id=NULL,ranges=NULL,padding=250,where=c()) standardGeneric("getAnno"))
 
 #' Get an cohort table from a gdb
 #'
