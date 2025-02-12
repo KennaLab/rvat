@@ -761,5 +761,15 @@ test_that("extractRanges works" ,{
   )
   check2 <- subsetByOverlaps(var_granges,  GenomicRanges::makeGRangesFromDataFrame(ranges))$VAR_id
   expect_identical(sort(as.numeric(check1)), sort(as.numeric(check2)))
+  
+  # expect no overlap
+  ranges <- data.frame(
+    CHROM = c("chr21"),
+    start = c(5000000),
+    end = c(6000000)
+  )
+  expect_message({var <- getAnno(gdb, "var", fields = c("VAR_id", "CHROM", "POS", "REF", "ALT"), ranges = ranges)}, regexp = "No variants overlap with provided range")
+  var <- suppressMessages(getAnno(gdb, "var", fields = c("VAR_id", "CHROM", "POS", "REF", "ALT"), ranges = ranges))
+  expect_identical(nrow(var), 0L)
   }
 )
