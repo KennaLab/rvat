@@ -21,7 +21,7 @@ users can also directly perform SQL queries on the gdb as exemplified in the exa
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -175,16 +175,16 @@ See <code><a href="mapVariants.html">mapVariants()</a></code> for details.</p></
 <span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="buildGdb.html">buildGdb</a></span><span class="op">(</span>vcf <span class="op">=</span> <span class="va">vcfpath</span>,</span></span>
 <span class="r-in"><span>                output <span class="op">=</span> <span class="va">gdbpath</span>, </span></span>
 <span class="r-in"><span>                genomeBuild <span class="op">=</span> <span class="st">"GRCh38"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:42:15	Creating gdb tables</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:25:34	Creating gdb tables</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 25000 sample IDs detected</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:42:15	Parsing vcf records</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:42:41	Processing completed for 1000 records. Committing to db.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:43:01	Processing completed for 1802 records. Committing to db.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:43:01	Creating var table indexes</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:43:01	Creating SM table index</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:43:02	Creating dosage table index</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:43:02	Creating ranged var table</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2024-11-20 14:43:02	Complete</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:25:34	Parsing vcf records</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:26:04	Processing completed for 1000 records. Committing to db.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:26:26	Processing completed for 1802 records. Committing to db.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:26:26	Creating var table indexes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:26:26	Creating SM table index</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:26:26	Creating dosage table index</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:26:26	Creating ranged var table</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2025-02-12 12:26:26	Complete</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># upload variant info</span></span></span>
@@ -210,14 +210,14 @@ See <code><a href="mapVariants.html">mapVariants()</a></code> for details.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                         value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 /Users/phop2/Library/R/x86_64/4.4/library/rvatData/extdata/rvatData.varinfo</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       date</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Wed Nov 20 14:43:01 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Wed Feb 12 12:26:26 2025</span>
 <span class="r-in"><span><span class="fu">listCohort</span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 pheno</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                       value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 /Users/phop2/Library/R/x86_64/4.4/library/rvatData/extdata/rvatData.pheno</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       date</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Wed Nov 20 14:43:01 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Wed Feb 12 12:26:26 2025</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># retrieve annotations for a genomic interval</span></span></span>
 <span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="getAnno.html">getAnno</a></span><span class="op">(</span><span class="va">gdb</span>, </span></span>
@@ -276,7 +276,7 @@ See <code><a href="mapVariants.html">mapVariants()</a></code> for details.</p></
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># retrieve gdb metadata</span></span></span>
 <span class="r-in"><span><span class="fu">getGdbPath</span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//Rtmp6OlT01/file7701ba436f4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/cl/wvc0rvjx4vd5rzt2_fhpmfth0000gp/T//RtmpRC6myU/file1825cc33abe9"</span>
 <span class="r-in"><span><span class="fu">getGenomeBuild</span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GRCh38"</span>
 <span class="r-in"><span></span></span>
