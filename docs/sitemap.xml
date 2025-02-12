@@ -58,9 +58,6 @@
     <loc>/reference/assocTest-aggregateFile.html</loc>
   </url>
   <url>
-    <loc>/reference/assocTest-gdb-method.html</loc>
-  </url>
-  <url>
     <loc>/reference/assocTest-gdb.html</loc>
   </url>
   <url>
@@ -97,7 +94,7 @@
     <loc>/reference/concatGdb.html</loc>
   </url>
   <url>
-    <loc>/reference/densityplot.html</loc>
+    <loc>/reference/densityPlot.html</loc>
   </url>
   <url>
     <loc>/reference/dropTable.html</loc>
@@ -172,13 +169,7 @@
     <loc>/reference/manhattan.html</loc>
   </url>
   <url>
-    <loc>/reference/manhattanGeneSet.html</loc>
-  </url>
-  <url>
     <loc>/reference/mapToCDS.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mapToMatrix.html</loc>
   </url>
   <url>
     <loc>/reference/mapVariants.html</loc>
@@ -245,9 +236,6 @@
   </url>
   <url>
     <loc>/reference/writeResult.html</loc>
-  </url>
-  <url>
-    <loc>/reference/writeVcf-gdb-method.html</loc>
   </url>
   <url>
     <loc>/reference/writeVcf.html</loc>
