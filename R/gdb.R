@@ -209,7 +209,7 @@ setMethod("extractRanges",
 #' @usage NULL
 #' @export
 setMethod("getAnno", signature = "gdb",
-          definition = function(object,table,fields="*",left=c(),inner=c(),VAR_id=c(),ranges=NULL,padding = 250,where=c())
+          definition = function(object,table,fields="*",left=c(),inner=c(),VAR_id=NULL,ranges=NULL,padding = 250,where=c())
           {
             # Base query
             fields=paste(fields,collapse=",")
@@ -218,6 +218,9 @@ setMethod("getAnno", signature = "gdb",
             # ranges 
             if (!is.null(ranges) ) {
               VAR_id <- extractRanges(object, ranges = ranges, padding = padding)
+              if (length(VAR_id) == 0) {
+                message("No variants overlap with provided range")
+              }
             }
             # Add left join operation
             for (i in left)
@@ -230,15 +233,16 @@ setMethod("getAnno", signature = "gdb",
               query=sprintf("%s inner join %s using (VAR_id)",query,i)
             }
             # Build where statement
-            if (length(VAR_id)>0)
+            if (!is.null(VAR_id))
             {
               VAR_id=sprintf("VAR_id in ('%s')",paste(VAR_id,collapse="','"))
               if (length(where)>0)
               {
                 where=sprintf("(%s) AND (%s)",VAR_id,where)
               } else {where=VAR_id}
-            }
+            } 
             if (length(where)>0){query=sprintf("%s where %s",query, where)}
+            
             return(DBI::dbGetQuery(object,query))
           })
 

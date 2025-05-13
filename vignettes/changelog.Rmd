@@ -8,6 +8,10 @@ output:
 
 # v.0.3
 
+## v.0.3.2
+
+- **Bug fix**: Fixed a bug in the `getAnno` method: if the `ranges` parameter was specified, but none of the variants in the specified table overlap with those respective ranges, all rows in the specified table were returned. 
+
 ## v.0.3.1
 
 - Includes new *mutationPlot* function to create mutation plots that visualize variant-level and gene-level association results along a transcript structure. Optionally, custom tracks such as protein domains or mutation clusters can be overlaid.  

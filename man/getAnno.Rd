@@ -11,7 +11,7 @@ getAnno(
   fields = "*",
   left = c(),
   inner = c(),
-  VAR_id = c(),
+  VAR_id = NULL,
   ranges = NULL,
   padding = 250,
   where = c()
