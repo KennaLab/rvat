@@ -19,6 +19,8 @@
 #' Defaults to `TRUE`.
 #' @param includeVarId Include VAR_ids in the 'ID' field? Defaults to `FALSE`, 
 #' in which case the 'ID' field from the 'var' table is included.
+#' @param overWrite Flag indicating whether `output` should be overwritten if it already exists.
+#' Defaults to `FALSE`.
 #' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' 
 #' @examples
@@ -30,7 +32,7 @@
 #' writeVcf(gdb, VAR_id = 1:100, output = output)
 #' 
 #' @export
-setGeneric("writeVcf", function(object, output, VAR_id = NULL, IID = NULL, includeGeno=TRUE, includeVarId = FALSE, verbose = TRUE) standardGeneric("writeVcf"))
+setGeneric("writeVcf", function(object, output, VAR_id = NULL, IID = NULL, memlimit = 1000L, includeGeno=TRUE, includeVarId = FALSE, overWrite = FALSE, verbose = TRUE) standardGeneric("writeVcf"))
 
 #' @rdname gdb
 #' @usage NULL
@@ -62,6 +64,8 @@ setGeneric("getGdbPath", function(object) standardGeneric("getGdbPath"))
 #' @usage NULL
 #' @export
 setGeneric("getGenomeBuild", function(object) standardGeneric("getGenomeBuild"))
+
+setGeneric("getIdCol", function(object) standardGeneric("getIdCol"))
 
 #' @rdname gdb
 #' @usage NULL
@@ -357,7 +361,7 @@ setGeneric("subsetGdb", function(object, output, intersection = NULL, where = NU
 #' 
 #'
 #' @export
-setGeneric("uploadAnno", function(object, name, value, sep="\t", skipRemap=FALSE, skipIndexes=FALSE, ignoreAlleles=FALSE, keepUnmapped=FALSE, mapRef="var", verbose = TRUE) standardGeneric("uploadAnno"))
+setGeneric("uploadAnno", function(object, name, value, sep="\t", skipRemap=FALSE, skipIndexes=FALSE, ignoreAlleles=FALSE, keepUnmapped=FALSE, mapRef="var", overWrite = FALSE, verbose = TRUE) standardGeneric("uploadAnno"))
 
 #' mapVariants
 #' 
@@ -477,6 +481,8 @@ setGeneric("mapVariants", function(object,
 #' @param name Name to assign to cohort.
 #' @param value Input data frame or a valid file path. Must contain an 'IID' column matching to SM table and a 'sex' column (0=missing,1=male,2=female).
 #' @param sep Field delimiter (applies only when value is a text file). Defaults to `\\t`.
+#' @param overWrite Flag indicating whether `output` should be overwritten if it already exists.
+#' Defaults to `FALSE`.
 #' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @examples
 #' library(rvatData)
@@ -491,7 +497,7 @@ setGeneric("mapVariants", function(object,
 #' uploadCohort(object = gdb, name = "cohortinfo2", value = filepath)
 #' 
 #' @export
-setGeneric("uploadCohort", function(object,name,value,sep="\t",verbose=TRUE) standardGeneric("uploadCohort"))
+setGeneric("uploadCohort", function(object,name,value,sep="\t",overWrite=FALSE,verbose=TRUE) standardGeneric("uploadCohort"))
 
 #' Drop table from gdb
 #'
@@ -668,7 +674,7 @@ setGeneric("flipToMinor", function(object) standardGeneric("flipToMinor"))
 #' @param weights A vector of weights, with length equal to the number of variants.
 #' @param MAFweights Apply MAF-dependent weighting, current options include "none" and "mb" (Madsen-Browning).
 #' @export
-setGeneric("recode", function(object, geneticModel, imputeMethod, weights, MAFweights) standardGeneric("recode"))
+setGeneric("recode", function(object, geneticModel = NULL, imputeMethod = NULL, weights = NULL, MAFweights = NULL) standardGeneric("recode"))
 
 #' @rdname genoMatrix
 #' @usage NULL
@@ -677,11 +683,11 @@ setGeneric("getCarriers", function(object, VAR_id = NULL, colDataFields = NULL, 
 
 # varSet -------------------------------------------------------------------
 
-#' Return the units included in an varSetFile/varSetList/aggregateFile
+#' Return the units included in an varSetFile/varSetList/aggdb
 #' 
-#' Returns a vector of all units included in a [`varSetFile`], [`varSetList`] or [`aggregateFile`]
+#' Returns a vector of all units included in a [`varSetFile`], [`varSetList`] or [`aggdb`]
 #'
-#' @param object An object of class [`varSetFile`], [`varSetList`] or [`aggregateFile`].
+#' @param object An object of class [`varSetFile`], [`varSetList`] or [`aggdb`].
 #' @export
 setGeneric("listUnits", function(object) standardGeneric("listUnits"))
 
@@ -909,10 +915,10 @@ setGeneric("mapToCDS",
 #' on a [`gdb`] object, in which case assocTest can loop through multiple variant sets by providing
 #' a [`varSetFile`] or [`varSetList`] as input. 
 #' Moreover, assocTest can be run on sets of genes ('gene set burden'), 
-#' for which gene burden scores have been generated using [`aggregate`] and stored in an [`aggregateFile`].
+#' for which gene burden scores have been generated using [`aggregate`] and stored in an [`aggdb`].
 #' For running assocTest on a [`genoMatrix`] object see: [`assocTest-genoMatrix`] for details\cr
 #' for running assocTest on a [`gdb`]  object see: [`assocTest-gdb`] for details
-#' for running assocTest on a [`aggregateFile`]  object see: [`assocTest-aggregateFile`] for details
+#' for running assocTest on a [`aggdb`]  object see: [`assocTest-aggdb`] for details
 #' 
 #' @details
 #' **Aggregate tests**
@@ -1070,7 +1076,7 @@ setGeneric("writeResult", function(object,
 #' @param control Number of controls in association tests.
 #' 
 #' @export
-setGeneric("qqplot", function(object, title = "", label = "label", threshold = NULL, showThreshold = TRUE, labelThreshold = NULL,cex = 16, lambda1000 = FALSE, case = NULL, control = NULL) standardGeneric("qqplot"))
+setGeneric("qqplot", function(object, title = "", label = NULL, threshold = NULL, showThreshold = TRUE, labelThreshold = NULL,cex = 16, lambda1000 = FALSE, case = NULL, control = NULL, verbose = TRUE) standardGeneric("qqplot"))
 
 #' Generate manhattan plot
 #' 
@@ -1114,7 +1120,7 @@ setGeneric("qqplot", function(object, title = "", label = "label", threshold = N
 #'                  contigs = "GRCh38")
 #' 
 #' @export
-setGeneric("manhattan", function(object, highlight = NULL, label = "label", threshold = NULL, labelThreshold = NULL, labelRepel=FALSE, labelSize = NULL, contigs=c(), title="") standardGeneric("manhattan"))
+setGeneric("manhattan", function(object, highlight = NULL, label = NULL, threshold = NULL, labelThreshold = NULL, labelRepel=FALSE, labelSize = NULL, contigs = NULL, title="", verbose = TRUE) standardGeneric("manhattan"))
 
 #' Density plot
 #' 
@@ -1232,57 +1238,24 @@ setGeneric("ACAT", function(object,
 #' @export
 setGeneric("topResult", function(object, n = 10) standardGeneric("topResult"))
 
-## dump method
-setGeneric(".dump", function(object,
-                             cohort = "SM",
-                             what = c("aggregate", "varSummary"),
-                             varSet = NULL,
-                             VAR_id = NULL,
-                             pheno = NULL,
-                             memlimit = 1000,
-                             geneticModel = "allelic",
-                             imputeMethod = "meanImpute",
-                             MAFweights = "none",
-                             checkPloidy = NULL,
-                             keep = NULL,
-                             output = NULL,
-                             signif = 3,
-                             splitBy = NULL,
-                             minCallrateVar = 0,
-                             maxCallrateVar = Inf,
-                             minCallrateSM = 0,
-                             maxCallrateSM =Inf,
-                             minMAF = 0,
-                             maxMAF = 1,
-                             minMAC = 0,
-                             maxMAC = Inf,
-                             minCarriers = 0,
-                             maxCarriers = Inf,
-                             minCarrierFreq  = 0,
-                             maxCarrierFreq = Inf,
-                             verbose = TRUE,
-                             strict = TRUE
-) standardGeneric(".dump"))
+# aggdb ----------------------------------------------------------------
 
-
-# aggregateFile ----------------------------------------------------------------
-
-#' @rdname aggregateFile
+#' @rdname aggdb
 #' @usage NULL
 #' @export
 setGeneric("listSamples", function(object) standardGeneric("listSamples"))
 
-#' @rdname aggregateFile
+#' @rdname aggdb
 #' @usage NULL
 #' @export
 setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 
 #' Merge multiple aggregate files
 #' 
-#' Merge aggregrateFiles, this will generate a new `aggregateFile` including all aggregates across provided aggregateFiles.
+#' Merge aggdbs, this will generate a new `aggdb` including all aggregates across provided aggdbs
 #'
-#' @param object an [`aggregateFileList`] object.
-#' @param output Output file name (output will be an aggregateFile). 
+#' @param object an [`aggdbList`] object.
+#' @param output Output file name (output will be an aggdb). 
 #' Defaults to `NULL`, in which case a data.frame will be returned.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #' @examples
@@ -1291,43 +1264,47 @@ setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 #' 
 #' # generate two aggregate files
 #' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-#' aggregatefile1 <- tempfile()
+#' aggdb1 <- tempfile()
 #' aggregate(x = gdb,
 #'           varSet = getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High"),
 #'           maxMAF = 0.001,
-#'           output = aggregatefile1,
+#'           output = aggdb1,
 #'           verbose = FALSE)
-#' 
-#' aggregatefile2 <- tempfile()
+#'
+#' aggdb2 <- tempfile()
 #' aggregate(x = gdb,
 #'           varSet = getVarSet(varsetfile, unit = c("NEK1"), varSetName = "High"),
 #'           maxMAF = 0.001,
-#'           output = aggregatefile2,
+#'           output = aggdb2,
 #'           verbose = FALSE)
-#' 
-#' # merge using mergeAggregateFiles
-#' aggregatefile <- tempfile()
-#' agglist <- aggregateFileList(c(aggregatefile1, aggregatefile2))
-#' mergeAggregateFiles(
+#'
+#' # merge using mergeAggDbs
+#' aggdb <- tempfile()
+#' agglist <- aggdbList(c(aggdb1, aggdb2))
+#' mergeAggDbs(
 #'   agglist,
-#'   output = aggregatefile
+#'   output = aggdb
 #'   )
 #'
 #' @export
-setGeneric("mergeAggregateFiles", function(
+setGeneric(
+  "mergeAggDbs",
+  function(
     object,
     output = NULL,
+    overWrite = TRUE,
     verbose = TRUE
-) standardGeneric("mergeAggregateFiles"))
+  ) standardGeneric("mergeAggDbs")
+)
 
 
 #' Collapse multiple aggregate files
 #' 
-#' Collapse aggregrateFiles by aggregating values across aggregateFiles. This will result in one aggregate score for
-#' each sample, representing the aggregate value across aggregate files. 
+#' Collapse aggregrateFiles by aggregating values across aggdbs. This will result in one aggregate score for
+#' each sample, representing the aggregate value across aggregate dbs.
 #' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
 #'
-#' @param object an [`aggregateFileList`] object.
+#' @param object an [`aggdbList`] object.
 #' @param output Output file name (output will be gz compressed text). 
 #' Defaults to `NULL`, in which case a data.frame will be returned.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
@@ -1337,35 +1314,38 @@ setGeneric("mergeAggregateFiles", function(
 #' 
 #' # generate two aggregate files
 #' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-#' aggregatefile1 <- tempfile()
+#' aggdb1 <- tempfile()
 #' aggregate(x = gdb,
 #'           varSet = getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "High"),
 #'           maxMAF = 0.001,
-#'           output = aggregatefile1,
+#'           output = aggdb1,
 #'           verbose = FALSE)
-#' 
-#' aggregatefile2 <- tempfile()
+#'
+#' aggdb2 <- tempfile()
 #' aggregate(x = gdb,
 #'           varSet = getVarSet(varsetfile, unit = c("NEK1"), varSetName = "High"),
 #'           maxMAF = 0.001,
-#'           output = aggregatefile2,
+#'           output = aggdb2,
 #'           verbose = FALSE)
-#' 
-#' # collapse aggregatefiles
-#' aggregatefile <- tempfile()
-#' collapseAggregateFiles(
-#'   aggregateFileList(c(aggregatefile1, aggregatefile2)),
-#'   output = aggregatefile
+#'
+#' # collapse aggdbs
+#' aggdb <- tempfile()
+#' collapseAggDbs(
+#'   aggdbList(c(aggdb1, aggdb2)),
+#'   output = aggdb
 #' )
-#' aggregates <- read.table(aggregatefile, header = TRUE)
+#' aggregates <- read.table(aggdb, header = TRUE)
 #' head(aggregates)
 #' @export
-setGeneric("collapseAggregateFiles", function(
+setGeneric(
+  "collapseAggDbs",
+  function(
     object,
     output = NULL,
+    overWrite = FALSE,
     verbose = TRUE
-) standardGeneric("collapseAggregateFiles"))
-
+  ) standardGeneric("collapseAggDbs")
+)
 
 # geneSetAssoc --------------------------------------------------------
 
@@ -1560,13 +1540,13 @@ setGeneric("addBlocks", function(object, maxDist = 2.5e6) standardGeneric("addBl
 #' buildCorMatrix
 #' 
 #' Build a block-wise burden correlation matrix, in order to correct for gene-gene correlations in [`geneSetAssoc`].
-#' Burden scores should be stored in an [`aggregateFile`] object (see [`aggregate`]). 
+#' Burden scores should be stored in an [`aggdb`] object (see [`aggregate`]). 
 #' The size of the blocks are controlled using the `maxDist` parameter, all gene-gene correlations beyond the block are set to zero.
 #' This function is based on previous work (\url{https://github.com/opain/TWAS-GSEA}).
 #' 
 #' @param object [`rvatResult`] object
-#' @param aggregateFile [`aggregateFile`] object
-#' @param memlimit maximum number of units to load from the aggregateFile at a time.
+#' @param aggdb [`aggdb`] object
+#' @param memlimit maximum number of units to load from the aggdb at a time.
 #' @param minR2 R2 values < minR2 will be set to zero (leading to increased sparsity)
 #' @param makePD Make the correlation matrix positive definite? (TRUE/FALSE)
 #' @param absolute Should cormatrix be absolute? Defaults to `TRUE`.
@@ -1593,14 +1573,14 @@ setGeneric("addBlocks", function(object, maxDist = 2.5e6) standardGeneric("addBl
 #' # build a block-wise correlation matrix
 #' cormatrix <- buildCorMatrix(
 #'   rvbresults,
-#'   aggregateFile = aggregateFile(aggfile)
+#'   aggdb = aggdb(aggfile)
 #' )
 #'
 #' @references
 #' \url{https://github.com/opain/TWAS-GSEA}
 #' 
 #' @export
-setGeneric("buildCorMatrix", function(object, aggregateFile, memlimit = 1000, minR2 = 1e-04, makePD = TRUE, absolute = TRUE, maxDist = 2.5e6, verbose = TRUE) standardGeneric("buildCorMatrix"))
+setGeneric("buildCorMatrix", function(object, aggdb, memlimit = 1000, minR2 = 1e-04, makePD = TRUE, absolute = TRUE, maxDist = 2.5e6, verbose = TRUE) standardGeneric("buildCorMatrix"))
 
 
 #' @rdname nullModelGSA-class
