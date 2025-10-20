@@ -66,12 +66,12 @@ rvat_cli_methods <- list(
                         default = NULL,
                         help = ""),
   
-  optparse::make_option(c("--mergeAggregateFiles"), 
+  optparse::make_option(c("--mergeAggDbs"), 
                         action = "store_true", 
                         default = NULL,
                         help = ""),
   
-  optparse::make_option(c("--collapseAggregateFiles"), 
+  optparse::make_option(c("--collapseAggDbs"), 
                         action = "store_true", 
                         default = NULL,
                         help = ""),
@@ -284,7 +284,7 @@ rvat_cli_parameters <- list(
   optparse::make_option(c("--maxCallrateVar"), 
               action = "store", 
               type = "numeric",
-              default = Inf,
+              default = 1,
               help = ""),
   
   optparse::make_option(c("--minCallrateSM"), 
@@ -296,7 +296,7 @@ rvat_cli_parameters <- list(
   optparse::make_option(c("--maxCallrateSM"), 
               action = "store", 
               type = "numeric",
-              default = Inf,
+              default = 1,
               help = ""),
   
   optparse::make_option(c("--minMAF"), 
@@ -344,7 +344,7 @@ rvat_cli_parameters <- list(
   optparse::make_option(c("--maxCarrierFreq"), 
               action = "store", 
               type = "numeric",
-              default = Inf,
+              default = 1,
               help = ""),
   
   optparse::make_option(c("--maxitFirth"), 
@@ -401,7 +401,7 @@ rvat_cli_parameters <- list(
                         default = NULL,
                         help = ""),
   
-  optparse::make_option(c("--aggregateFile"), 
+  optparse::make_option(c("--aggdb"), 
                         action = "store", 
                         type = "character",
                         default = NULL,
@@ -534,7 +534,7 @@ rvat_cli_parameters <- list(
               default = 6,
               help = ""),
   
-  ## mergeAggregateFiles -------------------------------------------------------
+  ## mergeAggDbs -------------------------------------------------------
   
   optparse::make_option(c("--filelist"), 
               action = "store", 
@@ -587,7 +587,7 @@ rvat_cli_parameters <- list(
                         default = NULL,
                         help = ""),
   
-  ## assocTest-aggregateFile ----------------------------------------------------
+  ## assocTest-aggdb ----------------------------------------------------
   optparse::make_option(c("--substractCovar"), 
                         action = "store", 
                         type = "character",
