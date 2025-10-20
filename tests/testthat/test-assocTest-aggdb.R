@@ -1,28 +1,29 @@
 gdb <- gdb(rvat_example("rvatData.gdb"))
 moderate <- withr::local_tempfile()
-varsetfile <- buildVarSet(object = gdb, 
+varsetfile <- buildVarSet(
+            object = gdb,
             output = moderate,
-            varSetName = "Moderate", 
-            unitTable = "varInfo", 
+            varSetName = "Moderate",
+            unitTable = "varInfo",
             unitName = "gene_name",
             where = "(ModerateImpact = 1 or HighImpact = 1)",
             verbose = FALSE
             )
 varsetfile <- varSetFile(moderate)
-aggfile <-  withr::local_tempfile()
+aggdb <-  withr::local_tempfile()
 
 # compare assocTest-aggregatefile with assocTest-GT
 test_that("assocTest-aggregateFile works", {
-  
+
   # generate aggregates
   expect_no_error(
     aggregate(x = gdb, 
               varSet = varsetfile,
               maxMAF = 0.001,
-              output = aggfile,
+              output = aggdb,
               verbose = FALSE,
               signif = 12
-              )
+  )
   )
 
   genesetlist <- buildGeneSet(
@@ -35,17 +36,17 @@ test_that("assocTest-aggregateFile works", {
   genesetfile <- withr::local_tempfile()
   write(genesetlist,
         file = genesetfile)
-  aggAssoc <- suppressMessages(assocTest(
-    aggregateFile(aggfile),
+  aggAssoc <- assocTest(
+    aggdb(aggdb),
     gdb = gdb,
     test = c("glm", "firth"),
     cohort = "pheno",
-    pheno="pheno",
+    pheno = "pheno",
     geneSet = genesetlist,
     covar = paste0("PC", 1:4),
-    verbose = TRUE
-  ))
-  
+    verbose = FALSE
+  )
+
   # run assocTest on GT directly
   assoc <- list()
   for(geneset in listGeneSets(genesetlist)) {
@@ -63,6 +64,7 @@ test_that("assocTest-aggregateFile works", {
     assoc[[geneset]] <- test
   }
   assoc <- do.call(rbind, assoc)
+  rownames(aggAssoc) <- NULL
   expect_equal(
     as.data.frame(assoc)[,c("meanCaseScore", "meanCtrlScore", "effect", "effectSE", "effectCIlower", "effectCIupper", "OR", "P")],
     as.data.frame(aggAssoc)[,c("meanCaseScore", "meanCtrlScore", "effect", "effectSE", "effectCIlower", "effectCIupper", "OR", "P")]
@@ -71,11 +73,11 @@ test_that("assocTest-aggregateFile works", {
   # check if writing to disk results in identical results
   output <- withr::local_tempfile()
   aggAssoc_output <- assocTest(
-    aggregateFile(aggfile),
+    aggdb(aggdb),
     gdb = gdb,
     test = c("glm", "firth"),
     cohort = "pheno",
-    pheno="pheno",
+    pheno = "pheno",
     geneSet = genesetlist,
     covar = paste0("PC", 1:4),
     verbose = FALSE,
@@ -83,31 +85,30 @@ test_that("assocTest-aggregateFile works", {
   )
   aggAssoc_output <- readr::read_tsv(output, show_col_types = FALSE)
   expect_equal(as.data.frame(aggAssoc_output), as.data.frame(aggAssoc), tolerance = 1e-6)
-  
+
   # check keeping subset of samples
   expect_warning({aggAssoc <- suppressMessages(assocTest(
-    aggregateFile(aggfile),
+    aggdb(aggdb),
     gdb = gdb,
     test = c("glm"),
     cohort = "pheno",
     pheno="pheno",
     geneSet = genesetlist[1],
     covar = paste0("PC", 1:4),
-    keep = listSamples(aggregateFile(aggfile))[1:15000],
-    verbose = TRUE
+    keep = listSamples(aggdb(aggdb))[1:15000],
+    verbose = FALSE
   ))})
   ## check if caseN/ctrlN match
   expect_identical(unique(aggAssoc$caseN), 5000L)
   expect_identical(unique(aggAssoc$ctrlN), 10000L)
-  
 
   # check continuous results
   aggAssoc_cont <- assocTest(
-    aggregateFile(aggfile),
+    aggdb(aggdb),
     gdb = gdb,
-    test = c("lm"),
+    test = "lm",
     cohort = "pheno",
-    pheno="PC1",
+    pheno = "PC1",
     geneSet = genesetlist,
     covar = paste0("PC", 2:4),
     verbose = FALSE,
@@ -137,7 +138,7 @@ test_that("assocTest-aggregateFile works", {
     
     # check expected messages when verbose=TRUE
     messages <- capture_messages({aggAssoc <- assocTest(
-      aggregateFile(aggfile),
+      aggdb(aggdb),
       gdb = gdb,
       test = c("glm"),
       cohort = "pheno",
@@ -146,14 +147,14 @@ test_that("assocTest-aggregateFile works", {
       covar = paste0("PC", 1:4),
       verbose = TRUE
     )})
-    expect_equal(messages[1], "Analysing phenotype: pheno\n")
-    expect_equal(messages[2], "Analysing geneset1\n")
-    expect_equal(messages[3], "4/4 units in the geneSet are present in the aggregateFile\n")
+    expect_equal(messages[1], "Analysing geneset1\n")
+    expect_equal(messages[2], "   4/4 units in the geneSet are present in the aggdb\n")
+    expect_equal(messages[3], "   Analysing pheno: pheno / covar: PC1,PC2,PC3,PC4\n")
     
     # units in the geneSet are present in the aggregateFile
     # check adding categorical variables
     aggAssoc_dummy <- assocTest(
-      aggregateFile(aggfile),
+      aggdb(aggdb),
       gdb = gdb,
       test = c("lm"),
       cohort = "pheno",
@@ -191,7 +192,7 @@ test_that("assocTest-aggregateFile works", {
     expect_error(
       {
         aggAssoc <- assocTest(
-          aggregateFile(aggfile),
+          aggdb(aggdb),
           gdb = gdb,
           test = "test",
           cohort = "pheno",
@@ -207,7 +208,7 @@ test_that("assocTest-aggregateFile works", {
     expect_error(
       {
         aggAssoc <- assocTest(
-          aggregateFile(aggfile),
+          aggdb(aggdb),
           gdb = gdb,
           test = "firth",
           cohort = "pheno",
@@ -223,7 +224,7 @@ test_that("assocTest-aggregateFile works", {
     expect_error(
       {
         aggAssoc <- assocTest(
-          aggregateFile(aggfile),
+          aggdb(aggdb),
           gdb = gdb,
           test = "firth",
           cohort = "pheno",
@@ -237,7 +238,7 @@ test_that("assocTest-aggregateFile works", {
 })
 
 
-test_that("mergeAggregateFiles work", {
+test_that("mergeAggDbs work", {
   # split varsetfiles in two
   varsetlist1 <- getVarSet(varsetfile, unit = listUnits(varsetfile)[1:6])
   varsetlist2 <- getVarSet(varsetfile, unit = listUnits(varsetfile)[7:12])
@@ -245,35 +246,35 @@ test_that("mergeAggregateFiles work", {
   varsetfile2 <- withr::local_tempfile()
   write(varsetlist1, varsetfile1)
   write(varsetlist2, varsetfile2)
-  aggregatefile1 <- withr::local_tempfile()
-  aggregatefile2 <- withr::local_tempfile()
-  aggregate(x = gdb, 
+  aggdb1 <- withr::local_tempfile()
+  aggdb2 <- withr::local_tempfile()
+  aggregate(x = gdb,
             varSet = varSetFile(varsetfile1),
             maxMAF = 0.001,
-            output = aggregatefile1,
+            output = aggdb1,
             verbose = FALSE,
             signif = 12)
-  aggregate(x = gdb, 
+  aggregate(x = gdb,
             varSet = varSetFile(varsetfile2),
             maxMAF = 0.001,
-            output = aggregatefile2,
+            output = aggdb2,
             verbose = FALSE,
             signif = 12)
-  
+
   # merge aggregateFiles
-  aggfilelist <- aggregateFileList(
-    filelist = c(aggregatefile1, aggregatefile2)
+  aggdblist <- aggdbList(
+    filelist = c(aggdb1, aggdb2)
   )
-  expect_true(stringr::str_detect(capture_output({show(aggfilelist)}), "aggregateFileList object"))
-  aggregatefile_merged <- withr::local_tempfile()
-  suppressMessages(mergeAggregateFiles(
-    aggfilelist,
-    output = aggregatefile_merged
+  expect_true(stringr::str_detect(capture_output({show(aggdblist)}), "aggdbList object"))
+  aggdb_merged <- withr::local_tempfile()
+  suppressMessages(mergeAggDbs(
+    aggdblist,
+    output = aggdb_merged
   ))
-  test1 <- getUnit(aggregateFile(aggregatefile_merged), unit = listUnits(aggregateFile(aggregatefile_merged)))
-  test2 <- getUnit(aggregateFile(aggfile), unit = listUnits(aggregateFile(aggregatefile_merged)))
+  test1 <- getUnit(aggdb(aggdb_merged), unit = listUnits(aggdb(aggdb_merged)))
+  test2 <- getUnit(aggdb(aggdb), unit = listUnits(aggdb(aggdb_merged)))
   expect_equal(test1, test2)
-  
+
   # merge aggregateFiles, collapse
   varsetlist1 <- getVarSet(varsetfile, unit = listUnits(varsetfile)[1])
   varsetlist2 <- getVarSet(varsetfile, unit = listUnits(varsetfile)[2])
@@ -281,31 +282,31 @@ test_that("mergeAggregateFiles work", {
   varsetfile2 <- withr::local_tempfile()
   write(varsetlist1, varsetfile1)
   write(varsetlist2, varsetfile2)
-  
-  aggregatefile1 <- withr::local_tempfile()
-  aggregatefile2 <- withr::local_tempfile()
+
+  aggdb1 <- withr::local_tempfile()
+  aggdb2 <- withr::local_tempfile()
   aggregate(x = gdb, 
             varSet = varSetFile(varsetfile1),
             maxMAF = 0.001,
-            output = aggregatefile1,
+            output = aggdb1,
             verbose = FALSE,
             signif = 12)
   aggregate(x = gdb, 
             varSet = varSetFile(varsetfile2),
             maxMAF = 0.001,
-            output = aggregatefile2,
+            output = aggdb2,
             verbose = FALSE,
             signif = 12)
-  aggfilelist <- aggregateFileList(
-    filelist = c(aggregatefile1, aggregatefile2)
-  ) 
-  aggregatefile_merged <- withr::local_tempfile()
-  suppressMessages(collapseAggregateFiles(
-    aggfilelist,
-    output = aggregatefile_merged
+  aggdblist <- aggdbList(
+    filelist = c(aggdb1, aggdb2)
+  )
+  aggdb_merged <- withr::local_tempfile()
+  suppressMessages(collapseAggDbs(
+    aggdblist,
+    output = aggdb_merged
   ))
-  collapsed_aggregate <- readr::read_tsv(aggregatefile_merged, show_col_types = FALSE)
-  
+  collapsed_aggregate <- readr::read_tsv(aggdb_merged, show_col_types = FALSE)
+
   ## compare with aggregate from GT directly
   GT <- getGT(
     gdb,
@@ -313,11 +314,11 @@ test_that("mergeAggregateFiles work", {
     cohort = "pheno",
     verbose = FALSE
   )
-  GT <- GT[getMAF(GT) < 0.001,]
+  GT <- GT[getMAF(GT) < 0.001, ]
   GT <- aggregate(recode(GT, imputeMethod = "meanImpute"))
   collapsed_aggregate <- collapsed_aggregate %>%
     dplyr::left_join(
-      tibble(IID = colnames(GT), aggregate = unname(GT$aggregate)),
+      tibble::tibble(IID = colnames(GT), aggregate = unname(GT$aggregate)),
       by = "IID"
     )
   expect_equal(collapsed_aggregate$aggregate.x, collapsed_aggregate$aggregate.y)
