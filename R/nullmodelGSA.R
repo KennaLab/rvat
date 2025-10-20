@@ -70,9 +70,9 @@ setMethod("addBlocks", signature = "rvatResult",
 #' @rdname buildCorMatrix
 #' @usage NULL
 #' @export
-setMethod("buildCorMatrix", signature = c("rvatResult", "aggregateFile"),
+setMethod("buildCorMatrix", signature = c("rvatResult", "aggdb"),
           definition = function(object, 
-                                aggregateFile, 
+                                aggdb, 
                                 memlimit = 1000, 
                                 minR2 = 1e-04, 
                                 makePD = TRUE, 
@@ -83,12 +83,12 @@ setMethod("buildCorMatrix", signature = c("rvatResult", "aggregateFile"),
             ## Checks
             if(minR2 < 0 || minR2 > 1) stop("`minR2` should be >=0 and <=1")
             
-            if(mean(object$unit %in% listUnits(aggregateFile)) < 1) {
-              message(sprintf("%s/%s units in the rvbResults object are not present in the aggregateFile, these will be excluded.", 
-                              sum(!object$unit %in% listUnits(aggregateFile)),
+            if(mean(object$unit %in% listUnits(aggdb)) < 1) {
+              message(sprintf("%s/%s units in the rvbResults object are not present in the aggdb, these will be excluded.", 
+                              sum(!object$unit %in% listUnits(aggdb)),
                               nrow(object)
               ))
-              object <- object[object$unit %in% listUnits(aggregateFile),]
+              object <- object[object$unit %in% listUnits(aggdb),]
             }
             
             ## block results based on specified maximum distance between blocks
@@ -123,7 +123,7 @@ setMethod("buildCorMatrix", signature = c("rvatResult", "aggregateFile"),
                 blocks <- chunks[[chunk]]
                 load_chunk <- as.character(as.numeric(tail(blocks, 1))+1)
                 units <- as.character(object$unit[object$block %in% blocks])
-                mat <- getUnit(aggregateFile, unit = units)
+                mat <- getUnit(aggdb, unit = units)
                 chunk <- chunk + 1
               }
               
