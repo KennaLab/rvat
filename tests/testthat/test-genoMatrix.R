@@ -17,6 +17,13 @@ test_that("recoding and aggregate work" ,{
   expect_snapshot_value(aggregate(recode(GT, imputeMethod = "meanImpute",MAFweights="mb"),returnGT=FALSE), style = "serialize")
   expect_snapshot_value(aggregate(recode(GT, imputeMethod = "meanImpute",MAFweights="mb", geneticModel="dominant"),returnGT=FALSE), style = "serialize")
   expect_snapshot_value(aggregate(recode(GT, imputeMethod = "meanImpute",MAFweights="mb", geneticModel="recessive"),returnGT=FALSE), style = "serialize")
+
+  # expect error when..
+
+  # GT is not imputed
+  expect_error(
+    aggregate(GT), regexp = "contains missing values"
+  )
 })
 
 
@@ -44,6 +51,10 @@ test_that("getCarriers works" ,{
   carriers <- getCarriers(GT, rowDataFields = c("REF", "ALT"))
   expect_true(all(c("REF", "ALT") %in% colnames(carriers)))
 
+  ## check groupBy
+  carriers_grouped <- getCarriers(GT, groupBy = "superPop")
+  expect_true(sum(carriers_grouped$carrierN) == nrow(carriers))
+
   ### expect error when adding non-existing fields
   expect_error({carriers <- getCarriers(GT, colDataFields = c("A"))}, regexp = "Not all specified colDataFields are present in")
   expect_error({carriers <- getCarriers(GT, rowDataFields = c("A"))}, regexp = "Not all specified rowDataFields are present in")
@@ -55,7 +66,7 @@ test_that("getCarriers works" ,{
   names(check) <- unique(GT$superPop)
   carriers <- carriers %>%
     dplyr::left_join(tibble(superPop = names(check), aggregate = unname(check)), by = "superPop")
-  expect_equal(carriers$meanBurdenScore, carriers$aggregate)
+  expect_identical(carriers$meanBurdenScore, carriers$aggregate)
 
 })
 
@@ -105,6 +116,28 @@ test_that("updateGT works" ,{
   GT1 <- GT
   sm <- colData(GT1)[2000:3000,]
   expect_error({GT1 <- updateGT(GT, SM = sm)})
+  
+  ## check invalid SM
+  GT1 <- GT
+  sm <- colData(GT1)
+  expect_error({GT1 <- updateGT(GT, SM = as.matrix(sm))}, regexp = "must be a data.frame or DFrame")
+
+  GT1 <- GT
+  sm <- colData(GT1)
+  sm$IID <- NULL
+  expect_error({GT1 <- updateGT(GT, SM = sm)}, regexp = "must contain an 'IID' column")
+
+  GT1 <- GT
+  sm <- colData(GT1)
+  sm$IID[2] <- sm$IID[1]
+  expect_error({GT1 <- updateGT(GT, SM = sm)}, regexp = "Duplicated IID values found in cohort")
+
+  GT1 <- GT
+  sm <- colData(GT1)
+  sm$IID[1:5] <- paste0("sample", 1:5)
+  expect_error({GT1 <- updateGT(GT, SM = sm)}, regexp = "IID values in SM table do not match")
+
+  
 
 })
 
@@ -210,6 +243,99 @@ test_that("summariseGeno/getMAF/getNCarriers/getAC work" ,{
   plink_cr <- plink_cr[match(colnames(GT_subset), plink_cr$IID),]
   rvat_cr <- getCR(GT_subset, var = FALSE)
   expect_equal(unname(rvat_cr), (1-plink_cr$F_MISS), tolerance = 1e-3)
+
+  ## check AFs for YnonPAR variants.
+  ### note, currently no chrY variants included in example gdb
+  GT_y <- GT
+  rowData(GT_y)$ploidy <- dplyr::case_when(
+    rowData(GT_y)$ploidy == "XnonPAR" ~ "YnonPAR",
+    TRUE ~ rowData(GT_y)$ploidy
+  )
+  metadata(GT_y)$ploidyLevels <- unique(rowData(GT_y)$ploidy)
+  GT_y <- rvat:::.resetSexChromDosage(GT_y)
+
+  AF <- getAF(GT_y)
+  AF_males <- getAF(GT_y[,GT_y$sex == 1])
+  expect_equal(
+    AF[rowData(GT_y)$ploidy == "YnonPAR"],
+    AF_males[rowData(GT_y)$ploidy == "YnonPAR"]
+  )
+  expect_equal(
+    getAF(GT[,GT$sex == 1])[rowData(GT)$ploidy == "XnonPAR"],
+    AF_males[rowData(GT_y)$ploidy == "YnonPAR"]
+  )
+  AF_Y_only <- getAF(GT_y[rowData(GT_y)$ploidy == "YnonPAR",])
+  AF_Y_only_males <- getAF(GT_y[rowData(GT_y)$ploidy == "YnonPAR",GT_y$sex == 1])
+  expect_equal(
+    AF[rowData(GT_y)$ploidy == "YnonPAR"],
+    AF_Y_only
+  )
+  expect_equal(
+    AF[rowData(GT_y)$ploidy == "YnonPAR"],
+    AF_Y_only_males
+  )
+
+  ## summariseGeno
+  sumgeno_y <- summariseGeno(GT_y)
+  expect_equal(
+    unname(AF[rowData(GT_y)$ploidy == "YnonPAR"]),
+    sumgeno_y[rowData(GT_y)$ploidy == "YnonPAR",]$AF
+  )
+  expect_equal(
+    sumgeno_y[rowData(GT_y)$ploidy == "YnonPAR",]$hweP,
+    rep(1.0, sum(rowData(GT_y)$ploidy == "YnonPAR"))
+  )
+
+  ## expect NAs 
+  GT_y$sex <- 0
+  expect_warning({AF <- getAF(GT_y)}, regexp = "Note that sex is missing")
+  expect_true(all(is.na(AF[rowData(GT_y)$ploidy == "YnonPAR"])))
+
+  # mix
+  GT_xy <- GT
+  rowData(GT_xy)$ploidy[rowData(GT_xy)$ploidy == "XnonPAR"][1:15] <- "YnonPAR"
+  metadata(GT_xy)$ploidyLevels <- unique(rowData(GT_xy)$ploidy)
+  GT_xy <- rvat:::.resetSexChromDosage(GT_xy)
+
+  AF <- getAF(GT_xy)
+  AF_males <- getAF(GT_xy[,GT_xy$sex == 1])
+  AF_females <- getAF(GT_xy[,GT_xy$sex == 2])
+  expect_equal(
+    AF[rowData(GT_xy)$ploidy == "YnonPAR"],
+    AF_males[rowData(GT_xy)$ploidy == "YnonPAR"]
+  )
+  
+  expect_equal(
+    getAF(GT[,GT$sex == 1])[rowData(GT)$ploidy == "XnonPAR"][1:15],
+    AF_males[rowData(GT_xy)$ploidy == "YnonPAR"]
+  )
+  expect_equal(
+    getAF(GT[,GT$sex == 2])[rowData(GT)$ploidy == "XnonPAR"][16:sum(rowData(GT)$ploidy == "XnonPAR")],
+    AF_females[rowData(GT_xy)$ploidy == "XnonPAR"]
+  )
+
+  GT_xy$sex <- 0
+  expect_warning({AF <- getAF(GT_xy)}, regexp = "Note that sex is missing")
+  expect_true(all(is.na(AF[rowData(GT_y)$ploidy %in% c("YnonPAR", "XnonPAR")])))
+
+  # expect warning when..
+
+  # attempting to calculate allele frequency on non-allelic matrix
+  expect_warning(
+  {
+    af_recessive <- getAF(recode(GT, geneticModel = "recessive"))
+  }, regexp = "are set to NA")
+  expect_true(length(af_recessive) == nrow(GT) && all(is.na(af_recessive)))
+
+  # ploidy == XnonPAR and sex contains unknowns
+  GT_check <- GT
+  colData(GT_check)$sex[sample(1:ncol(GT_check), size = 100)] <- 0
+  expect_warning(
+  {
+    af <- getAF(GT_check)
+  }, regexp = "contains variants with ploidy")
+
+
 })
 
 # check flipToMinor
