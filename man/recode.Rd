@@ -4,7 +4,13 @@
 \alias{recode}
 \title{Recode genotypes}
 \usage{
-recode(object, geneticModel, imputeMethod, weights, MAFweights)
+recode(
+  object,
+  geneticModel = NULL,
+  imputeMethod = NULL,
+  weights = NULL,
+  MAFweights = NULL
+)
 }
 \arguments{
 \item{object}{An object of class \code{\link{genoMatrix}}}

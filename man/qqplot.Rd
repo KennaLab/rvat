@@ -7,14 +7,15 @@
 qqplot(
   object,
   title = "",
-  label = "label",
+  label = NULL,
   threshold = NULL,
   showThreshold = TRUE,
   labelThreshold = NULL,
   cex = 16,
   lambda1000 = FALSE,
   case = NULL,
-  control = NULL
+  control = NULL,
+  verbose = TRUE
 )
 }
 \arguments{

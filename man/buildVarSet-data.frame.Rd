@@ -29,7 +29,8 @@ Multiple fields can be specified, which will result in multiple rows per aggrega
 
 \item{memlimit}{Defaults to \code{NULL}, currently not implemented.}
 
-\item{mask}{If the annotation field is a 0,1 or FALSE/TRUE indicator, should variants with 0/FALSE be dropped? Defaults to \code{TRUE}.
+\item{mask}{If the annotation field is a 0,1 or FALSE/TRUE indicator,
+should variants with 0/FALSE be dropped? Defaults to \code{TRUE}.
 If \code{FALSE}, all variants will be included, and will be assigned weights 0 and 1.}
 }
 \description{

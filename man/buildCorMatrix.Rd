@@ -2,12 +2,12 @@
 % Please edit documentation in R/allGenerics.R, R/nullmodelGSA.R
 \name{buildCorMatrix}
 \alias{buildCorMatrix}
-\alias{buildCorMatrix,rvatResult,aggregateFile-method}
+\alias{buildCorMatrix,rvatResult,aggdb-method}
 \title{buildCorMatrix}
 \usage{
 buildCorMatrix(
   object,
-  aggregateFile,
+  aggdb,
   memlimit = 1000,
   minR2 = 1e-04,
   makePD = TRUE,
@@ -19,9 +19,9 @@ buildCorMatrix(
 \arguments{
 \item{object}{\code{\link{rvatResult}} object}
 
-\item{aggregateFile}{\code{\link{aggregateFile}} object}
+\item{aggdb}{\code{\link{aggdb}} object}
 
-\item{memlimit}{maximum number of units to load from the aggregateFile at a time.}
+\item{memlimit}{maximum number of units to load from the aggdb at a time.}
 
 \item{minR2}{R2 values < minR2 will be set to zero (leading to increased sparsity)}
 
@@ -35,7 +35,7 @@ buildCorMatrix(
 }
 \description{
 Build a block-wise burden correlation matrix, in order to correct for gene-gene correlations in \code{\link{geneSetAssoc}}.
-Burden scores should be stored in an \code{\link{aggregateFile}} object (see \code{\link{aggregate}}).
+Burden scores should be stored in an \code{\link{aggdb}} object (see \code{\link{aggregate}}).
 The size of the blocks are controlled using the \code{maxDist} parameter, all gene-gene correlations beyond the block are set to zero.
 This function is based on previous work (\url{https://github.com/opain/TWAS-GSEA}).
 }
@@ -60,7 +60,7 @@ aggregate(x = gdb,
 # build a block-wise correlation matrix
 cormatrix <- buildCorMatrix(
   rvbresults,
-  aggregateFile = aggregateFile(aggfile)
+  aggdb = aggdb(aggfile)
 )
 
 }
