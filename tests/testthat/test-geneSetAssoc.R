@@ -9,36 +9,36 @@ test_that("prepareStatsGSA works",{
 
   # expect error when duplicated units are included
   expect_error({
-    rvbresults_zcutoffs <- .prepare_stats_GSA(rvbresults, Zcutoffs = c(-3, 4), INT = FALSE, covar = NULL)
+    rvbresults_zcutoffs <- rvat:::.prepare_stats_GSA(rvbresults, Zcutoffs = c(-3, 4), INT = FALSE, covar = NULL)
   })
 
   # check Z-cutoffs
   rvbresults_moderate <- rvbresults[rvbresults$test == "firth" & rvbresults$varSetName == "ModerateImpact", ]
   zscores <- qnorm(1-rvbresults_moderate$P)
   messages <- testthat::capture_messages(
-    {rvbresults_zcutoffs <- .prepare_stats_GSA(rvbresults_moderate, Zcutoffs = c(-3, 4), INT = FALSE, covar = NULL)}
+    {rvbresults_zcutoffs <- rvat:::.prepare_stats_GSA(rvbresults_moderate, Zcutoffs = c(-3, 4), INT = FALSE, covar = NULL)}
   )
   expect_equal(messages[1], sprintf("%s Z-scores <-3 are set to -3\n", sum(zscores < -3, na.rm = TRUE)))
   expect_equal(messages[2], sprintf("%s Z-scores >4 are set to 4\n", sum(zscores > 4, na.rm = TRUE)))
   
-  rvbresults_moderate_zcutoffs <- .prepare_stats_GSA(rvbresults_moderate, Zcutoffs = c(-3, 4), INT = FALSE, covar = NULL, verbose = FALSE)
+  rvbresults_moderate_zcutoffs <- rvat:::.prepare_stats_GSA(rvbresults_moderate, Zcutoffs = c(-3, 4), INT = FALSE, covar = NULL, verbose = FALSE)
   expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores > 4] == 4))
   expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores < -3] == -3))
 
   # check INT
-  rvbresults_moderate_INT <- .prepare_stats_GSA(rvbresults_moderate, Zcutoffs = NULL, INT = TRUE, covar = NULL, verbose = FALSE)
+  rvbresults_moderate_INT <- rvat:::.prepare_stats_GSA(rvbresults_moderate, Zcutoffs = NULL, INT = TRUE, covar = NULL, verbose = FALSE)
   expect_equal(mean(rvbresults_moderate_INT$Z), 0, tolerance = 1e-4)
   expect_equal(var(rvbresults_moderate_INT$Z), 1, tolerance = 1e-4)
 
   # expect a warning when both INT and Z-cutoffs are supplied
-  expect_warning(rvbresults_moderate_INT2 <- .prepare_stats_GSA(rvbresults_moderate, Zcutoffs = c(-3, 4), INT = TRUE, covar = NULL))
+  expect_warning(rvbresults_moderate_INT2 <- rvat:::.prepare_stats_GSA(rvbresults_moderate, Zcutoffs = c(-3, 4), INT = TRUE, covar = NULL))
   expect_equal(rvbresults_moderate_INT, rvbresults_moderate_INT2)
 
   # check fixing infinites
   rvbresults_moderate <- rvbresults[rvbresults$test == "skat_burden_robust" & rvbresults$varSetName == "ModerateImpact", ]
   zscores <- qnorm(1-rvbresults_moderate$P)
 
-  rvbresults_moderate_notrans <- suppressMessages(.prepare_stats_GSA(rvbresults_moderate, Zcutoffs = NULL, INT = FALSE, covar = NULL))
+  rvbresults_moderate_notrans <- suppressMessages(rvat:::.prepare_stats_GSA(rvbresults_moderate, Zcutoffs = NULL, INT = FALSE, covar = NULL))
   expect_true({
     all(dplyr::near(rvbresults_moderate_notrans$Z[is.infinite(zscores) & zscores > 0], max(zscores[!is.infinite(zscores)])))
   })
@@ -48,7 +48,7 @@ test_that("prepareStatsGSA works",{
 
   ## check adding covars
   rvbresults_moderate$random_covar <- sample(c("a", "b", NA_character_), size = nrow(rvbresults_moderate), replace = TRUE)
- suppressMessages(rvbresults_moderate_prep <- .prepare_stats_GSA(rvbresults_moderate, Zcutoffs = NULL, INT = FALSE, covar = c("nvar", "random_covar")))
+ suppressMessages(rvbresults_moderate_prep <- rvat:::.prepare_stats_GSA(rvbresults_moderate, Zcutoffs = NULL, INT = FALSE, covar = c("nvar", "random_covar")))
   expect_equal(nrow(rvbresults_moderate_prep), (nrow(rvbresults_moderate) - sum(is.na(rvbresults_moderate$random_covar))))
 
 }
@@ -132,6 +132,7 @@ test_that("geneSetAssoc snapshots are equal",{
   for(i in 1:length(results_list)) {
     metadata(results_list[[i]])$creationDate <- NA_character_
     metadata(results_list[[i]])$gdbPath <- NA_character_
+    metadata(results_list[[i]])$rvatVersion <- NA_character_
   }
   expect_snapshot_value(results_list, style = "serialize")
   }
@@ -201,7 +202,7 @@ test_that("geneSetAssoc works",{
     oneSided = FALSE,
     verbose = FALSE
   )
-  res <- .prepare_stats_GSA(res, covar = c("nvar", "carriers"), Zcutoffs = NULL, INT = FALSE, verbose = FALSE)
+  res <- rvat:::.prepare_stats_GSA(res, covar = c("nvar", "carriers"), Zcutoffs = NULL, INT = FALSE, verbose = FALSE)
 
   ## linear model
   run_linear_model <- function(x, gslist, results) {
@@ -334,7 +335,7 @@ test_that("cell-type enrichment snapshots are equal",{
     oneSided = FALSE,
     verbose = FALSE
     )
-  res <- .prepare_stats_GSA(res, covar = c("nvar", "average"), Zcutoffs = NULL, INT = FALSE, verbose = FALSE)
+  res <- rvat:::.prepare_stats_GSA(res, covar = c("nvar", "average"), Zcutoffs = NULL, INT = FALSE, verbose = FALSE)
 
   ## linear model
   run_linear_model <- function(x, mat, results) {
