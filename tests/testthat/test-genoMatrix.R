@@ -194,7 +194,7 @@ test_that("summariseGeno/getMAF/getNCarriers/getAC work" ,{
   expect_equal(var$ncarriers, var$check_carriers)
 
   ## also check sample callrates
-  plink_cr <- readr::read_table("../data/rvatData.imiss", show_col_types = FALSE)
+  plink_cr <- readr::read_table("../data/rvatData.imiss.gz", show_col_types = FALSE)
   rvat_cr <- getCR(GT, var = FALSE)
   expect_equal(unname(rvat_cr), (1-plink_cr$F_MISS), tolerance = 1e-3)
 
@@ -239,7 +239,7 @@ test_that("summariseGeno/getMAF/getNCarriers/getAC work" ,{
   expect_equal(var$ncarriers, var$check_carriers)
 
   ## also check sample callrates
-  plink_cr <- readr::read_table("../data/rvatData.randomsubset.imiss", show_col_types = FALSE)
+  plink_cr <- readr::read_table("../data/rvatData.randomsubset.imiss.gz", show_col_types = FALSE)
   plink_cr <- plink_cr[match(colnames(GT_subset), plink_cr$IID),]
   rvat_cr <- getCR(GT_subset, var = FALSE)
   expect_equal(unname(rvat_cr), (1-plink_cr$F_MISS), tolerance = 1e-3)
