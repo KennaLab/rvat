@@ -186,674 +186,192 @@
 #'
 #' @export
 #'
-setMethod("assocTest", 
-          signature = signature(object="gdb"),
-          definition=function(object, 
-                              pheno, 
-                              test, 
-                              cohort = "SM",
-                              varSet = NULL,
-                              VAR_id = NULL,
-                              name = "none", 
-                              continuous = FALSE, 
-                              singlevar = FALSE, 
-                              covar = NULL, 
-                              offset = NULL,
-                              geneticModel = "allelic", 
-                              imputeMethod = NULL,
-                              MAFweights = "none", 
-                              maxitFirth = 1000,
-                              checkPloidy = NULL,
-                              keep = NULL,
-                              output = NULL,
-                              methodResampling = NULL,
-                              resamplingFile = NULL,
-                              nResampling = 1000,
-                              outputResampling = FALSE,
-                              memlimitResampling = NULL,
-                              minCallrateVar = 0,
-                              maxCallrateVar = Inf,
-                              minCallrateSM = 0,
-                              maxCallrateSM =Inf,
-                              minMAF = 0,
-                              maxMAF = 1,
-                              minMAC = 0,
-                              maxMAC = Inf,
-                              minCarriers = 0,
-                              maxCarriers = Inf,
-                              minCarrierFreq  = 0,
-                              maxCarrierFreq = Inf,
-                              memlimit = 1000,
-                              verbose = TRUE,
-                              strict = TRUE
-                              )
-          {
-            
-            # Validity checks -------------------------------------------------
-            
-            ## Either varSet (varSetList or varSetFile) or VAR_id (string of VAR_ids) should be specified.
-            if (is.null(varSet) && is.null(VAR_id)) {
-              stop("Either of `varSet` or `VAR_id` should be specified")
-            }
-            
-            if (!is.null(varSet) && !is.null(VAR_id)) {
-              stop("Either of one of `varSet` or `VAR_id` should be specified, not both.")
-            }
-            
-            # check if varSet was generated from the current gdb
-            if (!is.null(varSet) && strict) {
-              .check_gdb_ids(object, varSet, minVersion = "0.3.0")
-              }
+setMethod(
+  "assocTest",
+  signature = signature(object = "gdb"),
+  definition = function(
+    object,
+    pheno,
+    test,
+    cohort = "SM",
+    varSet = NULL,
+    VAR_id = NULL,
+    name = "none",
+    continuous = FALSE,
+    singlevar = FALSE,
+    covar = NULL,
+    offset = NULL,
+    geneticModel = "allelic",
+    imputeMethod = NULL,
+    MAFweights = "none",
+    maxitFirth = 1000L,
+    checkPloidy = NULL,
+    keep = NULL,
+    output = NULL,
+    append = FALSE,
+    returnDF = FALSE,
+    methodResampling = NULL,
+    resamplingMatrix = NULL,
+    resamplingFile = NULL,
+    nResampling = 1000L,
+    outputResampling = FALSE,
+    memlimitResampling = NULL,
+    minCallrateVar = 0,
+    maxCallrateVar = 1,
+    minCallrateSM = 0,
+    maxCallrateSM = 1,
+    minMAF = 0,
+    maxMAF = 1,
+    minMAC = 0,
+    maxMAC = Inf,
+    minCarriers = 0,
+    maxCarriers = Inf,
+    minCarrierFreq = 0,
+    maxCarrierFreq = 1,
+    memlimit = 1000L,
+    verbose = TRUE,
+    strict = TRUE
+  ) {
+    # validity checks
+    arg <- as.list(environment())
+    .assoctest_gdb_validate_input(arg)
+    if (!is.null(varSet) && strict) {
+      .check_gdb_ids(object, varSet, minVersion = "0.3.0")
+    }
 
-            ## Default imputeMethod = "meanImpute" for burden tests. For singlevar the default is not  to impute.
-            if(is.null(imputeMethod)) {
-              if(!singlevar) imputeMethod <- "meanImpute"
-            } else {
-              if(!imputeMethod %in% c("meanImpute", "missingToRef"))
-                stop("`imputeMethod` should be in ('meanImpute', 'missingToRef')")
-            }
-            
-            ## geneticModel should be in allelic, recessive or dominant
-            if(!all(geneticModel %in% c("allelic", "recessive", "dominant"))) {
-              stop("`geneticModel` should be in ('allelic', 'recessive', 'dominant')")
-            }
-            
-            ## Check if tests are valid
-            if(!all(test %in% assocTest_tests)) {
-              stop(sprintf("The following tests are not valid: %s", 
-                           paste(test[!test %in% assocTest_tests],
-                                 collapse=",")
-              ))
-            }
-            test <- unique(test)
-            
-            ## Check if MAFweights are valid
-            if(!all(MAFweights %in% c("none", "mb"))) {
-              stop("MAFweights should be 'none' or 'mb'")
-            }
-            
-            ## Check if covar is valid
-            ### note: check whether covar is either a list or a character value
-            ### whether the specified covariates are available is checked at a later stage (when the cohort is loaded)
-            if(!is.list(covar)) {
-              if(is.null(covar)) {
-                covar <- list(NULL) 
-                } else {
-                if(!is.character(covar)) stop("'covar' parameter should either be a list or a character vector.")
-                covar <- list(covar)
-                }
-            }
-            
-            ## if VAR_id is specified -> create a varSetList with chunks
-            if (!is.null(VAR_id)) {
-              varSet <- .varsTovarSetList(VAR_id, chunkSize = memlimit)
-            }
-            
-            ## Resampling 
-            
-            if(!is.null(resamplingFile)) {
-              ## Connect to resampling file 
-              nResampling <- resamplingFile@nResampling
-              methodResampling <- resamplingFile@methodResampling
-              
-              # If `memlimitResampling` = NULL (the default) set it to `nResampling`
-              if(is.null(memlimitResampling)) memlimitResampling <- nResampling
-              
-            } else if(!is.null(methodResampling)) {
-              
-              # If `memlimitResampling` = NULL (the default) set it to `nResampling`
-              if(is.null(memlimitResampling)) memlimitResampling <- nResampling
-              
-              if(memlimitResampling >= nResampling && methodResampling == "permutation") {
-                ## Output warning in there are a) multiple phenotypes or b) phenotype filers in place
-                if(length(pheno) > 1 || minCallrateSM > 0 || maxCallrateSM < Inf) {
-                  warning("...")
-                }
-                chrt <- getCohort(object, cohort)
-                if(!is.null(keep)) {
-                  chrt <- chrt[!is.na(chrt[[pheno]]) & chrt[["IID"]] %in% keep,,drop=FALSE]
-                } else {
-                  chrt <- chrt[!is.na(chrt[[pheno]]),,drop=FALSE]
-                }
-                
-                resamplingMatrix <- buildResamplingFile(nSamples = nrow(chrt), nResampling = nResampling)
-                colnames(resamplingMatrix) <- paste0("perm", 1:ncol(resamplingMatrix))
-              } else {
-                resamplingMatrix <- NULL
-                resamplingFile <- NULL
-              }
-            } 
-            
-            
-            ## if resampling output is to be saved, establish file connections/lists to write/store results
-            if(!is.null(methodResampling)) {
-              
-              if ( singlevar ) {
-                stop("Resampling is currently not implemented for singlevar tests")
-              }
-              # container to hold the resampling results
-              if(!is.character(outputResampling)) {
-                resamplingContainer <- 
-                  vector("list", length(varSet@units) * length(pheno) * length(geneticModel) * length(MAFweights) * length(covar))
-                
-                # establish file connection if 'outputResampling' is a sting
-              } else if (is.character(outputResampling)) {
-                outputResampling <- gzcon(file(outputResampling,open='wb'))
-                if(singlevar) {
-                  # write(paste(c("varSetName", "cohort","name", "VAR_id", "covar","geneticModel","pheno","test", "P"), collapse="\t"), 
-                  #       file = outputResampling, append = FALSE) } 
-                  } else {
-                          write(paste(c("varSetName", "cohort","name", "unit", "covar","geneticModel", "MAFweight", "pheno","test", "P"), collapse="\t"), 
-                                file = outputResampling, append = FALSE) 
-                        }
-              }
-            }
-            
-            # If specified, open file, else initialize a list to store results
-            if(is.null(output)) {
-              resContainer <- 
-                vector("list", length(varSet) * length(pheno) * length(geneticModel) * length(MAFweights) * length(covar))
-            } else {
-              output <- gzcon(file(output,open='wb'))
-              
-              # write metadata
-              metadata <- list(
-                rvatVersion = as.character(packageVersion("rvat")),
-                gdbId = getGdbId(object),
-                genomeBuild = getGenomeBuild(object),
-                creationDate = as.character(round(Sys.time(), units = "secs"))
-                
-              )
-              .write_rvat_header(filetype = if (singlevar) "singlevarResult" else "rvbResult", 
-                                 metadata = metadata, 
-                                 con = output)
-              
-              if(singlevar) {
-                # write header
-                write(paste(names(columns_singlevarResults), collapse="\t"), 
-                      file = output, append = FALSE) } 
-              else {
-                # write header
-                write(paste(names(columns_rvbResults), collapse="\t"), 
-                      file = output, append = FALSE) 
-              }
-            }
-            
-           # load cohort
-           chrt <- getCohort(object, cohort = cohort, fields = unique(c("IID", "sex", pheno, unlist(covar), offset)))
-           chrt <- DataFrame(chrt[!is.na(chrt$IID),])
-           metadata(chrt)$name <- cohort
-            
-           j <- 1; reloadGT <- TRUE
-           # Loop through units -----------------------------------------------
-           for(unit in unique(listUnits(varSet)))
-              {
-            if(verbose) message(sprintf("Analysing %s", unit))
-            loadGT <- TRUE
-             
-            # Get varset for unit
-            varSets <- getVarSet(varSet, unit = unit)
-                
-              # Loop through phenotypes --------------------------------------
-              for(phen in pheno) {
-                
-                if (loadGT || reloadGT) {
-                  
-                  # Load genotypes
-                  if (singlevar) {
-                    GT <- getGT(object, 
-                                cohort = chrt,
-                                varSet = if( length(varSets) > 1) collapseVarSetList(varSets) else varSets,
-                                checkPloidy = checkPloidy,
-                                anno = "var",
-                                annoFields = c("VAR_id", "REF", "ALT"),
-                                verbose = verbose,
-                                strict = FALSE
-                                )
-                    colnames(rowData(GT))[colnames(rowData(GT)) == "REF"] <- "otherAllele"
-                    colnames(rowData(GT))[colnames(rowData(GT)) == "ALT"] <- "effectAllele"
-                    
-                  } else {
-                    GT <- getGT(object, 
-                                cohort = chrt,
-                                varSet = if( length(varSets) > 1) collapseVarSetList(varSets) else varSets,
-                                checkPloidy = checkPloidy,
-                                verbose = verbose,
-                                strict = FALSE
-                                )
-                  }
-                  metadata(GT)$cohort <- cohort
-                
-                  loadGT <- FALSE
-                  
-                  ## keep specified samples
-                  if(!is.null(keep)) {
-                    if(verbose) message(sprintf("Keeping %s/%s samples that are present in the keep-list.",
-                                    sum(colnames(GT) %in% keep),
-                                    ncol(GT)))
-                    GT <- GT[,colnames(GT) %in% keep]
-                  }
-                  
-                  # If cohort is loaded for first time, perform some checks:
-                  if(j == 1) {
-                    if (length(pheno) > 1) {
-                      ## check if missingness is identical across phenotypes
-                      ## if so: loadGT = FALSE for subsequent iterations
-                      check_pheno <- all(unlist(lapply(as.data.frame(colData(GT)[,pheno[2:length(pheno)],drop=FALSE]), 
-                                                       FUN = function(x,y) identical(is.na(x), is.na(y)), 
-                                                       y = is.na(colData(GT)[,pheno[1]]))))
-                      if(!check_pheno) reloadGT <- TRUE
-                    }
-                  }
-                  
-                  # flipToMinor and extract variant summaries
-                  GT <- flipToMinor(GT[,!is.na(colData(GT)[,phen])])
-                  
-                  if(
-                    minCallrateVar > 0 ||
-                    maxCallrateVar < Inf ||
-                    minCallrateSM > 0 ||
-                    maxCallrateSM < Inf ||
-                    minMAF > 0 ||
-                    maxMAF < 1 ||
-                    minMAC > 0 ||
-                    maxMAC < Inf ||
-                    minCarriers > 0 ||
-                    maxCarriers < Inf ||
-                    minCarrierFreq > 0 ||
-                    maxCarrierFreq < Inf
-                  ) {
-                    sumgeno <- summariseGeno(GT)
-                    rownames(sumgeno) <- rownames(GT)
-                  }
-                }
-                
-                # Loop through genetic models ----------------------------------
-                for(model in geneticModel) {
-                  
-                  # Loop through varsets ---------------------------------------
-                  for(i in 1:length(varSets)) {
-                    
-                    ## extract variants+weight in the current varset
-                    vars <- varSets[[i]]
-                    w <- listWeights(vars)
-                    names(w) <- listVars(vars)
-                    if (verbose) message(sprintf("Analysing unit %s; varSet %s", unit, vars@varSetName))
-                    
-                    ## checks + filtering weights
-                    
-                    ### remove missing weights
-                    w <- w[!is.na(w)]
-                    
-                    ### check duplicated variants
-                    if(sum(duplicated(names(w))) > 0) {
-                      w <- w[!duplicated(names(w))]
-                    }
-                    
-                    ### Check if any weights are < 0
-                    if(sum(w < 0) > 0) {
-                        warning(sprintf("%s weights are < 0, these are excluded.",
-                                        sum(w < 0)))
-                      w <- w[w > 0]
-                    }
-                    
-                    ## check if same variants are included as previous varSet
-                    if(i == 1) {
-                      varIndex <- (rownames(GT) %in% names(w))
-                      varIndexIdentical <- FALSE
-                    } else {
-                      varIndex_ <- (rownames(GT) %in% names(w))
-                      if(identical(varIndex, varIndex_)) {
-                        varIndexIdentical <- TRUE
-                      } else {
-                        varIndexIdentical <- FALSE
-                        varIndex <- varIndex_
-                      }
-                    }
-                    
-                    ## subset and match 
-                    w <- w[rownames(GT)[varIndex]]
-                    
-                    ## if varIndexIdentical=FALSE, perform filtering
-                    if(!varIndexIdentical) {
-                      GT_ <- recode(GT[varIndex,], weights=w)
-                      
-                      if(minCallrateSM > 0 || maxCallrateSM < Inf) {
-                        callRate <- colMeans(!is.na(SummarizedExperiment::assays(GT_)$GT))
-                        sampleKeep <- callRate >= minCallrateSM & callRate <= maxCallrateSM
-                        if (verbose && sum(!sampleKeep) > 0 ) message(sprintf("%s samples don't pass callRate filters.", sum(!sampleKeep)))
-                        
-                      } else {
-                        sampleKeep <- rep(TRUE, ncol(GT_))
-                      }
-                      
-                      if(
-                        minCallrateVar > 0 ||
-                        maxCallrateVar < Inf ||
-                        minCallrateSM > 0 ||
-                        maxCallrateSM < Inf ||
-                        minMAF > 0 ||
-                        maxMAF < 1 ||
-                        minMAC > 0 ||
-                        maxMAC < Inf ||
-                        minCarriers > 0 ||
-                        maxCarriers < Inf ||
-                        minCarrierFreq > 0 ||
-                        maxCarrierFreq < Inf
-                      ) {
-                        
-                        # Recalculate variant summary if samples have been excluded
-                        if(!all(sampleKeep)) {
-                          sumgeno_ <- summariseGeno(flipToMinor(GT_[,sampleKeep]))
-                        } else {
-                          sumgeno_ <- sumgeno[rownames(GT_),,drop=FALSE]
-                        }
-                        
-                        # calcualte number of carriers per variant
-                        if (model %in% c("allelic", "dominant")) {
-                          carriers = (sumgeno_[,"geno1"] + sumgeno_[,"geno2"])
-                        } else if (model == "recessive") {
-                          carriers = (sumgeno_[,"geno2"])
-                        }
-                        
-                        # variant filtering
-                        varKeep <- 
-                          sumgeno_[,"callRate"] >= minCallrateVar & 
-                          sumgeno_[,"callRate"] <= maxCallrateVar & 
-                          sumgeno_[,"AF"] >= minMAF & 
-                          sumgeno_[,"AF"] <= maxMAF & 
-                          sumgeno_[,"geno1"] + 2*sumgeno_[,"geno2"] >= minMAC & 
-                          sumgeno_[,"geno1"] + 2*sumgeno_[,"geno2"] <= maxMAC &
-                          carriers >= minCarriers & 
-                          carriers <= maxCarriers &
-                          (carriers/sum(sampleKeep)) >= minCarrierFreq &
-                          (carriers/sum(sampleKeep)) <= maxCarrierFreq
-                        
-                      } else {
-                        varKeep <- rep(TRUE, nrow(GT_))
-                      }
-                      
-                      ## print warning if no samples are left after filtering
-                      if ( sum(sampleKeep) == 0 ) {
-                        warning("No samples left after filtering!")
-                        varKeep <- rep(FALSE, nrow(GT_))
-                        noSamplesLeft <- TRUE
-                      } else {
-                        noSamplesLeft <- FALSE
-                      }
-                      ## print warning if no variants are left after filtering
-                      if(sum(varKeep) == 0) warning("No variants left after filtering!")
-                      if(sum(varKeep) == 0 || sum(sampleKeep) == 0) {
-                        varIndex <- rep(FALSE,nrow(GT))
-                        next
-                      }
-                      GT_ <- GT_[varKeep, sampleKeep]
-                      # calculate AF_ if 'mb' is among mafweights
-                      if (length(MAFweights) > 1 || MAFweights != "none") AF_ <- getAF(GT_) else AF_ <- NULL
-                      GT_ <- recode(GT_,
-                                    geneticModel = model
-                                    )
-                      
-                      ## calculate call-rates before imputing
-                      if(!singlevar) {
-                        callRate <- Matrix::colMeans(!is.na(assays(GT_[getNCarriers(GT_) >= 1,])$GT))
-                        caseCallRate = if(!continuous) mean(callRate[colData(GT_)[,phen] == 1]) else mean(callRate)
-                        ctrlCallRate = if(!continuous) mean(callRate[colData(GT_)[,phen] == 0]) else NA_real_
-                      }
-                      
-                      ## impute GT
-                      GT_ <- recode(GT_,
-                                    imputeMethod = imputeMethod)
-                    } 
-                    metadata(GT_)$unit <- vars@unit
-                    metadata(GT_)$varSetName <- if(is.null(VAR_id)) vars@varSetName else "none"
-                    weight <- w[rownames(GT_)]
-                    
-                    # Loop through MAFweights ----------------------------------
-                    for(MAFweight in MAFweights) {
-                      
-                      ## calculate aggregate if mode = rvb and a test is included that is based on aggregates 
-                      if(!singlevar) {
-                        GT_ <- aggregate(recode(GT_, weights = .calc_maf_weights(w = as.numeric(weight), af = AF_, method = MAFweight)), 
-                                                returnGT = TRUE, 
-                                                checkMissing = FALSE)
-                      } else {
-                        GT_ <- recode(GT_, 
-                                      weights = .calc_maf_weights(w = as.numeric(weight), af = AF_, method = MAFweight),
-                                      MAFweights = MAFweight)
-                      }
-                       
-                      # Loop through covariates --------------------------------
-                      for(cov in covar) {
-                        
-                        ## non-resampled assocTest
+    # if VAR_id is specified, generate varSet from VAR_ids
+    if (!is.null(VAR_id)) {
+      varSet <- .varsTovarSetList(VAR_id, chunkSize = memlimit)
+    }
 
-                        if(is.null(methodResampling) || (!is.null(resamplingFile) && outputResampling == FALSE)) {
-                          
-                          res <- assocTest(
-                            object = GT_,
-                            pheno = phen,
-                            test = test,
-                            name = name,
-                            continuous = continuous, 
-                            singlevar = singlevar, 
-                            covar = cov,
-                            offset = offset,
-                            overwriteAggregate = FALSE,
-                            geneticModel = model,
-                            imputeMethod = imputeMethod,
-                            MAFweights = MAFweight,
-                            output = NULL,
-                            append = FALSE,
-                            returnDF = TRUE,
-                            maxitFirth = maxitFirth,
-                            minCallrateVar = 0,
-                            maxCallrateVar = Inf,
-                            minCallrateSM = 0,
-                            maxCallrateSM =Inf,
-                            minMAF = 0,
-                            maxMAF = 1,
-                            minMAC = 0,
-                            maxMAC = Inf,
-                            minCarriers = 0,
-                            maxCarriers = Inf,
-                            verbose = verbose
-                          )
-                          
-                          # Replace callrate (calculated before imputation)
-                          if(!singlevar && nrow(res) > 0) {
-                            res$caseCallRate <- caseCallRate
-                            res$ctrlCallRate <- ctrlCallRate
-                          }
-                          
-                          if(noSamplesLeft && nrow(res) > 0) {
-                            res$caseN <- 0
-                            res$ctrlN <- 0
-                          }
-                          
-                          # write file to connection (if specified), otherwise store result
-                          if(is.null(resamplingFile)) {
-                            if(is.null(output)) {
-                              resContainer[[j]] <- res
-                            } else {
-                              write.table(res, file = output, append = TRUE, sep = "\t", 
-                                          col.names = FALSE, row.names = FALSE, quote = FALSE)
-                            }
-                          }
-                        }
-                        
-                        ## resampled assocTest
-                        if(!is.null(methodResampling)) {
-                          
-                          # if resamplingFile is specified, loop through the resamplingfile 
-                          if(!is.null(resamplingFile)) {
-                            chunks <-rep(memlimitResampling, times = nResampling %/% memlimitResampling)
-                            if(sum(chunks)-nResampling != 0) chunks <- c(chunks, nResampling-sum(chunks))
-                            listResampling <- list()
-                            
-                            # loop through chunks 
-                            for(k in 1:length(chunks))  {
-                              skip <- if(k==1) 3 else cumsum(chunks)[(k-1)]+3
-                              perms <- t(as.matrix(data.table::fread(resamplingFile@path, skip = skip, nrows = memlimitResampling, header = FALSE)))
-                              colnames(perms) <- if(k==1) paste0("perm", 1:chunks[k]) else paste0("perm", 
-                                                                                                  (cumsum(chunks)[(k-1)]+1):(cumsum(chunks)[(k)]))
-                              resResampling <- assocTest(
-                                object = GT_,
-                                pheno = phen,
-                                test = test,
-                                name = name,
-                                continuous = continuous, 
-                                singlevar = singlevar, 
-                                covar = cov,
-                                overwriteAggregate = FALSE,
-                                geneticModel = model,
-                                imputeMethod = imputeMethod,
-                                MAFweights = MAFweight,
-                                output = NULL,
-                                append = FALSE,
-                                returnDF = TRUE,
-                                maxitFirth = maxitFirth,
-                                resamplingMatrix = perms,
-                                nResampling = nResampling,
-                                outputResampling = TRUE,
-                                methodResampling = methodResampling,
-                                memlimitResampling = memlimitResampling,
-                                minCallrateVar = 0,
-                                maxCallrateVar = Inf,
-                                minCallrateSM = 0,
-                                maxCallrateSM =Inf,
-                                minMAF = 0,
-                                maxMAF = 1,
-                                minMAC = 0,
-                                maxMAC = Inf,
-                                minCarriers = 0,
-                                maxCarriers = Inf,
-                                verbose = verbose
-                              )
-                              
-                              ## if output is a connection, if output = TRUE store in listResampling, otherwise, 
-                              if(is(outputResampling, "connection")) {
-                                write.table(resResampling, file = outputResampling, append = TRUE, sep = "\t", 
-                                            col.names = FALSE, row.names = FALSE, quote = FALSE)
-                              } else {
-                                listResampling[[k]] <- resResampling
-                              }
-                            }
-                            
-                            ## collect results if not written to output
-                            if(!is(outputResampling, "connection"))  {
-                              resResampling <- do.call(rbind, listResampling)
-                              resResampling <- resResampling[order(as.character(resResampling$test)),]
-                              
-                              # if outputResampling is true, store to be returned at the end of the function
-                              if(outputResampling == TRUE) {
-                                resamplingContainer[[j]] <- resResampling
-                                
-                                # otherwise calculate resampled P-values
-                              } else {
-                                ## calculate resampled P-values 
-                                results <- rbind(res,get_perm_pvals(res,resResampling))
-                                if(is.null(output)) {
-                                  resContainer[[j]] <- results
-                                } else {
-                                  #writeResult(res, file = output, append = TRUE)
-                                  write.table(results, file = output, append = TRUE, sep = "\t", 
-                                              col.names = FALSE, row.names = FALSE, quote = FALSE)
-                                }
-                              }
-                            }
-                            
-                          } else {
-                            resResampling <- assocTest(
-                              object = GT_,
-                              pheno = phen,
-                              test = test,
-                              name = name,
-                              continuous = continuous, 
-                              singlevar = singlevar, 
-                              covar = cov,
-                              overwriteAggregate = FALSE,
-                              geneticModel = model,
-                              imputeMethod = imputeMethod,
-                              MAFweights = MAFweight,
-                              output = NULL,
-                              append = FALSE,
-                              returnDF = TRUE,
-                              maxitFirth = maxitFirth,
-                              resamplingMatrix = resamplingMatrix,
-                              nResampling = nResampling,
-                              outputResampling = if(outputResampling == FALSE) FALSE else TRUE,
-                              methodResampling = methodResampling,
-                              memlimitResampling = memlimitResampling,
-                              minCallrateVar = 0,
-                              maxCallrateVar = Inf,
-                              minCallrateSM = 0,
-                              maxCallrateSM =Inf,
-                              minMAF = 0,
-                              maxMAF = 1,
-                              minMAC = 0,
-                              maxMAC = Inf,
-                              minCarriers = 0,
-                              maxCarriers = Inf,
-                              verbose = verbose
-                            )
-                            
-                            if(nrow(resResampling) > 0) {
-                              resResampling$caseCallRate <- caseCallRate
-                              resResampling$ctrlCallRate <- ctrlCallRate
-                            }
-                            
-                            if(is(outputResampling, "connection")) {
-                              write.table(resResampling, file = outputResampling, append = TRUE, sep = "\t", 
-                                          col.names = FALSE, row.names = FALSE, quote = FALSE)
-                            } else if (outputResampling == TRUE)  {
-                              resamplingContainer[[j]] <- resResampling
-                            } else {
-                              if (is.null(output)) {
-                                resContainer[[j]] <- resResampling
-                              } else {
-                                write.table(resResampling, file = output, append = TRUE, sep = "\t", 
-                                            col.names = FALSE, row.names = FALSE, quote = FALSE)
-                              }
-                            }
-                          }
-                        }
-                        
-                        j <- j + 1
-                      }
-                    }
-                  }
-                }
-              }
-           }
-            
-            if(!is.null(methodResampling)) {
-              if(!is.null(outputResampling) && outputResampling == TRUE) {
-                resamplingContainer <- do.call(rbind, resamplingContainer)
-                if(!is.null(output)) close(output)
-                return(resamplingContainer)
-              } 
-              if(is(outputResampling, "connection")) {
-                close(outputResampling)
-                }
-              } 
-            
-            # Return results or close file
-            if(is.null(output) && (is.null(outputResampling) || !outputResampling)) {
-              resContainer <- do.call(rbind, resContainer)
-              rownames(resContainer) <- NULL
-              if (singlevar) {
-                resContainer <- singlevarResult(resContainer)
-              } else {
-                resContainer <- rvbResult(resContainer)
-              }
-              metadata(resContainer)$rvatVersion <- as.character(packageVersion("rvat"))
-              metadata(resContainer)$gdbId <- getGdbId(object)
-              metadata(resContainer)$genomeBuild <- getGenomeBuild(object)
-              metadata(resContainer)$creationDate <- as.character(round(Sys.time(), units = "secs"))
-              return(resContainer)
-            } else {
-              if(!is.null(output) && is(output, "connection")) close(output)
-            }
-          }
+    # pre-load cohort
+    chrt <- getCohort(
+      object,
+      cohort = cohort,
+      fields = unique(c("IID", "sex", pheno, unlist(covar), offset))
+    )
+    chrt <- DataFrame(chrt[!is.na(chrt$IID), ])
+    metadata(chrt)$name <- cohort
+
+    # run
+    units_all <- unique(listUnits(varSet))
+    results <- lapply(units_all, FUN = function(unit) {
+      if (verbose) {
+        message(sprintf("Analysing %s -------------------", unit))
+      }
+
+      # load genotypes
+      varsets <- getVarSet(varSet, unit = unit)
+      if (singlevar) {
+        GT <- getGT(
+          object,
+          cohort = chrt,
+          varSet = if (length(varsets) > 1) {
+            collapseVarSetList(varsets)
+          } else {
+            varsets
+          },
+          checkPloidy = checkPloidy,
+          anno = "var",
+          annoFields = c("VAR_id", "REF", "ALT"),
+          verbose = verbose,
+          strict = FALSE
+        )
+        colnames(rowData(GT))[colnames(rowData(GT)) == "REF"] <- "otherAllele"
+        colnames(rowData(GT))[colnames(rowData(GT)) == "ALT"] <- "effectAllele"
+      } else {
+        GT <- getGT(
+          object,
+          cohort = chrt,
+          varSet = if (length(varsets) > 1) {
+            collapseVarSetList(varsets)
+          } else {
+            varsets
+          },
+          checkPloidy = checkPloidy,
+          verbose = verbose,
+          strict = FALSE
+        )
+      }
+      metadata(GT)$unit <- unit
+      metadata(GT)$cohort <- cohort
+
+      # loop through varsets
+      varsets_names <- listVarSets(varsets)
+
+      results <- lapply(varsets_names, FUN = function(vs) {
+        if (verbose) {
+          message(sprintf("varSet: %s -------------------", vs))
+        }
+        varset <- getVarSet(varsets, varSetName = vs)[[1]]
+        vars <- listVars(varset)
+        weights <- listWeights(varset)
+
+        metadata(GT)$varSetName <- if(is.null(VAR_id)) vs else "none"
+        results <- assocTest(
+          recode(GT[vars, ], weights = weights),
+          pheno = pheno,
+          test = test,
+          name = name,
+          continuous = continuous,
+          singlevar = singlevar,
+          covar = covar,
+          offset = offset,
+          geneticModel = geneticModel,
+          imputeMethod = imputeMethod,
+          MAFweights = MAFweights,
+          maxitFirth = maxitFirth,
+          keep = keep,
+          output = output,
+          append = append,
+          returnDF = returnDF,
+          methodResampling = methodResampling,
+          resamplingMatrix = resamplingMatrix,
+          resamplingFile = resamplingFile,
+          nResampling = nResampling,
+          outputResampling = outputResampling,
+          memlimitResampling = memlimitResampling,
+          minCallrateVar = minCallrateVar,
+          maxCallrateVar = maxCallrateVar,
+          minCallrateSM = minCallrateSM,
+          maxCallrateSM = maxCallrateSM,
+          minMAF = minMAF,
+          maxMAF = maxMAF,
+          minMAC = minMAC,
+          maxMAC = maxMAC,
+          minCarriers = minCarriers,
+          maxCarriers = maxCarriers,
+          minCarrierFreq = minCarrierFreq,
+          maxCarrierFreq = maxCarrierFreq,
+          verbose = verbose
+        )
+        results
+      })
+      results <- do.call(rbind, results)
+      results
+    })
+    results <- do.call(rbind, results)
+    results
+  }
 )
+
+
+.assoctest_gdb_validate_input <- function(args) {
+  # type checks ------------------------------------------------
+  .gdb_check_varid(args[["VAR_id"]])
+  check_wrapper(check_character, args, "cohort", length_equal = 1L)
+  check_wrapper(check_bool, args, "strict")
+
+  if (is.null(args[["varSet"]]) && is.null(args[["VAR_id"]])) {
+    stop("Either of `varSet` or `VAR_id` should be specified", call. = FALSE)
+  }
+
+  if (!is.null(args[["varSet"]]) && !is.null(args[["VAR_id"]])) {
+    stop(
+      "Either of one of `varSet` or `VAR_id` should be specified, not both.",
+      call. = FALSE
+    )
+  }
+
+  invisible(NULL)
+}
