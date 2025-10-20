@@ -47,6 +47,7 @@ test_that("spatialClust snapshot is identical",{
                      verbose = FALSE)
   metadata(assoc)$creationDate <- NA_character_
   metadata(assoc)$gdbPath <- NA_character_
+  metadata(assoc)$rvatVersion <- NA_character_
   expect_snapshot_value(assoc, style = "serialize")
     }
   )
