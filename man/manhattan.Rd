@@ -7,13 +7,14 @@
 manhattan(
   object,
   highlight = NULL,
-  label = "label",
+  label = NULL,
   threshold = NULL,
   labelThreshold = NULL,
   labelRepel = FALSE,
   labelSize = NULL,
-  contigs = c(),
-  title = ""
+  contigs = NULL,
+  title = "",
+  verbose = TRUE
 )
 }
 \arguments{

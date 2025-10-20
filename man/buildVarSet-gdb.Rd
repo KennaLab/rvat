@@ -14,13 +14,15 @@
   intersection = NULL,
   where = NULL,
   weightName = "1",
+  memlimit = 1000L,
   verbose = TRUE
 )
 }
 \arguments{
 \item{object}{a \code{\link{gdb}} object.}
 
-\item{varSetName}{Name to assign varSet grouping. This identifier column is used to allow for subsequent mergeing of multiple varSet files for coordinated analysis of multiple variant filtering/ weighting strategies)}
+\item{varSetName}{Name to assign varSet grouping.
+This identifier column is used to allow for subsequent mergeing of multiple varSet files for coordinated analysis of multiple variant filtering/ weighting strategies)}
 
 \item{unitTable}{Table containing aggregation unit mappings.}
 
@@ -33,6 +35,8 @@
 \item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 
 \item{weightName}{Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.}
+
+\item{memlimit}{Chunk size used for processing rows.}
 
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
@@ -47,22 +51,22 @@ library(rvatData)
 # Build a varset including variants with a moderate predicted impact
 gdb <- create_example_gdb()
 varsetfile_moderate <- tempfile()
-buildVarSet(object = gdb, 
+buildVarSet(object = gdb,
             output = varsetfile_moderate,
-            varSetName = "Moderate", 
-            unitTable = "varInfo", 
+            varSetName = "Moderate",
+            unitTable = "varInfo",
             unitName = "gene_name",
             where = "ModerateImpact = 1")
 
 # Build a varset that contains CADD scores
 varsetfile_cadd <- tempfile()
-buildVarSet(object = gdb, 
+buildVarSet(object = gdb,
             output = varsetfile_cadd,
-            varSetName = "CADD", 
-            unitTable = "varInfo", 
+            varSetName = "CADD",
+            unitTable = "varInfo",
             unitName = "gene_name",
             weightName = "CADDphred")
-            
+
 # connect to varsetfile and retrieve variant sets
 varsetfile <- varSetFile(varsetfile_moderate)
 varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
