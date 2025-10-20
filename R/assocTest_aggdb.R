@@ -184,7 +184,6 @@ setMethod(
 .assocTest_aggdb_validate_input <- function(args) {
   # type checks
   check_wrapper(check_character, args, "pheno", length_equal = 1L)
-  check_wrapper(check_character, args, "test", length_min = 1L)
   check_wrapper(check_character, args, "cohort", length_equal = 1L)
   check_wrapper(check_character, args, "name", length_equal = 1L)
   if (!is.null(args[["covar"]])) {
