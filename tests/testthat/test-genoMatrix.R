@@ -158,7 +158,7 @@ test_that("summariseGeno/getMAF/getNCarriers/getAC work" ,{
   plink_freq <- readr::read_table("../data/rvatData.frq.gz", show_col_types = FALSE)
   plink_counts <- readr::read_table("../data/rvatData.frq.counts.gz", show_col_types = FALSE)
   plink_hwe <- suppressWarnings(readr::read_table("../data/rvatData.hwe.gz", show_col_types = FALSE))
-  plink_cr <- readr::read_table("../data/rvatData.lmiss", show_col_types = FALSE)
+  plink_cr <- readr::read_table("../data/rvatData.lmiss.gz", show_col_types = FALSE)
   plink <- plink_freq %>%
     dplyr::select(SNP, MAF) %>%
     dplyr::left_join(plink_counts %>% dplyr::select(SNP, C1, C2), by = "SNP") %>%
