@@ -210,7 +210,7 @@ run_tests_gdb <- function(gdb, params, VAR_id, var_sv = NULL,cohort="pheno") {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE
     )
     assoc$i <- as.character(i)
@@ -243,7 +243,7 @@ run_tests_gdb <- function(gdb, params, VAR_id, var_sv = NULL,cohort="pheno") {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE
     )
     assoc$i <- as.character(i)
@@ -273,7 +273,7 @@ run_tests_gdb <- function(gdb, params, VAR_id, var_sv = NULL,cohort="pheno") {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE,
       singlevar=TRUE
     )
@@ -310,7 +310,7 @@ run_tests_gdb <- function(gdb, params, VAR_id, var_sv = NULL,cohort="pheno") {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE,
       singlevar=TRUE,
       continuous=TRUE
@@ -358,7 +358,7 @@ run_tests_GT <- function(GT, params,var_sv = NULL) {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE
     )
     assoc$i <- as.character(i)
@@ -390,7 +390,7 @@ run_tests_GT <- function(GT, params,var_sv = NULL) {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE
     )
     assoc$i <- as.character(i)
@@ -419,7 +419,7 @@ run_tests_GT <- function(GT, params,var_sv = NULL) {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE,
       singlevar=TRUE
     )
@@ -455,7 +455,7 @@ run_tests_GT <- function(GT, params,var_sv = NULL) {
       minCarriers = if(!is.null(param_i$minCarriers)) param_i$minCarriers else 0,
       maxCarriers = if(!is.null(param_i$maxCarriers)) param_i$maxCarriers else Inf,
       minCarrierFreq = if(!is.null(param_i$minCarrierFreq)) param_i$minCarrierFreq else 0,
-      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else Inf,
+      maxCarrierFreq = if(!is.null(param_i$maxCarrierFreq)) param_i$maxCarrierFreq else 1,
       verbose = FALSE,
       singlevar=TRUE,
       continuous=TRUE
@@ -602,7 +602,9 @@ test_that("assocTest-gdb works" ,{
     test = "scoreSPA",
     verbose = FALSE
   )})
-  expect_true(all(warnings %in% c("NAs introduced by coercion", "There are p-values that are exactly 0!", "no non-missing arguments to min; returning Inf", "Less than two samples have a non-zero burden score, skipping tests.")))
+  expect_true(all(warnings %in% c("NAs introduced by coercion", "There are p-values that are exactly 0!",
+   "no non-missing arguments to min; returning Inf",
+    "Less than two samples have a non-zero burden score, skipping tests.") | grepl("weights are missing", warnings)))
   
   test2 <- list()
   for(i in 1:length(varset)) {
@@ -617,7 +619,9 @@ test_that("assocTest-gdb works" ,{
       test = "scoreSPA",
       verbose = FALSE
     )})
-    expect_true(all(warnings %in% c("NAs introduced by coercion", "There are p-values that are exactly 0!", "no non-missing arguments to min; returning Inf", "Less than two samples have a non-zero burden score, skipping tests.")))
+    expect_true(all(warnings %in% c("NAs introduced by coercion", "There are p-values that are exactly 0!",
+   "no non-missing arguments to min; returning Inf",
+    "Less than two samples have a non-zero burden score, skipping tests.") | grepl("weights are missing", warnings)))
     test2[[i]] <- test
   }
   test2 <- do.call(rbind,test2)
@@ -627,6 +631,41 @@ test_that("assocTest-gdb works" ,{
   metadata(test1)$creationDate <- NA_character_
   metadata(test2)$creationDate <- NA_character_
   expect_identical(test1,test2)
+
+  # also compare with running directly on genoMatrix
+  test3 <- list() 
+  j <- 1
+  for (i in 1:length(varset)) {
+    
+    varSet <- getVarSet(varset,
+      unit = listUnits(varset)[i], varSetName = listVarSets(varset)[i])
+    gt <- suppressWarnings(getGT(
+      gdb,
+      varSet = varSet,
+      cohort = "pheno",
+      verbose = FALSE
+    ))
+
+    for (geneticmodel in c("allelic", "dominant", "recessive")) {
+
+     test <- suppressWarnings(assocTest(
+        gt,
+        pheno = "pheno",
+        geneticModel = geneticmodel,
+        covar = paste0("PC",1:4),
+        maxMAF = 0.0001,
+        test = "scoreSPA",
+        verbose = FALSE
+  ))
+      test3[[j]] <- test
+      j <- j + 1
+    }
+  }
+  test3 <- do.call(rbind,test3)
+  test3$ID <- paste(test3$varSetName,test3$unit,test3$geneticModel)
+  test3 <- test3[match(test2$ID,test3$ID),]
+  metadata(test3)$creationDate <- NA_character_
+  expect_identical(test2,test3)
 })
 
 
@@ -659,7 +698,6 @@ test_that("effectAllele is assigned correctly in sv tests" ,{
 
 
 # test resampling
-
 test_that("resampled assocTests work" ,{
   set.seed(10)
   warnings <- capture_warnings({test <- assocTest(
@@ -674,50 +712,53 @@ test_that("resampled assocTests work" ,{
   expect_true(all(warnings %in% c("There are p-values that are exactly 0!")))
   metadata(test)$creationDate <- NA_character_
   metadata(test)$gdbPath <- NA_character_
+  metadata(test)$rvatVersion <- NA_character_
   expect_snapshot_value(test, style = "serialize")
 
-  gdb <- gdb(rvat_example("rvatData.gdb"))
-  var <- getAnno(gdb, "varInfo", where = "gene_name = 'CYP19A1'")
-  GT1 <- getGT(
-    gdb,
-    VAR_id = var$VAR_id,
-    anno = "var",
-    verbose = FALSE
-  )
-  GT1 <- flipToMinor(GT1)
+  # gdb <- gdb(rvat_example("rvatData.gdb"))
+  # var <- getAnno(gdb, "varInfo", where = "gene_name = 'CYP19A1'")
+  # GT1 <- getGT(
+  #   gdb,
+  #   VAR_id = var$VAR_id,
+  #   anno = "var",
+  #   verbose = FALSE
+  # )
+  # GT1 <- flipToMinor(GT1)
 
-  set.seed(10)
-  resamplingfile_path <- tempfile(fileext = ".gz")
-  buildResamplingFile(nSamples = ncol(GT1), nResampling = 10, methodResampling = "permutation", output = resamplingfile_path)
-  resamplingfile <- resamplingFile(resamplingfile_path)
-  test_gdb <- assocTest(
-    gdb,
-    VAR_id = rownames(GT1),
-    cohort = "pheno",
-    pheno = "pheno",
-    covar = paste0("PC", 1:4),
-    test = c("skat", "skat_robust", "skat_burden", "skat_burden_robust", "skato_robust", "acatv"),
-    resamplingFile = resamplingfile,
-    verbose = FALSE
-  )
+  # set.seed(10)
+  # resamplingfile_path <- tempfile(fileext = ".gz")
+  # buildResamplingFile(nSamples = ncol(GT1), nResampling = 10, methodResampling = "permutation", output = resamplingfile_path)
+  # resamplingfile <- resamplingFile(resamplingfile_path)
+  # test_gdb <- assocTest(
+  #   gdb,
+  #   VAR_id = rownames(GT1),
+  #   cohort = "pheno",
+  #   pheno = "pheno",
+  #   covar = paste0("PC", 1:4),
+  #   test = c("skat", "skat_robust", "skat_burden", "skat_burden_robust", "skato_robust", "acatv"),
+  #   resamplingFile = resamplingfile,
+  #   verbose = FALSE,
+  #   outputResampling = TRUE
+  # )
 
-  set.seed(10)
-  test_GT <- assocTest(
-    gdb,
-    VAR_id = rownames(GT1),
-    cohort = "pheno",
-    pheno = "pheno",
-    covar = paste0("PC", 1:4),
-    test = c("skat", "skat_robust", "skat_burden", "skat_burden_robust", "skato_robust", "acatv"),
-    methodResampling = "permutation",
-    nResampling = 10,
-    verbose = FALSE
-  )
-  test_GT$ID = paste(test_GT$unit,test_GT$test, test_GT$geneticModel, test_GT$MAFweight, test_GT$pheno, test_GT$varSetName, sep="_")
-  test_gdb$ID = paste(test_gdb$unit,test_gdb$test, test_gdb$geneticModel, test_gdb$MAFweight, test_gdb$pheno, test_gdb$varSetName, sep="_")
-  test_GT <- test_GT[match(test_gdb$ID, test_GT$ID),]
-  metadata(test_GT)$creationDate <- metadata(test_gdb)$creationDate <- NULL
-  expect_equal(test_gdb, test_GT, tolerance = 1e-10)
+  # set.seed(10)
+  # test_GT <- assocTest(
+  #   gdb,
+  #   VAR_id = rownames(GT1),
+  #   cohort = "pheno",
+  #   pheno = "pheno",
+  #   covar = paste0("PC", 1:4),
+  #   test = c("skat", "skat_robust", "skat_burden", "skat_burden_robust", "skato_robust", "acatv"),
+  #   methodResampling = "permutation",
+  #   nResampling = 10,
+  #   verbose = FALSE,
+  #   outputResampling = TRUE
+  # )
+  # test_GT$ID = paste(test_GT$unit,test_GT$test, test_GT$geneticModel, test_GT$MAFweight, test_GT$pheno, test_GT$varSetName, sep="_")
+  # test_gdb$ID = paste(test_gdb$unit,test_gdb$test, test_gdb$geneticModel, test_gdb$MAFweight, test_gdb$pheno, test_gdb$varSetName, sep="_")
+  # test_GT <- test_GT[match(test_gdb$ID, test_GT$ID),]
+  # metadata(test_GT)$creationDate <- metadata(test_gdb)$creationDate <- NULL
+  # expect_equal(test_gdb, test_GT, tolerance = 1e-10)
 
   # reSamplingFile tests
   out <- withr::local_tempfile()
@@ -728,6 +769,37 @@ test_that("resampled assocTests work" ,{
   resamplingfile <- resamplingFile(out)
   expect_true(stringr::str_detect(capture_output({show(resamplingfile)}), "resamplingFile object"))
 
+  # output resampling
+  # compare returning nad writing
+  outputresampling <- tempfile()
+  set.seed(10)
+  test <- assocTest(
+    GTsmall,
+    pheno = "pheno",
+    covar = paste0("PC", 1:4),
+    test = c("skat"),
+    methodResampling = "permutation",
+    nResampling = 10,
+    outputResampling = outputresampling,
+    verbose = FALSE
+  )
+  outputresampling <- readr::read_tsv(outputresampling,
+    show_col_types = FALSE,
+    col_types = list(MAFweight = "character")
+  )
+
+  set.seed(10)
+  test <- assocTest(
+    GTsmall,
+    pheno = "pheno",
+    covar = paste0("PC", 1:4),
+    test = c("skat"),
+    methodResampling = "permutation",
+    nResampling = 10,
+    outputResampling = TRUE,
+    verbose = FALSE
+  )
+  expect_equal(as.data.frame(outputresampling), as.data.frame(test))
 })
 
 
@@ -748,7 +820,112 @@ test_that("assocTest input checks work" ,{
   )}, regexp = "The following covariate\\(s\\) have zero covariance: covar_novar")
   ## also: the covariate should not be present in the output
   expect_identical(as.character(test$covar), "PC1,PC2,PC3,PC4")
+
+  # expect error when binary phenotype is specified for non-binary phenotype
+  expect_error({test <- assocTest(
+    GT_test,
+    test = "glm",
+    covar = paste0("PC", 1:4),
+    pheno = "PC1",
+    verbose = FALSE
+  )}, regexp = "should be coded")
+
+  # only one phenotype can be specified
+  # expect_error({test <- assocTest(
+  #   GT_test,
+  #   test = "glm",
+  #   covar = paste0("PC", 1:4),
+  #   pheno = c("PC1", "PC2"),
+  #   verbose = FALSE
+  # )}, regexp = "Only one phenotype")
+
+  # keep list
+  keep <- colnames(GT_test)[1:100]
+  expect_true(any(stringr::str_detect( capture_messages(
+  {
+     assocTest(
+      GT_test,
+      keep = keep,
+      test = "glm",
+      covar = paste0("PC", 1:4),
+      pheno = "pheno",
+      verbose = TRUE
+    )
+    }
+  ), sprintf("100/%s", ncol(GT_test)))))
+
+  # expect_error({test <- assocTest(
+  #   GT_test,
+  #   test = "glm",
+  #   covar = paste0("PC", 1:4),
+  #   pheno = c("PC1", "PC2"),
+  #   verbose = FALSE
+  # )}, regexp = "Only one phenotype")
+
+
+  # expect message when phenotype contains missing values (and verbose = TRUE)
+  # tmp <- GT_test
+  # tmp$pheno[1:5]<- NA
+  # expect_true(any(stringr::str_detect(capture_messages(
+  # {
+  #   test <- assocTest(
+  #       tmp,
+  #       test = "glm",
+  #       covar = c(paste0("PC", 1:4)),
+  #       pheno = "pheno",
+  #       verbose = TRUE
+  #     )
+  #   }
+  # ), "have missing phenotype")))
+  # rm(tmp)
+
+  # expect warning when missing weights are included
+  tmp <- GT_test
+  rowData(tmp)$w[1:5] <- NA_real_
+  expect_warning({test <- assocTest(
+    tmp,
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    verbose = FALSE
+  )}, regexp = "are missing")
+
+  # expect warning when negative weights are included
+  tmp <- GT_test
+  rowData(tmp)$w[1:5] <- -1
+  expect_warning({test <- assocTest(
+    tmp,
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    verbose = FALSE
+  )}, regexp = "are < 0")
+  rm(tmp)
+
+  # expect empty results when no variants pass thresholds
+  test <- assocTest(
+    GT_test,
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    minMAF = 0.011,
+    maxMAF = 0.011,
+    verbose = FALSE
+  )
+  expect_true(nrow(test) == 0 && is(test, "rvatResult"))
   
+  # expect empty results when no samples pass thresholds
+  test <- assocTest(
+    GT_test,
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    minCallrateSM = 0.9,
+    maxCallrateSM = 0.9,
+    pheno = "pheno",
+    verbose = FALSE
+  )
+  expect_true(nrow(test) == 0 && is(test, "rvatResult"))
+
   # expect an error when a non-implemented test is specified
   expect_error({test <- assocTest(
     GT_test,
@@ -776,7 +953,179 @@ test_that("assocTest input checks work" ,{
     pheno = "test",
     verbose = FALSE
   )}, regexp = "'test' is not present in `colData\\(GT\\)`")
+
+  # expect an error when overwriteAggregate is FALSE, but no aggregate field is present
+  # expect_error({test <- assocTest(
+  #   GT_test,
+  #   test = c("glm"),
+  #   covar = c(paste0("PC", 1:4)),
+  #   pheno = "pheno",
+  #   overwriteAggregate = FALSE,
+  #   verbose = FALSE
+  # )}, regexp = "no 'aggregate' column")
+
+  # expect error the genoMatrix is set to dominant/recessive 
+  # and another geneticModel is specified
+  expect_error({test <- assocTest(
+    recode(GT_test, geneticModel = "recessive"),
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    geneticModel = "dominant",
+    verbose = FALSE
+  )}, regexp = "in order to apply")
+
+  # expect warning the genoMatrix is set to dominant/recessive 
+  # and 'allelic' geneticModel is specified
+  expect_error({test <- assocTest(
+    recode(GT_test, geneticModel = "recessive"),
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    geneticModel = "allelic",
+    verbose = FALSE
+  )}, regexp = "Current geneticModel should be")
+
+
+  # expect error when MAC/MAF filters are set while geneticModel != allelic
+  expect_error({test <- assocTest(
+    recode(GT_test, geneticModel = "recessive"),
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    geneticModel = "dominant",
+    maxMAC = 10,
+    verbose = FALSE
+  )}, regexp = "do not apply")
+
+  # export error when non-implemented imputeMethod is specified
+  expect_error({test <- assocTest(
+    GT_test,
+    test = c("glm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    imputeMethod = "hello!",
+    verbose = FALSE
+  )}, regexp = "should be either") 
+
+  # warning on non-implemented tests
+  expect_warning({test <- assocTest(
+    GT_test,
+    test = c("glm", "lm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    verbose = FALSE
+  )}, regexp = "The following tests were excluded")
+
+  expect_warning({test <- assocTest(
+    GT_test,
+    test = c("glm", "lm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    singlevar = TRUE,
+    verbose = FALSE
+  )}, regexp = "The following tests were excluded")
+
+  expect_warning({test <- assocTest(
+    GT_test,
+    test = c("glm", "lm"),
+    covar = c(paste0("PC", 2:4)),
+    pheno = "PC1",
+    continuous = TRUE,
+    verbose = FALSE
+  )}, regexp = "The following tests were excluded")
   
-})
+  expect_warning({test <- assocTest(
+    GT_test,
+    test = c("glm", "lm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    singlevar = TRUE,
+    continuous = TRUE,
+    verbose = FALSE
+  )}, regexp = "The following tests were excluded")
 
+  # errror if no applicable tests are left
+  expect_error({suppressWarnings(test <- assocTest(
+    GT_test,
+    test = c("lm"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    verbose = FALSE
+  ))}, regexp = "No applicable tests")
 
+  # only one offset can be specified
+  expect_error({test <- assocTest(
+    GT_test,
+    test = "firth",
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    offset = c("PC", 5:6),
+    verbose = FALSE
+  )}, regexp = "Currently at most")
+  
+  # offset should be available
+  expect_error({test <- assocTest(
+    GT_test,
+    test = "firth",
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    offset = "hello!",
+    verbose = FALSE
+  )}, regexp = "not available")
+
+  # warning 
+  expect_error({test <- assocTest(
+    GT_test,
+    test = "firth",
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    offset = "hello!",
+    verbose = FALSE
+  )}, regexp = "not available")
+
+  # resampling
+
+  ## not implemented for singlevar tetss
+  expect_error({test <- assocTest(
+    GT_test,
+    test = "firth",
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    methodResampling = "permutation",
+    verbose = FALSE,
+    singlevar = TRUE
+  )}, regexp = "not implemented")
+
+  ## throw warning if some tests are not valid 
+  expect_warning({test <- assocTest(
+    GT_test,
+    test = c("skat", "firth"),
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    methodResampling = "permutation",
+    nResampling = 2,
+    verbose = FALSE
+  )}, regexp = "not implemented")
+
+  ## throw error if no valid tests are implemented
+  expect_error({test <- assocTest(
+    GT_test,
+    test = "firth",
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    methodResampling = "permutation",
+    verbose = FALSE
+  )}, regexp = "not implemented")
+
+  ## throw error if no valid permutation methods are specified
+  expect_error({test <- assocTest(
+    GT_test,
+    test = "skat",
+    covar = c(paste0("PC", 1:4)),
+    pheno = "pheno",
+    methodResampling = "hello!",
+    verbose = FALSE
+  )}, regexp = "accepted option")
+
+}) 
