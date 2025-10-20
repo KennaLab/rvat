@@ -59,7 +59,7 @@ setMethod(
           ref = ref_X,
           het = het_X,
           hom = hom_X,
-          af = af[rowData(object)$ploidy == "XnonPAR"]
+          af = getAF(object_fem_XnonPAR)
         )
     }
 
