@@ -105,7 +105,7 @@ test_that("core geneSetList methods work",{
   )
 
   ## mapToMatrix
-  mapped_matrix <- mapToMatrix(genesetlist, results = rvbresults)
+  mapped_matrix <- rvat:::mapToMatrix(genesetlist, results = rvbresults)
   expect_equal(dim(mapped_matrix), c(length(unique(rvbresults$unit)), length(genesetlist)))
   expect_true(is(mapped_matrix, "lgCMatrix"))
 
