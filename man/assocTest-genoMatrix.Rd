@@ -14,24 +14,24 @@
   singlevar = FALSE,
   covar = NULL,
   offset = NULL,
-  overwriteAggregate = TRUE,
-  geneticModel = c("allelic", "recessive", "dominant"),
+  geneticModel = "allelic",
   imputeMethod = NULL,
   MAFweights = "none",
-  maxitFirth = 1000,
+  maxitFirth = 1000L,
   keep = NULL,
   output = NULL,
   append = FALSE,
   returnDF = FALSE,
   methodResampling = NULL,
   resamplingMatrix = NULL,
-  nResampling = 1000,
+  resamplingFile = NULL,
+  nResampling = 1000L,
   outputResampling = FALSE,
   memlimitResampling = NULL,
   minCallrateVar = 0,
-  maxCallrateVar = Inf,
+  maxCallrateVar = 1,
   minCallrateSM = 0,
-  maxCallrateSM = Inf,
+  maxCallrateSM = 1,
   minMAF = 0,
   maxMAF = 1,
   minMAC = 0,
@@ -39,7 +39,7 @@
   minCarriers = 0,
   maxCarriers = Inf,
   minCarrierFreq = 0,
-  maxCarrierFreq = Inf,
+  maxCarrierFreq = 1,
   verbose = TRUE
 )
 }
@@ -64,9 +64,6 @@ Defaults to \code{FALSE}, in which case collapsing tests are ran.}
 \item{covar}{Character vector of covariates. These should be present in the colData slot of the genoMatrix.}
 
 \item{offset}{Optional model offset, can be used to account for regenie LOCO predictions.}
-
-\item{overwriteAggregate}{In case there is already an \code{aggregate} column in the \code{colData} of the genoMatrix
-(i.e. \code{aggregate} has been run on the genoMatrix), should it be overwitten? Defaults to \code{TRUE}.}
 
 \item{geneticModel}{Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 Defaults to \code{allelic}.}
@@ -93,6 +90,8 @@ Defaults to \code{NULL}, in which case no resampling is performed.}
 
 \item{resamplingMatrix}{Pre-calculated resampling matrix (n x p), where n = number of samples, and p number of resamplings.
 Can be generated using \code{\link{buildResamplingFile}}.}
+
+\item{resamplingFile}{A \code{\link{resamplingFile}} object.}
 
 \item{nResampling}{Number of resamplings to perform if methodResampling is specified.}
 
@@ -131,6 +130,9 @@ Defaults to \code{NULL} in which case all permutations are performed.}
 \item{maxCarrierFreq}{Maximum carrier frequency for variant retention.}
 
 \item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
+
+\item{overwriteAggregate}{In case there is already an \code{aggregate} column in the \code{colData} of the genoMatrix
+(i.e. \code{aggregate} has been run on the genoMatrix), should it be overwitten? Defaults to \code{TRUE}.}
 }
 \description{
 Run \code{\link{assocTest}} on a \code{\link{genoMatrix}} object. See the main \code{\link{assocTest}} page for details.
@@ -162,7 +164,7 @@ rvb <- assocTest(GTsmall,
                  test = c("lm", "skat", "acatv"),
                  name = "example")
 
-# run single variant tests on a binary phenotype 
+# run single variant tests on a binary phenotype
 sv <- assocTest(GTsmall,
                 pheno = "pheno",
                 singlevar = TRUE,
@@ -177,7 +179,7 @@ rvb <- assocTest(GTsmall,
                  pheno = "pheno",
                  covar = c("PC1", "PC2", "PC3", "PC4"),
                  test = c("firth", "skat_robust", "acatv"),
-                 name = "example", 
+                 name = "example",
                  maxMAF = 0.001,
                  minCarriers = 2,
                  minCallrateVar = 0.9,
@@ -208,7 +210,7 @@ rvb <- assocTest(GTsmall,
                  test = c("firth", "skat_robust", "acatv"),
                  geneticModel = "recessive")
 
-# Resampled burden test 
+# Resampled burden test
 rvb <- assocTest(GTsmall,
                  pheno = "pheno",
                  covar = c("PC1", "PC2", "PC3", "PC4"),

@@ -54,10 +54,10 @@ assocTest can be run either directly on a \code{\link{genoMatrix}} object or alt
 on a \code{\link{gdb}} object, in which case assocTest can loop through multiple variant sets by providing
 a \code{\link{varSetFile}} or \code{\link{varSetList}} as input.
 Moreover, assocTest can be run on sets of genes ('gene set burden'),
-for which gene burden scores have been generated using \code{\link{aggregate}} and stored in an \code{\link{aggregateFile}}.
+for which gene burden scores have been generated using \code{\link{aggregate}} and stored in an \code{\link{aggdb}}.
 For running assocTest on a \code{\link{genoMatrix}} object see: \code{\link{assocTest-genoMatrix}} for details\cr
 for running assocTest on a \code{\link{gdb}}  object see: \code{\link{assocTest-gdb}} for details
-for running assocTest on a \code{\link{aggregateFile}}  object see: \code{\link{assocTest-aggregateFile}} for details
+for running assocTest on a \code{\link{aggdb}}  object see: \code{\link{assocTest-aggdb}} for details
 }
 \details{
 \strong{Aggregate tests}

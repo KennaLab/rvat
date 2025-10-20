@@ -2,13 +2,13 @@
 % Please edit documentation in R/allGenerics.R
 \name{listUnits}
 \alias{listUnits}
-\title{Return the units included in an varSetFile/varSetList/aggregateFile}
+\title{Return the units included in an varSetFile/varSetList/aggdb}
 \usage{
 listUnits(object)
 }
 \arguments{
-\item{object}{An object of class \code{\link{varSetFile}}, \code{\link{varSetList}} or \code{\link{aggregateFile}}.}
+\item{object}{An object of class \code{\link{varSetFile}}, \code{\link{varSetList}} or \code{\link{aggdb}}.}
 }
 \description{
-Returns a vector of all units included in a \code{\link{varSetFile}}, \code{\link{varSetList}} or \code{\link{aggregateFile}}
+Returns a vector of all units included in a \code{\link{varSetFile}}, \code{\link{varSetList}} or \code{\link{aggdb}}
 }
