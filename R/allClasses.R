@@ -1045,134 +1045,19 @@ setClass("geneSetFile",
            )
 )
 
-#' Class to manage interactions with an aggregateFile
-#' @name aggregateFile
-#' @rdname aggregateFile
-#' @order 1
-#' @usage NULL
-#' @description
-#' The [`aggregate`] method saves genotypes aggregates compressed on disk. The 
-#' aggregateFile class manages connecting/interacting with these files and retrieving
-#' units of interest.
-#'
-#' @section Build an aggregateFile:
-#' * `aggregate(x, ...)`: Returns an aggregate of genotypes for each individual.
-#' See [`aggregate()`] for details.
-#' 
-#' @section Connect to an aggregateFile:
-#' * `aggregateFile(path)`: Connect to an aggregateFile object. 
-#'
-#' @section Getters:
-#' In the following code snippets, x is an aggregateFile object.
-#' * `getUnit(x, unit)`: Retrieve aggregates for specified unit(s). 
-#' Use `listUnits(x)` to list the units includes in the aggregateFile
-#' Output will be a matrix.
-#' * `listUnits(x)`: Return a vector of all units included in the aggregateFile
-#' * `listSamples(x)`: Return a vector of all sample IDs included in the aggregateFile
-#' 
-#' @section Association testing:
-#' An aggregateFile can be directly supplied to the [`assocTest()`] method.
-#' 
-#' @section Merging:
-#' Aggregate files can be merged using the [`mergeAggregateFiles`] method. 
-#' 
-#' @examples
-#' library(rvatData)
-#' gdb <- gdb(rvat_example("rvatData.gdb"))
-#' 
-#' # generate the aggregates based on a varSetFile
-#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-#' varset <- getVarSet(varsetfile, unit = c("NEK1", "SOD1", "ABCA4"), varSetName = "High")
-#' aggfile <- tempfile()
-#' aggregate(x = gdb,
-#'           varSet = varset,
-#'           maxMAF = 0.001,
-#'           output = aggfile,
-#'           verbose = FALSE)
-#' 
-#' # connect to aggregateFile, see ?aggregateFile for more details
-#' aggregatefile <- aggregateFile(aggfile)
-#' 
-#' # list units and samples in aggregatefile 
-#' head(listUnits(aggregatefile))
-#' head(listSamples(aggregatefile))
-#' 
-#' # retrieve aggregates 
-#' aggregates <- getUnit(aggregatefile, unit = "SOD1")
-#' 
-#' # see ?`assocTest-aggregateFile` for details on running association tests on an aggregateFile
-#' 
-#' @seealso \code{\link{mergeAggregateFiles}}
-#' @seealso \code{\link{aggregateFileList}}
-#' @seealso \code{\link{assocTest-aggregateFile}}
-#' @seealso \code{\link{aggregate}}
-#' @keywords aggregateFile
-NULL
 
-#' @rdname aggregateFile
-#' @usage NULL
-#' @export
-setClass("aggregateFile",
-         representation(
-           path="character",
-           units="character",
-           samples="character",
-           metadata="list"
-           ))
+setClass("aggdb", contains = "SQLiteConnection")
 
-
-#' Class to facilitate merging aggregateFiles
-#' 
-#' @name aggregateFileList
-#' @rdname aggregateFileList
-#' @order 1
-#' @usage NULL
-#' @description
-#' 
-#' Class to facilitate merging aggregateFiles. By providing a vector of aggregateFile filepaths,
-#' aggregateFileList will check whether identical samples are included and if duplicated units are included.
-#' The aggregateFileList can then be used to merge the aggregateFiles into either a new aggregateFile,
-#' or merge all included aggregates into a single aggregate score per sample ([`mergeAggregateFiles`]).
-#'
-#' @section Initialize an aggregateFileList object:
-#' * `aggregateFileList(filelist, checkDups=TRUE)`: Here `filelist` is a vector of [`aggregateFile`]
-#' filepaths. `checkDups` is set to `TRUE` by default, in which case an error raised if
-#' unit names are duplicated across aggregateFiles.
-#'
-#' @section Getters:
-#' In the following code snippets, x is an aggregateFileList object.
-#' * `listUnits(x)`: Return a vector of all units included across aggregateFiles in the aggregateFileList.
-#' * `listSamples(x)`: Return a vector of all samples included across aggregateFiles in the aggregateFileList.
-#' 
-#' @section Merge or collapse aggregateFiles:
-#' * `mergeAggregateFiles(object, output = NULL, verbose = TRUE)`: 
-#' Merge aggregrateFiles, this will generate a new `aggregateFile` including all aggregates across provided aggregateFiles.
-#' See [`mergeAggregateFiles`] for details.
-#' * `collapseAggregateFiles(object, output = NULL, verbose = TRUE)`: Collapse aggregrateFiles by aggregating values across aggregateFiles. 
-#' This will result in one aggregate score for each sample, representing the aggregate value across aggregate files. 
-#' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
-#' See [`collapseAggregateFiles`] for details.
-#'
-#' @inherit mergeAggregateFiles examples
-#' 
-#' @seealso \code{\link{mergeAggregateFiles}}
-#' @seealso \code{\link{collapseAggregateFiles}}
-#' @seealso \code{\link{assocTest-aggregateFile}}
-#' @seealso \code{\link{aggregate}}
-#' @keywords aggregateFileList
-NULL
-
-#' @rdname aggregateFileList
-#' @usage NULL
-#' @export
-setClass("aggregateFileList",
-         representation(
-           paths="character",
-           units="character",
-           samples="character",
-           metadata="list"
-           ))
-
+setClass(
+  "aggdbList",
+  representation(
+    paths = "character",
+    units = "character",
+    samples = "character",
+    params = "list",
+    metadata = "list"
+  )
+)
 
 #' An S4 class to store and handle null models for mixed linear model gene set analysis.
 #' 
