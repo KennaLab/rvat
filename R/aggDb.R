@@ -42,7 +42,7 @@ setMethod("getGdbId", signature = "aggdb", definition = function(object) {
 setMethod("getRvatVersion", signature="aggdb",
           definition=function(object)
           {
-            metadata(object)$gdbId
+            metadata(object)$rvatVersion
           })
 
 setGeneric("listSamples", function(object) standardGeneric("listSamples"))
