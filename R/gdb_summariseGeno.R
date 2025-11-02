@@ -53,7 +53,9 @@ setMethod(
 
     # initialize output
     output_con <- .summariseGeno_gdb_init_output(output, splitBy = splitBy)
-    if (!is.null(output_con)) on.exit(close(output_con), add = TRUE)
+    if (!is.null(output_con)) {
+      on.exit(close(output_con), add = TRUE)
+    }
 
     # generate varsummary per unit
     sumgeno <- .summariseGeno_gdb_generate_by_unit(
@@ -238,7 +240,9 @@ setMethod(
 ) {
   units_all <- unique(listUnits(varSet))
   results <- lapply(units_all, FUN = function(unit) {
-    if (verbose) message(sprintf("Analysing %s", unit))
+    if (verbose) {
+      message(sprintf("Analysing %s", unit))
+    }
 
     # load genotypes
     varset <- getVarSet(varSet, unit = unit)[[1L]]
