@@ -949,12 +949,12 @@ setClass("geneSet",
 #' genesetlist_remapped <- remapIDs(genesetlist, linker)
 #' listUnits(genesetlist_remapped)
 #' 
-#' # see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses
+#' # see ?geneSetAssoc and ?`assocTest-aggdb` to run gene set analyses
 #' 
 #' @seealso \code{\link{geneSetFile}}
 #' @seealso \code{\link{geneSet}}
 #' @seealso \code{\link{geneSetAssoc}}
-#' @seealso \code{\link{assocTest-aggregateFile}}
+#' @seealso \code{\link{assocTest-aggdb}}
 #' @keywords geneSetList
 NULL
 
@@ -1024,12 +1024,12 @@ setClass("geneSetList",
 #' genesets <- listGeneSets(genesetfile)
 #' head(genesets)
 #' 
-#' # see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses
+#' # see ?geneSetAssoc and ?`assocTest-aggdb` to run gene set analyses
 #' 
 #' @seealso \code{\link{geneSetList}}
 #' @seealso \code{\link{buildGeneSet}}
 #' @seealso \code{\link{geneSetAssoc}}
-#' @seealso \code{\link{assocTest-aggregateFile}}
+#' @seealso \code{\link{assocTest-aggdb}}
 #' @keywords geneSetFile
 NULL
 

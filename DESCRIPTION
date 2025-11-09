@@ -11,11 +11,14 @@ Depends: R (>= 3.4.1), SummarizedExperiment,S4Vectors
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Collate: 
-    'asserts-types-check.R'
-    'asserts-obj-type.R'
     'allInternalData.R'
     'allGenerics.R'
     'allClasses.R'
+    'aggDb-collapse.R'
+    'aggDb-list.R'
+    'aggDb-merge.R'
+    'asserts-types-check.R'
+    'asserts-obj-type.R'
     'aggDb.R'
     'assocTest.R'
     'assocTest_aggdb.R'
