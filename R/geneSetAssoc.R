@@ -496,7 +496,7 @@ setMethod("as.geneSetList", signature="geneSetFile",
 
 #' Build a geneSetList or geneSetFile
 #'
-#' Build a [`geneSetList`] or [`geneSetFile`] for use in gene set analyses ([`geneSetAssoc`] or [`assocTest-aggregateFile`])
+#' Build a [`geneSetList`] or [`geneSetFile`] for use in gene set analyses ([`geneSetAssoc`] or [`assocTest-aggdb`])
 #' Currently these can be build directly from GMT-files, data.frames and lists.
 #'
 #' @param data Can be 1) data.frame where the first column includes the names of geneSets,

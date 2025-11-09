@@ -21,7 +21,7 @@ columns_aggresults <- list(
 
 #' assocTest-aggdb
 #'
-#' Run [`assocTest`] on a [`aggregateFile`] object.
+#' Run [`assocTest`] on a [`aggdb`] object.
 #' See the main [`assocTest`] page for details.
 
 #' @rdname assocTest-aggdb
@@ -69,7 +69,7 @@ columns_aggresults <- list(
 #' )
 #'
 #' # connect to aggdb, see ?aggdb for more details
-#' aggregatefile <- aggdb(aggfile)
+#' aggdb <- aggdb(aggfile)
 #'
 #' # build an example genesetlist, see ?buildGeneSet for details
 #' genesetlist <- buildGeneSet(
@@ -84,7 +84,7 @@ columns_aggresults <- list(
 #' # or on a gdb (?`assocTest-gdb`). The main difference being that pre-constructed aggregates are used from
 #' # the aggdb, and requires a genesetFile/geneSetList (?geneSetFile) to be provided to the `geneSet` argument.
 #' aggAssoc <- assocTest(
-#'   aggregatefile,
+#'   aggdb,
 #'   gdb = gdb,
 #'   test = c("glm", "firth"),
 #'   cohort = "pheno",
@@ -129,7 +129,9 @@ setMethod(
 
     # initialize output
     output_con <- .assocTest_aggdb_init_output(output)
-    if (!is.null(output_con)) on.exit(close(output_con), add = TRUE)
+    if (!is.null(output_con)) {
+      on.exit(close(output_con), add = TRUE)
+    }
 
     # load and filter cohort
     cohort_df <- .assocTest_aggdb_load_cohort(
@@ -183,7 +185,7 @@ setMethod(
 
 .assocTest_aggdb_validate_input <- function(args) {
   # type checks
-  check_wrapper(check_character, args, "pheno", length_equal = 1L)
+  check_wrapper(check_character, args, "pheno")
   check_wrapper(check_character, args, "cohort", length_equal = 1L)
   check_wrapper(check_character, args, "name", length_equal = 1L)
   if (!is.null(args[["covar"]])) {
@@ -206,8 +208,7 @@ setMethod(
     allow_null = TRUE
   )
   check_wrapper(check_character, args, "dropUnits", allow_null = TRUE)
-  check_wrapper(check_bool, args, "continuous")
-  check_wrapper(check_bool, args, "verbose")
+  check_wrapper(check_bool, args, "continuous", length_equal = 1L)
   check_wrapper(check_number_whole, args, "maxitFirth", length_equal = 1L)
   check_positive(args[["maxitFirth"]], arg = "maxitFirth")
   check_wrapper(check_character, args, "keep", allow_null = TRUE)
@@ -218,8 +219,8 @@ setMethod(
     allow_null = TRUE,
     length_equal = 1L
   )
-  check_wrapper(check_bool, args, "verbose")
-  check_wrapper(check_bool, args, "strict")
+  check_wrapper(check_bool, args, "verbose", length_equal = 1L)
+  check_wrapper(check_bool, args, "strict", length_equal = 1L)
 
   # check classes
   if (!is(args[["gdb"]], "gdb")) {
@@ -296,11 +297,14 @@ setMethod(
 
   # check if fields are present in cohort
   cohort_fields <- DBI::dbListFields(args[["gdb"]], args[["cohort"]])
-  if (!args[["pheno"]] %in% cohort_fields) {
+  if (!all(args[["pheno"]] %in% cohort_fields)) {
     stop(
       sprintf(
-        "The `pheno` field '%s' was not found in cohort '%s'.",
-        args[["pheno"]],
+        "The `pheno` field(s) '%s' were not found in cohort '%s'.",
+        paste(
+          args[["pheno"]][!args[["pheno"]] %in% cohort_fields],
+          collapse = ","
+        ),
         args[["cohort"]]
       ),
       call. = FALSE
@@ -341,8 +345,11 @@ setMethod(
   # return list of updated variables
   list(
     test = args[["test"]],
-    covar = if (is.list(args[["covar"]])) args[["covar"]] else
+    covar = if (is.list(args[["covar"]])) {
+      args[["covar"]]
+    } else {
       list(args[["covar"]])
+    }
   )
 }
 
@@ -490,8 +497,11 @@ setMethod(
 ) {
   # run analyses by geneset
   results <- lapply(genesets, FUN = function(geneset) {
-    if (verbose) message(sprintf("Analysing %s", geneset))
+    if (verbose) {
+      message(sprintf("Analysing %s", geneset))
+    }
 
+    # get units in the current geneset
     geneset_units <- .assocTest_aggdb_get_units(
       geneset = geneset,
       geneSet = geneSet,
@@ -580,6 +590,9 @@ setMethod(
 ) {
   # get aggregates and collapse
   aggregates <- getUnit(object, unit = units)
+  if (!all(cohort_df[["IID"]] %in% colnames(aggregates))) {
+    stop("Some cohort samples not found in aggregates.", call. = FALSE)
+  }
   cohort_df$aggregate <- colSums(aggregates[,
     cohort_df[["IID"]],
     drop = FALSE
@@ -940,8 +953,7 @@ setMethod(
     rep(NA_real_, length(test))
   names(P) <- names(OR) <- names(effect) <- names(effectSE) <- names(
     effectCIupper
-  ) <- names(effectCIlower) <-
-    test
+  ) <- names(effectCIlower) <- test
 
   if (sum(cohort[["aggregate"]] > 0) < 2) {
     warning(
