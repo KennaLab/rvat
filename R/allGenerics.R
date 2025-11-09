@@ -1,7 +1,3 @@
-#===============================================================================
-# All generics with multiple methods
-#===============================================================================
-
 #' writeVcf
 #'
 #' Export gdb to vcf format. 
@@ -1291,7 +1287,7 @@ setGeneric(
   "mergeAggDbs",
   function(
     object,
-    output = NULL,
+    output,
     overWrite = TRUE,
     verbose = TRUE
   ) standardGeneric("mergeAggDbs")
@@ -1346,6 +1342,18 @@ setGeneric(
     verbose = TRUE
   ) standardGeneric("collapseAggDbs")
 )
+
+# aggdb getters/listers
+
+#' @rdname aggdb
+#' @usage NULL
+#' @export
+setGeneric("listSamples", function(object) standardGeneric("listSamples"))
+
+#' @rdname aggdb
+#' @usage NULL
+#' @export
+setGeneric("listParams", function(object) standardGeneric("listParams"))
 
 # geneSetAssoc --------------------------------------------------------
 
