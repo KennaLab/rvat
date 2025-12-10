@@ -229,6 +229,6 @@ test_that("collapseAggDbs input validation works", {
         output = TRUE
       ))
     },
-    regexp = "`output` must be a single, non-empty file path."
+    regexp = "`output` must be a character"
   )
 })

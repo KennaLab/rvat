@@ -85,7 +85,6 @@
 
   # additional checks ----------------------------------
 
-  # pheno
   # phenotype should be present in genoMatrix
   cohort_fields <- colnames(colData(args[["object"]]))
   if (!all(args[["pheno"]] %in% cohort_fields)) {
