@@ -183,14 +183,13 @@ setMethod(
     verbose = TRUE
   ) {
     # validity checks
-    arg <- as.list(environment())
-    arg_parsed <- .assoctest_validate_input(arg)
+    arg_parsed <- .assoctest_validate_input(as.list(environment()))
     test <- arg_parsed[["test"]]
     test_resampling <- arg_parsed[["test_resampling"]]
     geneticModel <- arg_parsed[["geneticModel"]]
     imputeMethod <- arg_parsed[["imputeMethod"]]
     memlimitResampling <- arg_parsed[["memlimitResampling"]]
-    rm(arg, arg_parsed)
+    rm(arg_parsed)
 
     # filter samples based on callrate and/or keep list
     object <- .filterGT_samples(
@@ -248,18 +247,18 @@ setMethod(
     # generate results per sample mask
     results <- .assocTest_run_analyses_per_sample_mask(
       params_by_sample_mask = params_by_sample_mask,
-      n_tasks = n_tasks,
       GT = object,
+      n_tasks = n_tasks,
       test = test,
       name = name,
       continuous = continuous,
       singlevar = singlevar,
       offset = offset,
+      append = append,
       imputeMethod = imputeMethod,
       maxitFirth = maxitFirth,
       keep = keep,
       output = output,
-      append = append,
       returnDF = returnDF,
       methodResampling = methodResampling,
       resamplingMatrix = resamplingMatrix,
