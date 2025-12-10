@@ -112,3 +112,500 @@ create_merged_varset_file <- function() {
   
   merged_file
 }
+
+.get_param <- function(param_list, name, default = NULL) {
+  if (!is.null(param_list[[name]])) param_list[[name]] else default
+}
+
+generate_param <- function(
+  pheno_bin = "pheno",
+  pheno_quant = "age",
+  covar = paste0("PC", 1:4),
+  covarCat = "superPop",
+  tests_bin_rvb = c(
+    "firth",
+    "scoreSPA",
+    "glm",
+    "skat",
+    "skat_burden",
+    "skato",
+    "skat_robust",
+    "skat_burden_robust",
+    "skato_robust",
+    "acatv",
+    "acatvSPA"
+  ),
+  tests_cont_rvb = c("lm", "skat", "skat_burden", "skato", "acatv"),
+  tests_bin_sv = c("firth", "glm", "scoreSPA"),
+  tests_cont_sv = c("lm")
+) {
+  params <- list()
+  ## rvb
+  for (mode in c("binary", "continuous")) {
+    if (mode == "binary") {
+      pheno <- pheno_bin
+      tests <- tests_bin_rvb
+    } else {
+      pheno <- pheno_quant
+      tests <- tests_cont_rvb
+    }
+    param <- list(
+      # unfiltered, all tests
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar
+      ),
+      # couple of filters, all tests+acatvfirth
+      list(
+        pheno = pheno,
+        test = if (mode == "continuous") tests else c(tests, "acatvfirth"),
+        covar = covar,
+        maxMAF = 0.001,
+        minCarriers = 5,
+        minCallrateVar = 0.8,
+        minCallrateSM = 0.9
+      ),
+
+      # couple of filters, all tests, dominant model
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        geneticModel = "dominant",
+        maxMAF = 0.001,
+        minCarriers = 5,
+        minCallrateVar = 0.8,
+        minCallrateSM = 0.9
+      ),
+      # couple of filters, all tests, missingToRef imputation
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        imputeMethod = "missingToRef",
+        maxMAF = 0.001,
+        minCarriers = 5,
+        minCallrateVar = 0.8,
+        minCallrateSM = 0.9
+      ),
+      # unfiltered, all tests, recessive model
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        geneticModel = "recessive"
+      ),
+      # couple of (different) filters, all tests, MAF-weighted
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        MAFweights = "mb",
+        minMAF = 0.0001,
+        minCarriers = 10
+      ),
+      # couple of (different) filters, all tests, MAF-weighted
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        MAFweights = "mb",
+        minMAC = 2,
+        maxMAC = 50,
+        minCarrierFreq = 0.00001
+      ),
+      # unfiltered, dominant, MAF-weighted
+      # list(
+      #   pheno = pheno,
+      #   test = tests,
+      #   covar = covar,
+      #   geneticModel = "dominant",
+      #   MAFweights = "mb"
+      # ),
+      # couple of filters, no covar
+      list(
+        pheno = pheno,
+        test = tests,
+        minMAC = 2,
+        maxMAC = 50,
+        minCarrierFreq = 0.00001
+      ),
+      # couple of filters, include factor covar
+      list(
+        pheno = pheno,
+        test = tests,
+        maxCarrierFreq = 0.001,
+        covar = c(covar, covarCat)
+      )
+    )
+    params[["rvb"]][[mode]] <- param
+  }
+
+  ## sv
+  for (mode in c("binary", "continuous")) {
+    if (mode == "binary") {
+      pheno <- pheno_bin
+      tests <- tests_bin_sv
+    } else {
+      pheno <- pheno_quant
+      tests <- tests_cont_sv
+    }
+    param <- list(
+      # unfiltered, all tests
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar
+      ),
+      # couple of filters, all tests
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        maxMAF = 0.001,
+        minCarriers = 5,
+        minCallrateVar = 0.8,
+        minCallrateSM = 0.9
+      ),
+      # couple of filters, all tests, dominant model
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        geneticModel = "dominant",
+        maxMAF = 0.001,
+        minCarriers = 5,
+        minCallrateVar = 0.8,
+        minCallrateSM = 0.9
+      ),
+
+      # unfiltered, all tests, recessive model
+      list(
+        pheno = pheno,
+        test = tests,
+        covar = covar,
+        geneticModel = "recessive"
+      ),
+
+      # couple of filters, no covar
+      list(
+        pheno = pheno,
+        test = tests,
+        minMAC = 2,
+        maxMAC = 50,
+        minCarrierFreq = 0.00001
+      ),
+      # couple of filters, include factor covar
+      list(
+        pheno = pheno,
+        test = tests,
+        maxCarrierFreq = 0.001,
+        covar = c(covar, covarCat)
+      )
+    )
+    params[["sv"]][[mode]] <- param
+  }
+  params
+}
+
+run_tests_gdb <- function(
+  gdb,
+  params,
+  VAR_id,
+  var_sv = NULL,
+  cohort = "pheno"
+) {
+  results <- list()
+
+  ## binary burden tests
+  results_bin <- list()
+  for (i in 1:length(params[["rvb"]][["binary"]])) {
+    # print(sprintf("rvb binary: %s/%s", i, length(params[["rvb"]][["binary"]])))
+    param_i <- params[["rvb"]][["binary"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = gdb,
+      VAR_id = VAR_id,
+      cohort = cohort,
+      pheno = param_i$pheno,
+      test = param_i$test,
+      covar = .get_param(param_i, "covar"),
+      imputeMethod = .get_param(param_i, "imputeMethod"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      MAFweights = .get_param(param_i, "MAFweights", "none"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+      verbose = TRUE
+    ))
+    assoc$i <- as.character(i)
+    results_bin[[as.character(i)]] <- assoc
+  }
+  results[["rvb"]][["binary"]] <- as.data.frame(do.call(rbind, results_bin))
+
+  ## quantitative burden tests
+  results_cont <- list()
+  for (i in 1:length(params[["rvb"]][["continuous"]])) {
+    #print(sprintf("rvb continuous: %s/%s", i, length(params[["rvb"]][["continuous"]])))
+    param_i <- params[["rvb"]][["continuous"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = gdb,
+      VAR_id = VAR_id,
+      cohort = cohort,
+      pheno = param_i$pheno,
+      test = param_i$test,
+      continuous = TRUE,
+      covar = .get_param(param_i, "covar"),
+      imputeMethod = .get_param(param_i, "imputeMethod"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      MAFweights = .get_param(param_i, "MAFweights", "none"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+      verbose = TRUE
+    ))
+    assoc$i <- as.character(i)
+    results_cont[[as.character(i)]] <- assoc
+  }
+  results[["rvb"]][["continuous"]] <- as.data.frame(do.call(
+    rbind,
+    results_cont
+  ))
+
+  ## binary sv tests
+  results_bin <- list()
+  for (i in 1:length(params[["sv"]][["binary"]])) {
+    #print(sprintf("sv binary: %s/%s", i, length(params[["sv"]][["binary"]])))
+    param_i <- params[["sv"]][["binary"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = gdb,
+      VAR_id = var_sv,
+      cohort = cohort,
+      pheno = param_i$pheno,
+      test = param_i$test,
+      covar = .get_param(param_i, "covar"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+      verbose = TRUE,
+      singlevar = TRUE
+    ))
+
+    if (nrow(assoc) > 0) {
+      assoc$i <- as.character(i)
+      results_bin[[as.character(i)]] <- assoc
+    } else {
+      results_bin[[as.character(i)]] <- NULL
+    }
+    results_bin[[as.character(i)]] <- assoc
+  }
+  results[["sv"]][["binary"]] <- as.data.frame(do.call(rbind, results_bin))
+
+  ## continuous sv tests
+  results_cont <- list()
+  for (i in 1:length(params[["sv"]][["continuous"]])) {
+    #print(sprintf("sv continuous: %s/%s", i, length(params[["sv"]][["continuous"]])))
+    param_i <- params[["sv"]][["continuous"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = gdb,
+      VAR_id = var_sv,
+      cohort = cohort,
+      pheno = param_i$pheno,
+      test = param_i$test,
+      covar = .get_param(param_i, "covar"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+      verbose = TRUE,
+      singlevar = TRUE,
+      continuous = TRUE
+    ))
+
+    if (nrow(assoc) > 0) {
+      assoc$i <- as.character(i)
+      results_cont[[as.character(i)]] <- assoc
+    } else {
+      results_cont[[as.character(i)]] <- NULL
+    }
+  }
+  results[["sv"]][["continuous"]] <- as.data.frame(do.call(rbind, results_cont))
+  results
+}
+
+run_tests_GT <- function(GT, params, var_sv = NULL) {
+  results <- list()
+
+  ##
+  if (is.null(var_sv)) {
+    var_sv <- rownames(GT)
+  }
+
+  ## binary burden tests
+  results_bin <- list()
+  for (i in 1:length(params[["rvb"]][["binary"]])) {
+    #print(sprintf("rvb binary: %s/%s", i, length(params[["rvb"]][["binary"]])))
+    param_i <- params[["rvb"]][["binary"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = GT,
+      pheno = param_i$pheno,
+      test = param_i$test,
+      covar = .get_param(param_i, "covar"),
+      imputeMethod = .get_param(param_i, "imputeMethod"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      MAFweights = .get_param(param_i, "MAFweights", "none"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+     verbose = TRUE
+    ))
+    assoc$i <- as.character(i)
+    metadata(assoc)$creationDate <- NA_character_
+    results_bin[[as.character(i)]] <- assoc
+  }
+  results[["rvb"]][["binary"]] <- as.data.frame(do.call(rbind, results_bin))
+
+  ## quantitative burden tests
+  results_cont <- list()
+  for (i in 1:length(params[["rvb"]][["continuous"]])) {
+    #print(sprintf("rvb continuous: %s/%s", i, length(params[["rvb"]][["continuous"]])))
+    param_i <- params[["rvb"]][["continuous"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = GT,
+      pheno = param_i$pheno,
+      test = param_i$test,
+      continuous = TRUE,
+      covar = .get_param(param_i, "covar"),
+      imputeMethod = .get_param(param_i, "imputeMethod"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      MAFweights = .get_param(param_i, "MAFweights", "none"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+      verbose = TRUE
+    ))
+    assoc$i <- as.character(i)
+    metadata(assoc)$creationDate <- NA_character_
+    results_cont[[as.character(i)]] <- assoc
+  }
+  results[["rvb"]][["continuous"]] <- as.data.frame(do.call(
+    rbind,
+    results_cont
+  ))
+
+  ## binary sv tests
+  results_bin <- list()
+  for (i in 1:length(params[["sv"]][["binary"]])) {
+    #print(sprintf("sv binary: %s/%s", i, length(params[["sv"]][["binary"]])))
+    param_i <- params[["sv"]][["binary"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = GT[var_sv, ],
+      pheno = param_i$pheno,
+      test = param_i$test,
+      covar = .get_param(param_i, "covar"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+      verbose = TRUE,
+      singlevar = TRUE
+    ))
+
+    if (nrow(assoc) > 0) {
+      assoc$i <- as.character(i)
+      metadata(assoc)$creationDate <- NA_character_
+      results_bin[[as.character(i)]] <- assoc
+    } else {
+      results_bin[[as.character(i)]] <- NULL
+    }
+    results_bin[[as.character(i)]] <- assoc
+  }
+  results[["sv"]][["binary"]] <- as.data.frame(do.call(rbind, results_bin))
+
+  ## continuous sv tests
+  results_cont <- list()
+  for (i in 1:length(params[["sv"]][["continuous"]])) {
+    #print(sprintf("sv continuous: %s/%s", i, length(params[["sv"]][["continuous"]])))
+    param_i <- params[["sv"]][["continuous"]][[i]]
+    assoc <- suppressMessages(assocTest(
+      object = GT[var_sv, ],
+      pheno = param_i$pheno,
+      test = param_i$test,
+      covar = .get_param(param_i, "covar"),
+      geneticModel = .get_param(param_i, "geneticModel", "allelic"),
+      minCallrateVar = .get_param(param_i, "minCallrateVar", 0),
+      minCallrateSM = .get_param(param_i, "minCallrateSM", 0),
+      minMAF = .get_param(param_i, "minMAF", 0),
+      maxMAF = .get_param(param_i, "maxMAF", 1),
+      minMAC = .get_param(param_i, "minMAC", 0),
+      maxMAC = .get_param(param_i, "maxMAC", Inf),
+      minCarriers = .get_param(param_i, "minCarriers", 0),
+      maxCarriers = .get_param(param_i, "maxCarriers", Inf),
+      minCarrierFreq = .get_param(param_i, "minCarrierFreq", 0),
+      maxCarrierFreq = .get_param(param_i, "maxCarrierFreq", 1),
+      verbose = TRUE,
+      singlevar = TRUE,
+      continuous = TRUE
+    ))
+
+    if (nrow(assoc) > 0) {
+      assoc$i <- as.character(i)
+      metadata(assoc)$creationDate <- NA_character_
+      results_cont[[as.character(i)]] <- assoc
+    } else {
+      results_cont[[as.character(i)]] <- NULL
+    }
+  }
+  results[["sv"]][["continuous"]] <- as.data.frame(do.call(rbind, results_cont))
+  results
+}
