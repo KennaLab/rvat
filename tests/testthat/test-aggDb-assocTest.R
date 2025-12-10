@@ -347,7 +347,8 @@ test_that("assocTest-aggdb results identical to assocTest-gdb", {
 
   assoc_cadd_mb <- list()
   for (geneset in listGeneSets(genesetlist)[1:2]) {
-    varsetlist_cadd_geneset <- getVarSet(varsetlist_cadd, 
+    varsetlist_cadd_geneset <- getVarSet(
+      varsetlist_cadd,
       unit = listUnits(getGeneSet(genesetlist, geneSet = geneset))
     )
     VAR_id <- unlist(lapply(varsetlist_cadd_geneset@varSets, listVars))
@@ -360,16 +361,20 @@ test_that("assocTest-aggdb results identical to assocTest-gdb", {
       w = paste(weight, collapse = ",")
     )))
 
-    test <- assocTest(
-      object = gdb,
-      test = "glm",
-      varSet = varset,
-      cohort = "pheno",
-      pheno = "pheno",
-      maxMAF = 0.001,
-      MAFweight = "mb",
-      covar = paste0("PC", 1:4),
-      verbose = FALSE
+    expect_warning(
+      {
+        test <- assocTest(
+          object = gdb,
+          test = "glm",
+          varSet = varset,
+          cohort = "pheno",
+          pheno = "pheno",
+          maxMAF = 0.001,
+          MAFweight = "mb",
+          covar = paste0("PC", 1:4),
+          verbose = FALSE
+        )
+      }
     )
     test$unit <- geneset
     assoc_cadd_mb[[geneset]] <- test

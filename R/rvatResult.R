@@ -205,7 +205,7 @@ setMethod("merge", c("rvatResult", "DataFrame"), function(x, y, by, ...) {
   result_class <- checkClassrvatResult(x)
   nrows <- nrow(x)
   metadata <- metadata(x)
-  x <- dplyr::left_join(as.data.frame(x), y, by = by)
+  x <- dplyr::left_join(as.data.frame(x), as.data.frame(y), by = by)
 
   if (nrow(x) != nrows) {
     message("Rows have been added to the rvatResult object")
