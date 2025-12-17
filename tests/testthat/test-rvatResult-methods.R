@@ -1,3 +1,4 @@
+# generate sv results for testing
 data(GTsmall, envir = environment())
 sv_results <- assocTest(
   GTsmall,
