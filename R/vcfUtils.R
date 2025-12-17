@@ -41,8 +41,8 @@ vcfInfo2Table <- function(vcf, output, splitMultiallelic = TRUE) {
       file.remove(output)
     }
     output <- file(output, open = "w")
+    on.exit(close(output), add = TRUE)
   }
-  on.exit(close(output), add = TRUE)
 
   # load INFO fields from vcf meta-data
   fields <- list()

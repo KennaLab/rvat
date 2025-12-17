@@ -87,7 +87,7 @@ getGeneSet(genesetfile, c("geneset1", "geneset2"))
 genesets <- listGeneSets(genesetfile)
 head(genesets)
 
-# see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses
+# see ?geneSetAssoc and ?`assocTest-aggdb` to run gene set analyses
 
 }
 \seealso{
@@ -97,6 +97,6 @@ head(genesets)
 
 \code{\link{geneSetAssoc}}
 
-\code{\link{assocTest-aggregateFile}}
+\code{\link{assocTest-aggdb}}
 }
 \keyword{geneSetFile}
