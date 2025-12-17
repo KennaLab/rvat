@@ -66,7 +66,7 @@ Defaults to \code{NULL}, in which case results are not written but returned as a
 checking whether supplied aggdb was generated from the same gdb as specified in \code{gdb}.}
 }
 \description{
-Run \code{\link{assocTest}} on a \code{\link{aggregateFile}} object.
+Run \code{\link{assocTest}} on a \code{\link{aggdb}} object.
 See the main \code{\link{assocTest}} page for details.
 }
 \examples{
@@ -87,7 +87,7 @@ aggregate(
 )
 
 # connect to aggdb, see ?aggdb for more details
-aggregatefile <- aggdb(aggfile)
+aggdb <- aggdb(aggfile)
 
 # build an example genesetlist, see ?buildGeneSet for details
 genesetlist <- buildGeneSet(
@@ -102,7 +102,7 @@ genesetlist <- buildGeneSet(
 # or on a gdb (?`assocTest-gdb`). The main difference being that pre-constructed aggregates are used from
 # the aggdb, and requires a genesetFile/geneSetList (?geneSetFile) to be provided to the `geneSet` argument.
 aggAssoc <- assocTest(
-  aggregatefile,
+  aggdb,
   gdb = gdb,
   test = c("glm", "firth"),
   cohort = "pheno",

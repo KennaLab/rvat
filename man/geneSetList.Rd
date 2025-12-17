@@ -121,7 +121,7 @@ linker <- data.frame(
 genesetlist_remapped <- remapIDs(genesetlist, linker)
 listUnits(genesetlist_remapped)
 
-# see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses
+# see ?geneSetAssoc and ?`assocTest-aggdb` to run gene set analyses
 
 }
 \seealso{
@@ -131,6 +131,6 @@ listUnits(genesetlist_remapped)
 
 \code{\link{geneSetAssoc}}
 
-\code{\link{assocTest-aggregateFile}}
+\code{\link{assocTest-aggdb}}
 }
 \keyword{geneSetList}
