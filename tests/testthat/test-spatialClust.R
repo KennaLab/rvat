@@ -10,13 +10,27 @@ test_that("spatialClust works",{
     gdb,
     gff = gtf,
     transcript_id = transcripts,
-    exonPadding = 12,
+    exonPadding = 12L,
     output = output
   ))})
+  
+  cds <- readr::read_tsv(output, show_col_types = FALSE, progress = FALSE)
+  expect_snapshot_value(cds, style = "serialize")
   output2 <- withr::local_tempfile()
   R.utils::gunzip(output, destname = output2, remove = TRUE, overwrite = TRUE)
+
   # upload
   uploadAnno(gdb, value = output2, name = "cdsPOS", skipRemap = TRUE, verbose = FALSE)
+  
+  ## expect identical output when running interactively
+  cds_interactive <- suppressMessages(mapToCDS(
+    gdb,
+    gff = gtf,
+    transcript_id = transcripts,
+    exonPadding = 12L
+  ))
+  
+  expect_equal(cds_interactive, as.data.frame(cds))
 }
 )
 
