@@ -19,17 +19,21 @@
 #'
 #' @export
 vcfInfo2Table <- function(vcf, output, splitMultiallelic = TRUE) {
+  check_bool(splitMultiallelic)
+  check_character(output)
+
   # validate input and open connections
   if (vcf == "-") {
     vcf <- "stdin"
   } else if (!file.exists(vcf)) {
-    stop(sprintf("Input vcf %s does not exist", vcf))
+    stop(sprintf("Input vcf %s does not exist", vcf), call. = FALSE)
   }
   if (substr(vcf, nchar(vcf) - 2, nchar(vcf)) == ".gz") {
-    con <- gzcon(file(vcf, open = 'r'))
+    con <- gzcon(file(vcf, open = "r"))
   } else {
     con <- file(vcf, open = "r")
   }
+  on.exit(close(con), add = TRUE)
   if (output == "-") {
     output <- stdout()
   } else {
@@ -38,12 +42,13 @@ vcfInfo2Table <- function(vcf, output, splitMultiallelic = TRUE) {
     }
     output <- file(output, open = "w")
   }
+  on.exit(close(output), add = TRUE)
 
   # load INFO fields from vcf meta-data
   fields <- list()
-  while (length(i <- readLines(con, n = 1)) > 0) {
+  while (length(i <- readLines(con, n = 1)) > 0L) {
     if (substr(i, 1, 1) != "#") {
-      stop("Invalid vcf header.")
+      stop("Invalid vcf header.", call. = FALSE)
     }
     if (substr(i, 1, 6) == "#CHROM") {
       break
@@ -67,9 +72,9 @@ vcfInfo2Table <- function(vcf, output, splitMultiallelic = TRUE) {
 
   # parse records (skipping in memory header line)
   sitePattern <- sprintf("(^%s).*", paste(rep("[^\t]*", 8), collapse = "\t"))
-  while (length(i <- readLines(con, n = 1)) > 0) {
+  while (length(i <- readLines(con, n = 1)) > 0L) {
     out <- fields
-    i <- unlist(strsplit(sub(sitePattern, "\\1", i), "\t"))
+    i <- unlist(strsplit(sub(sitePattern, "\\1", i), "\t", fixed = TRUE))
     if (i[[8]] == ".") {
       write(
         paste(c(i[1:7], unlist(out)), collapse = "\t"),
@@ -78,17 +83,24 @@ vcfInfo2Table <- function(vcf, output, splitMultiallelic = TRUE) {
       )
       next
     }
-    for (field in strsplit(unlist(strsplit(i[[8]], ";")), split = "=")) {
+    for (field in strsplit(
+      unlist(strsplit(i[[8]], ";", fixed = TRUE)),
+      split = "=",
+      fixed = TRUE
+    )) {
       out[[field[1]]] <- field[2]
     }
     if (length(out) != nfields) {
-      warning(sprintf(
-        "Observed field not described in vcf meta information - %s\n",
-        paste(i, collapse = "|")
-      ))
+      warning(
+        sprintf(
+          "Observed field not described in vcf meta information - %s\n",
+          paste(i, collapse = "|")
+        ),
+        call. = FALSE
+      )
     }
     if (splitMultiallelic) {
-      alleles <- unlist(strsplit(i[5], split = ","))
+      alleles <- unlist(strsplit(i[5], split = ",", fixed = TRUE))
       for (ai in alleles) {
         write(
           paste(c(i[1:4], ai, i[6:7], unlist(out)), collapse = "\t"),
@@ -104,5 +116,4 @@ vcfInfo2Table <- function(vcf, output, splitMultiallelic = TRUE) {
       )
     }
   }
-  close(con)
 }
