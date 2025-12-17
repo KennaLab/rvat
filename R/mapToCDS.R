@@ -42,7 +42,8 @@ setMethod(
           gene_id = character(),
           transcript_id = character(),
           cdsPOS = integer(),
-          padded = logical()
+          padded = logical(),
+          stringsAsFactors = FALSE
         ),
         file = output_con,
         sep = "\t",
@@ -160,7 +161,7 @@ setMethod(
 
   # subset to CDS only
   exons <- gtf[gtf$type == "CDS"]
-  GenomeInfoDb::seqlevelsStyle(exons) = "NCBI"
+  GenomeInfoDb::seqlevelsStyle(exons) <- "NCBI"
 
   if (length(exons) == 0L) {
     warning("No CDS features found after filtering.", call. = FALSE)
@@ -173,8 +174,8 @@ setMethod(
 .mapToCDS_get_overlapping_chroms <- function(object, exons) {
   chrom <- unique(as.character(seqnames(exons)))
   chrom_gdb <- RSQLite::dbGetQuery(object, "select CHROM from var_ranges")
-  if (any(grepl("chr", chrom_gdb$CHROM))) {
-    chrom_gdb <- gsub("chr", "", chrom_gdb$CHROM)
+  if (any(grepl("chr", chrom_gdb$CHROM, fixed = TRUE))) {
+    chrom_gdb <- gsub("chr", "", chrom_gdb$CHROM, fixed = TRUE)
   }
   chrom <- intersect(chrom, chrom_gdb)
   if (length(chrom) == 0L) {
@@ -245,12 +246,12 @@ setMethod(
     ]
     
     # calculate cumulative gap widths for position adjustment
-    # deductionsPlus: for positive strand 
+    # deductionsPlus: for positive strand
     # deductionsMinus: for negative strand
     deductionsPlus <- cumsum(width(gaps_tx))
     
     if (length(deductionsPlus) == 1L) {
-      deductionsMinus <- c(0L)
+      deductionsMinus <- 0L
     } else if (length(deductionsPlus) > 1L) {
       deductionsMinus <- rev(c(
         0L,
