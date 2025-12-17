@@ -4,7 +4,7 @@
 \alias{mergeAggDbs}
 \title{Merge multiple aggregate files}
 \usage{
-mergeAggDbs(object, output = NULL, overWrite = TRUE, verbose = TRUE)
+mergeAggDbs(object, output, overWrite = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{object}{an \code{\link{aggdbList}} object.}

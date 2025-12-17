@@ -17,20 +17,16 @@ setMethod(
     weightName = "1",
     posField = "POS",
     minTry = 5,
+    memlimit = 1000L,
     warning = TRUE
   ) {
-    if (length(windowSize) != length(overlap)) {
-      stop(
-        sprintf(
-          "Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
-          paste(windowSize, collapse = ","),
-          paste(overlap, collapse = ",")
-        ),
-        call. = FALSE
-      )
-    }
+    .spatialClust_validate_input(as.list(environment()))
+
+    # connect to output
     output <- gzfile(output, "w")
     on.exit(close(output), add = TRUE)
+
+    # base query
     query <- sprintf(
       "select distinct %s as unit, VAR_id, %s as weight, %s as POS from %s",
       unitName,
@@ -39,21 +35,36 @@ setMethod(
       unitTable
     )
 
-    if (!is.null(intersection)) {
-      intersection <- unlist(strsplit(intersection, split = ",", fixed = TRUE))
+    # add intersection(s) if specified
+    if (!is.null(intersection) && length(intersection) > 0L) {
+      intersection <- trimws(unlist(strsplit(
+        intersection,
+        split = ",",
+        fixed = TRUE
+      )))
+
+      for (intersection_table in intersection) {
+        query <- sprintf(
+          "%s inner join %s using (VAR_id)",
+          query,
+          intersection_table
+        )
+      }
     }
-    for (i in intersection) {
-      query <- sprintf("%s inner join %s using (VAR_id)", query, i)
-    }
+
+    # add where clause if specified
     if (!is.null(where)) {
       query <- sprintf("%s where %s", query, where)
     }
+
+    # add grouped concat
     query <- sprintf(
       "select unit, group_concat(VAR_id) as VAR_id, group_concat(weight) as weight, '%s' as varSetName, group_concat(POS) as POS from (%s) x group by unit",
       varSetName,
       query
     )
 
+    # write rvat header
     metadata <- list(
       rvatVersion = as.character(packageVersion("rvat")),
       gdbId = getGdbId(object),
@@ -67,25 +78,31 @@ setMethod(
     )
 
     handle <- RSQLite::dbSendQuery(object, query)
+    on.exit(DBI::dbClearResult(handle), add = TRUE)
     while (!RSQLite::dbHasCompleted(handle)) {
-      varSet <- RSQLite::dbFetch(handle, n = 1)
-      runDistanceCluster(
-        varSet = varSet,
-        posField = posField,
-        windowSize = windowSize,
-        overlap = overlap,
-        output = output,
-        minTry = minTry,
-        warning = warning
-      )
+      chunk <- RSQLite::dbFetch(handle, n = memlimit)
+
+      if (nrow(chunk) == 0L) {
+        break
+      }
+
+      # iterate through chunk
+      for (i in seq_len(nrow(chunk))) {
+        runDistanceCluster(
+          varSet = chunk[i, , drop = FALSE],
+          posField = posField,
+          windowSize = windowSize,
+          overlap = overlap,
+          output = output,
+          minTry = minTry,
+          warning = warning
+        )
+      }
     }
-    RSQLite::dbClearResult(handle)
   }
 )
 
 
-# runDistanceCluster
-# Parser to handle input/ output of variant data for distanceCluster
 runDistanceCluster <- function(
   varSet,
   posField,
@@ -97,6 +114,8 @@ runDistanceCluster <- function(
 ) {
   unit <- varSet$unit
   varSetName <- varSet$varSetName
+
+  # build varSet based on VAR_ids and weights
   varSet <- data.frame(
     VAR_id = unlist(strsplit(varSet$VAR_id, ",", fixed = TRUE)),
     weight = unlist(strsplit(varSet$weight, ",", fixed = TRUE)),
@@ -104,6 +123,7 @@ runDistanceCluster <- function(
     stringsAsFactors = FALSE
   )
 
+  # handle case where there are too few variants to cluster
   if (nrow(varSet) < minTry) {
     if (warning) {
       warning(
@@ -114,6 +134,7 @@ runDistanceCluster <- function(
         call. = FALSE
       )
     }
+    # write variants as a single cluster for each window size/overlap combination
     for (wi in seq_along(windowSize)) {
       varSeti <- paste(
         paste(unit, "0", sep = "_"),
@@ -124,10 +145,14 @@ runDistanceCluster <- function(
       )
       write(varSeti, output, append = TRUE)
     }
+
+    # early return
     return(NULL)
   }
 
+  # convert position field to integer based on format
   if (posField == "HGVSc") {
+    # extract numeric position from HGVSc notation
     varSet$POS <- as.integer(stringr::str_replace(
       varSet$POS,
       "c.([0-9]*).*",
@@ -137,7 +162,9 @@ runDistanceCluster <- function(
     varSet$POS <- as.integer(varSet$POS)
   }
 
+  # perform clustering for each window size/overlap combination
   for (wi in seq_along(windowSize)) {
+    # run clustering algorithm
     parts <- distanceCluster(
       pos = varSet$POS,
       names = varSet$VAR_id,
@@ -148,13 +175,17 @@ runDistanceCluster <- function(
       path_output = NA,
       warning = warning
     )
+
+    # write each cluster partition to output
     for (part in names(parts)) {
+      # collapse VAR_ids, weights, and positions for this partition
       varSeti <- apply(
         varSet[varSet$VAR_id %in% parts[[part]], ],
         2,
         paste,
         collapse = ","
       )
+      # format output line
       varSeti <- paste(
         paste(unit, part, sep = "_"),
         varSeti["VAR_id"],
@@ -167,11 +198,11 @@ runDistanceCluster <- function(
   }
 }
 
+
 # distanceCluster
 # Adapted from https://github.com/heidefier/cluster_wgs_data (Fier, GenetEpidemiol, 2017).
 # Partitions a supplied set of variant until the mean distance between variants
 #   equals the median (as would be expected for a homogeneous poisson process).
-
 distanceCluster <- function(
   pos,
   names,
@@ -292,4 +323,32 @@ distanceCluster <- function(
   }
 
   lo_final
+}
+
+.spatialClust_validate_input <- function(args) {
+  # type checks
+  check_wrapper(check_character, args, "output", length_equal = 1L)
+  check_wrapper(check_character, args, "varSetName", length_equal = 1L)
+  check_wrapper(check_character, args, "unitTable", length_equal = 1L)
+  check_wrapper(check_character, args, "unitName", length_equal = 1L)
+  stopifnot(is.numeric(args[["windowSize"]]))
+  stopifnot(is.numeric(args[["overlap"]]))
+  check_wrapper(check_character, args, "intersection", allow_null = TRUE)
+  check_wrapper(check_character, args, "where", allow_null = TRUE)
+  check_wrapper(check_character, args, "weightName", length_equal = 1L)
+  check_wrapper(check_character, args, "posField", length_equal = 1L)
+  check_wrapper(check_number_whole, args, "minTry", length_equal = 1L)
+  check_wrapper(check_bool, args, "warning", length_equal = 1L)
+
+  # length of `windowSize` should match that of `overlap`
+  if (length(args[["windowSize"]]) != length(args[["overlap"]])) {
+    stop(
+      sprintf(
+        "Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
+        paste(windowSize, collapse = ","),
+        paste(overlap, collapse = ",")
+      ),
+      call. = FALSE
+    )
+  }
 }

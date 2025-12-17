@@ -30,7 +30,7 @@ Defaults to \code{NULL}, in which case a \code{\link{geneSetList}} is returned.}
 \item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 }
 \description{
-Build a \code{\link{geneSetList}} or \code{\link{geneSetFile}} for use in gene set analyses (\code{\link{geneSetAssoc}} or \code{\link{assocTest-aggregateFile}})
+Build a \code{\link{geneSetList}} or \code{\link{geneSetFile}} for use in gene set analyses (\code{\link{geneSetAssoc}} or \code{\link{assocTest-aggdb}})
 Currently these can be build directly from GMT-files, data.frames and lists.
 }
 \examples{

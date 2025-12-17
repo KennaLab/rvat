@@ -863,13 +863,14 @@ setGeneric("getRanges", function(object,
 #' @param weightName Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.
 #' @param posField Column name to take as variants position. Default is 'POS' which typically corresponds to genomics position. Can be reset to use CDS or other coordinates. "HGVSc" is a recognized identifier and CDS coordinates will be extracted automatically.
 #' @param minTry Minimum number of variants in varset to perform clustering on. If number of variants < minTry, all variants will be returned as a single cluster.
+#' @param memlimit Maximum number of varsets to load at a time. Defaults to 1000.
 #' @param warning Raise a warning when clusters can't be generated? Defaults to `TRUE`.
 #' Defaults to 5.
 #' 
 #' @references
 #' Loehlein Fier, H. et al. On the association analysis of genome-sequencing data: A spatial clustering approach for partitioning the entire genome into nonoverlapping windows: F ier et al . Genet. Epidemiol. 41, 332–340 (2017).
 #' @export
-setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection = NULL,where=NULL,weightName="1", posField="POS",minTry=5,warning=TRUE) standardGeneric("spatialClust"))
+setGeneric("spatialClust", function(object,output,varSetName,unitTable,unitName,windowSize,overlap,intersection = NULL,where=NULL,weightName="1", posField="POS",minTry=5,memlimit=1000L,warning=TRUE) standardGeneric("spatialClust"))
 
 #' mapToCDS
 #'
