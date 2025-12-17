@@ -20,14 +20,18 @@ setMethod(
     warning = TRUE
   ) {
     if (length(windowSize) != length(overlap)) {
-      stop(sprintf(
-        "Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
-        paste(windowSize, collapse = ","),
-        paste(overlap, collapse = ",")
-      ))
+      stop(
+        sprintf(
+          "Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
+          paste(windowSize, collapse = ","),
+          paste(overlap, collapse = ",")
+        ),
+        call. = FALSE
+      )
     }
-    output = gzfile(output, "w")
-    query = sprintf(
+    output <- gzfile(output, "w")
+    on.exit(close(output), add = TRUE)
+    query <- sprintf(
       "select distinct %s as unit, VAR_id, %s as weight, %s as POS from %s",
       unitName,
       weightName,
@@ -36,15 +40,15 @@ setMethod(
     )
 
     if (!is.null(intersection)) {
-      intersection = unlist(strsplit(intersection, split = ","))
+      intersection <- unlist(strsplit(intersection, split = ",", fixed = TRUE))
     }
     for (i in intersection) {
-      query = sprintf("%s inner join %s using (VAR_id)", query, i)
+      query <- sprintf("%s inner join %s using (VAR_id)", query, i)
     }
     if (!is.null(where)) {
       query <- sprintf("%s where %s", query, where)
     }
-    query = sprintf(
+    query <- sprintf(
       "select unit, group_concat(VAR_id) as VAR_id, group_concat(weight) as weight, '%s' as varSetName, group_concat(POS) as POS from (%s) x group by unit",
       varSetName,
       query
@@ -62,9 +66,9 @@ setMethod(
       con = output
     )
 
-    handle = RSQLite::dbSendQuery(object, query)
+    handle <- RSQLite::dbSendQuery(object, query)
     while (!RSQLite::dbHasCompleted(handle)) {
-      varSet = RSQLite::dbFetch(handle, n = 1)
+      varSet <- RSQLite::dbFetch(handle, n = 1)
       runDistanceCluster(
         varSet = varSet,
         posField = posField,
@@ -76,14 +80,13 @@ setMethod(
       )
     }
     RSQLite::dbClearResult(handle)
-    close(output)
   }
 )
 
 
 # runDistanceCluster
 # Parser to handle input/ output of variant data for distanceCluster
-runDistanceCluster = function(
+runDistanceCluster <- function(
   varSet,
   posField,
   windowSize,
@@ -92,25 +95,28 @@ runDistanceCluster = function(
   minTry = 5,
   warning = TRUE
 ) {
-  unit = varSet$unit
-  varSetName = varSet$varSetName
-  varSet = data.frame(
-    VAR_id = unlist(strsplit(varSet$VAR_id, ",")),
-    weight = unlist(strsplit(varSet$weight, ",")),
-    POS = unlist(strsplit(as.character(varSet$POS), ",")),
+  unit <- varSet$unit
+  varSetName <- varSet$varSetName
+  varSet <- data.frame(
+    VAR_id = unlist(strsplit(varSet$VAR_id, ",", fixed = TRUE)),
+    weight = unlist(strsplit(varSet$weight, ",", fixed = TRUE)),
+    POS = unlist(strsplit(as.character(varSet$POS), ",", fixed = TRUE)),
     stringsAsFactors = FALSE
   )
 
   if (nrow(varSet) < minTry) {
     if (warning) {
-      warning(sprintf(
-        "varSet contains fewer than %s variants ('minTry' parameter), all variants are returned as a single cluster.",
-        minTry
-      ))
+      warning(
+        sprintf(
+          "varSet contains fewer than %s variants ('minTry' parameter), all variants are returned as a single cluster.",
+          minTry
+        ),
+        call. = FALSE
+      )
     }
-    for (wi in 1:length(windowSize)) {
-      varSeti = paste(
-        paste(unit, '0', sep = "_"),
+    for (wi in seq_along(windowSize)) {
+      varSeti <- paste(
+        paste(unit, "0", sep = "_"),
         paste(varSet$VAR_id, collapse = ","),
         paste(varSet$weight, collapse = ","),
         paste(varSetName, windowSize[wi], overlap[wi], sep = "_"),
@@ -122,17 +128,17 @@ runDistanceCluster = function(
   }
 
   if (posField == "HGVSc") {
-    varSet$POS = as.integer(stringr::str_replace(
+    varSet$POS <- as.integer(stringr::str_replace(
       varSet$POS,
       "c.([0-9]*).*",
       "\\1"
     ))
   } else {
-    varSet$POS = as.integer(varSet$POS)
+    varSet$POS <- as.integer(varSet$POS)
   }
 
-  for (wi in 1:length(windowSize)) {
-    parts = distanceCluster(
+  for (wi in seq_along(windowSize)) {
+    parts <- distanceCluster(
       pos = varSet$POS,
       names = varSet$VAR_id,
       windowSize = windowSize[wi],
@@ -143,13 +149,13 @@ runDistanceCluster = function(
       warning = warning
     )
     for (part in names(parts)) {
-      varSeti = apply(
+      varSeti <- apply(
         varSet[varSet$VAR_id %in% parts[[part]], ],
         2,
         paste,
         collapse = ","
       )
-      varSeti = paste(
+      varSeti <- paste(
         paste(unit, part, sep = "_"),
         varSeti["VAR_id"],
         varSeti["weight"],
@@ -163,7 +169,8 @@ runDistanceCluster = function(
 
 # distanceCluster
 # Adapted from https://github.com/heidefier/cluster_wgs_data (Fier, GenetEpidemiol, 2017).
-# Partitions a supplied set of variant until the mean distance between variants equals the median (as would be expected for a homogeneous poisson process).
+# Partitions a supplied set of variant until the mean distance between variants
+#   equals the median (as would be expected for a homogeneous poisson process).
 
 distanceCluster <- function(
   pos,
@@ -176,11 +183,14 @@ distanceCluster <- function(
   warning = TRUE
 ) {
   if (!(return_what %in% c("names", "positions"))) {
-    stop('Please enter "names" OR "positions" as argument for return_what')
+    stop(
+      "Please enter 'names' OR 'positions' as argument for return_what",
+      call. = FALSE
+    )
   }
 
-  if (write_output & is.na(path_output)) {
-    stop('Please specify a valid output name in path_output', '\n')
+  if (write_output && is.na(path_output)) {
+    stop("Please specify a valid output name in path_output", call. = FALSE)
   }
 
   b <- as.numeric(pos)
@@ -203,10 +213,11 @@ distanceCluster <- function(
     by = overlap,
     align = "left"
   )
-  if (length(obsMeanWindow) == 0) {
+  if (length(obsMeanWindow) == 0L) {
     if (warning) {
       warning(
-        "No valid partitioning for specified parameters, all variants are returned as a single cluster."
+        "No valid partitioning for specified parameters, all variants are returned as a single cluster.",
+        call. = FALSE
       )
     }
     return(list("0" = names))
@@ -234,7 +245,7 @@ distanceCluster <- function(
   )
 
   maximas <- vector("list", length(obsMeanWindow))
-  for (i in 1:length(obsMeanWindow)) {
+  for (i in seq_along(obsMeanWindow)) {
     if (obsMeanWindow[i] <= theoMeanWindow[i]) {
       maximas[[i]] <- NA
     } else {
@@ -253,10 +264,11 @@ distanceCluster <- function(
   maxima <- maxima[!is.na(maxima)]
   maximaf <- sort(unique(maxima))
 
-  if (length(maximaf) == 0) {
+  if (length(maximaf) == 0L) {
     if (warning) {
       warning(
-        "No valid partitioning for specified parameters, all variants are returned as a single cluster."
+        "No valid partitioning for specified parameters, all variants are returned as a single cluster.",
+        call. = FALSE
       )
     }
     return(list("0" = names))
@@ -279,5 +291,5 @@ distanceCluster <- function(
     }
   }
 
-  return(lo_final)
+  lo_final
 }
