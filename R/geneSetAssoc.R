@@ -3,6 +3,26 @@
 #' @include geneSet.R
 
 # geneSetAssoc ----------------------------------------------------------------
+setMethod(
+  "checkDuplicates",
+  signature = c("rvbResult"),
+  definition = function(object, stop = TRUE) {
+    if (length(unique(object$unit)) != nrow(object)) {
+      if (stop) {
+        stop(
+          "Duplicated units are present in the rvbResult object",
+          call. = FALSE
+        )
+      } else {
+        warning(
+          "Duplicated units are present in the rvbResult object",
+          call. = FALSE
+        )
+      }
+    }
+  }
+)
+
 
 #' @rdname geneSetAssoc
 #' @usage NULL
