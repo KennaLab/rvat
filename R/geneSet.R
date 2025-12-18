@@ -6,10 +6,10 @@
 #' @rdname geneSet
 #' @usage NULL
 #' @export
-geneSet = function(geneSetName, units, w = NULL, metadata = "") {
+geneSet <- function(geneSetName, units, w = NULL, metadata = "") {
   if (is.null(w) || is.na(w)) {
     w <- paste(
-      rep(1, length(unlist(strsplit(units, split = ",")))),
+      rep(1.0, length(unlist(strsplit(units, split = ",", fixed = TRUE)))),
       collapse = ","
     )
   }
@@ -56,14 +56,14 @@ setMethod("as.data.frame", signature = "geneSet", definition = function(x) {
 #' @usage NULL
 #' @export
 setMethod("listUnits", signature = "geneSet", definition = function(object) {
-  unlist(strsplit(object@units, split = ","))
+  unlist(strsplit(object@units, split = ",", fixed = TRUE))
 })
 
 #' @rdname geneSet
 #' @usage NULL
 #' @export
 setMethod("listWeights", signature = "geneSet", definition = function(object) {
-  x <- unlist(strsplit(object@w, split = ","))
+  x <- unlist(strsplit(object@w, split = ",", fixed = TRUE))
   names(x) <- listUnits(object)
   x
 })
@@ -170,7 +170,7 @@ setMethod(
   c("geneSetList", "ANY", "ANY"),
   function(x, i, j, ..., drop = TRUE) {
     if (1L != length(drop) || (!missing(drop) && drop)) {
-      warning("'drop' ignored '[,", class(x), ",ANY,ANY-method'")
+      warning("'drop' ignored '[,", class(x), ",ANY,ANY-method'", call. = FALSE)
     }
 
     if (missing(i) && missing(j)) {
@@ -189,7 +189,7 @@ setMethod(
 #' @rdname geneSetList
 #' @usage NULL
 #' @export
-setMethod("sort", c("geneSetList"), function(x) {
+setMethod("sort", "geneSetList", function(x) {
   sorted <- stringr::str_sort(names(x))
   new(
     "geneSetList",
@@ -213,10 +213,11 @@ setMethod("as.data.frame", signature = "geneSetList", definition = function(x) {
 setMethod("as.list", signature = "geneSetList", definition = function(x) {
   names <- names(x)
   x <- strsplit(
-    unlist(lapply(1:length(x), function(i) {
+    unlist(lapply(seq_along(x), function(i) {
       x[[i]]@units
     })),
-    split = ","
+    split = ",",
+    fixed = TRUE
   )
   names(x) <- names
   x
@@ -251,7 +252,10 @@ setMethod(
   signature = "geneSetList",
   definition = function(object, geneSet = NULL, unit = NULL) {
     if (is.null(geneSet) && is.null(unit)) {
-      stop("At least one of `geneSet` or `unit` should be specified.")
+      stop(
+        "At least one of `geneSet` or `unit` should be specified.",
+        call. = FALSE
+      )
     }
 
     if (!is.null(unit)) {
@@ -262,7 +266,8 @@ setMethod(
     if (!is.null(geneSet)) {
       if (!all(geneSet %in% names(object))) {
         warning(
-          "Not all specified geneSets are present in the geneSetList, use `listGeneSets()` to check which geneSets are available."
+          "Not all specified geneSets are present in the geneSetList, use `listGeneSets()` to check which geneSets are available.",
+          call. = FALSE
         )
       }
       object <- object[names(object) %in% geneSet]
@@ -282,9 +287,9 @@ setMethod(
     object@geneSets <- lapply(object@geneSets, function(x) {
       x@units <- paste(listUnits(x)[!listUnits(x) %in% unit], collapse = ",")
       x@w <- paste(listWeights(x)[!listUnits(x) %in% unit], collapse = ",")
-      return(x)
+      x
     })
-    object <- object[lengths(object) > 0]
+    object <- object[lengths(object) > 0L]
     return(object)
   }
 )
@@ -305,8 +310,8 @@ setMethod(
     duplicate_ids <- match.arg(duplicate_ids)
 
     # Check validity of dictionary
-    if (ncol(dict) != 2) {
-      stop("`dict` should be a data.frame with two columns")
+    if (ncol(dict) != 2L) {
+      stop("`dict` should be a data.frame with two columns", call. = FALSE)
     }
     colnames(dict) <- c("original_id", "new_id")
     dict$original_id <- as.character(dict$original_id)
@@ -325,7 +330,7 @@ setMethod(
 
     # Handle IDs that map to multiple IDs
     if (!is.null(targets)) {
-      dict$target <- ifelse(dict$new_id %in% targets, TRUE, FALSE)
+      dict$target <- dict$new_id %in% targets
     } else {
       dict$target <- TRUE
     }
@@ -412,6 +417,7 @@ setMethod(
 #' @export
 setMethod("write", "geneSetList", function(x, file = "data", append = FALSE) {
   out <- gzfile(file, "w")
+  on.exit(close(out), add = TRUE)
   metadata <- metadata(x)
   metadata$rvatVersion <- as.character(packageVersion("rvat"))
   metadata$creationDate <- as.character(round(Sys.time(), units = "secs"))
@@ -425,7 +431,6 @@ setMethod("write", "geneSetList", function(x, file = "data", append = FALSE) {
     col.names = FALSE,
     quote = FALSE
   )
-  close(out)
 })
 
 # geneSetFile ------------------------------------------------------------------
@@ -436,26 +441,26 @@ setMethod("write", "geneSetList", function(x, file = "data", append = FALSE) {
 #' @param path Path to geneSet file.
 #' @param memlimit Maximum number of records to load at a time.
 #' @export
-geneSetFile = function(path, memlimit = 5000) {
+geneSetFile <- function(path, memlimit = 5000L) {
   # read in metadata
   metadata <- .parse_rvat_header(
     path,
     expected_metadata = metadata_genesets,
     expected_filetype = "geneSetFile",
-    n = length(metadata_genesets) + 1 # file description + metadata
+    n = length(metadata_genesets) + 1L # file description + metadata
   )
-  header <- readLines(path, n = length(metadata_genesets) + 10)
+  header <- readLines(path, n = length(metadata_genesets) + 10L)
   skip <- sum(startsWith(header, "#"))
 
-  con = gzfile(path, "r")
-  sets = c()
-  counter <- 1
-  while (length(i <- readLines(con, n = memlimit)) > 0) {
-    if (counter == 1) {
-      i <- i[(skip + 1):length(i)]
+  con <- gzfile(path, "r")
+  sets <- c()
+  counter <- 1L
+  while (length(i <- readLines(con, n = memlimit)) > 0L) {
+    if (counter == 1L) {
+      i <- i[(skip + 1L):length(i)]
     }
-    sets = c(sets, sapply(strsplit(i, split = "\\|"), "[[", 1))
-    counter <- counter + 1
+    sets <- c(sets, sapply(strsplit(i, split = "|", fixed = TRUE), "[[", 1))
+    counter <- counter + 1L
   }
   close(con)
   new("geneSetFile", path = path, sets = sets, metadata = metadata)
@@ -514,32 +519,33 @@ setMethod(
   definition = function(object, geneSet) {
     if (!all(geneSet %in% object@sets)) {
       warning(
-        "Not all specified geneSets are present in the geneSetFile, use `listGeneSets()` to check which geneSets are available."
+        "Not all specified geneSets are present in the geneSetFile, ",
+        "use `listGeneSets()` to check which geneSets are available.",
+        call. = FALSE
       )
     }
 
     # metadata
-    header <- readLines(object@path, n = length(metadata_genesets) + 10)
+    header <- readLines(object@path, n = length(metadata_genesets) + 10L)
     skip <- sum(startsWith(header, "#"))
-    if (skip > length(metadata_genesets) + 1) {
-      # metadata + filetype
-      stop("File contains more header lines than expected.")
+    if (skip > length(metadata_genesets) + 1L) {
+      stop("File contains more header lines than expected.", call. = FALSE)
     }
 
     indices <- sort(which(object@sets %in% geneSet))
     set <- object@sets[indices]
-    if (length(indices) > 1) {
-      indices[2:length(indices)] <- (dplyr::lead(indices) - indices)[
-        1:(length(indices) - 1)
+    if (length(indices) > 1L) {
+      indices[2L:length(indices)] <- (dplyr::lead(indices) - indices)[
+        1L:(length(indices) - 1L)
       ]
     }
     con <- gzfile(object@path, "r")
-    if (skip > 0) {
+    if (skip > 0L) {
       skip <- readLines(con, n = skip)
     }
     x <- lapply(indices, FUN = function(i) {
-      i <- scan(con, skip = i - 1, nlines = 1, what = "character", quiet = TRUE)
-      i <- unlist(strsplit(i, split = "\\|"))
+      i <- scan(con, skip = i - 1L, nlines = 1L, what = "character", quiet = TRUE)
+      i <- unlist(strsplit(i, split = "|", fixed = TRUE))
       geneSet(
         geneSetName = i[1],
         units = i[2],
@@ -552,7 +558,7 @@ setMethod(
 
     # check
     if (!all(listGeneSets(x) %in% geneSet)) {
-      stop("Something's wrong..")
+      stop("Something's wrong..", call. = FALSE)
     }
     x
   }
@@ -622,15 +628,16 @@ buildGeneSet <- function(
   if (!is.null(data)) {
     if (is.data.frame(data)) {
       ncol <- ncol(data)
-      if (ncol > 4) {
+      if (ncol > 4L) {
         stop(
-          "data.frame should have at most 4 columns (geneSet names, units, weights, metadata)"
+          "data.frame should have at most 4 columns (geneSet names, units, weights, metadata)",
+          call. = FALSE
         )
       }
-      if (ncol == 3) {
+      if (ncol == 3L) {
         data[, 4] <- NA
       }
-      if (ncol == 2) {
+      if (ncol == 2L) {
         data[, c(3, 4)] <- NA
       }
 
@@ -663,7 +670,10 @@ buildGeneSet <- function(
         )
         genesets <- geneSetList(genesets)
       } else {
-        stop("Each element in the list should be a character vector")
+        stop(
+          "Each element in the list should be a character vector",
+          call. = FALSE
+        )
       }
     }
   }
@@ -726,19 +736,3 @@ readGMT <- function(path, sep = "\t") {
   })
   geneSetList(sets)
 }
-
-# geneSetAssoc -----------------------------------------------------------------
-
-setMethod(
-  "checkDuplicates",
-  signature = c("rvbResult"),
-  definition = function(object, stop = TRUE) {
-    if (length(unique(object$unit)) != nrow(object)) {
-      if (stop) {
-        stop("Duplicated units are present in the rvbResult object")
-      } else {
-        warning("Duplicated units are present in the rvbResult object")
-      }
-    }
-  }
-)
