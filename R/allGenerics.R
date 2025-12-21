@@ -1389,7 +1389,7 @@ setGeneric("getGeneSet", function(object, geneSet = NULL, unit = NULL) standardG
 #' @rdname geneSetList
 #' @usage NULL
 #' @export
-setGeneric("dropUnits", function(object, unit = NULL) standardGeneric("dropUnits"))
+setGeneric("dropUnits", function(object, unit) standardGeneric("dropUnits"))
 
 #' @rdname geneSetList
 #' @usage NULL

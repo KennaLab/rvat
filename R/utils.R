@@ -175,3 +175,94 @@
   # return
   CHROM
 }
+
+.check_output <- function(output, overWrite, verbose) {
+  # output should be one filepath
+  if (!is.character(output) || length(output) != 1L || !nzchar(output)) {
+    stop("`output` must be a single filepath", call. = FALSE)
+  }
+
+  # check if output already exists, if so, overwrite if `overWrite = TRUE`
+  if (file.exists(output)) {
+    if (overWrite) {
+      removed <- file.remove(output)
+      if (!removed) {
+        stop(
+          sprintf(
+            paste0(
+              "Failed to remove existing output file '%s'. ",
+              "Please check permissions or ensure it is not a directory."
+            ),
+            output
+          ),
+          call. = FALSE
+        )
+      } else if (verbose) {
+        message(sprintf(
+          paste0(
+            "Output file '%s' already exists and ",
+            "is overwritten (`overWrite = TRUE`)"
+          ),
+          output
+        ))
+      }
+    } else {
+      stop(
+        sprintf(
+          paste0(
+            "Output file '%s' already exists. ",
+            "Set `overWrite=TRUE` to overwrite existing files."
+          ),
+          output
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  invisible(NULL)
+}
+
+.check_input_path <- function(path) {
+
+  # path should be a single filepath
+  if (!is.character(output) || length(output) != 1L || !nzchar(output)) {
+    stop("`output` must be a single filepath", call. = FALSE)
+  }
+
+  # check if path exists
+  if (!file.exists(path)) {
+    stop(sprintf("The file %s does not exist.", path), call. = FALSE)
+  }
+
+  # check if path is a file (not a directory)
+  if (dir.exists(path)) {
+    stop(sprintf("'%s' is a directory, not a file.", path), call. = FALSE)
+  }
+  
+  invisible(NULL)
+}
+
+.check_input_path <- function(path) {
+  # path should be a single filepath
+  if (!is.character(path) || length(path) != 1L || !nzchar(path)) {
+    stop("`path` must be a single filepath", call. = FALSE)
+  }
+
+  # check if path exists
+  if (!file.exists(path)) {
+    stop(sprintf("The file '%s' does not exist.", path), call. = FALSE)
+  }
+  
+  # check if path is a file (not a directory)
+  if (dir.exists(path)) {
+    stop(sprintf("'%s' is a directory, not a file.", path), call. = FALSE)
+  }
+  
+  # check if file is readable
+  if (file.access(path, mode = 4) != 0) {
+    stop(sprintf("The file '%s' is not readable.", path), call. = FALSE)
+  }
+  
+  invisible(NULL)
+}
