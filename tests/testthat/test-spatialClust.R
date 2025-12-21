@@ -31,11 +31,7 @@ test_that("spatialClust works",{
   ))
   
   expect_equal(cds_interactive, as.data.frame(cds))
-}
-)
 
-# check snapshot
-test_that("spatialClust snapshot is identical",{
   output <- withr::local_tempfile()
   suppressWarnings(spatialClust(
     gdb,
@@ -63,5 +59,5 @@ test_that("spatialClust snapshot is identical",{
   metadata(assoc)$gdbPath <- NA_character_
   metadata(assoc)$rvatVersion <- NA_character_
   expect_snapshot_value(assoc, style = "serialize")
-    }
-  )
+}
+)
