@@ -34,6 +34,7 @@ Collate:
     'gdb_mapVariants.R'
     'gdb_shared_helpers.R'
     'gdb_summariseGeno.R'
+    'geneSet.R'
     'rvatResult.R'
     'gsaResult.R'
     'geneSetAssoc.R'
