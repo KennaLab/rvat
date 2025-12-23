@@ -262,7 +262,7 @@ setMethod(
     dat <- do.call(cbind, dat)
     rownames(dat) <- unique(as.character(results[[ID]]))
     colnames(dat) <- names(object)
-    if (sparse) return(as(dat, "sparseMatrix")) else return(dat)
+    if (sparse) as(dat, "sparseMatrix") else dat
   }
 )
 
@@ -831,6 +831,13 @@ buildGeneSet <- function(
   if (!is.null(args[["data"]]) && !is.null(args[["gmtpath"]])) {
     stop(
       "Specify only one of `data` or `gmtpath`.",
+      call. = FALSE
+    )
+  }
+  #  one of `data` or `gmtpath` should be specified
+  if (is.null(args[["data"]]) && is.null(args[["gmtpath"]])) {
+    stop(
+      "Specify one of `data` or `gmtpath`.",
       call. = FALSE
     )
   }

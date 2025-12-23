@@ -35,22 +35,19 @@ genesetlist <- as.geneSetList(genesetfile)
 geneset <- getGeneSet(genesetlist, "GOMF_ACETYLCHOLINE_BINDING")[[1]]
 
 test_that("core geneSet methods work", {
-  # geneSet ----------------------------------------------------------------------
-
-  ## metadata
+  # check if metadata includes source info
   expect_true(stringr::str_detect(
     metadata(geneset),
-    "GOMF_ACETYLCHOLINE_BINDING"
+    "https.*GOMF_ACETYLCHOLINE_BINDING"
   ))
 
-  ## length
+  # check if length is as expected
   expect_equal(length(geneset), 11)
 
-  ## as.data.frame
-  ### convert to data.frame and then build again from the data.frame
+  # convert to data.frame and back
   expect_equal(geneset, buildGeneSet(data = as.data.frame(geneset))[[1]])
 
-  ## listUnits
+  # check if units are as excpected
   expect_equal(
     listUnits(geneset),
     c(
@@ -68,20 +65,18 @@ test_that("core geneSet methods work", {
     )
   )
 
-  ## listWeights
+  # weights should be 1
   expect_equal(unname(listWeights(geneset)), rep("1", 11))
 })
 
 test_that("core geneSetList methods work", {
-  ## names
+  # names should be identical to listGeneSets on geneSetFile
   expect_equal(names(genesetlist), listGeneSets(genesetfile))
 
-  ## length
+  # length should equal that of geneSetFile
   expect_equal(length(genesetlist), length(genesetfile))
 
-  ## lengths
-
-  ## show
+  # show
   expect_true(stringr::str_detect(
     capture_output({
       show(genesetlist)
@@ -89,32 +84,36 @@ test_that("core geneSetList methods work", {
     "geneSetList"
   ))
 
-  ## metadata
+  # epect metadata to include source info
   expect_true(all(stringr::str_detect(
     listMetadata(genesetlist),
     "gsea-msigdb"
   )))
 
-  ## listUnits
+  # check if genesetlist includes all genes in gmt
   genes <- system(
     "cut -f3- ../data/c5.go.mf.v2023.2.Hs.symbols.gmt | tr '\t' '\n' | sort | uniq",
     intern = TRUE
   )
   expect_equal(sort(listUnits(genesetlist)), sort(genes))
 
-  ## [[
+  # check `[[` subsetting: should return a geneSet object
+  # with correct name
   expect_true(is(genesetlist[[500]], "geneSet"))
   expect_equal(genesetlist[[500]]@geneSetName, names(genesetlist)[500])
 
-  ## [
+  # check `[` subsetting:
+  ## should return a geneSet object
   expect_true(is(genesetlist[c(5, 900, 1400)], "geneSetList"))
+  ## check if length is as expected
   expect_equal(length(genesetlist[c(5, 900, 1400)]), 3)
+  # check if names are as expected
   expect_equal(
     names(genesetlist[c(5, 900, 1400)]),
     names(genesetlist)[c(5, 900, 1400)]
   )
 
-  ## sort
+  # check if sorting shuffled genesetlist results in identical objects
   expect_equal(
     sort(genesetlist[sample(
       1:length(genesetlist),
@@ -123,7 +122,7 @@ test_that("core geneSetList methods work", {
     sort(genesetlist)
   )
 
-  ## as.data.frame
+  # as.data.frame -> buildGeneSet -> genesetlist should be identical to original genesetlist
   genesetlist_tmp <- buildGeneSet(data = as.data.frame(genesetlist))
   genesetlist_tmp@metadata$source = genesetlist@metadata$source
   genesetlist_tmp@metadata$creationDate = genesetlist@metadata$creationDate
@@ -132,13 +131,13 @@ test_that("core geneSetList methods work", {
     genesetlist
   )
 
-  ## as.list
+  # as.list -> buildGeneSet -> genesetlist should be identical to original genesetlist
   expect_equal(
     as.list(buildGeneSet(data = as.list(genesetlist))),
     as.list(genesetlist)
   )
 
-  ## mapToMatrix
+  # mapToMatrix: should return a sparse matrix with correct dimensions
   mapped_matrix <- rvat:::mapToMatrix(genesetlist, results = rvbresults)
   expect_equal(
     dim(mapped_matrix),
@@ -146,7 +145,7 @@ test_that("core geneSetList methods work", {
   )
   expect_true(is(mapped_matrix, "lgCMatrix"))
 
-  ## dropUnits
+  # dropUnits: should return a geneSetList without specified units
   genesetlist_dropped <- dropUnits(
     genesetlist,
     c("ZFP28", "ZNF320", "CERS4", "TADA1", "MIR154")
@@ -164,10 +163,11 @@ test_that("core geneSetList methods work", {
     ]
   )
 
-  ## remapIDs
+  # remapIDs: check if dictionary mapping works correctly
   linker <- readr::read_tsv(
     "../data/Homo_sapiens.GRCh38.105.gene.txt.gz",
-    show_col_types = FALSE
+    show_col_types = FALSE,
+    progress = FALSE
   )
   linker <- linker[, c("gene_id", "gene_name")]
   genesetlist_remapped <- suppressMessages(remapIDs(
@@ -184,7 +184,7 @@ test_that("core geneSetList methods work", {
   units2 <- listUnits(check_geneset)
   expect_equal(sort(linker[linker$gene_id %in% units2, ]$gene_name), units1)
 
-  ### check handling of duplicates
+  # remapIDs: compare keeping all duplicates vs keeping first
   genesetlist_remapped_keep_first <- remapIDs(
     genesetlist,
     dict = linker[, c(2, 1)],
@@ -197,10 +197,13 @@ test_that("core geneSetList methods work", {
     duplicate_ids = "keep_all",
     verbose = FALSE
   )
+  ## expect more units when keeping all duplicates
   expect_gt(
     length(listUnits(genesetlist_remapped_keep_all)),
     length(listUnits(genesetlist_remapped_keep_first))
   )
+
+  ## check for specific gene with duplicates
   dups <- linker[!is.na(linker$gene_name) & linker$gene_name == "RGS5", ]
   check <- getGeneSet(genesetlist, unit = "RGS5")[[1]]
   check_geneset_keep_first <- getGeneSet(
@@ -214,7 +217,7 @@ test_that("core geneSetList methods work", {
   expect_equal(sum(dups$gene_id %in% listUnits(check_geneset_keep_first)), 1)
   expect_equal(sum(dups$gene_id %in% listUnits(check_geneset_keep_all)), 2)
 
-  ## write
+  # write and read geneSetList: resulting object should be identical to original
   genesetlist_path <- withr::local_tempfile()
   write(genesetlist, genesetlist_path)
   genesetlist_path <- geneSetFile(genesetlist_path)
@@ -262,7 +265,7 @@ test_that("getGeneSet works", {
   )
   expect_equal(genesets_fromlist, genesets_fromfile)
 
-  # check whether order doesn't matter
+  # order of provided genesets should not matter
   genesets_fromlist_shuffled <- getGeneSet(
     genesetlist,
     geneSet = sample(genesets, size = length(genesets))
@@ -273,6 +276,34 @@ test_that("getGeneSet works", {
   )
   expect_equal(genesets_fromlist_shuffled, genesets_fromlist)
   expect_equal(genesets_fromfile_shuffled, genesets_fromfile)
+
+  # extract genesets that contain certain genes (currently only implemented for class geneSetList)
+  units <- sample(listUnits(genesetlist), size = 10)
+  genesets_fromlist <- getGeneSet(
+    genesetlist,
+    unit = units
+  )
+  expect_equal(sum(units %in% listUnits(genesets_fromlist)), 10)
+})
+
+test_that("geneSet/geneSetList/geneSetFile input validaton works", {
+  # expect error when geneSet units and weights don't match 
+  expect_error({
+    geneSet(
+      geneSetName = "test",
+      units = "A,B,C",
+      w = "1,2"
+    )},
+    regexp = "Number of weights"
+  )
+  # expect error when neither `geneSet` or `unit` is specified
+  expect_error({
+    getGeneSet(genesetlist)
+  })
+
+  expect_error({
+    getGeneSet(genesetfile)
+  })
 
   # expect warning when subsetting non-existing genesets
   expect_warning({
@@ -287,23 +318,34 @@ test_that("getGeneSet works", {
       geneSet = c("A", genesets, "B")
     )
   })
+  ## should result in equal genestlists
   expect_equal(genesets_fromlist2, genesets_fromlist)
   expect_equal(genesets_fromfile2, genesets_fromfile)
-
-  # extract genesets that contain certain genes (currently only implemented for class geneSetList)
-  units <- sample(listUnits(genesetlist), size = 10)
-  genesets_fromlist <- getGeneSet(
-    genesetlist,
-    unit = units
+  
+  # expect error when buildGeneSet input is of wrong type
+  expect_error(
+    {
+      buildGeneSet(data = "test")
+    }, regexp = "`data` should be"
   )
-  expect_equal(sum(units %in% listUnits(genesets_fromlist)), 10)
+  # buildgeneSet: either one of data or gmtpath must be provided
+  expect_error(
+    {
+      buildGeneSet(data = NULL, gmtpath = NULL)
+    }, regexp = "Specify one of"
+  )
 
-  # expect error when neither `geneSet` or `unit` is specified
-  expect_error({
-    getGeneSet(genesetlist)
-  })
+  # buildgeneSet: either one of data or gmtpath must be provided
+  expect_error(
+    {
+      buildGeneSet(data = list("A" = c("gene1", "gene2"), "B" = TRUE))
+    }, regexp = "Each element in the list"
+  )
 
-  expect_error({
-    getGeneSet(genesetfile)
-  })
+  # buildgeneSet: data.frame should contain at least two columns
+  expect_error(
+    {
+      buildGeneSet(data = data.frame(geneSetName = c("geneSet1", "geneSet2")))
+    }, regexp = "data.frame should have at least"
+  )
 })
