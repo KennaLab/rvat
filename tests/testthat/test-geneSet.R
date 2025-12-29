@@ -287,6 +287,15 @@ test_that("getGeneSet works", {
 })
 
 test_that("geneSet/geneSetList/geneSetFile input validaton works", {
+  genesets <- sample(listGeneSets(genesetlist), size = 10)
+  genesets_fromlist <- getGeneSet(
+    genesetlist,
+    geneSet = genesets
+  )
+  genesets_fromfile <- getGeneSet(
+    genesetfile,
+    geneSet = genesets
+  )
   # expect error when geneSet units and weights don't match 
   expect_error({
     geneSet(
