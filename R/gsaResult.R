@@ -27,13 +27,13 @@ proto_gsaResult <- S4Vectors::DataFrame(
 #' Can be either a data.frame or a filepath pointing to the results.
 #' @param header Relevant if `object` is a filepath, does the data contain a header? (TRUE/FALSE).
 #' @export
-gsaResult <- function(object, header = TRUE) {
+gsaResult <- function(object) {
   if(missing(object) || is.null(object)) {
     object <- proto_gsaResult
   } 
   
   if (is.character(object)) {
-    readResults(path = object, type = "gsaResult", header = header, sep = "\t")
+    readResults(path = object, type = "gsaResult")
   } else if ( is.data.frame(object) || is(object, "DFrame")) {
     if (!all(names(columns_gsaResults) %in% colnames(object))) {
       stop(sprintf("The following columns are missing: %s", 
