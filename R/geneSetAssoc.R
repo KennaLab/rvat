@@ -2,28 +2,6 @@
 #' @include gsaResult.R
 #' @include geneSet.R
 
-# geneSetAssoc ----------------------------------------------------------------
-setMethod(
-  "checkDuplicates",
-  signature = "rvbResult",
-  definition = function(object, stop = TRUE) {
-    if (anyDuplicated(object@unit) != 0L) {
-      if (stop) {
-        stop(
-          "Duplicated units are present in the rvbResult object",
-          call. = FALSE
-        )
-      } else {
-        warning(
-          "Duplicated units are present in the rvbResult object",
-          call. = FALSE
-        )
-      }
-    }
-  }
-)
-
-
 #' @rdname geneSetAssoc
 #' @usage NULL
 #' @export
@@ -58,7 +36,7 @@ setMethod(
       test <- test[test %in% geneSetAssoc_tests_score]
     }
 
-    # Prepare data
+    # prepare data
     if ("mlm" %in% test) {
       if (oneSided) {
         warning(
@@ -100,7 +78,7 @@ setMethod(
         condition.type <- "matrix"
 
         ## checks
-        nonoverlap <- sum(!object$unit %in% rownames(matrix))
+        nonoverlap <- sum(!object$unit %in% rownames(condition))
         if (nonoverlap > 0L) {
           if (verbose) {
             message(sprintf(
@@ -109,9 +87,9 @@ setMethod(
               nrow(object)
             ))
           }
-          object <- object[object$unit %in% rownames(matrix), ]
+          object <- object[object$unit %in% rownames(condition), ]
         }
-        nonoverlap <- sum(!rownames(matrix) %in% object$unit)
+        nonoverlap <- sum(!rownames(condition) %in% object$unit)
         if (nonoverlap > 0L) {
           if (verbose) {
             message(sprintf(
@@ -123,14 +101,24 @@ setMethod(
         }
 
         # Make sure the order is correct
-        matrix <- matrix[as.character(object$unit), , drop = FALSE]
+        condition <- condition[as.character(object$unit), , drop = FALSE]
 
-        if (nrow(matrix) == 0L || nrow(object) == 0L) {
+        if (nrow(condition) == 0L || nrow(object) == 0L) {
           stop("No overlapping units left to test!", call. = FALSE)
         }
       } else if (is(condition, "vector")) {
-        condition.type <- "vector"
-        check <- sum(condition %in% names)
+        condition.type <- "geneSet"
+        if (!is.null(geneSet)) {
+          names <- names(geneSet)
+          condition <- condition[condition %in% names]
+          check <- sum(condition %in% names)
+          condition <- getGeneSet(geneSet, condition)
+        } else if (!is.null(scoreMatrix)) {
+          names <- colnames(scoreMatrix)
+          condition <- condition[condition %in% names]
+          check <- sum(condition %in% names)
+          condition <- scoreMatrix[,condition, drop = FALSE]
+        }
         if (check < length(condition)) {
           if (verbose) {
             message(sprintf(
@@ -141,13 +129,12 @@ setMethod(
             ))
           }
         }
-        condition <- condition[condition %in% names]
       } else {
-        condition.type <- "vector"
+        condition.type <- "geneSet"
         condition <- if (!is.null(geneSet)) {
-          names(geneSet)
+          geneSet
         } else if (!is.null(scoreMatrix)) {
-          colnames(scoreMatrix)
+          scoreMatrix
         }
       }
     }
@@ -227,6 +214,7 @@ setMethod(
           file = gzfile(output),
           row.names = FALSE
         )
+        return(invisible(NULL))
       } else {
         return(result_list)
       }
@@ -289,7 +277,7 @@ setMethod(
           )
         } else {
           result_list[[i]] <- setNames(
-            data.frame(matrix(ncol = 12, nrow = 0)),
+            data.frame(matrix(ncol = 11, nrow = 0)),
             c(
               "geneSetName",
               "test",
@@ -427,7 +415,11 @@ setMethod(
   }
 
   if (!is.null(args[["output"]])) {
-    .check_output(args[["output"]], overWrite = TRUE, verbose = args[["verbose"]])
+    .check_output(
+      args[["output"]],
+      overWrite = TRUE,
+      verbose = args[["verbose"]]
+    )
   }
 
   invisible(NULL)
@@ -444,7 +436,7 @@ gsa_conditional <- function(
   geneSetList = NULL,
   nullmodel = NULL,
   covar = NULL,
-  test = c("lm"),
+  test = "lm",
   threshold = NULL,
   oneSided = TRUE,
   ID = "unit",
@@ -455,18 +447,15 @@ gsa_conditional <- function(
 
   if ("lm" %in% test) {
     Plt <- effectlt <- effectSElt <- effectCIlowerlt <- effectCIupperlt <- list()
-    if (condition.type %in% c("geneSet", "vector")) {
+    if (condition.type == "geneSet") {
       chunksCond <- split(
         seq_along(condition),
         ceiling(seq_along(condition) / memlimit)
       )
-      if (condition.type == "geneSet") {
-        condNames <- names(condition)
-      }
-      if (condition.type == "vector") condNames <- condition
+      condNames <- names(condition)
     } else {
-      chunksCond <- list(seq_len(ncol(matrix)))
-      condNames <- colnames(matrix)
+      chunksCond <- list(seq_len(ncol(condition)))
+      condNames <- colnames(condition)
     }
 
     for (chunk in chunksCond) {
@@ -475,17 +464,6 @@ gsa_conditional <- function(
           condition,
           geneSet = names(condition)[chunk]
         )
-        mappedMatrixCond <- mapToMatrix(
-          geneSetList_chunk,
-          object,
-          ID = ID,
-          sparse = TRUE
-        )
-      } else if (condition.type == "vector") {
-        names <- condition[chunk]
-        if (!is.null(geneSet)) {
-          geneSetList_chunk <- getGeneSet(geneSet, geneSet = names)
-        }
         mappedMatrixCond <- mapToMatrix(
           geneSetList_chunk,
           object,
