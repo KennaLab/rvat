@@ -29,14 +29,25 @@ setMethod(
     verbose = TRUE
   ) {
     # validate input
-    arg_parsed <- .geneSetAssoc_validate_input(as.list(environment()))
-    # Check methods and available tests
+    .geneSetAssoc_validate_input(as.list(environment()))
+
+    # check methods and available tests
     ## only 'lm' and 'mlm' are implemented for `scoreMatrix` object
     if (!is.null(scoreMatrix)) {
       test <- test[test %in% geneSetAssoc_tests_score]
     }
 
-    # prepare data
+    # prepare test-stats (Z-scores, covariates, etc.)
+    object <- .prepare_stats_GSA(
+      object,
+      covar,
+      Zcutoffs,
+      INT,
+      verbose = verbose
+    )
+
+    # handle MLM null model
+    nullmodel <- NULL
     if ("mlm" %in% test) {
       if (oneSided) {
         warning(
@@ -45,7 +56,7 @@ setMethod(
           call. = FALSE
         )
       }
-      if ("mlm" %in% test && is.null(cormatrix)) {
+      if (is.null(cormatrix)) {
         stop(
           "The mlm test requires specifying the 'cormatrix' argument,",
           "see the `buildCorMatrix` method.",
@@ -60,155 +71,39 @@ setMethod(
         Zcutoffs = Zcutoffs
       )
       object <- getResults(nullmodel)
-    } else {
-      object <- .prepare_stats_GSA(
-        object,
-        covar,
-        Zcutoffs,
-        INT,
-        verbose = verbose
-      )
     }
 
-    # Check `condition` parameter
+    # handle condition parameter, if specified
+    cond_data <- NULL
     if (!is.null(condition)) {
-      if (is(condition, "geneSetList") || is(condition, "geneSetFile")) {
-        condition.type <- "geneSet"
-      } else if (is(condition, "matrix")) {
-        condition.type <- "matrix"
-
-        ## checks
-        nonoverlap <- sum(!object$unit %in% rownames(condition))
-        if (nonoverlap > 0L) {
-          if (verbose) {
-            message(sprintf(
-              "%s/%s units in the results are not present in the condition matrix, these are excluded.",
-              nonoverlap,
-              nrow(object)
-            ))
-          }
-          object <- object[object$unit %in% rownames(condition), ]
-        }
-        nonoverlap <- sum(!rownames(condition) %in% object$unit)
-        if (nonoverlap > 0L) {
-          if (verbose) {
-            message(sprintf(
-              "%s/%s units in the condition matrix are not present in the results, these are excluded",
-              nonoverlap,
-              nrow(object)
-            ))
-          }
-        }
-
-        # Make sure the order is correct
-        condition <- condition[as.character(object$unit), , drop = FALSE]
-
-        if (nrow(condition) == 0L || nrow(object) == 0L) {
-          stop("No overlapping units left to test!", call. = FALSE)
-        }
-      } else if (is(condition, "vector")) {
-        condition.type <- "geneSet"
-        if (!is.null(geneSet)) {
-          names <- names(geneSet)
-          condition <- condition[condition %in% names]
-          check <- sum(condition %in% names)
-          condition <- getGeneSet(geneSet, condition)
-        } else if (!is.null(scoreMatrix)) {
-          names <- colnames(scoreMatrix)
-          condition <- condition[condition %in% names]
-          check <- sum(condition %in% names)
-          condition <- scoreMatrix[,condition, drop = FALSE]
-        }
-        if (check < length(condition)) {
-          if (verbose) {
-            message(sprintf(
-              "%s/%s specified in `condition` are present in the %s",
-              check,
-              length(condition),
-              input.type
-            ))
-          }
-        }
-      } else {
-        condition.type <- "geneSet"
-        condition <- if (!is.null(geneSet)) {
-          geneSet
-        } else if (!is.null(scoreMatrix)) {
-          scoreMatrix
-        }
-      }
+      cond_data <- .geneSetAssoc_handle_condition_param(
+        condition = condition,
+        object = object,
+        geneSet = geneSet,
+        scoreMatrix = scoreMatrix,
+        verbose = verbose
+      )
+      object <- cond_data$object
     }
 
     ## scoreMatrix -----------------------------------------------------
 
     if (!is.null(scoreMatrix)) {
-      # Check overlap between scoreMatrix and results file
-      # Check between results object and cormatrix
-      nonoverlap <- sum(!object$unit %in% rownames(scoreMatrix))
-      if (nonoverlap > 0L) {
-        if (verbose) {
-          message(sprintf(
-            "%s/%s units in the results are not present in the scoreMatrix, these are excluded.",
-            nonoverlap,
-            nrow(object)
-          ))
-        }
-        object <- object[object$unit %in% rownames(scoreMatrix), ]
-      }
-      nonoverlap <- sum(!rownames(scoreMatrix) %in% object$unit)
-      if (nonoverlap > 0L && verbose) {
-        message(sprintf(
-          "%s/%s units in the scoreMatrix are not present in the results, these are excluded",
-          nonoverlap,
-          nrow(object)
-        ))
-      }
-
-      # Make sure the order is correct
-      scoreMatrix <- scoreMatrix[as.character(object$unit), , drop = FALSE]
-
-      if (nrow(scoreMatrix) == 0L || nrow(object) == 0L) {
-        stop("No overlapping units left to test!", call. = FALSE)
-      }
-
-      if (!is.null(scoreCutoffs)) {
-        scoreMatrix <- apply(scoreMatrix, 2, function(x) {
-          sdev <- sd(x)
-          mn <- mean(x)
-          x[x < (mn - (scoreCutoffs[1] * sdev))] <- (mn -
-            (scoreCutoffs[1] * sdev))
-          x[x > (mn + (scoreCutoffs[2] * sdev))] <- (mn +
-            (scoreCutoffs[2] * sdev))
-          x
-        })
-      }
-
-      chunks <- split(
-        seq_len(ncol(scoreMatrix)),
-        ceiling(seq_len(ncol(scoreMatrix)) / memlimit)
+      result_scorematrix <- .geneSetAssoc_scoreMatrix(
+        object,
+        scoreMatrix = scoreMatrix,
+        scoreCutoffs = scoreCutoffs,
+        nullmodel = nullmodel,
+        covar = covar,
+        test = test,
+        oneSided = oneSided,
+        ID = ID,
+        memlimit = memlimit,
+        verbose = verbose
       )
-      result_list <- list()
-      i <- 1L
-      for (chunk in chunks) {
-        scoreMatrix_chunk <- scoreMatrix[, chunk, drop = FALSE]
-
-        result_list[[i]] <- enrich_test(
-          as.data.frame(object),
-          scorematrix = scoreMatrix_chunk,
-          nullmodel = if ("mlm" %in% test) nullmodel else NULL,
-          covar = covar,
-          test = test,
-          oneSided = oneSided,
-          ID = ID
-        )
-        i <- i + 1L
-      }
-
-      result_list <- do.call(rbind, result_list)
-
       if (!is.null(output)) {
         write.table(
-          result_list,
+          result_scorematrix,
           sep = "\t",
           quote = FALSE,
           file = gzfile(output),
@@ -216,147 +111,47 @@ setMethod(
         )
         return(invisible(NULL))
       } else {
-        return(result_list)
-      }
-    }
-
-    ## GSA -------------------------------------------------------------
-    if (any(geneSetAssoc_tests_competitive_threshold %in% test)) {
-      if (is.null(threshold)) {
-        threshold <- 0.05 / nrow(object)
-        if (verbose) {
-          message(sprintf(
-            "`threshold` not specified for defining significant genes, using a bonferroni threshold: %s",
-            signif(threshold, 4)
-          ))
-        }
+        return(result_scorematrix)
       }
     } else {
-      threshold <- NULL
-    }
-
-    ## define chunks based on memlimit
-    chunks <- split(
-      seq_along(geneSet),
-      ceiling(seq_along(geneSet) / memlimit)
-    )
-    result_list <- list()
-    i <- 1L
-
-    for (chunk in chunks) {
-      geneSetList_chunk <- getGeneSet(
-        geneSet,
-        geneSet = listGeneSets(geneSet)[chunk]
-      )
-      mappedMatrix <- mapToMatrix(
-        geneSetList_chunk,
+      result_gsa <- .geneSetAssoc_gsa(
         object,
+        geneSet = geneSet,
+        cond_data = cond_data,
+        nullmodel = nullmodel,
+        covar = covar,
+        test = test,
+        threshold = threshold,
+        oneSided = oneSided,
         ID = ID,
-        sparse = TRUE
+        memlimit = memlimit,
+        minSetSize = minSetSize,
+        maxSetSize = maxSetSize,
+        verbose = verbose
       )
-
-      if (minSetSize > 0L || maxSetSize < Inf) {
-        keep <- Matrix::colSums(mappedMatrix)
-        keep <- names(keep[keep >= minSetSize & keep <= maxSetSize])
-      } else {
-        keep <- names(geneSetList_chunk)
-      }
-
-      if (is.null(condition)) {
-        if (length(keep) > 0L) {
-          result_list[[i]] <- gsa(
-            as.data.frame(object),
-            genesetlist = getGeneSet(geneSetList_chunk, geneSet = keep),
-            mappedMatrix = as.matrix(mappedMatrix[, keep, drop = FALSE]),
-            nullmodel = if ("mlm" %in% test) nullmodel else NULL,
-            covar = covar,
-            test = test,
-            threshold = threshold,
-            oneSided = oneSided,
-            ID = ID
-          )
-        } else {
-          result_list[[i]] <- setNames(
-            data.frame(matrix(ncol = 11, nrow = 0)),
-            c(
-              "geneSetName",
-              "test",
-              "covar",
-              "threshold",
-              "geneSetSize",
-              "genesObs",
-              "effect",
-              "effectSE",
-              "effectCIlower",
-              "effectCIupper",
-              "P"
-            )
-          )
-        }
-      } else {
-        if (length(keep) > 0L) {
-          result_list[[i]] <- gsa_conditional(
-            object,
-            condition = condition,
-            condition.type = condition.type,
-            genesetlist = getGeneSet(geneSetList_chunk, geneSet = keep),
-            mappedMatrix = as.matrix(mappedMatrix[, keep, drop = FALSE]),
-            geneSetFile = geneSetFile,
-            geneSetList = geneSetList,
-            nullmodel = if ("mlm" %in% test) nullmodel else NULL,
-            covar = covar,
-            test = test,
-            threshold = threshold,
-            oneSided = oneSided,
-            ID = ID,
-            memlimit = memlimit
-          )
-        } else {
-          result_list[[i]] <- setNames(
-            data.frame(matrix(ncol = 12, nrow = 0)),
-            c(
-              "geneSetName",
-              "test",
-              "covar",
-              "threshold",
-              "geneSetSize",
-              "genesObs",
-              "effect",
-              "effectSE",
-              "effectCIlower",
-              "effectCIupper",
-              "P",
-              "condition"
-            )
-          )
-        }
-      }
-
-      i <- i + 1L
-    }
-
-    result_list <- do.call(rbind, result_list)
-    result_gsa <- gsaResult(result_list)
-    metadata(result_gsa)$rvatVersion <- as.character(packageVersion("rvat"))
-    metadata(result_gsa)$gdbId <- getGdbId(object)
-    metadata(result_gsa)$genomeBuild <- getGenomeBuild(object)
-    metadata(result_gsa)$creationDate <- as.character(round(
-      Sys.time(),
-      units = "secs"
-    ))
-
-    if (verbose) {
-      message(sprintf(
-        "%s out of %s sets are kept.",
-        length(unique(result_list$geneSetName)),
-        length(geneSet)
+      result_gsa <- gsaResult(result_gsa)
+      metadata(result_gsa)$rvatVersion <- as.character(packageVersion("rvat"))
+      metadata(result_gsa)$gdbId <- getGdbId(object)
+      metadata(result_gsa)$genomeBuild <- getGenomeBuild(object)
+      metadata(result_gsa)$creationDate <- as.character(round(
+        Sys.time(),
+        units = "secs"
       ))
-    }
 
-    if (!is.null(output)) {
-      writeResult(result_gsa, file = output)
-    } else {
-      return(result_gsa)
+      if (verbose) {
+        message(sprintf(
+          "%s out of %s sets are kept.",
+          length(unique(result_gsa$geneSetName)),
+          length(geneSet)
+        ))
+      }
+
+      if (!is.null(output)) {
+        writeResult(result_gsa, file = output)
+        return(invisible(NULL))
+      } else {
+        return(result_gsa)
+      }
     }
   }
 )
@@ -423,6 +218,251 @@ setMethod(
   }
 
   invisible(NULL)
+}
+
+.geneSetAssoc_handle_condition_param <- function(
+  condition,
+  object,
+  geneSet,
+  scoreMatrix,
+  verbose
+) {
+  type <- "vector"
+  if (is(condition, "geneSetList") || is(condition, "geneSetFile")) {
+    type <- "geneSet"
+  } else if (is(condition, "matrix")) {
+    type <- "matrix"
+  }
+
+  if (type == "matrix") {
+    nonoverlap <- sum(!object$unit %in% rownames(condition))
+    if (nonoverlap > 0L) {
+      if (verbose) {
+        message(sprintf(
+          "%s/%s units in the results are not present in the condition matrix, these are excluded.",
+          nonoverlap,
+          nrow(object)
+        ))
+      }
+      object <- object[object$unit %in% rownames(condition), ]
+    }
+
+    nonoverlap <- sum(!rownames(condition) %in% object$unit)
+    if (nonoverlap > 0L) {
+      if (verbose) {
+        message(sprintf(
+          "%s/%s units in the condition matrix are not present in the results, these are excluded",
+          nonoverlap,
+          nrow(object)
+        ))
+      }
+    }
+
+    # make sure the order is correct
+    condition <- condition[as.character(object$unit), , drop = FALSE]
+    names_vec <- colnames(condition)
+
+    if (nrow(condition) == 0L || nrow(object) == 0L) {
+      stop("No overlapping units left to test!", call. = FALSE)
+    }
+  } else if (type == "vector") {
+    if (!is.null(geneSet)) {
+      type <- "geneSet"
+      names_vec <- condition[condition %in% names(geneSet)]
+      condition <- getGeneSet(geneSet, names_vec)
+    } else if (!is.null(scoreMatrix)) {
+      type <- "matrix"
+      names_vec <- condition[condition %in% colnames(scoreMatrix)]
+      condition <- scoreMatrix[, names_vec, drop = FALSE]
+    }
+  } else if (type == "geneSet") {
+    names_vec <- names(condition)
+  }
+  if (length(names_vec) == 0L) {
+    stop("Condition invalid or empty overlap.", call. = FALSE)
+  }
+
+  # return
+  list(type = type, data = condition, names = names_vec, object = object)
+}
+
+.geneSetAssoc_gsa <- function(
+  object,
+  geneSet,
+  cond_data,
+  nullmodel,
+  covar,
+  test,
+  threshold,
+  oneSided,
+  ID,
+  memlimit,
+  minSetSize,
+  maxSetSize,
+  verbose
+) {
+  # handle thresholds
+  if (any(geneSetAssoc_tests_competitive_threshold %in% test)) {
+    if (is.null(threshold)) {
+      threshold <- 0.05 / nrow(object)
+      if (verbose) {
+        message(sprintf(
+          "`threshold` not specified for defining significant genes, using a bonferroni threshold: %s",
+          signif(threshold, 4)
+        ))
+      }
+    }
+  } else {
+    threshold <- NULL
+  }
+
+  # split geneset into chunks based on memlimit
+  chunks <- split(
+    seq_along(geneSet),
+    ceiling(seq_along(geneSet) / memlimit)
+  )
+
+  results <- lapply(chunks, function(chunk) {
+    # extract current chunk
+    geneSetList_chunk <- getGeneSet(
+      geneSet,
+      geneSet = listGeneSets(geneSet)[chunk]
+    )
+    mappedMatrix <- mapToMatrix(
+      geneSetList_chunk,
+      object,
+      ID = ID,
+      sparse = TRUE
+    )
+
+    # filter based on set size
+    set_sizes <- Matrix::colSums(mappedMatrix)
+    sets_keep <- names(set_sizes[
+      set_sizes >= minSetSize & set_sizes <= maxSetSize
+    ])
+    ## return early if no sets left
+    if (length(sets_keep) == 0L) {
+      empty_result <- gsaResult()
+      if (!is.null(cond_data)) {
+        empty_result$condition <- character(0)
+      }
+      return(empty_result)
+    }
+    ## subset mapped matrix and genesetlist
+    mappedMatrix <- mappedMatrix[, sets_keep, drop = FALSE]
+    current_sets <- getGeneSet(geneSetList_chunk, geneSet = sets_keep)
+
+    # run GSA (conditional or not)
+    if (is.null(cond_data)) {
+      gsa(
+        as.data.frame(object),
+        genesetlist = current_sets,
+        mappedMatrix = as.matrix(mappedMatrix),
+        nullmodel = nullmodel,
+        covar = covar,
+        test = test,
+        threshold = threshold,
+        oneSided = oneSided,
+        ID = ID
+      )
+    } else {
+      gsa_conditional(
+        object,
+        condition = cond_data[["data"]],
+        condition.type = cond_data[["type"]],
+        genesetlist = current_sets,
+        mappedMatrix = as.matrix(mappedMatrix),
+        geneSetFile = geneSetFile,
+        geneSetList = geneSetList,
+        nullmodel = nullmodel,
+        covar = covar,
+        test = test,
+        threshold = threshold,
+        oneSided = oneSided,
+        ID = ID,
+        memlimit = memlimit
+      )
+    }
+  })
+  results <- do.call(rbind, results)
+  rownames(results) <- NULL
+  results
+}
+
+.geneSetAssoc_scoreMatrix <- function(
+  object,
+  scoreMatrix,
+  scoreCutoffs,
+  nullmodel,
+  covar,
+  test,
+  oneSided,
+  ID,
+  memlimit,
+  verbose
+) {
+  # check overlap between scoreMatrix and results file
+  nonoverlap <- sum(!object$unit %in% rownames(scoreMatrix))
+  if (nonoverlap > 0L) {
+    if (verbose) {
+      message(sprintf(
+        "%s/%s units in the results are not present in the scoreMatrix, these are excluded.",
+        nonoverlap,
+        nrow(object)
+      ))
+    }
+    object <- object[object$unit %in% rownames(scoreMatrix), ]
+  }
+  nonoverlap <- sum(!rownames(scoreMatrix) %in% object$unit)
+  if (nonoverlap > 0L && verbose) {
+    message(sprintf(
+      "%s/%s units in the scoreMatrix are not present in the results, these are excluded",
+      nonoverlap,
+      nrow(object)
+    ))
+  }
+
+  # make sure the order is correct
+  scoreMatrix <- scoreMatrix[as.character(object$unit), , drop = FALSE]
+
+  if (nrow(scoreMatrix) == 0L || nrow(object) == 0L) {
+    stop("No overlapping units left to test!", call. = FALSE)
+  }
+
+  # apply score cutoffs
+  if (!is.null(scoreCutoffs)) {
+    scoreMatrix <- apply(scoreMatrix, 2, function(x) {
+      sdev <- sd(x)
+      mn <- mean(x)
+      x[x < (mn - (scoreCutoffs[1] * sdev))] <- (mn -
+        (scoreCutoffs[1] * sdev))
+      x[x > (mn + (scoreCutoffs[2] * sdev))] <- (mn +
+        (scoreCutoffs[2] * sdev))
+      x
+    })
+  }
+
+  # split scoreMatrix into chunks based on memlimit
+  chunks <- split(
+    seq_len(ncol(scoreMatrix)),
+    ceiling(seq_len(ncol(scoreMatrix)) / memlimit)
+  )
+
+  results <- lapply(chunks, function(chunk) {
+    scoreMatrix_chunk <- scoreMatrix[, chunk, drop = FALSE]
+    enrich_test(
+      as.data.frame(object),
+      scorematrix = scoreMatrix_chunk,
+      nullmodel = nullmodel,
+      covar = covar,
+      test = test,
+      oneSided = oneSided,
+      ID = ID
+    )
+  })
+  results <- do.call(rbind, results)
+  rownames(results) <- NULL
+  results
 }
 
 
