@@ -411,7 +411,7 @@ setMethod("getGT", signature="gdb",
             
             # if specified, extract annotations
             if (includeVarInfo) {
-              anno <- getAnno(object, table = "var")
+              anno <- getAnno(object, table = "var", VAR_id = VAR_id)
               if (sum(duplicated(anno$VAR_id)) > 0) stop("Annotations should contain 1 row per VAR_id to be included in a genoMatrix object.")
             } else if(!is.null(anno)) {
               anno <- getAnno(object, table = anno, fields = if (!is.null(annoFields)) annoFields else "*", VAR_id = VAR_id)
