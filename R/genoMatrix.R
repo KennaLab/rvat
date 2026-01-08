@@ -252,7 +252,7 @@ setMethod("summariseGeno", signature="genoMatrix",
                                                                                        hom[rowData(object)$ploidy == "diploid"],
                                                                                        af[rowData(object)$ploidy == "diploid"])
             
-            hweP[assays(object)$ploidy == "YnonPAR"] <- 1 
+            hweP[rowData(object)$ploidy == "YnonPAR"] <- 1 
           
             output <- data.frame(
               VAR_id = rownames(object),
