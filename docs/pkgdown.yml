@@ -1,5 +1,5 @@
-pandoc: '3.2'
-pkgdown: 2.0.9
+pandoc: 3.8.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   association_testing: association_testing.html
@@ -11,5 +11,4 @@ articles:
   GSA: GSA.html
   spatial_clustering: spatial_clustering.html
   variant_annotation: variant_annotation.html
-last_built: 2025-02-12T11:21Z
-
+last_built: 2026-01-08T11:30Z

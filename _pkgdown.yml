@@ -32,6 +32,9 @@ navbar:
   - text: "F.A.Q."
     href: articles/faq.html
  right:
+   - icon: fa-file-pdf
+     text: "Preprint"
+     href: "preprint.pdf"
    - icon: fa-github
      href: https://github.com/KennaLab/rvat
      

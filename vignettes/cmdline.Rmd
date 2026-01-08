@@ -131,10 +131,12 @@ Merge variant sets for coordinated set based association testing of multiple fil
 
 ```{bash}
 varSets=(HighImpact ModerateImpact CADDphred PolyPhen)
-(gunzip -c $outdir/${varSets[0]}_cmdline.txt.gz | grep '^#'; for varSet in ${varSets[@]}
+gunzip -c $outdir/${varSets[1]}_cmdline.txt.gz | grep '^#' > $outdir/mergedVarsets_cmdline.txt
+(for varSet in ${varSets[@]}
   do
       gunzip -c $outdir/${varSet}_cmdline.txt.gz | grep -v '^#'
-  done) | sort -t '|' -s -k1,1 | gzip > $outdir/mergedVarsets_cmdline.txt.gz
+  done) | sort -t '|' -s -k1,1 >> $outdir/mergedVarsets_cmdline.txt
+gzip -c $outdir/mergedVarsets_cmdline.txt > $outdir/mergedVarsets_cmdline.txt.gz
 ```
 
 ## Run burden tests
