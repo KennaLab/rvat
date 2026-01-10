@@ -480,162 +480,80 @@ gsa_conditional <- function(
   threshold = NULL,
   oneSided = TRUE,
   ID = "unit",
-  memlimit = 1000
+  memlimit = 1000L
 ) {
-  Pl <- effectl <- effectSEl <- effectCIlowerl <- effectCIupperl <- list()
-  Ngenes_available <- Matrix::colSums(mappedMatrix)
-
-  if ("lm" %in% test) {
-    Plt <- effectlt <- effectSElt <- effectCIlowerlt <- effectCIupperlt <- list()
-    if (condition.type == "geneSet") {
-      chunksCond <- split(
-        seq_along(condition),
-        ceiling(seq_along(condition) / memlimit)
-      )
-      condNames <- names(condition)
-    } else {
-      chunksCond <- list(seq_len(ncol(condition)))
-      condNames <- colnames(condition)
-    }
-
-    for (chunk in chunksCond) {
-      if (condition.type == "geneSet") {
-        geneSetList_chunk <- getGeneSet(
-          condition,
-          geneSet = names(condition)[chunk]
-        )
-        mappedMatrixCond <- mapToMatrix(
-          geneSetList_chunk,
-          object,
-          ID = ID,
-          sparse = TRUE
-        )
-      } else {
-        mappedMatrixCond <- condition
-      }
-
-      for (geneset in colnames(mappedMatrixCond)) {
-        stats <- cbind(
-          as.data.frame(object),
-          as.matrix(mappedMatrixCond)[, geneset, drop = FALSE]
-        )
-
-        cov <- if (length(covar) == 0L) geneset else c(covar, geneset)
-        if (var(stats[, geneset]) == 0) {
-          cov <- cov[cov != geneset]
-        }
-
-        if (length(cov) > 0L) {
-          X <- cbind(1, as.matrix(stats[, c(cov), drop = FALSE]))
-        } else {
-          X <- cbind(rep(1, nrow(stats)))
-        }
-        U1 <- crossprod(X, stats$Z)
-        U2 <- solve(crossprod(X), U1)
-        ytr <- stats$Z - X %*% U2
-        U3 <- crossprod(X, as.matrix(mappedMatrix))
-        U4 <- solve(crossprod(X), U3)
-        Str <- mappedMatrix - X %*% U4
-        effect <- as.vector(crossprod(ytr, Str)) / colSums(Str^2)
-        Str2 <- colSums(Str^2)
-        sig <- (sum(ytr^2) - effect^2 * Str2) / (nrow(stats) - ncol(X) - 2)
-        effectSE <- sqrt(sig * (1 / Str2))
-
-        if (oneSided) {
-          P <- pt(
-            (effect / effectSE),
-            nrow(stats) - ncol(X) - 1L,
-            lower.tail = FALSE
-          )
-          fac <- qt(0.95, df = nrow(stats) - ncol(X) - 1L)
-          effectCIlower <- effect - (fac * effectSE)
-          effectCIupper <- rep(Inf, length(P))
-        } else {
-          P <- 2 *
-            pt(
-              abs(effect / effectSE),
-              nrow(stats) - ncol(X) - 1L,
-              lower.tail = FALSE
-            )
-          fac <- qt(0.975, df = nrow(stats) - ncol(X) - 1L)
-          effectCIlower <- effect - (fac * effectSE)
-          effectCIupper <- effect + (fac * effectSE)
-        }
-        Plt[[geneset]] <- P
-        effectlt[[geneset]] <- effect
-        effectSElt[[geneset]] <- effectSE
-        effectCIlowerlt[[geneset]] <- effectCIlower
-        effectCIupperlt[[geneset]] <- effectCIupper
-      }
-    }
-    Plt <- Plt[condNames]
-    effectlt <- effectlt[condNames]
-    effectSElt <- effectSElt[condNames]
-    effectCIlowerlt <- effectCIlowerlt[condNames]
-    effectCIupperlt <- effectCIupperlt[condNames]
-    Pl[["lm"]] <- unlist(Plt)
-    effectl[["lm"]] <- unlist(effectlt)
-    effectSEl[["lm"]] <- unlist(effectSElt)
-    effectCIlowerl[["lm"]] <- unlist(effectCIlowerlt)
-    effectCIupperl[["lm"]] <- unlist(effectCIupperlt)
+  if (condition.type == "geneSet") {
+    chunksCond <- split(
+      seq_along(condition),
+      ceiling(seq_along(condition) / memlimit)
+    )
+    condNames <- names(condition)
+  } else if (condition.type == "matrix") {
+    chunksCond <- split(
+      seq_len(ncol(condition)),
+      ceiling(seq_len(ncol(condition)) / memlimit)
+    )
+    condNames <- colnames(condition)
   }
 
-  Ngenes_available <- Matrix::colSums(mappedMatrix)
-  results <- data.frame(
-    geneSetName = c(rep(
-      names(genesetlist),
-      times = (length(test[
-        test %in% geneSetAssoc_tests_competitive_condition
-      ]) *
-        length(condNames))
-    )),
-    test = c(rep(
-      geneSetAssoc_tests_competitive_condition[
-        geneSetAssoc_tests_competitive_condition %in% test
-      ],
-      each = (length(genesetlist) * length(condNames))
-    )),
-    covar = c(rep(
-      paste(covar, collapse = ","),
-      times = (length(genesetlist) *
-        length(condNames) *
-        length(test[test %in% geneSetAssoc_tests_competitive_condition]))
-    )),
-    condition = c(rep(
-      condNames,
-      each = (length(test[test %in% geneSetAssoc_tests_competitive_condition]) *
-        length(genesetlist))
-    )),
-    threshold = c(rep(rep(
-      NA_real_,
-      times = (length(genesetlist) * length(condNames))
-    ))),
-    geneSetSize = rep(
-      lengths(genesetlist),
-      times = (length(test[
-        test %in% geneSetAssoc_tests_competitive_condition
-      ]) *
-        length(condNames))
-    ),
-    genesObs = c(rep(
-      Ngenes_available,
-      times = (length(test[
-        test %in% geneSetAssoc_tests_competitive_condition
-      ]) *
-        length(condNames))
-    )),
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
+  results_list <- lapply(chunksCond, function(chunk) {
+    # retrieve condition matrix for current chunk
+    if (condition.type == "geneSet") {
+      geneSetList_chunk <- getGeneSet(
+        condition,
+        geneSet = names(condition)[chunk]
+      )
+      mappedMatrixCond <- mapToMatrix(
+        geneSetList_chunk,
+        object,
+        ID = ID,
+        sparse = TRUE
+      )
+    } else if (condition.type == "matrix") {
+      mappedMatrixCond <- condition[, chunk, drop = FALSE]
+    }
 
-  results <- cbind(
-    results,
-    effect = unname(c(effectl[["lm"]])),
-    effectSE = unname(c(effectSEl[["lm"]])),
-    effectCIlower = unname(c(effectCIlowerl[["lm"]])),
-    effectCIupper = unname(c(effectCIupperl[["lm"]])),
-    P = unname(c(Pl[["lm"]]))
-  )
+    # iterate over each condition in this chunk
+    cond_results <- lapply(colnames(mappedMatrixCond), function(cond_name) {
+      stats <- as.data.frame(object)
+      stats[[cond_name]] <- as.matrix(mappedMatrixCond)[, cond_name]
+
+      # handle covariates
+      current_covar <- if (length(covar) == 0L) {
+        cond_name
+      } else {
+        c(covar, cond_name)
+      }
+      if (var(stats[[cond_name]], na.rm = TRUE) == 0) {
+        current_covar <- current_covar[current_covar != cond_name]
+      }
+
+      # compute lm stats
+      res <- .geneSetAssoc_compute_lm_stats(
+        stats = stats,
+        mat = mappedMatrix,
+        covar = current_covar,
+        oneSided = oneSided
+      )
+
+      # format output
+      res_formatted <- .geneSetAssoc_format_row(
+        names = names(genesetlist),
+        test = "lm",
+        res = res,
+        Ngenes = lengths(genesetlist),
+        Ngenes_available = Matrix::colSums(mappedMatrix),
+        covar = covar
+      )
+      res_formatted$condition <- cond_name
+      res_formatted
+    })
+    do.call(rbind, cond_results)
+  })
+  # merge chunks
+  results <- do.call(rbind, results_list)
+  rownames(results) <- NULL
+
   results
 }
 
@@ -651,417 +569,126 @@ gsa <- function(
   oneSided = TRUE,
   ID = "unit"
 ) {
-  Pl <- effectl <- effectSEl <- effectCIlowerl <- effectCIupperl <- list()
+  results_list <- list()
   Ngenes_available <- Matrix::colSums(mappedMatrix)
+  Ngenes <- lengths(genesetlist)
 
-  if (any(test %in% geneSetAssoc_tests_competitive)) {
-    if ("lm" %in% test) {
-      ## based on: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-166
-      if (length(covar) > 0L) {
-        X <- cbind(1, as.matrix(stats[, c(covar), drop = FALSE]))
-      } else {
-        X <- cbind(rep(1, nrow(stats)))
-      }
-      U1 <- crossprod(X, stats$Z)
-      U2 <- solve(crossprod(X), U1)
-      ytr <- stats$Z - X %*% U2
-      U3 <- crossprod(X, as.matrix(mappedMatrix))
-      U4 <- solve(crossprod(X), U3)
-      Str <- mappedMatrix - X %*% U4
-      effect <- as.vector(crossprod(ytr, Str)) / colSums(Str^2)
-      Str2 <- colSums(Str^2)
-      sig <- (sum(ytr^2) - effect^2 * Str2) / (nrow(stats) - ncol(X) - 2L)
-      effectSE <- sqrt(sig * (1 / Str2))
+  if ("lm" %in% test) {
+    res <- .geneSetAssoc_compute_lm_stats(
+      stats,
+      mat = mappedMatrix,
+      covar = covar,
+      oneSided = oneSided
+    )
+    results_list[["lm"]] <- .geneSetAssoc_format_row(
+      names = names(genesetlist),
+      test = "lm",
+      res = res,
+      Ngenes = Ngenes,
+      Ngenes_available = Ngenes_available,
+      covar = covar
+    )
+  }
 
-      if (oneSided) {
-        P <- pt(
-          (effect / effectSE),
-          nrow(stats) - ncol(X) - 1L,
-          lower.tail = FALSE
-        )
-        fac <- qt(0.95, df = nrow(stats) - ncol(X) - 1L)
-        effectCIlower <- effect - (fac * effectSE)
-        effectCIupper <- rep(Inf, length(P))
-      } else {
-        P <- 2 *
-          pt(
-            abs(effect / effectSE),
-            nrow(stats) - ncol(X) - 1L,
-            lower.tail = FALSE
-          )
-        fac <- qt(0.975, df = nrow(stats) - ncol(X) - 1L)
-        effectCIlower <- effect - (fac * effectSE)
-        effectCIupper <- effect + (fac * effectSE)
-      }
+  if ("mlm" %in% test) {
+    P <- effect <- effectSE <- effectCIupper <- effectCIlower <- rep(
+      NA_real_,
+      length(genesetlist)
+    )
 
-      Pl[["lm"]] <- P
-      effectl[["lm"]] <- effect
-      effectSEl[["lm"]] <- effectSE
-      effectCIlowerl[["lm"]] <- effectCIlower
-      effectCIupperl[["lm"]] <- effectCIupper
-    }
-
-    if ("mlm" %in% test) {
-      P <- effect <- effectSE <- effectCIupper <- effectCIlower <- rep(
-        NA_real_,
-        length(genesetlist)
+    if (
+      is(getNullModel(nullmodel), "GENESIS.nullMixedModel") ||
+        is(getNullModel(nullmodel), "GENESIS.nullModel")
+    ) {
+      mat <- GWASTools::MatrixGenotypeReader(
+        genotype = t(as.matrix(mappedMatrix)),
+        snpID = as.integer(seq_len(ncol(mappedMatrix))),
+        chromosome = rep(1L, ncol(mappedMatrix)),
+        position = seq_len(ncol(mappedMatrix)),
+        scanID = seq_len(nrow(mappedMatrix))
       )
-
-      if (
-        is(getNullModel(nullmodel), "GENESIS.nullMixedModel") ||
-          is(getNullModel(nullmodel), "GENESIS.nullModel")
-      ) {
-        mat <- GWASTools::MatrixGenotypeReader(
-          genotype = t(as.matrix(mappedMatrix)),
-          snpID = as.integer(1:ncol(mappedMatrix)),
-          chromosome = rep(1L, ncol(mappedMatrix)),
-          position = seq_len(ncol(mappedMatrix)),
-          scanID = seq_len(nrow(mappedMatrix))
-        )
-        mat <- GWASTools::GenotypeBlockIterator(
-          GWASTools::GenotypeData(
-            mat,
-            scanAnnot = GWASTools::ScanAnnotationDataFrame(
-              data.frame(scanID = stats$scanID, stringsAsFactors = FALSE)
-            )
-          ),
-          snpBlock = ncol(mappedMatrix)
-        )
-        res <- GENESIS::assocTestSingle(
-          gdsobj = mat,
-          null.model = getNullModel(nullmodel),
-          test = "Score"
-        )
-        ## double check
-        if (!identical(res$variant.id, as.integer(1:ncol(mappedMatrix)))) {
-          stop("", call. = FALSE)
-        }
-        P <- res$Score.pval
-        effect <- res$Est
-        effectSE <- res$Est.SE
-        effectCIlower <- NA_real_
-        effectCIlupper <- NA_real_
-      }
-
-      Pl[["mlm"]] <- P
-      effectl[["mlm"]] <- effect
-      effectSEl[["mlm"]] <- effectSE
-      effectCIlowerl[["mlm"]] <- effectCIlower
-      effectCIupperl[["mlm"]] <- effectCIupper
-    }
-
-    if ("fisher" %in% test) {
-      Plt <- effectlt <- effectSElt <- effectCIlowerlt <- effectCIupperlt <- list()
-
-      for (thresh in threshold) {
-        ## multiple thresholds
-        stats$sig <- stats$P < thresh
-        sig <- stats[[ID]][stats$sig]
-        not_sig <- stats[[ID]][!stats$sig]
-        P <- effect <- effectSE <- effectCIupper <- effectCIlower <- rep(
-          NA_real_,
-          length(genesetlist)
-        )
-
-        for (i in seq_along(genesetlist)) {
-          geneset <- names(genesetlist)[i]
-          tryCatch(
-            {
-              pathway <- rownames(mappedMatrix)[mappedMatrix[, geneset]]
-              not_pathway <- rownames(mappedMatrix)[!mappedMatrix[, geneset]]
-              mat <- matrix(
-                c(
-                  sum(sig %in% pathway),
-                  sum(sig %in% not_pathway),
-                  sum(not_sig %in% pathway),
-                  sum(not_sig %in% not_pathway)
-                ),
-                nrow = 2,
-                byrow = TRUE
-              )
-
-              tst <- fisher.test(
-                mat,
-                alternative = if (oneSided) "greater" else "two.sided"
-              )
-
-              effect[i] <- tst$estimate
-              effectCIlower[i] <- tst$conf.int[1]
-              effectCIupper[i] <- tst$conf.int[2]
-              P[i] <- tst$p.value
-            }
+      mat <- GWASTools::GenotypeBlockIterator(
+        GWASTools::GenotypeData(
+          mat,
+          scanAnnot = GWASTools::ScanAnnotationDataFrame(
+            data.frame(scanID = stats$scanID, stringsAsFactors = FALSE)
           )
-        }
-        Plt[[as.character(thresh)]] <- P
-        effectlt[[as.character(thresh)]] <- effect
-        effectSElt[[as.character(thresh)]] <- effectSE
-        effectCIlowerlt[[as.character(thresh)]] <- effectCIlower
-        effectCIupperlt[[as.character(thresh)]] <- effectCIupper
+        ),
+        snpBlock = ncol(mappedMatrix)
+      )
+      res <- GENESIS::assocTestSingle(
+        gdsobj = mat,
+        null.model = getNullModel(nullmodel),
+        test = "Score"
+      )
+      ## double check
+      if (!identical(res$variant.id, as.integer(seq_len(ncol(mappedMatrix))))) {
+        stop("MLM results do not align with gene sets.", call. = FALSE)
       }
-
-      Pl[["fisher"]] <- unlist(Plt)
-      effectl[["fisher"]] <- unlist(effectlt)
-      effectSEl[["fisher"]] <- unlist(effectSElt)
-      effectCIlowerl[["fisher"]] <- unlist(effectCIlowerlt)
-      effectCIupperl[["fisher"]] <- unlist(effectCIupperlt)
+      P <- res$Score.pval
+      effect <- res$Est
+      effectSE <- res$Est.SE
+      effectCIlower <- NA_real_
+      effectCIupper <- NA_real_
     }
 
-    results <- data.frame(
-      geneSetName = c(
-        rep(
-          names(genesetlist),
-          times = length(test[
-            test %in% geneSetAssoc_tests_competitive_nothreshold
-          ])
-        ),
-        rep(
-          names(genesetlist),
-          times = (length(test[
-            test %in% geneSetAssoc_tests_competitive_threshold
-          ]) *
-            length(threshold))
-        )
+    results_list[["mlm"]] <- .geneSetAssoc_format_row(
+      names = names(genesetlist),
+      test = "mlm",
+      res = list(
+        P = P,
+        effect = effect,
+        effectSE = effectSE,
+        effectCIlower = effectCIlower,
+        effectCIupper = effectCIupper
       ),
-      test = c(
-        rep(
-          geneSetAssoc_tests_competitive_nothreshold[
-            geneSetAssoc_tests_competitive_nothreshold %in% test
-          ],
-          each = length(genesetlist)
-        ),
-        rep(
-          geneSetAssoc_tests_competitive_threshold[
-            geneSetAssoc_tests_competitive_threshold %in% test
-          ],
-          each = (length(genesetlist) * length(threshold))
-        )
-      ),
-      covar = c(
-        rep(
-          paste(covar, collapse = ","),
-          times = (length(genesetlist) *
-            length(test[test %in% geneSetAssoc_tests_competitive_nothreshold]))
-        ),
-        rep(
-          NA_character_,
-          times = (length(genesetlist) *
-            length(threshold) *
-            length(test[test %in% "fisher"]))
-        )
-      ),
-      threshold = c(
-        rep(
-          rep(NA_real_, times = length(genesetlist)),
-          times = length(test[
-            test %in% geneSetAssoc_tests_competitive_nothreshold
-          ])
-        ),
-        rep(
-          rep(as.character(threshold), each = length(genesetlist)),
-          times = length(test[
-            test %in% geneSetAssoc_tests_competitive_threshold
-          ])
-        )
-      ),
-      geneSetSize = c(
-        rep(
-          lengths(genesetlist),
-          times = length(test[
-            test %in% geneSetAssoc_tests_competitive_nothreshold
-          ])
-        ),
-        rep(
-          lengths(genesetlist),
-          times = (length(test[
-            test %in% geneSetAssoc_tests_competitive_threshold
-          ]) *
-            length(threshold))
-        )
-      ),
-      genesObs = c(
-        rep(
-          Ngenes_available,
-          times = length(test[
-            test %in% geneSetAssoc_tests_competitive_nothreshold
-          ])
-        ),
-        rep(
-          Ngenes_available,
-          times = (length(test[
-            test %in% geneSetAssoc_tests_competitive_threshold
-          ]) *
-            length(threshold))
-        )
-      ),
-      stringsAsFactors = FALSE,
-      row.names = NULL
+      Ngenes = Ngenes,
+      Ngenes_available = Ngenes_available,
+      covar = covar
     )
+  }
 
-    tst <- c(
-      geneSetAssoc_tests_competitive_nothreshold,
-      geneSetAssoc_tests_competitive_threshold
-    )[
-      c(
-        geneSetAssoc_tests_competitive_nothreshold,
-        geneSetAssoc_tests_competitive_threshold
-      ) %in%
-        test
-    ]
-    results_competitive <- cbind(
-      results,
-      effect = unlist(effectl[tst]),
-      effectSE = unlist(effectSEl[tst]),
-      effectCIlower = unlist(effectCIlowerl[tst]),
-      effectCIupper = unlist(effectCIupperl[tst]),
-      P = unlist(Pl[tst])
+  if ("fisher" %in% test) {
+    res <- .geneSetAssoc_compute_fisher_stats(
+      stats = stats,
+      mappedMatrix = mappedMatrix,
+      thresholds = threshold,
+      oneSided = oneSided,
+      ID = ID
     )
-    rownames(results_competitive) <- NULL
+    results_list[["fisher"]] <- .geneSetAssoc_format_row(
+      names = names(genesetlist),
+      test = "fisher",
+      res = res,
+      Ngenes = Ngenes,
+      Ngenes_available = Ngenes_available,
+      covar = NA_character_
+    )
   }
 
   if (any(test %in% geneSetAssoc_tests_selfcontained)) {
-    if ("ttest" %in% test) {
-      P <- effect <- effectSE <- effectCIupper <- effectCIlower <- rep(
-        NA_real_,
-        length(genesetlist)
-      )
-      Z <- stats$Z
-      for (i in seq_along(genesetlist)) {
-        geneset <- names(genesetlist)[i]
-        Z.tmp <- Z[as.matrix(mappedMatrix[, geneset, drop = FALSE])[, 1]]
-        tryCatch(
-          {
-            if (oneSided) {
-              fit <- t.test(Z.tmp, alternative = "greater")
-            } else {
-              fit <- t.test(Z.tmp, alternative = "two.sided")
-            }
-
-            effect[i] <- fit$estimate
-            effectSE[i] <- fit$estimate / fit$statistic
-            effectCIlower[i] <- fit$conf.int[1]
-            effectCIupper[i] <- fit$conf.int[2]
-            P[i] <- fit$p.value
-          }
-        )
-      }
-      Pl[["ttest"]] <- P
-      effectl[["ttest"]] <- effect
-      effectSEl[["ttest"]] <- effectSE
-      effectCIlowerl[["ttest"]] <- effectCIlower
-      effectCIupperl[["ttest"]] <- effectCIupper
-    }
-
-    if ("ztest" %in% test) {
-      P <- effect <- effectSE <- effectCIupper <- effectCIlower <- rep(
-        NA_real_,
-        length(genesetlist)
-      )
-      Z <- stats$Z
-      for (i in 1:length(genesetlist)) {
-        geneset <- names(genesetlist)[i]
-        Z.tmp <- Z[as.matrix(mappedMatrix[, geneset, drop = FALSE])[, 1]]
-        tryCatch(
-          {
-            if (oneSided) {
-              fit <- z_test(Z.tmp, alternative = "greater")
-            } else {
-              fit <- z_test(Z.tmp, alternative = "two.sided")
-            }
-
-            effect[i] <- fit$mean
-            effectSE[i] <- fit$SE
-            effectCIlower[i] <- fit$CIlower
-            effectCIupper[i] <- fit$CIupper
-            P[i] <- fit$P
-          }
-        )
-      }
-      Pl[["ztest"]] <- P
-      effectl[["ztest"]] <- effect
-      effectSEl[["ztest"]] <- effectSE
-      effectCIlowerl[["ztest"]] <- effectCIlower
-      effectCIupperl[["ztest"]] <- effectCIupper
-    }
-
-    if ("ACAT" %in% test) {
-      P <- effect <- effectSE <- effectCIupper <- effectCIlower <- rep(
-        NA_real_,
-        length(genesetlist)
-      )
-      Pvals <- stats$P
-      for (i in seq_along(genesetlist)) {
-        geneset <- names(genesetlist)[i]
-        P.tmp <- Pvals[as.matrix(mappedMatrix[, geneset, drop = FALSE])[, 1]]
-        tryCatch(
-          {
-            Pval = .rvat_ACAT(P.tmp)
-            P[i] <- Pval
-          }
-        )
-      }
-      Pl[["ACAT"]] <- P
-      effectl[["ACAT"]] <- effect
-      effectSEl[["ACAT"]] <- effectSE
-      effectCIlowerl[["ACAT"]] <- effectCIlower
-      effectCIupperl[["ACAT"]] <- effectCIupper
-    }
-
-    results <- data.frame(
-      geneSetName = c(rep(
-        names(genesetlist),
-        times = length(test[test %in% geneSetAssoc_tests_selfcontained])
-      )),
-      test = c(rep(
-        geneSetAssoc_tests_selfcontained[
-          geneSetAssoc_tests_selfcontained %in% test
-        ],
-        each = length(genesetlist)
-      )),
-      covar = c(rep(
-        NA_character_,
-        times = (length(genesetlist) *
-          length(test[test %in% geneSetAssoc_tests_selfcontained]))
-      )),
-      threshold = c(rep(
-        rep(NA_real_, times = length(genesetlist)),
-        times = length(test[test %in% geneSetAssoc_tests_selfcontained])
-      )),
-      geneSetSize = c(rep(
-        lengths(genesetlist),
-        times = length(test[test %in% geneSetAssoc_tests_selfcontained])
-      )),
-      genesObs = c(rep(
-        Ngenes_available,
-        times = length(test[test %in% geneSetAssoc_tests_selfcontained])
-      )),
-      stringsAsFactors = FALSE,
-      row.names = NULL
+    results_selfcontained <- .geneSetAssoc_compute_selfcontained(
+      stats = stats,
+      mappedMatrix = mappedMatrix,
+      test_selfcontained = test[
+        test %in% geneSetAssoc_tests_selfcontained
+      ],
+      oneSided = oneSided
     )
-
-    tst <- geneSetAssoc_tests_selfcontained[
-      geneSetAssoc_tests_selfcontained %in% test
-    ]
-    results_selfcontained <- cbind(
-      results,
-      effect = unlist(effectl[tst]),
-      effectSE = unlist(effectSEl[tst]),
-      effectCIlower = unlist(effectCIlowerl[tst]),
-      effectCIupper = unlist(effectCIupperl[tst]),
-      P = unlist(Pl[tst])
-    )
-    rownames(results_selfcontained) <- NULL
+    for (tst in names(results_selfcontained)) {
+      results_list[[tst]] <- .geneSetAssoc_format_row(
+        names = names(genesetlist),
+        test = tst,
+        res = results_selfcontained[[tst]],
+        Ngenes = Ngenes,
+        Ngenes_available = Ngenes_available,
+        covar = NA_character_
+      )
+    }
   }
 
-  if (
-    any(test %in% geneSetAssoc_tests_selfcontained) &&
-      any(test %in% geneSetAssoc_tests_competitive)
-  ) {
-    rbind(results_competitive, results_selfcontained)
-  } else if (any(test %in% geneSetAssoc_tests_competitive)) {
-    results_competitive
-  } else if (any(test %in% geneSetAssoc_tests_selfcontained)) {
-    results_selfcontained
-  }
+  # merge results and return
+  do.call(rbind, results_list)
 }
 
 enrich_test <- function(
@@ -1073,82 +700,34 @@ enrich_test <- function(
   oneSided = TRUE,
   ID = "unit"
 ) {
-  Pl <- effectl <- effectSEl <- effectCIlowerl <- effectCIupperl <- list()
+  results_list <- list()
+  Ngenes_available <- nrow(scorematrix)
+  Ngenes <- rep(NA_integer_, ncol(scorematrix))
 
   if ("lm" %in% test) {
-    if (length(covar) > 0L) {
-      X <- cbind(1, as.matrix(stats[, c(covar), drop = FALSE]))
-    } else {
-      X <- cbind(rep(1, nrow(stats)))
-    }
-    U1 <- crossprod(X, stats$Z)
-    U2 <- solve(crossprod(X), U1)
-    ytr <- stats$Z - X %*% U2
-    U3 <- crossprod(X, scorematrix)
-    U4 <- solve(crossprod(X), U3)
-    Str <- scorematrix - X %*% U4
-    effect <- as.vector(crossprod(ytr, Str)) / colSums(Str^2)
-    Str2 <- colSums(Str^2)
-    sig <- (sum(ytr^2) - effect^2 * Str2) / (nrow(stats) - ncol(X) - 2L)
-    effectSE <- sqrt(sig * (1 / Str2))
-
-    if (oneSided) {
-      P <- pt(
-        (effect / effectSE),
-        nrow(stats) - ncol(X) - 1L,
-        lower.tail = FALSE
-      )
-      fac <- qt(0.95, df = nrow(stats) - ncol(X) - 1L)
-      effectCIlower <- effect - (fac * effectSE)
-      effectCIupper <- rep(Inf, length(P))
-    } else {
-      P <- 2.0 *
-        pt(
-          abs(effect / effectSE),
-          nrow(stats) - ncol(X) - 1L,
-          lower.tail = FALSE
-        )
-      fac <- qt(0.975, df = nrow(stats) - ncol(X) - 1L)
-      effectCIlower <- effect - (fac * effectSE)
-      effectCIupper <- effect + (fac * effectSE)
-    }
-
-    Pl[["lm"]] <- P
-    effectl[["lm"]] <- effect
-    effectSEl[["lm"]] <- effectSE
-    effectCIlowerl[["lm"]] <- effectCIlower
-    effectCIupperl[["lm"]] <- effectCIupper
+    res <- .geneSetAssoc_compute_lm_stats(
+      stats,
+      mat = scorematrix,
+      covar = covar,
+      oneSided = oneSided
+    )
+    
+    res <- data.frame(
+      name = colnames(scorematrix),
+      test = "lm",
+      covar = if (length(covar) == 0L) NA_character_ else paste(covar, collapse = ","),
+      genesObs = nrow(scorematrix),
+      effect = res$effect,
+      effectSE = res$effectSE,
+      effectCIlower = res$effectCIlower,
+      effectCIupper = res$effectCIupper,
+      P = res$P,
+      stringsAsFactors = FALSE
+    )
+    results_list[["lm"]] <- res
   }
 
-  if ("mlm" %in% test) {
-    # ..
-  }
-
-  results <- data.frame(
-    name = rep(
-      colnames(scorematrix),
-      times = length(test[test %in% geneSetAssoc_tests_score])
-    ),
-    test = test[test %in% c("lm", "mlm")],
-    covar = rep(
-      paste(covar, collapse = ","),
-      times = (ncol(scorematrix) *
-        length(test[test %in% geneSetAssoc_tests_score]))
-    ),
-    genesObs = nrow(scorematrix),
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
-
-  results <- cbind(
-    results,
-    effect = c(effectl[["lm"]], effectl[["mlm"]]),
-    effectSE = c(effectSEl[["lm"]], effectSEl[["mlm"]]),
-    effectCIlower = c(effectCIlowerl[["lm"]], effectCIlowerl[["mlm"]]),
-    effectCIupper = c(effectCIupperl[["lm"]], effectCIupperl[["mlm"]]),
-    P = c(Pl[["lm"]], Pl[["mlm"]])
-  )
-  results
+  do.call(rbind, results_list)
 }
 
 
@@ -1268,7 +847,6 @@ enrich_test <- function(
   object
 }
 
-
 z_test <- function(x, mu = 0, var = 1, alternative = "two.sided") {
   se <- var / sqrt(length(x))
   b <- mean(x)
@@ -1287,4 +865,234 @@ z_test <- function(x, mu = 0, var = 1, alternative = "two.sided") {
     },
     CIupper = if (alternative == "two.sided") b + qnorm(0.975) * se else Inf
   )
+}
+
+.geneSetAssoc_compute_lm_stats <- function(stats, mat, covar, oneSided) {
+  # based on: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-166
+  if (length(covar) > 0L) {
+    X <- cbind(1, as.matrix(stats[, covar, drop = FALSE]))
+  } else {
+    X <- cbind(rep(1, nrow(stats)))
+  }
+  U1 <- crossprod(X, stats$Z)
+  U2 <- solve(crossprod(X), U1)
+  ytr <- stats$Z - X %*% U2
+  U3 <- crossprod(X, mat)
+  U4 <- solve(crossprod(X), U3)
+  Str <- mat - X %*% U4
+  effect <- as.vector(crossprod(ytr, Str)) / colSums(Str^2)
+  Str2 <- colSums(Str^2)
+  sig <- (sum(ytr^2) - effect^2 * Str2) / (nrow(stats) - ncol(X) - 2L)
+  effectSE <- sqrt(sig * (1 / Str2))
+
+  if (oneSided) {
+    P <- pt(
+      (effect / effectSE),
+      nrow(stats) - ncol(X) - 1L,
+      lower.tail = FALSE
+    )
+    fac <- qt(0.95, df = nrow(stats) - ncol(X) - 1L)
+    effectCIlower <- effect - (fac * effectSE)
+    effectCIupper <- rep(Inf, length(P))
+  } else {
+    P <- 2.0 *
+      pt(
+        abs(effect / effectSE),
+        nrow(stats) - ncol(X) - 1L,
+        lower.tail = FALSE
+      )
+    fac <- qt(0.975, df = nrow(stats) - ncol(X) - 1L)
+    effectCIlower <- effect - (fac * effectSE)
+    effectCIupper <- effect + (fac * effectSE)
+  }
+
+  list(
+    effect = effect,
+    effectSE = effectSE,
+    effectCIlower = effectCIlower,
+    effectCIupper = effectCIupper,
+    P = P
+  )
+}
+
+.geneSetAssoc_compute_fisher_stats <- function(
+  stats,
+  mappedMatrix,
+  thresholds,
+  oneSided,
+  ID
+) {
+  out_list <- list()
+  set_sizes <- Matrix::colSums(mappedMatrix)
+  n_units <- nrow(stats)
+  for (thresh in thresholds) {
+    is_sig <- as.integer(stats$P < thresh)
+    n_sig <- sum(is_sig)
+    n_not_sig <- n_units - n_sig
+
+    sig_in_set <- as.vector(Matrix::crossprod(mappedMatrix, is_sig))
+    sig_not_in_set <- n_sig - sig_in_set
+    not_sig_in_set <- set_sizes - sig_in_set
+    not_sig_not_in_set <- n_not_sig - not_sig_in_set
+
+    results <- vapply(
+      seq_along(sig_in_set),
+      function(i) {
+        mat <- matrix(
+          c(
+            sig_in_set[i],
+            sig_not_in_set[i],
+            not_sig_in_set[i],
+            not_sig_not_in_set[i]
+          ),
+          nrow = 2,
+          byrow = TRUE
+        )
+
+        tryCatch(
+          {
+            tst <- fisher.test(
+              mat,
+              alternative = if (oneSided) "greater" else "two.sided"
+            )
+            c(
+              effect = unname(tst$estimate),
+              effectCIlower = unname(tst$conf.int[1]),
+              effectCIupper = unname(tst$conf.int[2]),
+              P = unname(tst$p.value)
+            )
+          },
+          error = function(e) {
+            c(
+              effect = NA_real_,
+              effectCIlower = NA_real_,
+              effectCIupper = NA_real_,
+              P = NA_real_
+            )
+          }
+        )
+      },
+      FUN.VALUE = numeric(4)
+    )
+    results <- data.frame(
+      threshold = thresh,
+      effect = results["effect", ],
+      effectSE = rep(NA_real_, ncol(results)),
+      effectCIlower = results["effectCIlower", ],
+      effectCIupper = results["effectCIupper", ],
+      P = results["P", ],
+      stringsAsFactors = FALSE
+    )
+
+    out_list[[as.character(thresh)]] <- results
+  }
+  do.call(rbind, out_list)
+}
+
+
+.geneSetAssoc_compute_selfcontained <- function(
+  stats,
+  mappedMatrix,
+  test_selfcontained,
+  oneSided
+) {
+  Z <- stats$Z
+  Pvals <- stats$P
+  n_sets <- ncol(mappedMatrix)
+
+  # initialize output
+  results <- lapply(test_selfcontained, function(x) {
+    list(
+      effect = rep(NA_real_, n_sets),
+      effectSE = rep(NA_real_, n_sets),
+      effectCIlower = rep(NA_real_, n_sets),
+      effectCIupper = rep(NA_real_, n_sets),
+      P = rep(NA_real_, n_sets)
+    )
+  })
+  names(results) <- test_selfcontained
+
+  for (i in seq_len(n_sets)) {
+    mappedMatrix_i <- mappedMatrix[, i, drop = TRUE]
+
+    # skip if empty
+    if (!any(mappedMatrix_i)) {
+      next
+    }
+
+    # Z-scores for current set
+    subset_Z <- Z[mappedMatrix_i]
+
+    # loop through tests
+    for (tst in test_selfcontained) {
+      tryCatch(
+        {
+          if (tst == "ttest") {
+            fit <- t.test(
+              subset_Z,
+              alternative = if (oneSided) "greater" else "two.sided"
+            )
+
+            # Assign directly to pre-allocated vectors
+            results[[tst]]$effect[i] <- fit$estimate
+            results[[tst]]$effectSE[i] <- fit$estimate / fit$statistic
+            results[[tst]]$effectCIlower[i] <- fit$conf.int[1]
+            results[[tst]]$effectCIupper[i] <- fit$conf.int[2]
+            results[[tst]]$P[i] <- fit$p.value
+          } else if (tst == "ztest") {
+            fit <- z_test(
+              subset_Z,
+              alternative = if (oneSided) "greater" else "two.sided"
+            )
+
+            results[[tst]]$effect[i] <- fit$mean
+            results[[tst]]$effectSE[i] <- fit$SE
+            results[[tst]]$effectCIlower[i] <- fit$CIlower
+            results[[tst]]$effectCIupper[i] <- fit$CIupper
+            results[[tst]]$P[i] <- fit$P
+          } else if (tst == "ACAT") {
+            subset_P <- Pvals[mappedMatrix_i]
+            results[[tst]]$P[i] <- .rvat_ACAT(subset_P)
+          }
+        },
+        error = function(e) {}
+      )
+    }
+  }
+
+  results
+}
+
+.geneSetAssoc_format_row <- function(
+  names,
+  test,
+  res,
+  Ngenes,
+  Ngenes_available,
+  covar
+) {
+  results <- data.frame(
+    geneSetName = names,
+    test = test,
+    covar = if (is.null(covar) || (length(covar) == 1L && is.na(covar))) {
+      NA_character_
+    } else {
+      paste(covar, collapse = ",")
+    },
+    threshold = if ("threshold" %in% colnames(res)) {
+      res$threshold
+    } else {
+      NA_real_
+    },
+    geneSetSize = Ngenes,
+    genesObs = Ngenes_available,
+    effect = res$effect,
+    effectSE = res$effectSE,
+    effectCIlower = res$effectCIlower,
+    effectCIupper = res$effectCIupper,
+    P = res$P,
+    stringsAsFactors = FALSE
+  )
+  rownames(results) <- NULL
+  results
 }
