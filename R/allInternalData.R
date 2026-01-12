@@ -181,13 +181,13 @@ assocTest_aggregate_tests <- c(
 ## geneSetAssoc ----------------------------------------------------------------
 geneSetAssoc_tests <- c("lm", "mlm", "fisher", "ttest", "ztest", "ACAT")
 geneSetAssoc_tests_competitive <- c("lm", "mlm", "fisher")
-geneSetAssoc_tests_competitive_condition <- c("lm")
-geneSetAssoc_tests_competitive_threshold <- c("fisher")
+geneSetAssoc_tests_competitive_condition <- "lm"
+geneSetAssoc_tests_competitive_threshold <- "fisher"
 geneSetAssoc_tests_competitive_nothreshold <- geneSetAssoc_tests_competitive[
   !geneSetAssoc_tests_competitive %in% geneSetAssoc_tests_competitive_threshold
 ]
 geneSetAssoc_tests_selfcontained <- c("ttest", "ztest", "ACAT")
-geneSetAssoc_tests_score <- c("lm", "mlm")
+geneSetAssoc_tests_score <- "lm"
 
 ## rvatResult ------------------------------------------------------------------
 columns_rvbResults <- list(

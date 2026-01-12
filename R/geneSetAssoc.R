@@ -32,9 +32,29 @@ setMethod(
     .geneSetAssoc_validate_input(as.list(environment()))
 
     # check methods and available tests
-    ## only 'lm' and 'mlm' are implemented for `scoreMatrix` object
+    ## only 'lm' is implemented for `scoreMatrix` object
     if (!is.null(scoreMatrix)) {
       test <- test[test %in% geneSetAssoc_tests_score]
+    } else if (!is.null(geneSet)) {
+      if (!is.null(condition)) {
+        test <- test[test %in% geneSetAssoc_tests_competitive_condition]
+      } else {
+        test <- test[test %in% geneSetAssoc_tests]
+      }
+    } else if (!is.null(scoreMatrix) && !is.null(geneSet)) {
+      stop(
+        "Specify either `geneSet` or `scoreMatrix`, not both.",
+        call. = FALSE
+      )
+    } else {
+      stop(
+        "Either `geneSet` or `scoreMatrix` must be specified.",
+        call. = FALSE
+      )
+    }
+
+    if (length(test) == 0L) {
+      stop("No valid test specified.", call. = FALSE)
     }
 
     # prepare test-stats (Z-scores, covariates, etc.)
@@ -86,8 +106,7 @@ setMethod(
       object <- cond_data$object
     }
 
-    ## scoreMatrix -----------------------------------------------------
-
+    # run analyses based on input type
     if (!is.null(scoreMatrix)) {
       result_scorematrix <- .geneSetAssoc_scoreMatrix(
         object,
@@ -101,6 +120,7 @@ setMethod(
         memlimit = memlimit,
         verbose = verbose
       )
+
       if (!is.null(output)) {
         write.table(
           result_scorematrix,
@@ -129,6 +149,8 @@ setMethod(
         maxSetSize = maxSetSize,
         verbose = verbose
       )
+      
+      # format results
       result_gsa <- gsaResult(result_gsa)
       metadata(result_gsa)$rvatVersion <- as.character(packageVersion("rvat"))
       metadata(result_gsa)$gdbId <- getGdbId(object)
@@ -146,6 +168,7 @@ setMethod(
         ))
       }
 
+      # write or return
       if (!is.null(output)) {
         writeResult(result_gsa, file = output)
         return(invisible(NULL))
@@ -184,7 +207,7 @@ setMethod(
   ) {
     stop("`geneSet` should be a geneSetList or geneSetFile.", call. = FALSE)
   }
-  # scoreMatrix should be of type ..
+  # scoreMatrix should be of type matrix/Matrix
   if (
     !is.null(args[["scoreMatrix"]]) &&
       !is(args[["scoreMatrix"]], "Matrix") &&
@@ -301,7 +324,7 @@ setMethod(
   maxSetSize,
   verbose
 ) {
-  # handle thresholds
+  # handle thresholds (defaults to bonferroni if not specified)
   if (any(geneSetAssoc_tests_competitive_threshold %in% test)) {
     if (is.null(threshold)) {
       threshold <- 0.05 / nrow(object)
@@ -649,21 +672,27 @@ gsa <- function(
   }
 
   if ("fisher" %in% test) {
-    res <- .geneSetAssoc_compute_fisher_stats(
-      stats = stats,
-      mappedMatrix = mappedMatrix,
-      thresholds = threshold,
-      oneSided = oneSided,
-      ID = ID
+    results_fisher <- lapply(
+      threshold,
+      FUN = function(thresh) {
+        res <- .geneSetAssoc_compute_fisher_stats(
+          stats = stats,
+          mappedMatrix = mappedMatrix,
+          threshold = thresh,
+          oneSided = oneSided,
+          ID = ID
+        )
+        res_formatted <- .geneSetAssoc_format_row(
+          names = names(genesetlist),
+          test = "fisher",
+          res = res,
+          Ngenes = Ngenes,
+          Ngenes_available = Ngenes_available,
+          covar = NA_character_
+        )
+      }
     )
-    results_list[["fisher"]] <- .geneSetAssoc_format_row(
-      names = names(genesetlist),
-      test = "fisher",
-      res = res,
-      Ngenes = Ngenes,
-      Ngenes_available = Ngenes_available,
-      covar = NA_character_
-    )
+    results_list[["fisher"]] <- do.call(rbind, results_fisher)
   }
 
   if (any(test %in% geneSetAssoc_tests_selfcontained)) {
@@ -696,7 +725,7 @@ enrich_test <- function(
   scorematrix,
   nullmodel = NULL,
   covar = NULL,
-  test = c("lm", "mlm"),
+  test = "lm",
   oneSided = TRUE,
   ID = "unit"
 ) {
@@ -711,11 +740,15 @@ enrich_test <- function(
       covar = covar,
       oneSided = oneSided
     )
-    
+
     res <- data.frame(
       name = colnames(scorematrix),
       test = "lm",
-      covar = if (length(covar) == 0L) NA_character_ else paste(covar, collapse = ","),
+      covar = if (length(covar) == 0L) {
+        NA_character_
+      } else {
+        paste(covar, collapse = ",")
+      },
       genesObs = nrow(scorematrix),
       effect = res$effect,
       effectSE = res$effectSE,
@@ -756,14 +789,14 @@ enrich_test <- function(
     )
   }
 
-  # Check if there are duplicate units
+  # check if there are duplicate units
   if (anyDuplicated(object[["unit"]]) != 0L) {
     stop(
       "Units are duplicated; first filter the input so each row has a unique unit",
       call. = FALSE
     )
   }
-  # Exclude rows with missing covariate values
+  # exclude rows with missing covariate values
   check <- complete.cases(as.data.frame(object)[, covar, drop = FALSE])
   if (sum(!check) > 0L) {
     if (verbose) {
@@ -775,7 +808,7 @@ enrich_test <- function(
     object <- object[check, ]
   }
 
-  # Exclude missing P-values
+  # exclude missing P-values
   if (any(is.na(object[["P"]]))) {
     if (verbose) {
       message(sprintf(
@@ -786,10 +819,10 @@ enrich_test <- function(
     object <- object[!is.na(object$P), ]
   }
 
-  # Add Z-score
+  # add Z-score
   object$Z <- qnorm(1 - object$P)
 
-  # Apply Z score cutoffs
+  # apply Z score cutoffs
   if (INT) {
     object$Z <- qnorm(
       (rank(object$Z, na.last = "keep") - 0.5) / sum(!is.na(object$Z))
@@ -918,75 +951,72 @@ z_test <- function(x, mu = 0, var = 1, alternative = "two.sided") {
 .geneSetAssoc_compute_fisher_stats <- function(
   stats,
   mappedMatrix,
-  thresholds,
+  threshold,
   oneSided,
   ID
 ) {
   out_list <- list()
   set_sizes <- Matrix::colSums(mappedMatrix)
   n_units <- nrow(stats)
-  for (thresh in thresholds) {
-    is_sig <- as.integer(stats$P < thresh)
-    n_sig <- sum(is_sig)
-    n_not_sig <- n_units - n_sig
 
-    sig_in_set <- as.vector(Matrix::crossprod(mappedMatrix, is_sig))
-    sig_not_in_set <- n_sig - sig_in_set
-    not_sig_in_set <- set_sizes - sig_in_set
-    not_sig_not_in_set <- n_not_sig - not_sig_in_set
+  is_sig <- as.integer(stats$P < threshold)
+  n_sig <- sum(is_sig)
+  n_not_sig <- n_units - n_sig
 
-    results <- vapply(
-      seq_along(sig_in_set),
-      function(i) {
-        mat <- matrix(
+  sig_in_set <- as.vector(Matrix::crossprod(mappedMatrix, is_sig))
+  sig_not_in_set <- n_sig - sig_in_set
+  not_sig_in_set <- set_sizes - sig_in_set
+  not_sig_not_in_set <- n_not_sig - not_sig_in_set
+
+  results <- vapply(
+    seq_along(sig_in_set),
+    function(i) {
+      mat <- round(matrix(
+        c(
+          sig_in_set[i],
+          sig_not_in_set[i],
+          not_sig_in_set[i],
+          not_sig_not_in_set[i]
+        ),
+        nrow = 2,
+        byrow = TRUE
+      ))
+
+      tryCatch(
+        {
+          tst <- fisher.test(
+            mat,
+            alternative = if (oneSided) "greater" else "two.sided"
+          )
           c(
-            sig_in_set[i],
-            sig_not_in_set[i],
-            not_sig_in_set[i],
-            not_sig_not_in_set[i]
-          ),
-          nrow = 2,
-          byrow = TRUE
-        )
-
-        tryCatch(
-          {
-            tst <- fisher.test(
-              mat,
-              alternative = if (oneSided) "greater" else "two.sided"
-            )
-            c(
-              effect = unname(tst$estimate),
-              effectCIlower = unname(tst$conf.int[1]),
-              effectCIupper = unname(tst$conf.int[2]),
-              P = unname(tst$p.value)
-            )
-          },
-          error = function(e) {
-            c(
-              effect = NA_real_,
-              effectCIlower = NA_real_,
-              effectCIupper = NA_real_,
-              P = NA_real_
-            )
-          }
-        )
-      },
-      FUN.VALUE = numeric(4)
-    )
-    results <- data.frame(
-      threshold = thresh,
-      effect = results["effect", ],
-      effectSE = rep(NA_real_, ncol(results)),
-      effectCIlower = results["effectCIlower", ],
-      effectCIupper = results["effectCIupper", ],
-      P = results["P", ],
-      stringsAsFactors = FALSE
-    )
-
-    out_list[[as.character(thresh)]] <- results
-  }
-  do.call(rbind, out_list)
+            effect = unname(tst$estimate),
+            effectCIlower = unname(tst$conf.int[1]),
+            effectCIupper = unname(tst$conf.int[2]),
+            P = unname(tst$p.value)
+          )
+        },
+        error = function(e) {
+          c(
+            effect = NA_real_,
+            effectCIlower = NA_real_,
+            effectCIupper = NA_real_,
+            P = NA_real_
+          )
+        }
+      )
+    },
+    FUN.VALUE = numeric(4)
+  )
+  results <- data.frame(
+    threshold = threshold,
+    effect = results["effect", ],
+    effectSE = rep(NA_real_, ncol(results)),
+    effectCIlower = results["effectCIlower", ],
+    effectCIupper = results["effectCIupper", ],
+    P = results["P", ],
+    stringsAsFactors = FALSE
+  )
+  results
 }
 
 
@@ -1033,7 +1063,6 @@ z_test <- function(x, mu = 0, var = 1, alternative = "two.sided") {
               alternative = if (oneSided) "greater" else "two.sided"
             )
 
-            # Assign directly to pre-allocated vectors
             results[[tst]]$effect[i] <- fit$estimate
             results[[tst]]$effectSE[i] <- fit$estimate / fit$statistic
             results[[tst]]$effectCIlower[i] <- fit$conf.int[1]
@@ -1074,7 +1103,7 @@ z_test <- function(x, mu = 0, var = 1, alternative = "two.sided") {
   results <- data.frame(
     geneSetName = names,
     test = test,
-    covar = if (is.null(covar) || (length(covar) == 1L && is.na(covar))) {
+    covar = if (is.null(covar) || all(is.na(covar))) {
       NA_character_
     } else {
       paste(covar, collapse = ",")
