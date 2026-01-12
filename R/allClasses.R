@@ -1,7 +1,3 @@
-#===============================================================================
-# All class definitions for the rvat package
-#===============================================================================
-
 #' The genoMatrix class for storing genotype data and associated sample and variant info.
 #' 
 #' @name genoMatrix
@@ -649,7 +645,6 @@ setClass("varSetFile",
 #' @section Visualization:
 #' * `qqplot`: Plot a qqplot based on the P-values stored in an rvatResult object. See [`qqplot`] for details
 #' * `manhattan`: Generate a manhattan plot for an `rvatResult` object. See [`manhattan`] for details.
-#' * `rvatViewer`: Interactive visualization, see [`rvatViewer`] for details.
 #'
 #' @section Downsteam analyses:
 #' * `geneSetAssoc`: An `rvbResult` can be used as input for `geneSetAssoc` to perform 
@@ -1046,7 +1041,121 @@ setClass("geneSetFile",
 )
 
 
+#' Class to manage interactions with an aggdb
+#' @name aggdb
+#' @rdname aggdb
+#' @order 1
+#' @usage NULL
+#' @description
+#' The [`aggregate`] method saves genotype aggregates compressed in an aggdb file.
+#' The aggdb class manages connecting/interacting with these files and retrieving
+#' units of interest.
+#'
+#' @section Build an aggdb:
+#' * `aggregate(x, ...)`: Returns an aggregate of genotypes for each individual.
+#' See [`aggregate()`] for details.
+#' 
+#' @section Connect to an aggdb:
+#' * `aggdb(path)`: Connect to an aggdb object. 
+#'
+#' @section Getters:
+#' In the following code snippets, x is an aggdb object.
+#' * `getUnit(x, unit)`: Retrieve aggregates for specified unit(s). 
+#' Use `listUnits(x)` to list the units includes in the aggdb
+#' Output will be a matrix.
+#' * `listUnits(x)`: Return a vector of all units included in the aggdb
+#' * `listSamples(x)`: Return a vector of all sample IDs included in the aggdb
+#' 
+#' @section Association testing:
+#' An aggdb can be directly supplied to the [`assocTest()`] method.
+#' 
+#' @section Merging:
+#' Aggdbs can be merged using the [`mergeAggDbs`] method. 
+#' 
+#' @examples
+#' library(rvatData)
+#' gdb <- create_example_gdb()
+#' 
+#' # generate the aggregates based on a varSetFile
+#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
+#' varset <- getVarSet(varsetfile, unit = c("NEK1", "SOD1", "ABCA4"), varSetName = "High")
+#' aggfile <- tempfile()
+#' aggregate(x = gdb,
+#'           varSet = varset,
+#'           maxMAF = 0.001,
+#'           output = aggfile,
+#'           verbose = FALSE)
+#' 
+#' # connect to aggdb, see ?aggdb for more details
+#' aggdb <- aggdb(aggfile)
+#' 
+#' # list units and samples in aggdb 
+#' head(listUnits(aggdb))
+#' head(listSamples(aggdb))
+#' 
+#' # retrieve aggregates 
+#' aggregates <- getUnit(aggdb, unit = "SOD1")
+#' 
+#' # see ?`assocTest-aggdb` for details on running association tests on an aggdb
+#' 
+#' @seealso \code{\link{aggregate}}
+#' @seealso \code{\link{mergeAggDbs}}
+#' @seealso \code{\link{aggdbList}}
+#' @seealso \code{\link{assocTest-aggdb}}
+#' @keywords aggdb
+NULL
+
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setClass("aggdb", contains = "SQLiteConnection")
+
+
+
+#' Class to facilitate merging aggdbs
+#' 
+#' @name aggdbList
+#' @rdname aggdbList
+#' @order 1
+#' @usage NULL
+#' @description
+#' 
+#' Class to facilitate merging aggdbs. By providing a vector of aggdb filepaths,
+#' aggdbList will check whether identical samples are included and if duplicated units are included.
+#' The aggdbList can then be used to merge the aggdbs into either a new aggdb,
+#' or merge all included aggregates into a single aggregate score per sample ([`mergeAggDbs`]).
+#'
+#' @section Initialize an aggdbList object:
+#' * `aggdbList(filelist, checkDups=TRUE)`: Here `filelist` is a vector of [`aggdb`]
+#' filepaths. `checkDups` is set to `TRUE` by default, in which case an error raised if
+#' unit names are duplicated across aggdbs
+#'
+#' @section Getters:
+#' In the following code snippets, x is an aggdbList object.
+#' * `listUnits(x)`: Return a vector of all units included across aggdbs in the aggdbList
+#' * `listSamples(x)`: Return a vector of all samples included across aggdbs in the aggdbList
+#' 
+#' @section Merge or collapse aggdbs:
+#' * `mergeAggDbs(object, output = NULL, verbose = TRUE)`: 
+#' Merge aggregrateFiles, this will generate a new `aggdb` including all aggregates across provided aggdbs.
+#' See [`mergeAggDbs`] for details.
+#' * `collapseAggDbs(object, output = NULL, verbose = TRUE)`: Collapse aggdbs by aggregating values across aggdbs. 
+#' This will result in one aggregate score for each sample, representing the aggregate value across aggregate files. 
+#' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
+#' See [`collapseAggDbs`] for details.
+#'
+#' @inherit mergeAggDbs examples
+#' 
+#' @seealso \code{\link{mergeAggDbs}}
+#' @seealso \code{\link{collapseAggDbs}}
+#' @seealso \code{\link{assocTest-aggdb}}
+#' @seealso \code{\link{aggregate}}
+#' @keywords aggdbList
+NULL
+
+#' @rdname aggdbList
+#' @usage NULL
+#' @export
 
 setClass(
   "aggdbList",
