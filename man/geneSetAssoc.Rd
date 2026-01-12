@@ -17,10 +17,10 @@ geneSetAssoc(
   Zcutoffs = NULL,
   INT = FALSE,
   scoreCutoffs = NULL,
-  minSetSize = 1,
+  minSetSize = 1L,
   maxSetSize = Inf,
   oneSided = TRUE,
-  memlimit = 1000,
+  memlimit = 1000L,
   ID = "unit",
   output = NULL,
   verbose = TRUE
