@@ -87,7 +87,6 @@ Optionally the output can be stored as a list by setting \code{asList = TRUE}.
 \itemize{
 \item \code{qqplot}: Plot a qqplot based on the P-values stored in an rvatResult object. See \code{\link{qqplot}} for details
 \item \code{manhattan}: Generate a manhattan plot for an \code{rvatResult} object. See \code{\link{manhattan}} for details.
-\item \code{rvatViewer}: Interactive visualization, see \code{\link{rvatViewer}} for details.
 }
 }
 
