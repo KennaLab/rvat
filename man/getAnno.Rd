@@ -9,41 +9,43 @@ getAnno(
   object,
   table,
   fields = "*",
-  left = c(),
-  inner = c(),
+  left = NULL,
+  inner = NULL,
   VAR_id = NULL,
   ranges = NULL,
-  padding = 250,
-  where = c()
+  padding = 250L,
+  where = NULL
 )
 }
 \arguments{
-\item{object}{an object of class \code{\link[=gdb-class]{gdb}}}
+\item{object}{an object of class \code{\link{gdb}}.}
 
-\item{table}{base table to query}
+\item{table}{base table to query.}
 
-\item{fields}{columns to retain}
+\item{fields}{columns to retain.}
 
-\item{left}{left join operations to perform}
+\item{left}{left join operations to perform.}
 
-\item{inner}{inner join operations to perform}
+\item{inner}{inner join operations to perform.}
 
-\item{VAR_id}{retain only variants with matching ID}
+\item{VAR_id}{retain only variants with matching ID.}
 
 \item{ranges}{Extract variants within specified ranges.
 Ranges can be specified as a data.frame, including at least 'CHROM','start', and 'end' columns, or
 can be a \code{\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}} object.}
 
-\item{padding}{Number of basepairs to extend the search region beyond the specified genomic ranges to capture variants where the reference allele (REF) overlaps the input ranges,
-but the POS of the variant falls outside the ranges. This accounts for variants where the REF allele spans multiple base pairs.}
+\item{padding}{Number of basepairs to extend the search region beyond the specified genomic ranges
+to capture variants where the reference allele (REF) overlaps the input ranges,
+but the POS of the variant falls outside the ranges.
+This accounts for variants where the REF allele spans multiple base pairs.}
 
-\item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
+\item{where}{An SQL compliant where clause to filter output;
+eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 }
 \description{
-Get an annotation table from a \code{\link[=gdb-class]{gdb}} object.
+Get an annotation table from a \code{\link{gdb}} object.
 }
 \examples{
-
 library(rvatData)
 gdb <- create_example_gdb()
 
@@ -78,5 +80,4 @@ uploadAnno(gdb, name = "QCpass", value = data.frame(VAR_id = 1:100), skipRemap =
 varinfo <- getAnno(gdb, 
                    inner = "QCpass",
                    table = "varInfo")
-
 }

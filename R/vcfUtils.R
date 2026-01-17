@@ -1,22 +1,13 @@
-#===============================================================================
-# Convenience functions to help extract variant annotations from vcf files
-#===============================================================================
-
 #' Convert vcf info field to table format
 #'
-#' Convert vcf info field to table format. Requires valid vcf where INFO fields are specified in header.
-#' @param vcf vcf file path.
-#' @param output output path
-#' @param splitMultiallelic Returns one row per alternative allele instead of one row per variant. Default=TRUE.
-#' @examples
-#' library(rvatData)
-#' vcf <- rvat_example("rvatData.vcf.gz")
-#' output <- tempfile()
-#' vcfInfo2Table(
-#'   vcf = vcf,
-#'   output = output
-#' )
-#'
+#' Convert vcf info field to table format. Requires valid vcf where INFO fields are specified in the header.
+#' @param vcf Input vcf file path.
+#' @param output Output file path
+#' @param splitMultiallelic Returns one row per alternative allele instead of one row per variant. 
+#' Note that this option currently simply duplicates the information in the INFO field for each allele; 
+#' it does not parse Number='A' or Number='R' INFO fields to extract allele-specific values.
+#' Defaults to `TRUE`.
+#' @example inst/examples/example-vcfUtils.R
 #' @export
 vcfInfo2Table <- function(vcf, output, splitMultiallelic = TRUE) {
   check_bool(splitMultiallelic)

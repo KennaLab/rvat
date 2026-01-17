@@ -28,15 +28,21 @@ uploadAnno(
 
 \item{sep}{Field delimiter (only used if value is a text file). Defaults to \verb{\\\\t}.}
 
-\item{skipRemap}{Flag indicating whether to skip mapping of records to VAR_id using CHROM,POS,REF,ALT. Defaults to \code{FALSE}.}
+\item{skipRemap}{Flag indicating whether to skip mapping of records to VAR_id using CHROM,POS,REF,ALT.
+Defaults to \code{FALSE}.}
 
 \item{skipIndexes}{Flag indicating whether to skip indexing of imported table. Defaults to \code{FALSE}.}
 
-\item{ignoreAlleles}{Flag indicating whether to consider REF and ALT allele during mapping of records to VAR_id or just CHROM,POS. Defaults to \code{FALSE}.}
+\item{ignoreAlleles}{Flag indicating whether to consider REF and ALT allele during mapping of records to VAR_id or just CHROM,POS.
+Defaults to \code{FALSE}.}
 
-\item{keepUnmapped}{Flag indicating whether to keep records which cannot be mapped to the gdb. Defaults to \code{FALSE}.}
+\item{keepUnmapped}{Flag indicating whether to keep records which cannot be mapped to the gdb.
+Defaults to \code{FALSE}.}
 
 \item{mapRef}{Name of lookup table for VAR_id assignment. Defaults to "var".}
+
+\item{overWrite}{Flag indicating whether an existing table with the same \code{name} should be overwritten.
+Defaults to \code{FALSE}.}
 
 \item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
 }
@@ -49,7 +55,7 @@ gdb <- create_example_gdb()
 
 # from data.frame
 varinfo <- read.table(rvat_example("rvatData.varinfo"), header = TRUE)
-uploadAnno(object = gdb, name = "varInfo", value = varinfo)
+uploadAnno(object = gdb, name = "varInfo", value = varinfo, overWrite = TRUE)
 
 # similarly, an annotation table can be imported directly from file
 filepath <- rvat_example("rvatData.varinfo")
@@ -62,6 +68,4 @@ anno <- mapVariants(gdb,
                     ranges = data.frame(CHROM = "chr21", start = 31659666, end = 31668931, gene_name = "SOD1"),
                     verbose = FALSE)
 uploadAnno(object = gdb, name = "gene", value = anno, skipRemap = TRUE)
-
-
 }

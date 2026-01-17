@@ -1,19 +1,18 @@
 #' Create a gdb file.
 #'
-#' Creates a new [`gdb`] file and returns a connection object of type gdb-class.
+#' Creates a new [`gdb`] file. 
 #' The gdb can be structured and populated using a provided vcf file.
 #' If no input variant file is provided then only an empty gdb is created.
 #'
 #' @param vcf Input vcf file used to structure and populate gdb.
-#' Warning, this function makes the following of assumptions:
+#' Warning, this function makes the following assumptions:
 #'   1) strict adherence to vcf format (GT subfield first element in genotype fields),
-#'   2) multiallelic records have been split,
-#'   3) desired genotype QC has already been applied (DP,GQ filters),
-#'   4) GT values conform to the set {0/0,0/1,1/0,1/1,./.,0|0,0|1,1|0,1|1,.|.}.
+#'   2) desired genotype QC has already been applied (DP,GQ filters),
+#'   3) GT values conform to the set {0/0,0/1,1/0,1/1,./.,0|0,0|1,1|0,1|1,.|.}.
 #'   Multiallelic parsing and genotype QC can be performed using vcftools and/or
 #'   accompanying parser scripts included in the rvat repository.
 #' @param output Path for output [`gdb`] file
-#' @param skipIndexes Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM, POS,REF,ALT).
+#' @param skipIndexes Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM,POS,REF,ALT).
 #' Typically only required if you plan to use [`concatGdb`] to concatenate a series of separately generated gdb files.
 #' @param skipVarRanges Flag to skip generation of ranged var table.
 #' Typically only useful (i.e., faster) if you plan to use [`concatGdb`] to concatenate a series of separately generated gdb files.
@@ -22,32 +21,7 @@
 #' If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the genome build is implemented in RVAT (currently: GRCh37, hg19, GRCh38, hg38).
 #' @param memlimit Maximum number of vcf records to parse at a time, defaults to 1000.
 #' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
-#' @examples
-#'
-#' library(rvatData)
-#' vcfpath <- rvat_example("rvatData.vcf.gz")
-#' gdbpath <- tempfile()
-#'
-#' # build a gdb from vcf.
-#' # the genomeBuild parameters stores the genome build in the gdb metadata
-#' # this will be used to assign ploidies on sex chromosomes (diploid, XnonPAR, YnonPAR)
-#' buildGdb(
-#'   vcf = vcfpath,
-#'   output = gdbpath,
-#'   genomeBuild = "GRCh38"
-#' )
-#'
-#' # for large vcfs, the memlimit parameter can be lowered
-#' buildGdb(
-#'   vcf = vcfpath,
-#'   output = gdbpath,
-#'   genomeBuild = "GRCh38",
-#'   memlimit = 100,
-#'   overWrite = TRUE
-#' )
-#'
-#' # see ?gdb for more information on gdb-files,
-#' # see ?concatGdb for concatenate gdb databases
+#' @example inst/examples/example-buildGdb.R
 #' @export
 buildGdb <- function(
   vcf,

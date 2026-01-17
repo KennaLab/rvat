@@ -25,23 +25,26 @@ mutationPlot(
 )
 }
 \arguments{
-\item{singleVar}{A \code{singlevarResult} or data.frame containing single variant association results.
-Required columns include \code{POS} (variant position, CDS coordinates), \code{P} (p-value), and \code{OR} (odds ratio).
-An optional \code{impact} column can be included to represent variant impact, which will be mapped to different point shapes.}
+\item{singleVar}{A \code{\link{singlevarResult}} or data.frame containing single variant association results.
+Required columns include \code{POS} (variant position, CDS coordinates), \code{P} (p-value),
+and \code{OR} (odds ratio).
+An optional \code{impact} column can be included to represent variant impact,
+which will be mapped to different point shapes.}
 
-\item{cds}{A \code{GRanges} or \code{IRanges} object representing the coding sequence (CDS) regions of the transcript.}
+\item{cds}{A \code{\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}} or \code{\link[IRanges:IRanges-constructor]{IRanges::IRanges}} object representing the coding sequence (CDS) regions of the transcript.}
 
-\item{customTracks}{An optional \code{rvbResult} or data.frame containing rare variant association statistics for custom tracks.
+\item{customTracks}{An optional \code{\link{rvbResult}} or data.frame containing rare variant association statistics for custom tracks.
 Should include \code{start} and \code{end} columns (CDS coordinates).
 A \code{trackType} column is required if \code{splitByTrackType = TRUE}.
 Additional columns can be included for hover information (see \code{trackHoverFields}).}
 
-\item{rvbGene}{An optional data.frame or \code{rvbResult} object containing gene-level association results.
+\item{rvbGene}{An optional data.frame or \code{\link{rvbResult}} object containing gene-level association results.
 Should contain a \code{P} column for the gene-level p-value.}
 
 \item{cdsGapSize}{The size of the gap to introduce between CDS exons, in base pairs. Defaults to 30.}
 
-\item{cdsLimits}{Specifies the y-axis limits for the CDS track (a vector of length 2).  Defaults to \code{c(-0.05, 0.05)} (nominal significance).}
+\item{cdsLimits}{Specifies the y-axis limits for the CDS track (a vector of length 2).
+Defaults to \code{c(log10(0.05), -log10(0.05))} (approx. +/- 1.3, corresponding to nominal significance P=0.05).}
 
 \item{pointRange}{Specifies the minimum and maximum size of the points representing variants (vector of length 2).
 Point size corresponds to the absolute log of the odds ratio (\code{OR}). Defaults to \code{c(0.25, 3)}.}
@@ -53,7 +56,8 @@ For example: \code{c("HIGH" = 24, "MODERATE" = 21)}. Only used if \code{singleVa
 
 \item{trackHeight}{Height of each custom track. Defaults to 1.}
 
-\item{trackOrder}{Optional vector of track names, specifying the order in which the track are plotted (if \code{splitByTrackType = TRUE})}
+\item{trackOrder}{Optional vector of track names, specifying the order in which the
+tracks are plotted (if \code{splitByTrackType = TRUE})}
 
 \item{splitByTrackType}{Should tracks be grouped by type (TRUE/FALSE)?
 If \code{TRUE}, the \code{customTracks} data frame must contain a \code{trackType} column. Defaults to \code{FALSE}.}
@@ -62,13 +66,20 @@ If \code{TRUE}, the \code{customTracks} data frame must contain a \code{trackTyp
 
 \item{interactive}{Should the plot be interactive (using plotly)? Defaults to \code{FALSE}.}
 
-\item{svHoverFields}{If \code{interactive = TRUE}, an optional character vector that specifies which columns from \code{singleVar} to include in the hover information for single variant points.}
+\item{svHoverFields}{If \code{interactive = TRUE}, an optional character vector that specifies which
+columns from \code{singleVar} to include in the hover information for single variant points.}
 
-\item{trackHoverFields}{If \code{interactive = TRUE}, an optional character vector that specifies which columns from \code{customTracks} to include in the hover information for custom tracks.}
+\item{trackHoverFields}{If \code{interactive = TRUE}, an optional character vector that specifies which
+columns from \code{customTracks} to include in the hover information for custom tracks.}
 
-\item{cdsHoverFields}{If \code{interactive = TRUE}, an optional character vector that specifies which columns from the \code{cds} data frame to include in hover information for CDS regions.}
+\item{cdsHoverFields}{If \code{interactive = TRUE}, an optional character vector that specifies which
+columns from the \code{cds} data frame to include in hover information for CDS regions.}
+}
+\value{
+A \code{ggplot} object, or a \code{plotly} object if \code{interactive = TRUE}.
 }
 \description{
-Generates a mutation plot visualizing variant-level and gene-level association results along a transcript structure.
+Generates a mutation plot visualizing variant-level and gene-level
+association results along a transcript structure.
 Optionally, custom tracks such as protein domains or mutation clusters can be overlaid.
 }

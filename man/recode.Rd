@@ -13,11 +13,13 @@ recode(
 )
 }
 \arguments{
-\item{object}{An object of class \code{\link{genoMatrix}}}
+\item{object}{An object of class \code{\link{genoMatrix}}.}
 
 \item{geneticModel}{Accepted values include "allelic", "dominant", "recessive".}
 
-\item{imputeMethod}{Logic for recoding of missing genotypes. The default, "meanImpute" recodes NA to the mean genotype dosage. "missingToRef" recodes NA to 0.}
+\item{imputeMethod}{Logic for recoding of missing genotypes.
+The default, "meanImpute" recodes missings to the mean genotype dosage.
+"missingToRef" recodes NA to 0.}
 
 \item{weights}{A vector of weights, with length equal to the number of variants.}
 

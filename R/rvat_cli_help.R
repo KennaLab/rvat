@@ -386,8 +386,8 @@ Arguments:
   name                Optional name for the analysis, defaults to 'none'
   continuous          Flag that indicates that the phenotype(s) is/are continuous.
   covar               Covariates, ',' delimited. Multiple sets of covariates can be specified, delimited by '/'.
-  substractCovar      Covariate from which aggregate should be substracted. Useful when adjusting for total variant counts, by specifying the total variant count variable here, 
-                      the aggregate score of the gene set tested will be substracted from the total count variable.
+  subtractCovar       Covariate from which aggregate should be subtracted Useful when adjusting for total variant counts, by specifying the total variant count variable here, 
+                      the aggregate score of the gene set tested will be subtracted from the total count variable.
   dropUnits           Optional list of units to exclude.
   maxitFirth          Maximum number of iterations to use for estimating firth confidence intervals. Defaults to 1000.
   keep                Filepath to list of samples to retain in analysis (by default all samples are kept).

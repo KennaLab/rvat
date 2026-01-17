@@ -27,7 +27,8 @@
 \description{
 An S4 class to manage geneSets. A geneSetList can be generated from gmt-files or a list of gene sets using
 the \code{\link[=buildGeneSet]{buildGeneSet()}} method. Specific geneSets can be retrieved using
-the \code{\link{getGeneSet}} method. A geneSetList can be used directly as input in \code{\link[=geneSetAssoc]{geneSetAssoc()}} or \code{\link{assocTest}} to perform gene set analyses.
+the \code{\link{getGeneSet}} method. A geneSetList can be used directly as input in
+\code{\link[=geneSetAssoc]{geneSetAssoc()}} or \code{\link{assocTest}} to perform gene set analyses.
 The on-disk equivalent of a \code{geneSetList} is \code{\link[=geneSetFile]{geneSetFile()}}, from which geneSets can be retrieved
 in the same way as a geneSetList using the \code{getGeneSet} method.
 }
@@ -35,7 +36,8 @@ in the same way as a geneSetList using the \code{getGeneSet} method.
 
 \itemize{
 \item \code{buildGeneSet(x, ...)}: Generate a geneSetList or \code{\link[=geneSetFile]{geneSetFile()}} that stores (weighted) gene sets
-for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) and 2) a list of vectors of units per gene set.
+for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/)
+and 2) a list of vectors of units per gene set.
 See \code{\link[=buildGeneSet]{buildGeneSet()}} for details.
 }
 }
@@ -44,9 +46,13 @@ See \code{\link[=buildGeneSet]{buildGeneSet()}} for details.
 
 In the following code snippets, x is a geneSetList object.
 \itemize{
-\item \code{geneGeneSet(x, set)}: Retrieve geneSets for specified names.
-\item \code{listGeneSets(x)}: Return a vector of all gene sets included in the geneSetList
-\item \code{listUnits(x)}: Return a vector of all units included across the gene sets in the geneSetList
+\item \code{getGeneSet(x, set)}: Retrieve geneSets for specified names.
+\item \code{listGeneSets(x)}: Return a vector of all gene sets included in the geneSetList.
+\item \code{listUnits(x)}: Return a vector of all units included across the gene sets in the geneSetList.
+\item \code{metadata(x)}: Return the metadata.
+\item \code{listMetadata(x)}: Return a list of metadata for each gene set.
+\item \code{length(x)}: Return the number of gene sets.
+\item \code{lengths(x)}: Return the number of units in each gene set.
 }
 }
 
@@ -58,6 +64,14 @@ Some examples, where x is a geneSetList object:
 \itemize{
 \item \code{x[[i]]}: Return the i'th geneSet
 \item \code{x[i:j]}: Return the i'th till j'th geneSets.
+}
+}
+
+\section{Conversions}{
+
+\itemize{
+\item \code{as.list(x)}: Convert to a list of units (character vectors).
+\item \code{as.data.frame(x)}: Convert to a data.frame.
 }
 }
 
@@ -122,7 +136,6 @@ genesetlist_remapped <- remapIDs(genesetlist, linker)
 listUnits(genesetlist_remapped)
 
 # see ?geneSetAssoc and ?`assocTest-aggdb` to run gene set analyses
-
 }
 \seealso{
 \code{\link{geneSetFile}}

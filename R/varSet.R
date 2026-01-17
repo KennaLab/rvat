@@ -1,7 +1,3 @@
-#==============================================================================
-# varSet objects
-#==============================================================================
-
 # general methods -------------------------------------------------------------
 
 ## show
@@ -375,7 +371,7 @@ varSetFile <- function(path, memlimit = 5000L) {
     stop("`path` must be a single, non-empty file path string.", call. = FALSE)
   }
   if (!file.exists(path)) {
-    stop(sprintf("File does not exist '%s", path), call. = FALSE)
+    stop(sprintf("File does not exist '%s'", path), call. = FALSE)
   }
   check_number_whole(memlimit, min = 1)
 
@@ -646,45 +642,23 @@ setMethod("as.data.frame", signature = "varSet", definition = function(x) {
 #' @aliases buildVarSet,gdb-method
 #' @param object a [`gdb`] object.
 #' @param varSetName Name to assign varSet grouping.
-#' This identifier column is used to allow for subsequent mergeing of multiple varSet files for coordinated analysis of multiple variant filtering/ weighting strategies)
+#' This identifier column is used to allow for subsequent merging of multiple 
+#' varSet files for coordinated analysis of multiple variant filtering/weighting strategies
 #' @param unitTable Table containing aggregation unit mappings.
 #' @param unitName Field to utilize for aggregation unit names.
 #' @param output Output file name (output will be gz compressed text).
-#' @param intersection Additional tables to filter through intersection (i.e. variants absent from intersection tables will not appear in output). Multiple tables should be ',' delimited.
-#' @param where An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
-#' @param weightName Field name for desired variant weighting, must be a column within unitTable or other intersection table. Default value of 1 is equivalent to no weighting.
+#' @param intersection Additional tables to filter through intersection 
+#' (i.e. variants absent from intersection tables will not appear in output). 
+#' Multiple tables should be ',' delimited.
+#' @param where An SQL compliant where clause to filter output; 
+#' e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
+#' @param weightName Field name for desired variant weighting, 
+#' must be a column within unitTable or other intersection table. 
+#' Default value of 1 is equivalent to no weighting.
 #' @param memlimit Chunk size used for processing rows.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #'
-#' @examples
-#'
-#' library(rvatData)
-#'
-#' # Build a varset including variants with a moderate predicted impact
-#' gdb <- create_example_gdb()
-#' varsetfile_moderate <- tempfile()
-#' buildVarSet(object = gdb,
-#'             output = varsetfile_moderate,
-#'             varSetName = "Moderate",
-#'             unitTable = "varInfo",
-#'             unitName = "gene_name",
-#'             where = "ModerateImpact = 1")
-#'
-#' # Build a varset that contains CADD scores
-#' varsetfile_cadd <- tempfile()
-#' buildVarSet(object = gdb,
-#'             output = varsetfile_cadd,
-#'             varSetName = "CADD",
-#'             unitTable = "varInfo",
-#'             unitName = "gene_name",
-#'             weightName = "CADDphred")
-#'
-#' # connect to varsetfile and retrieve variant sets
-#' varsetfile <- varSetFile(varsetfile_moderate)
-#' varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
-#'
-#' # see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
-#' # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
+#' @example inst/examples/example-buildVarSet-gdb.R
 #'
 #' @export
 setMethod(
@@ -936,10 +910,11 @@ setMethod(
 #' @name buildVarSet-data.frame
 #' @aliases buildVarSet,data.frame-method
 #' @param object A data.frame containing variant annotations
+#' Must contain a 'VAR_id' column, and columns matching `unitName` and `fields`.
 #' @param unitName Field to utilize for aggregation unit names.
 #' @param fields Which fields in the data.frame to use as variant annotations.
 #' These fields can be 1) an indicator (0,1 or FALSE/TRUE) that flags variants with the annotation,
-#' e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function.;
+#' e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function;
 #' or 2) variant weights, e.g. a column named 'CADD' that contains CADD scores.
 #' Multiple fields can be specified, which will result in multiple rows per aggregation unit in the resulting varSetFile.
 #' @param output Optional output file name (output will be gz compressed text).
@@ -948,26 +923,8 @@ setMethod(
 #' should variants with 0/FALSE be dropped? Defaults to `TRUE`.
 #' If `FALSE`, all variants will be included, and will be assigned weights 0 and 1.
 #'
-#' @examples
+#' @example inst/examples/example-buildVarSet-data.frame.R
 #'
-#' library(rvatData)
-#'
-#' gdb <- create_example_gdb()
-#' anno <- getAnno(gdb, "varinfo", where = "gene_name in ('SOD1', 'FUS')")
-#' varsetfile_from_df <- tempfile()
-#' buildVarSet(
-#'   anno,
-#'   unitName = "gene_name",
-#'   fields = c("HighImpact"),
-#'   output = varsetfile_from_df
-#' )
-#'
-#' # connect to varsetfile and retrieve variant sets
-#' varsetfile <- varSetFile(varsetfile_from_df)
-#' varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
-#'
-#' # see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
-#' # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
 #'
 #' @export
 setMethod(
@@ -1346,7 +1303,7 @@ setMethod(
       sprintf(
         paste0(
           "Note: for %s/%s records in the varSetFile, ",
-          "no position mappings where found for any of the variants."
+          "no position mappings were found for any of the variants."
         ),
         not_found,
         nrow(varset_df)
