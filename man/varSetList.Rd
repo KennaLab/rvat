@@ -43,8 +43,8 @@ In the following code snippets, x is a varSetList object.
 \item \code{getVarSet(x, unit, varSetName)}: Retrieve varSets for specified units and/or varSetNames.
 \item \code{listUnits(x)}: Return a vector of all units included in the varSetList.
 \item \code{listVarSets(x)}: Return a vector of all varSetNames included in the varSetList.
-\item \code{getGdbId(x)}: Get gdb ID from metadata
-\item \code{metadata(x)}: Get metadata from varSetList
+\item \code{getGdbId(x)}: Get gdb ID from metadata.
+\item \code{metadata(x)}: Get metadata from varSetList.
 }
 }
 
@@ -70,7 +70,7 @@ in the varSetList.
 
 In the following code snippets, x is a varSetList object:
 \itemize{
-\item \verb{collapseVarSetList(x, unit = "unnamed", varSetName = "unnamed)}:
+\item \code{collapseVarSetList(x, unit = "unnamed", varSetName = "unnamed")}:
 Merge all varSets into one varSet. All weights will be set to 1.
 Optionally, the unit name and varSetName can be specified.
 This method is mainly used when you want to load the genotypes for all variants
@@ -122,7 +122,6 @@ varsetfile <- varSetFile(output)
 varsetfile
 
 # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varSets included in a varSetlist
-
 }
 \seealso{
 \code{\link{varSetFile}}

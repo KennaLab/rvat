@@ -20,5 +20,4 @@ Drop table from \code{\link{gdb}} and clear from annotation / cohort metadata ta
 library(rvatData)
 gdb <- create_example_gdb()
 dropTable(gdb, name = "varInfo")
-
 }

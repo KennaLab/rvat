@@ -11,15 +11,15 @@
 #' `continuous` to `TRUE`.
 #' @param test Vector of statistical tests to run,
 #' options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_fwe,skat_burden_fwe,
-#' skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA. See [`assocTest`] for details.
+#' skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA. 
+#' See [`assocTest`] for details.
 #' @param name Optional name for the analysis, defaults to "none".
 #' @param continuous Is the response variable continuous? (TRUE/FALSE). Defaults to `FALSE`.
 #' @param singlevar Run single variant tests? (TRUE/FALSE).
-#' Defaults to `FALSE`, in which case collapsing tests are ran.
-#' @param covar Character vector of covariates. These should be present in the colData slot of the genoMatrix.
+#' Defaults to `FALSE`, in which case collapsing tests are run
+#' @param covar Character vector of covariates. 
+#' These should be present in the colData slot of the genoMatrix.
 #' @param offset Optional model offset, can be used to account for regenie LOCO predictions.
-#' @param overwriteAggregate In case there is already an `aggregate` column in the `colData` of the genoMatrix
-#' (i.e. `aggregate` has been run on the genoMatrix), should it be overwitten? Defaults to `TRUE`.
 #' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 #' Defaults to `allelic`.
 #' @param imputeMethod Which imputation method to apply? ('meanImpute' or 'missingToRef').
@@ -29,22 +29,28 @@
 #' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals.
 #' @param keep Vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
 #' @param output Output file path for results.
-#' Defaults to `NULL`, in which case results are not written to disk, but returned as an [`rvatResult`] object.
-#' @param append Relevant if the `output` parameter is not `NULL`. Should results be appended to `output`?
+#' Defaults to `NULL`, in which case results are not written to disk, 
+#' but returned as an [`rvatResult`] object.
+#' @param append Relevant if the `output` parameter is not `NULL`. 
+#' Should results be appended to `output`?
 #' @param returnDF Return a data.frame rather than a rvatResult. Defaults to `FALSE`.
 #' @param methodResampling Which method to use for resampling? ('permutation' currently implemented)
 #' Defaults to `NULL`, in which case no resampling is performed.
-#' @param resamplingMatrix Pre-calculated resampling matrix (n x p), where n = number of samples, and p number of resamplings.
+#' @param resamplingMatrix Pre-calculated resampling matrix (n x p), 
+#' where n = number of samples, and p number of resamplings.
 #' Can be generated using [`buildResamplingFile`].
 #' @param resamplingFile A [`resamplingFile`] object.
 #' @param nResampling Number of resamplings to perform if methodResampling is specified.
-#' @param outputResampling If `TRUE` or a filepath, results for each resampling are returned (or saved to the filepath).
-#' This can be useful if permutations are used to calculated to estimate correlations among genes for example.
+#' @param outputResampling If `TRUE` or a filepath, 
+#' results for each resampling are returned (or saved to the filepath).
+#' This can be useful if permutations are used to calculated to estimate 
+#' correlations among genes for example.
 #' Defaults to `FALSE` in which case resampling is used to calculate resampled P-values,
 #' results for individual resamplings are not returned.
 #' @param memlimitResampling Maximum number of resamplings to perform at a time.
 #' Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
-#' thus, for large number of resamplings it can be more efficient to split the permutations in chunks of size `memlimitResampling`.
+#' thus, for large number of resamplings it can be more efficient to split 
+#' the permutations in chunks of size `memlimitResampling`.
 #' Defaults to `NULL` in which case all permutations are performed.
 #' @param minCallrateVar Minimum genotype rate for variant retention.
 #' @param maxCallrateVar Maximum genotype rate for variant retention.
@@ -59,87 +65,7 @@
 #' @param minCarrierFreq Minimum carrier frequency for variant retention.
 #' @param maxCarrierFreq Maximum carrier frequency for variant retention.
 #' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
-#' @examples
-#'
-#' library(rvatData)
-#' data(GTsmall)
-#'
-#' # run a firth burden test on a binary phenotype
-#' rvb <- assocTest(GTsmall,
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = "firth",
-#'                  name = "example")
-#'
-#' # run ACAT-v and SKAT tests
-#' rvb <- assocTest(GTsmall,
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("acatvfirth", "skat_burden_robust", "skato_robust"),
-#'                  name = "example")
-#'
-#' # run a burden test on a continuous phenotype
-#' rvb <- assocTest(GTsmall,
-#'                  pheno = "age",
-#'                  continuous = TRUE,
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("lm", "skat", "acatv"),
-#'                  name = "example")
-#'
-#' # run single variant tests on a binary phenotype
-#' sv <- assocTest(GTsmall,
-#'                 pheno = "pheno",
-#'                 singlevar = TRUE,
-#'                 covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                 test = c("firth", "glm", "scoreSPA"),
-#'                 name = "example",
-#'                 minCarriers = 1
-#'                 )
-#'
-#' # apply variant filters
-#' rvb <- assocTest(GTsmall,
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"),
-#'                  name = "example",
-#'                  maxMAF = 0.001,
-#'                  minCarriers = 2,
-#'                  minCallrateVar = 0.9,
-#'                  minCallrateSM = 0.95)
-#'
-#' # Perform MAF-weighted burden tests (madsen-browning)
-#' rvb <- assocTest(GTsmall,
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"),
-#'                  MAFweights = "mb")
-#'
-#' # Perform weighted burden tests with custom weights
-#' gdb <- gdb(rvat_example("rvatData.gdb"))
-#' # add cadd scores
-#' caddscores <- getAnno(gdb, "varInfo", VAR_id = rownames(GTsmall))
-#' caddscores <- caddscores[match(rownames(GTsmall), caddscores$VAR_id),]
-#' # CADD-weighted burden test
-#' rvb <- assocTest(recode(GTsmall, weights = caddscores$CADDphred),
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"))
-#'
-#' # Perform recessive burden test
-#' rvb <- assocTest(GTsmall,
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"),
-#'                  geneticModel = "recessive")
-#'
-#' # Resampled burden test
-#' rvb <- assocTest(GTsmall,
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("skat", "skat_burden", "acatv"),
-#'                  name = "example",
-#'                  methodResampling = "permutation",
-#'                  nResampling = 100)
+#' @example inst/examples/example-assocTest-genoMatrix.R
 #'
 #' @export
 setMethod(

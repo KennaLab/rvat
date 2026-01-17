@@ -743,7 +743,7 @@ test_that("assocTest-aggdb input validation works", {
     regexp = "The following `covar` fields were not found"
   )
 
-  ## same for substractCovar
+  ## same for subtractCovar
   expect_error(
     {
       assocTest(
@@ -753,11 +753,11 @@ test_that("assocTest-aggdb input validation works", {
         cohort = "pheno",
         pheno = "pheno",
         geneSet = genesetlist,
-        substractCovar = "test",
+        subtractCovar = "test",
         verbose = FALSE
       )
     },
-    regexp = "The `substractCovar` field"
+    regexp = "The `subtractCovar` field"
   )
 
   # expect error when geneSet is misspecified

@@ -4,13 +4,15 @@
 \alias{mergeAggDbs}
 \title{Merge multiple aggregate files}
 \usage{
-mergeAggDbs(object, output, overWrite = TRUE, verbose = TRUE)
+mergeAggDbs(object, output, overWrite = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{object}{an \code{\link{aggdbList}} object.}
 
 \item{output}{Output file name (output will be an aggdb).
 Defaults to \code{NULL}, in which case a data.frame will be returned.}
+
+\item{overWrite}{Should existing output files be overwritten? Defaults to \code{TRUE}.}
 
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
@@ -19,7 +21,7 @@ Merge aggdbs, this will generate a new \code{aggdb} including all aggregates acr
 }
 \examples{
 library(rvatData)
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 
 # generate two aggregate files
 varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
@@ -44,5 +46,4 @@ mergeAggDbs(
   agglist,
   output = aggdb
   )
-
 }

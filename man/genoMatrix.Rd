@@ -33,7 +33,7 @@
 \title{The genoMatrix class for storing genotype data and associated sample and variant info.}
 \description{
 The genoMatrix class is specifically designed to represent genotype data and associated sample and variant info.
-It extends the Bioconductor \code{\link[SummarizedExperiment]{SummarizedExperiment}} class to accommodate genotype data.
+It extends the Bioconductor \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}} class to accommodate genotype data.
 }
 \section{Construct a genoMatrix}{
 
@@ -50,33 +50,37 @@ include \code{assays(x)}, \code{rowData(x)}, \code{colData(x)}, \code{metadata(x
 
 In the following code snippets, x is a genoMatrix object
 \itemize{
-\item \code{getAF(x)}: Returns alternate allele frequencies. These will be equal to the minor allele frequences after applying \code{flipToMinor()}.
+\item \code{getAF(x)}: Returns alternate allele frequencies.
+These will be equal to the minor allele frequences after applying \code{flipToMinor()}.
 \item \code{getMAF(x)}: Returns variant minor allele frequencies.
-\item \code{getAC(x)}: Returns alternate allele counts.  These will be equal to the minor allele counts after applying \code{flipToMinor()}.
+\item \code{getAC(x)}: Returns alternate allele counts.
+These will be equal to the minor allele counts after applying \code{flipToMinor()}.
 \item \code{getMAC(x)}: Returns minor allele counts.
-\item \code{getCR(x, var=TRUE)}: Returns call-rates for variants or samples.
+\item \code{getCR(x, var = TRUE)}: Returns call-rates for variants or samples.
 \code{var=TRUE} by default, set to \code{FALSE} to return sample call-rates.
 \item \code{getNCarriers(x)}: Returns number of carriers of the alternate allele for each variant.
 Note that when geneticModel = 'recessive' it will return the number of homozygous carriers.
 \item \code{summariseGeno(x)}: Returns a per variant summary of genotype counts and hwe testing.
-\item \code{getCarriers(x, VAR_id=NULL,colDataFields=NULL,rowDataFields=NULL,groupBy=NULL)}:
+\item \code{getCarriers(x, VAR_id = NULL, colDataFields = NULL, rowDataFields = NULL, groupBy = NULL)}:
 Return sample IDs for carriers of each of the variants in the genoMatrix.
 \code{VAR_id} can be specified to return for the specified subset of variants.
-\code{colDataFields} and \code{rowDataFields} can be specified include additional fields from \code{colData(x)} or \code{rowData(x)} in the output.
-The \code{groupBy} parameter can be set to calculate carrier frequency among groups (such as cohort or phenotype), multiple groups can be set.
+\code{colDataFields} and \code{rowDataFields} can be specified include additional
+fields from \code{colData(x)} or \code{rowData(x)} in the output.
+The \code{groupBy} parameter can be set to calculate carrier frequency among groups
+(such as cohort or phenotype), multiple groups can be set.
 The \code{aggregate} parameter can be set to TRUE to return mean burden scores among the groupings.
 }
 
-note: Variant ploidy (diploid, XnonPAR, YnonPAR) are handled according to sample sex.
+Note: Variant ploidy (diploid, XnonPAR, YnonPAR) are handled according to sample sex.
 Samples for which sex are not provided are excluded during AF calculation at non-diploid variants.
 }
 
 \section{Subsetting}{
 
-
-Subsetting a genoMatrix object is equivalent to subsetting a SummarizedExperiment object,
-and is fully described in fully described in \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}}.
-Please see the example section for examples.
+\itemize{
+\item \code{x[i, j]}: Standard subsetting of variants (rows) and samples (columns).
+See the example section for examples.
+}
 }
 
 \section{Recode}{
@@ -84,8 +88,10 @@ Please see the example section for examples.
 In the following code snippets, x is a genoMatrix object
 \itemize{
 \item \code{flipToMinor(x)}: Function to flip genotype dosages such that all GT values represent minor allele counts.
-\item \code{recode(x, geneticModel,imputeMethod,weights,MAFweights)}: Returns a recoded genoMatrix object, genetic model, imputation, and weights can be recoded. See \code{\link[=recode]{recode()}} for details.
-\item \code{updateGT(x, SM = NULL, anno = NULL)}: Safe replacement of the colData or rowData table within a genoMatrix with a new table.
+\item \code{recode(x, geneticModel,imputeMethod,weights,MAFweights)}: Returns a recoded genoMatrix object,
+genetic model, imputation, and weights can be recoded. See \code{\link[=recode]{recode()}} for details.
+\item \code{updateGT(x, SM = NULL, anno = NULL)}: Safe replacement of the colData or
+rowData table within a genoMatrix with a new table.
 }
 }
 
@@ -95,15 +101,16 @@ In the following code snippets, x is a genoMatrix object
 \itemize{
 \item \code{aggregate()}: Returns per sample aggregate dosage for a genoMatrix object.
 The genoMatrix shouldn't contain missing values, use \code{\link[=recode]{recode()}} to impute missing values.
-Aggregation is dependent on \code{geneticModel}, \code{MAFweights} and \code{weights}, all can be set using the \code{\link[=recode]{recode()}} method.
-By default, an updated genoMatrix is returned with an \code{aggregate} field in \code{colData}. Set \code{returnGT} to \code{FALSE} to return a vector of aggregates.
-\item \code{assocTest()}: Perform aggregate (burden) and single variant assocation test. See \code{\link[=assocTest]{assocTest()}} for details.
+Aggregation is dependent on \code{geneticModel}, \code{MAFweights} and \code{weights},
+all can be set using the \code{\link[=recode]{recode()}} method.
+By default, an updated genoMatrix is returned with an \code{aggregate} field in \code{colData}.
+Set \code{returnGT} to \code{FALSE} to return a vector of aggregates.
+\item \code{assocTest()}: Perform aggregate (burden) and single variant association test.
+See \code{\link[=assocTest]{assocTest()}} for details.
 }
 }
 
 \examples{
-
-
 library(rvatData)
 data(GT)
 
@@ -178,7 +185,7 @@ aggregate <- aggregate(recode(GT, imputeMethod = "meanImpute"), returnGT = FALSE
 head(aggregate)
 
 # Update cohort and variant info in genoMatrix --------------------------
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 anno <- getAnno(gdb, "varInfo", fields = c("VAR_id", "CADDphred", "PolyPhen"))
 updateGT(GT, anno = anno )
 pheno <- colData(GT)
@@ -215,11 +222,12 @@ sv <- assocTest(
   singlevar = TRUE
 )
 # see ?assocTest for details
-
 }
 \seealso{
+\code{\link{getGT}}
+
 \code{\link{assocTest}}
 
 \code{\link{recode}}
 }
-\keyword{gdb}
+\keyword{genoMatrix}

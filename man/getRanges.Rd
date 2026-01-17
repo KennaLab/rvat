@@ -13,7 +13,7 @@ getRanges(
   table = "var",
   CHROM = "CHROM",
   POS = "POS",
-  where = c()
+  where = NULL
 )
 }
 \arguments{
@@ -32,22 +32,24 @@ the column name can be specified here.}
 \item{POS}{If the name of the column in \code{table} that specifies variant position is not named \code{POS},
 the column name can be specified here.}
 
-\item{where}{An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')". Can be either of length 1, in which case the same
-where clause is applied for each varSet, or of length equal to the number of varSets in the provided varSetList or varSetFile,
+\item{where}{An SQL compliant where clause to filter output;
+eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
+Can be either of length 1, in which case the same
+where clause is applied for each varSet, or of length equal to the number of varSets
+in the provided varSetList or varSetFile,
 in which case each where clause is applied to the corresponding varSet.}
 }
 \description{
 Retrieve genomic ranges for variant sets.
 }
 \details{
-This function method retrieves genomic ranges (chromosome, start, and end positions) for variant sets defined in a \code{varSetFile} or \code{varSetList}.
-It will map positions based on a variant annotations table in provided \code{gdb} (default = "var").
+Retrieve genomic ranges (chromosome, start, and end positions) for variant sets
+defined in a \code{\link{varSetFile}} or \code{\link{varSetList}}.
+It will map positions based on a variant annotations table in the provided \code{\link{gdb}} (default = "var").
 }
 \examples{
-
 library(rvatData)
 varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
 gdb <- create_example_gdb()
 ranges <- getRanges(varsetfile, gdb = gdb)
-
 }

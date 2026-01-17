@@ -1,4 +1,4 @@
-#' @rdname varSet
+#' @rdname mapToCDS
 #' @usage NULL
 #' @export
 setMethod(

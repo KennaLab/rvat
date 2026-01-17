@@ -182,7 +182,7 @@ test_that("getRanges input validation works", {
     {
       ranges <- getRanges(varsetlist_SOD1, gdb = gdb, table = "var_noSOD1")
     },
-    regexp = "no position mappings where found for any of the variants."
+    regexp = "no position mappings were found for any of the variants."
   )
   ## ranges should be NA
   expect_true(

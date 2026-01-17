@@ -26,6 +26,8 @@ writeVcf(
 
 \item{IID}{Samples to include in output.}
 
+\item{memlimit}{Maximum number of records to process in a single batch. Defaults to 1000.}
+
 \item{includeGeno}{Can be reset to false if individual genotypes are not required in output.
 Defaults to \code{TRUE}.}
 
@@ -39,18 +41,16 @@ Defaults to \code{FALSE}.}
 }
 \description{
 Export gdb to vcf format.
-By setting \code{includeGeno = TRUE}, a sites-only vcf is created.
+By setting \code{includeGeno = FALSE}, a sites-only vcf is created.
 By setting \code{includeVarId = TRUE}, VAR_ids will be inserted into the \code{ID} field rather
 than the original ID in the vcf. This can be useful when running external tools, such
 as annotation software, and then upload the results back into the gdb, without
 having to map the variants to VAR_ids again.
 }
 \examples{
+ library(rvatData)
 
-library(rvatData)
-
-output <- tempfile()
-gdb <- create_example_gdb()
-writeVcf(gdb, VAR_id = 1:100, output = output)
-
+ output <- tempfile()
+ gdb <- create_example_gdb()
+ writeVcf(gdb, VAR_id = 1:100, output = output)
 }

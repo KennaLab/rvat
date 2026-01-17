@@ -32,7 +32,10 @@ Initialize \code{\link{geneSetFile-class}} object
 
 \itemize{
 \item \code{buildGeneSet(x, ...)}: Generate a \code{\link{geneSetList}} or geneSetFile that stores (weighted) gene sets
-for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) and 2) a list of #' vectors of units per gene set.
+for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) and
+}
+\enumerate{
+\item a list of vectors of units per gene set.
 See \code{\link[=buildGeneSet]{buildGeneSet()}} for details.
 }
 }
@@ -50,8 +53,16 @@ In the following code snippets, x is a geneSetFile object.
 \itemize{
 \item \code{getGeneSet(x, geneSet)}: Retrieve geneSets for specified units and/or geneSetNames.
 Output will be of class \code{\link{geneSetList}}.
-\item \code{listUnits(x)}: Return a vector of all units included in the geneSetFile
 \item \code{listGeneSets(x)}: Return a vector of all geneSetNames included in the geneSetFile
+\item \code{length(x)}: Return the number of gene sets.
+\item \code{metadata(x)}: Return the metadata.
+}
+}
+
+\section{Conversion}{
+
+\itemize{
+\item \code{as.geneSetList(x)}: Convert the geneSetFile to a geneSetList object.
 }
 }
 
@@ -63,7 +74,6 @@ To perform gene set burden analyses, \code{\link{assocTest}} can be used.
 }
 
 \examples{
-
 library(rvatData)
 
 # build a geneSetList
@@ -88,7 +98,6 @@ genesets <- listGeneSets(genesetfile)
 head(genesets)
 
 # see ?geneSetAssoc and ?`assocTest-aggdb` to run gene set analyses
-
 }
 \seealso{
 \code{\link{geneSetList}}

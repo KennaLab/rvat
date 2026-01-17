@@ -11,7 +11,7 @@ manhattan(
   threshold = NULL,
   labelThreshold = NULL,
   labelRepel = FALSE,
-  labelSize = NULL,
+  labelSize = 3.88,
   contigs = NULL,
   title = "",
   verbose = TRUE
@@ -22,19 +22,26 @@ manhattan(
 
 \item{highlight}{vector of units/VAR_ids that should be highlighted in red}
 
-\item{label}{Column name of the labels that are used for significant results}
+\item{label}{Column name of the labels that are used for significant results.
+If not provided, the function attempts to use a column named "label" if one is present.}
 
 \item{threshold}{Fwe threshold (bonferroni applied by default).}
 
 \item{labelThreshold}{P-value threshold to display labels.}
 
-\item{labelRepel}{Should the text labels repel away from each other and away from the data points? Defaults to \code{FALSE}.}
+\item{labelRepel}{Should the text labels repel away from each other and away from the data points?
+Defaults to \code{FALSE}.}
 
-\item{labelSize}{Size of the label, defaults to the default used in the ggrepel package.}
+\item{labelSize}{Size of the label. Defaults to 3.88.}
 
-\item{contigs}{Update contig lengths from GRCh37 defaults.}
+\item{contigs}{Update contig lengths from GRCh37 defaults.
+Can be a character string (e.g. "GRCh38") or a data.frame with 'CHROM' and 'Length' columns.
+If not specified, the function attempts to infer the genome build from the object metadata,
+defaulting to GRCh37 if identifying information is missing.}
 
 \item{title}{Optional title.}
+
+\item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Generate a manhattan plot for an \code{\link{rvatResult}} object.
@@ -67,5 +74,4 @@ man <- manhattan(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresul
                  labelRepel = TRUE,
                  labelThreshold = 1e-12,
                  contigs = "GRCh38")
-
 }

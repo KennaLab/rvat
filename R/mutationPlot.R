@@ -1,35 +1,44 @@
 #' Mutation Plot
 #'
-#' Generates a mutation plot visualizing variant-level and gene-level association results along a transcript structure.  
+#' Generates a mutation plot visualizing variant-level and gene-level 
+#' association results along a transcript structure.  
 #' Optionally, custom tracks such as protein domains or mutation clusters can be overlaid.
 #'
-#' @param singleVar A `singlevarResult` or data.frame containing single variant association results.
-#' Required columns include `POS` (variant position, CDS coordinates), `P` (p-value), and `OR` (odds ratio). 
-#' An optional `impact` column can be included to represent variant impact, which will be mapped to different point shapes.
-#' @param cds A `GRanges` or `IRanges` object representing the coding sequence (CDS) regions of the transcript.  
-#' @param customTracks An optional `rvbResult` or data.frame containing rare variant association statistics for custom tracks.
+#' @param singleVar A [`singlevarResult`] or data.frame containing single variant association results.
+#' Required columns include `POS` (variant position, CDS coordinates), `P` (p-value), 
+#' and `OR` (odds ratio). 
+#' An optional `impact` column can be included to represent variant impact, 
+#' which will be mapped to different point shapes.
+#' @param cds A [`GenomicRanges::GRanges`] or [`IRanges`] object representing the coding sequence (CDS) regions of the transcript.  
+#' @param customTracks An optional [`rvbResult`] or data.frame containing rare variant association statistics for custom tracks.
 #' Should include `start` and `end` columns (CDS coordinates).
 #' A `trackType` column is required if `splitByTrackType = TRUE`. 
 #' Additional columns can be included for hover information (see `trackHoverFields`).
-#' @param rvbGene An optional data.frame or `rvbResult` object containing gene-level association results.  
+#' @param rvbGene An optional data.frame or [`rvbResult`] object containing gene-level association results.  
 #' Should contain a `P` column for the gene-level p-value.
 #' @param cdsGapSize The size of the gap to introduce between CDS exons, in base pairs. Defaults to 30.
-#' @param cdsLimits Specifies the y-axis limits for the CDS track (a vector of length 2).  Defaults to `c(-0.05, 0.05)` (nominal significance).
+#' @param cdsLimits Specifies the y-axis limits for the CDS track (a vector of length 2).  
+#' Defaults to `c(log10(0.05), -log10(0.05))` (approx. +/- 1.3, corresponding to nominal significance P=0.05).
 #' @param pointRange Specifies the minimum and maximum size of the points representing variants (vector of length 2). 
 #' Point size corresponds to the absolute log of the odds ratio (`OR`). Defaults to `c(0.25, 3)`.
 #' @param impactScale Named character vector mapping impact levels to point shapes. 
 #' For example: `c("HIGH" = 24, "MODERATE" = 21)`. Only used if `singleVar` contains an `impact` column.
 #' @param trackSpacing Spacing between custom tracks. Defaults to 1.
 #' @param trackHeight Height of each custom track. Defaults to 1.
-#' @param trackOrder Optional vector of track names, specifying the order in which the track are plotted (if `splitByTrackType = TRUE`)
+#' @param trackOrder Optional vector of track names, specifying the order in which the 
+#' tracks are plotted (if `splitByTrackType = TRUE`)
 #' @param splitByTrackType Should tracks be grouped by type (TRUE/FALSE)?
 #' If `TRUE`, the `customTracks` data frame must contain a `trackType` column. Defaults to `FALSE`.
 #' @param panelsizes Relative sizes of the custom tracks vs. the other tracks. Defaults to `c(1,3)`.
 #' @param interactive Should the plot be interactive (using plotly)? Defaults to `FALSE`.
-#' @param svHoverFields If `interactive = TRUE`, an optional character vector that specifies which columns from `singleVar` to include in the hover information for single variant points.
-#' @param trackHoverFields If `interactive = TRUE`, an optional character vector that specifies which columns from `customTracks` to include in the hover information for custom tracks.
-#' @param cdsHoverFields If `interactive = TRUE`, an optional character vector that specifies which columns from the `cds` data frame to include in hover information for CDS regions.
+#' @param svHoverFields If `interactive = TRUE`, an optional character vector that specifies which 
+#' columns from `singleVar` to include in the hover information for single variant points.
+#' @param trackHoverFields If `interactive = TRUE`, an optional character vector that specifies which 
+#' columns from `customTracks` to include in the hover information for custom tracks.
+#' @param cdsHoverFields If `interactive = TRUE`, an optional character vector that specifies which 
+#' columns from the `cds` data frame to include in hover information for CDS regions.
 #' 
+#' @return A `ggplot` object, or a `plotly` object if `interactive = TRUE`.
 #' @export
 mutationPlot <- function(
     singleVar,
@@ -148,7 +157,7 @@ mutationPlot <- function(
   }
   
   if(!is.null(cdsHoverFields)) {
-    if(is.null(names(cdsHoverFields))) names(cdsHoverFields) <- trackHoverFields
+    if(is.null(names(cdsHoverFields))) names(cdsHoverFields) <- cdsHoverFields
     cds_remapped <- addText(cds_remapped, cdsHoverFields)
   } else {
     cds_remapped$text <- ""

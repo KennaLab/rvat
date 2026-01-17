@@ -6,11 +6,10 @@
 \description{
 Generate optionally weighted variant sets using annotation table(s).
 See the tutorials for examples.
-For building varSets directly from the \code{\link{gdb}}: see \code{\link{buildVarSet-gdb}} for details\cr
-For building varSets interactively from a data.frame  seee \code{\link{buildVarSet-data.frame}} for details\cr
+For building varSets directly from the \code{\link{gdb}}: see \code{\link{buildVarSet-gdb}} for details.\cr
+For building varSets interactively from a data.frame  see \code{\link{buildVarSet-data.frame}} for details.\cr
 }
 \examples{
-
 library(rvatData)
 
 # Build a varSetFile including variants with a moderate predicted impact
@@ -49,6 +48,4 @@ varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
 
 # see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
 # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
-
-
 }

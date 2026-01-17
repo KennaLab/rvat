@@ -9,6 +9,9 @@
 \alias{length,aggdbList-method}
 \alias{metadata,aggdbList-method}
 \title{Class to facilitate merging aggdbs}
+\usage{
+aggdbList(filelist, checkDups = TRUE)
+}
 \description{
 Class to facilitate merging aggdbs. By providing a vector of aggdb filepaths,
 aggdbList will check whether identical samples are included and if duplicated units are included.
@@ -30,6 +33,9 @@ In the following code snippets, x is an aggdbList object.
 \itemize{
 \item \code{listUnits(x)}: Return a vector of all units included across aggdbs in the aggdbList
 \item \code{listSamples(x)}: Return a vector of all samples included across aggdbs in the aggdbList
+\item \code{listParams(x)}: Return a list of parameters.
+\item \code{metadata(x)}: Return metadata.
+\item \code{length(x)}: Return the number of aggdbs included.
 }
 }
 
@@ -48,7 +54,7 @@ See \code{\link{collapseAggDbs}} for details.
 
 \examples{
 library(rvatData)
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 
 # generate two aggregate files
 varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
@@ -73,7 +79,6 @@ mergeAggDbs(
   agglist,
   output = aggdb
   )
-
 }
 \seealso{
 \code{\link{mergeAggDbs}}

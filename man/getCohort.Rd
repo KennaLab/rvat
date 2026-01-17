@@ -3,27 +3,27 @@
 \name{getCohort}
 \alias{getCohort}
 \alias{getCohort,gdb-method}
-\title{Get an cohort table from a gdb}
+\title{Get a cohort table from a gdb}
 \usage{
 getCohort(object, cohort, fields = "*", keepAll = FALSE)
 
 \S4method{getCohort}{gdb}(object, cohort, fields = "*", keepAll = FALSE)
 }
 \arguments{
-\item{object}{an object of class \code{\link[=gdb-class]{gdb}}}
+\item{object}{An object of class \code{\link{gdb}}.}
 
-\item{cohort}{name of cohort to get.}
+\item{cohort}{Name of cohort to get.}
 
-\item{fields}{columns to retain}
+\item{fields}{Columns to retain. Defaults to '*', in which case all fields are loaded.}
 
-\item{keepAll}{defaults to \code{FALSE}, for internal use.}
+\item{keepAll}{Defaults to \code{FALSE}, for internal use.}
 }
 \description{
-Get a cohort table from a \code{\link[=gdb-class]{gdb}} object.
+Get a cohort table from a \code{\link{gdb}} object.
 }
 \examples{
 library(rvatData)
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 
 # retrieve a cohort
 cohort <- getCohort(gdb, cohort = "pheno")
@@ -32,5 +32,4 @@ head(cohort)
 # retrieve a cohort, keep specified fields
 cohort <- getCohort(gdb, cohort = "pheno", fields = c("IID", "sex", "pheno"))
 head(cohort)
-
 }
