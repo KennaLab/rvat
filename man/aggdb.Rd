@@ -7,6 +7,7 @@
 \alias{getUnit}
 \alias{listParams}
 \alias{aggdb-class}
+\alias{close,aggdb-method}
 \title{Class to manage interactions with an aggdb}
 \description{
 The \code{\link{aggregate}} method saves genotype aggregates compressed in an aggdb file.
@@ -37,6 +38,8 @@ Use \code{listUnits(x)} to list the units includes in the aggdb
 Output will be a matrix.
 \item \code{listUnits(x)}: Return a vector of all units included in the aggdb
 \item \code{listSamples(x)}: Return a vector of all sample IDs included in the aggdb
+\item \code{listParams(x)}: Return a list of parameters used to generate the aggdb.
+\item \code{metadata(x)}, \code{getGdbId(x)}, \code{getRvatVersion(x)}: various methods to retrieve metadata from the aggdb.
 }
 }
 
@@ -75,7 +78,6 @@ head(listSamples(aggdb))
 aggregates <- getUnit(aggdb, unit = "SOD1")
 
 # see ?`assocTest-aggdb` for details on running association tests on an aggdb
-
 }
 \seealso{
 \code{\link{aggregate}}

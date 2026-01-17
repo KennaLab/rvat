@@ -21,10 +21,11 @@ mapVariants(
 )
 }
 \arguments{
-\item{object}{a \code{\link{gdb}} object}
+\item{object}{a \code{\link{gdb}} object.}
 
 \item{ranges}{Can be 1) a data.frame, including at least 'CHROM','start', and 'end' columns.
-2) a \code{\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}} object. 3) a filepath to a ranges file containing at least 'CHROM','start', and 'end' columns.
+2) a \code{\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}} object.
+3) a filepath to a ranges file containing at least 'CHROM','start', and 'end' columns.
 Separator can be specified using the \code{sep} parameter (defaults to \verb{\\\\t}).}
 
 \item{gff}{Path to a gff- or gtf-file.}
@@ -38,10 +39,11 @@ If not named, all extra columns will be read as character columns (see examples)
 \item{fields}{Feature fields to keep. Defaults to \code{NULL} in which case all fields are kept.}
 
 \item{uploadName}{Name of table to upload to the gdb.
-If not specified, either specifiy \code{output} to
-write the results to disk, or otherwise the results will be returned in the R session.}
+If not specified, either specify \code{output} to write the results to disk,
+or otherwise the results will be returned in the R session.}
 
-\item{output}{Optionally, an output file path. Can be used instead of \code{uploadName} to write the results to disk.}
+\item{output}{Optionally, an output file path (gz-compressed).
+Can be used instead of \code{uploadName} to write the results to disk.}
 
 \item{sep}{Field separator, relevant if \code{ranges} is a filepath. Defaults to \verb{\\\\t}.}
 
@@ -49,7 +51,7 @@ write the results to disk, or otherwise the results will be returned in the R se
 Relevant if \code{uploadName} is specified, and thus the output table is imported in the gdb.
 Defaults to \code{FALSE}.}
 
-\item{overWrite}{if \code{uploadName} is specified, should an existing table in the gdb with the same name be overwitten?
+\item{overWrite}{if \code{uploadName} is specified, should an existing table in the gdb with the same name be overwritten?
 Defaults to \code{FALSE}.}
 
 \item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
@@ -63,7 +65,6 @@ For example, variants can be easily mapped upon genomic features downloaded in g
 The output can be written to disk  (\code{output} parameter) or directly uploaded to the \code{\link{gdb}} (\code{uploadName} parameter).
 }
 \examples{
-
 library(rvatData)
 library(rtracklayer)
 library(GenomicRanges)
@@ -126,6 +127,4 @@ mapVariants(gdb,
             overWrite = TRUE)
 
 # see the variant annotation tutorial on the rvat website for more details
-
-
 }

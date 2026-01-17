@@ -1,7 +1,3 @@
-#==============================================================================
-# reSampling objects and methods
-#==============================================================================
-
 #' resamplingFile
 #' @rdname resamplingFile
 #' @usage NULL
@@ -38,10 +34,14 @@ setMethod("show", signature = "resamplingFile",
 #' 
 #' @param nSamples Number of samples
 #' @param nResampling Number of resamplings. Defaults to 1000.
-#' @param memlimit Chunk sizes (when writing to output)
+#' @param memlimit Maximum number of resamplings to generate at a time (chunk size). 
+#' Relevant when writing to `output` to manage memory usage. Defaults to 1000.
 #' @param methodResampling Resampling method, currently 'permutation' is implemented.
-#' @param output File path (.gz extension) to write output to. If not specified, a matrix with resamplings is returned.
-#' @inherit resamplingFile examples
+#' @param output File path (.gz extension) to write output to. 
+#' If not specified, a matrix with resamplings is returned.
+#' @return If `output` is `NULL`, returns a matrix of dimensions `nSamples` x `nResampling`.
+#' If `output` is specified, the function writes to the file and returns `NULL`.
+#' @example inst/examples/example-resamplingFile.R
 #' @export
 buildResamplingFile <- function(nSamples,
                                 nResampling=1000, 

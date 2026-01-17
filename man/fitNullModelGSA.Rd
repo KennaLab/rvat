@@ -26,9 +26,10 @@ fitNullModelGSA(
 )
 }
 \arguments{
-\item{object}{\code{\link{rvbResult-class}} object}
+\item{object}{\code{\link{rvbResult}} object}
 
-\item{cormatrix}{a correlation matrix with row and column names corresponding to the units in the rvbResult. Can be a sparse matrix. See \code{\link{buildCorMatrix}}.}
+\item{cormatrix}{a correlation matrix with row and column names corresponding to the units in the rvbResult.
+Can be a sparse matrix. See \code{\link{buildCorMatrix}}.}
 
 \item{covar}{a vector of covariates to include when fitting the null model.}
 
@@ -39,7 +40,7 @@ Z scores below/above these cutoffs will be set equal to the cutoff.}
 
 \item{method}{Method to use to fit the mixed linear model, currently 'GENESIS' is implemented.}
 
-\item{...}{Additional arguments to pass to \link[GENESIS:fitNullModel]{GENESIS::fitNullModel}}
+\item{...}{Additional arguments to pass to \code{\link[GENESIS:fitNullModel]{GENESIS::fitNullModel}}}
 }
 \description{
 Fit a null model for a mixed linear model gene set analysis.

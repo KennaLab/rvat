@@ -5,7 +5,7 @@
 \alias{extractRanges,gdb-method}
 \title{Extract variants from a gdb based on a set of ranges}
 \usage{
-extractRanges(object, ranges, padding = 250)
+extractRanges(object, ranges, padding = 250L)
 }
 \arguments{
 \item{object}{a \code{\link{gdb}} object}

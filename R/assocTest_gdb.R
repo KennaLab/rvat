@@ -17,41 +17,55 @@
 #' @param cohort If a valid cohort name is provided, then the uploaded data for 
 #' this cohort is used to filter and annotate the genoMatrix object. 
 #' If not specified, all samples in the gdb will be loaded.
-#' @param varSet a [`varSetFile`] or [`varSetList`] object, alternatively a vector of VAR_ids can be specified using the `VAR_id` parameter.
+#' @param varSet a [`varSetFile`] or [`varSetList`] object. 
+#' Alternatively a vector of VAR_ids can be specified using the `VAR_id` parameter.
 #' @param VAR_id a vector of VAR_ids, alternatively the `varSet` parameter can be specified.
-#' If single variant tests are ran, the `memlimit` argument controls how many variants to analyze at a time.
+#' If single variant tests are run, the `memlimit` argument controls how many variants to analyze at a time.
 #' @param name Optional name for the analysis, defaults to "none".
-#' @param continuous If the response variable continuous? (TRUE/FALSE). Defaults to `FALSE`.
+#' @param continuous Is the response variable continuous? (TRUE/FALSE). Defaults to `FALSE`.
 #' @param singlevar Run single variant tests? (TRUE/FALSE).
-#' Defaults to `FALSE`, in which case aggregate tests are ran.
-#' @param covar Character vector of covariates, or a list of character vectors of covariates in which case each covariate set will be tested separately.
+#' Defaults to `FALSE`, in which case aggregate tests are run.
+#' @param covar Character vector of covariates, or a list of character vectors of covariates 
+#' in which case each covariate set will be tested separately.
 #' @param offset Optional model offset, can be used to account for regenie LOCO predictions.
 #' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 #' Defaults to `allelic`.
 #' Multiple geneticModels can be specified, in which case each will be analyzed separately.
 #' @param imputeMethod Which imputation method to apply? ('meanImpute' or 'missingToRef').
 #' Defaults to `meanImpute`.
-#' @param MAFweights MAF weighting method. Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.
+#' @param MAFweights MAF weighting method. Currently Madsen-Browning ('mb') is implemented, 
+#' by default no MAF weighting is applied.
 #' Multiple MAFweights can be specified, in which case each will be analyzed separately.
-#' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals. Defaults to 1000.
+#' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals. 
+#' Defaults to 1000.
 #' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
 #' Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-#' If not specified, the genome build in the [`gdb`] will be used, if available (included if the `genomeBuild` parameter was set in [`buildGdb`]).
-#' Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"
-#' @param keep Vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
+#' If not specified, the genome build in the [`gdb`] will be used, if available 
+#' (included if the `genomeBuild` parameter was set in [`buildGdb`]).
+#' Otherwise, if the genome build is not included in the gdb metadata, 
+#' and no value is provided, then all variants are assigned the default ploidy of "diploid"
+#' @param keep Vector of sample IDs to keep, defaults to `NULL`, 
+#' in which case all samples are kept.
 #' @param output Output file path for results.
 #' Defaults to `NULL`, in which case results are not written.
+#' @param append Relevant if the `output` parameter is not `NULL`. 
+#' Should results be appended to `output`?
+#' @param returnDF Return a data.frame rather than a rvatResult. Defaults to `FALSE`.
 #' @param methodResampling Which method to use for resampling? ('permutation' currently implemented)
 #' Defaults to `NULL`, in which case no resampling is performed. 
+#' @param resamplingMatrix Pre-calculated resampling matrix (n x p), 
+#' where n = number of samples, and p number of resamplings.
+#' Can be generated using [`buildResamplingFile`].
 #' @param resamplingFile A [`resamplingFile`] object.
 #' @param nResampling Number of resamplings to perform if methodResampling is specified.
-#' @param outputResampling If `TRUE` or a filepath, results for each resampling are returned (or saved to the filepath).
-#' This can be useful if permutations are used to calculated to estimate correlations among genes for example.
+#' @param outputResampling If `TRUE` or a filepath, 
+#' results for each resampling are returned (or saved to the filepath).
+#' This can be useful if permutations are used to estimate correlations among genes for example.
 #' Defaults to `FALSE` in which case resampling is used to calculate resampled P-values, 
 #' results for individual resamplings are not returned.
 #' @param memlimitResampling Maximum number of resamplings to perform at a time.
 #' Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
-#' thus, for large number of resamplings it can be more efficient to split the permutations in chunks of size `memlimitResampling`.
+#' thus, for a large number of resamplings it can be more efficient to split the permutations in chunks of size `memlimitResampling`.
 #' Defaults to `NULL` in which case all permutations are performed.
 #' @param minCallrateVar Minimum genotype rate for variant retention.
 #' @param maxCallrateVar Maximum genotype rate for variant retention.
@@ -69,120 +83,7 @@
 #' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
 #' @param strict Should strict checks be performed? Defaults to `TRUE`. Strict tests currently includes
 #' checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in `object`.
-#' @examples
-#'
-#' library(rvatData)
-#' gdb <- create_example_gdb()
-#' varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-#' 
-#' # for example purposes, upload a small cohort
-#' cohort <- getCohort(gdb, "pheno")
-#' cohort <- cohort[cohort$IID %in% colnames(GTsmall),]
-#' uploadCohort(gdb, name = "phenosmall", value = cohort)
-#' 
-#' # run a firth burden test on a binary phenotype
-#' varsetlist <- getVarSet(varsetfile, unit = c("SOD1", "NEK1"), varSetName = "High")
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist,
-#'                  cohort = "phenosmall",
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = "firth",
-#'                  name = "example")
-#' 
-#' 
-#' # run ACAT-v and SKAT tests
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist,
-#'                  cohort = "phenosmall",
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("acatvfirth", "skat_burden_robust", "skato_robust"),
-#'                  name = "example")
-#' 
-#' # run a burden test on a continuous phenotype
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist,
-#'                  cohort = "phenosmall",
-#'                  pheno = "age",
-#'                  continuous = TRUE,
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("lm", "skat", "acatv"),
-#'                  name = "example")
-#' 
-#' # run single variant tests on a binary phenotype 
-#' sv <- assocTest(gdb,
-#'                 varSet = varsetlist,
-#'                 cohort = "phenosmall",
-#'                 pheno = "pheno",
-#'                 singlevar = TRUE,
-#'                 covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                 test = c("firth", "glm", "scoreSPA"),
-#'                 name = "example",
-#'                 minCarriers = 1)
-#' 
-#' # similarly a list of VAR_ids can be specified instead of a varSetList/varSetFile
-#' sv <- assocTest(gdb,
-#'                 VAR_id = 1:20,
-#'                 cohort = "phenosmall",
-#'                 pheno = "pheno",
-#'                 singlevar = TRUE,
-#'                 covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                 test = c("firth", "glm", "scoreSPA"),
-#'                 name = "example",
-#'                 minCarriers = 1)
-#' 
-#' # apply variant filters
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist,
-#'                  cohort = "phenosmall",
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"),
-#'                  name = "example", 
-#'                  maxMAF = 0.05,
-#'                  minCarriers = 1,
-#'                  minCallrateVar = 0.9,
-#'                  minCallrateSM = 0.95)
-#' 
-#' # Perform MAF-weighted burden tests (madsen-browning)
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist,
-#'                  cohort = "phenosmall",
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"),
-#'                  MAFweights = "mb")
-#' 
-#' # CADD-weighted burden test
-#' varsetlist_cadd <- getVarSet(varsetfile, unit = c("SOD1", "NEK1"), varSetName = "CADD")
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist_cadd,
-#'                  cohort = "phenosmall",
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"))
-#' 
-#' # Perform recessive burden test
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist,
-#'                  cohort = "phenosmall",
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("firth", "skat_robust", "acatv"),
-#'                  geneticModel = "recessive")
-#' 
-#' # Resampled burden test 
-#' rvb <- assocTest(gdb,
-#'                  varSet = varsetlist[1],
-#'                  cohort = "phenosmall",
-#'                  pheno = "pheno",
-#'                  covar = c("PC1", "PC2", "PC3", "PC4"),
-#'                  test = c("skat", "skat_burden", "acatv"),
-#'                  name = "example",
-#'                  methodResampling = "permutation",
-#'                  nResampling = 100)
-#' 
+#' @example inst/examples/example-assocTest-gdb.R
 #'
 #' @export
 #'

@@ -588,7 +588,7 @@ rvat_cli_parameters <- list(
                         help = ""),
   
   ## assocTest-aggdb ----------------------------------------------------
-  optparse::make_option(c("--substractCovar"), 
+  optparse::make_option(c("--subtractCovar"), 
                         action = "store", 
                         type = "character",
                         default = NULL,

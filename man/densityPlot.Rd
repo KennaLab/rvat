@@ -32,5 +32,5 @@ Z scores below/above these cutoffs will be set equal to the cutoff.}
 \item{title}{the title of the plot}
 }
 \description{
-Generate a density plot for a \code{\link{rvatResult}} highlighting the Z-scores of the selected gene set
+Generate a density plot for an \code{\link{rvbResult}} highlighting the Z-scores of the selected gene set.
 }

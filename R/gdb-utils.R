@@ -2,44 +2,15 @@
 #'
 #' Function to concatenate [`gdb`] databases. Only retains content of base tables (SM, var, dosage).
 #'
-#' @param targets File listing full paths of gdbs to concatenate
+#' @param targets File listing full paths of gdbs to concatenate.
 #' @param output Output gdb file path.
-#' @param skipRemap Flag to skip resetting of VAR_id to row id after concatenation. Defaults to `FALSE`.
-#' @param skipIndexes Flag to skip generation of standard var and dosage table indexes (VAR_id;CHROM, POS,REF,ALT).
+#' @param skipRemap Skip resetting of VAR_id to row id after concatenation? Defaults to `FALSE`.
+#' @param skipIndexes Skip generation of standard var and dosage table indexes (VAR_id;CHROM, POS,REF,ALT)?
 #' Defaults to `FALSE`.
-#' @param overWrite Flag indicating whether `output` should be overwritten if it already exists.
+#' @param overWrite Overwrite output file if it already exists?
 #' Defaults to `FALSE`.
-#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
-#' @examples
-#'
-#' library(rvatData)
-#' gdb <- gdb(rvat_example("rvatData.gdb"))
-#'
-#' # to illustrate how concatGdb we'll first generate two small gdbs to concatenate
-#' gdb1 <- tempfile()
-#' subsetGdb(
-#'   gdb,
-#'   VAR_id = 1:100,
-#'   output = gdb1
-#' )
-#'
-#' gdb2 <- tempfile()
-#' subsetGdb(
-#'   gdb,
-#'   VAR_id = 101:200,
-#'   output = gdb2
-#' )
-#'
-#' # write filepaths of gdbs to concatenate to a file
-#' targets <- tempfile()
-#' readr::write_lines(c(gdb1, gdb2), file = targets)
-#' concatgdb <- tempfile()
-#'
-#' # concatenate
-#' concatGdb(
-#'   targets = targets,
-#'   output = concatgdb,
-#' )
+#' @param verbose Should the function be verbose? Defaults to `TRUE`.
+#' @example inst/examples/example-concatGdb.R
 #'
 #' @export
 concatGdb <- function(

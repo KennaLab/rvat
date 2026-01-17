@@ -66,19 +66,21 @@ See \code{\link{assocTest}} for details.}
 this cohort is used to filter and annotate the genoMatrix object.
 If not specified, all samples in the gdb will be loaded.}
 
-\item{varSet}{a \code{\link{varSetFile}} or \code{\link{varSetList}} object, alternatively a vector of VAR_ids can be specified using the \code{VAR_id} parameter.}
+\item{varSet}{a \code{\link{varSetFile}} or \code{\link{varSetList}} object.
+Alternatively a vector of VAR_ids can be specified using the \code{VAR_id} parameter.}
 
 \item{VAR_id}{a vector of VAR_ids, alternatively the \code{varSet} parameter can be specified.
-If single variant tests are ran, the \code{memlimit} argument controls how many variants to analyze at a time.}
+If single variant tests are run, the \code{memlimit} argument controls how many variants to analyze at a time.}
 
 \item{name}{Optional name for the analysis, defaults to "none".}
 
-\item{continuous}{If the response variable continuous? (TRUE/FALSE). Defaults to \code{FALSE}.}
+\item{continuous}{Is the response variable continuous? (TRUE/FALSE). Defaults to \code{FALSE}.}
 
 \item{singlevar}{Run single variant tests? (TRUE/FALSE).
-Defaults to \code{FALSE}, in which case aggregate tests are ran.}
+Defaults to \code{FALSE}, in which case aggregate tests are run.}
 
-\item{covar}{Character vector of covariates, or a list of character vectors of covariates in which case each covariate set will be tested separately.}
+\item{covar}{Character vector of covariates, or a list of character vectors of covariates
+in which case each covariate set will be tested separately.}
 
 \item{offset}{Optional model offset, can be used to account for regenie LOCO predictions.}
 
@@ -89,36 +91,51 @@ Multiple geneticModels can be specified, in which case each will be analyzed sep
 \item{imputeMethod}{Which imputation method to apply? ('meanImpute' or 'missingToRef').
 Defaults to \code{meanImpute}.}
 
-\item{MAFweights}{MAF weighting method. Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.
+\item{MAFweights}{MAF weighting method. Currently Madsen-Browning ('mb') is implemented,
+by default no MAF weighting is applied.
 Multiple MAFweights can be specified, in which case each will be analyzed separately.}
 
-\item{maxitFirth}{Maximum number of iterations to use for estimating firth confidence intervals. Defaults to 1000.}
+\item{maxitFirth}{Maximum number of iterations to use for estimating firth confidence intervals.
+Defaults to 1000.}
 
 \item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
 Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-If not specified, the genome build in the \code{\link{gdb}} will be used, if available (included if the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
-Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"}
+If not specified, the genome build in the \code{\link{gdb}} will be used, if available
+(included if the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
+Otherwise, if the genome build is not included in the gdb metadata,
+and no value is provided, then all variants are assigned the default ploidy of "diploid"}
 
-\item{keep}{Vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
+\item{keep}{Vector of sample IDs to keep, defaults to \code{NULL},
+in which case all samples are kept.}
 
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written.}
 
+\item{append}{Relevant if the \code{output} parameter is not \code{NULL}.
+Should results be appended to \code{output}?}
+
+\item{returnDF}{Return a data.frame rather than a rvatResult. Defaults to \code{FALSE}.}
+
 \item{methodResampling}{Which method to use for resampling? ('permutation' currently implemented)
 Defaults to \code{NULL}, in which case no resampling is performed.}
+
+\item{resamplingMatrix}{Pre-calculated resampling matrix (n x p),
+where n = number of samples, and p number of resamplings.
+Can be generated using \code{\link{buildResamplingFile}}.}
 
 \item{resamplingFile}{A \code{\link{resamplingFile}} object.}
 
 \item{nResampling}{Number of resamplings to perform if methodResampling is specified.}
 
-\item{outputResampling}{If \code{TRUE} or a filepath, results for each resampling are returned (or saved to the filepath).
-This can be useful if permutations are used to calculated to estimate correlations among genes for example.
+\item{outputResampling}{If \code{TRUE} or a filepath,
+results for each resampling are returned (or saved to the filepath).
+This can be useful if permutations are used to estimate correlations among genes for example.
 Defaults to \code{FALSE} in which case resampling is used to calculate resampled P-values,
 results for individual resamplings are not returned.}
 
 \item{memlimitResampling}{Maximum number of resamplings to perform at a time.
 Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
-thus, for large number of resamplings it can be more efficient to split the permutations in chunks of size \code{memlimitResampling}.
+thus, for a large number of resamplings it can be more efficient to split the permutations in chunks of size \code{memlimitResampling}.
 Defaults to \code{NULL} in which case all permutations are performed.}
 
 \item{minCallrateVar}{Minimum genotype rate for variant retention.}
@@ -156,7 +173,6 @@ checking whether supplied varSetFile/varSetList was generated from the same gdb 
 Run \code{\link{assocTest}} on a \code{\link{gdb}} object. See the main \code{\link{assocTest}} page for details.
 }
 \examples{
-
 library(rvatData)
 gdb <- create_example_gdb()
 varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
@@ -268,6 +284,5 @@ rvb <- assocTest(gdb,
                  name = "example",
                  methodResampling = "permutation",
                  nResampling = 100)
-
 
 }

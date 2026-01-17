@@ -1,5 +1,3 @@
-# main -------------------------------------------------
-
 #' getGT
 #' @rdname getGT
 #' @import GenomicRanges

@@ -12,7 +12,7 @@ geneSetAssoc(
   cormatrix = NULL,
   condition = NULL,
   covar = NULL,
-  test = c("lm", "glm", "mlm", "fisher", "ttest", "ztest", "ACAT"),
+  test = c("lm", "mlm", "fisher", "ttest", "ztest", "ACAT"),
   threshold = NULL,
   Zcutoffs = NULL,
   INT = FALSE,
@@ -27,9 +27,9 @@ geneSetAssoc(
 )
 }
 \arguments{
-\item{object}{an \code{\link{rvbResult}} object.}
+\item{object}{An \code{\link{rvbResult}} object.}
 
-\item{geneSet}{a \code{\link{geneSetList}} or \code{\link{geneSetFile}} object.}
+\item{geneSet}{A \code{\link{geneSetList}} or \code{\link{geneSetFile}} object.}
 
 \item{scoreMatrix}{A matrix (rows = genes, columns = features) can be provided to perform enrichment
 analyses on continuous values. These can be used to perform e.g. cell-type enrichment analyses.}
@@ -37,31 +37,37 @@ analyses on continuous values. These can be used to perform e.g. cell-type enric
 \item{cormatrix}{a correlation matrix with row and column names corresponding to the units in the rvbResult.
 Needs to be specified in order to run the 'mlm' (mixed linear model) test.
 A burden score correlation matrix can be generated using the \code{\link{buildCorMatrix}} method.
-The mixed mixed linear model is run using the GENESIS R package.}
+The mixed linear model is run using the GENESIS R package.}
 
-\item{condition}{Perform conditional analyses. Input can be a 1) a \code{\link{geneSetList}} or \code{\link{geneSetFile}}, in which case
-the genesets specified in the \code{geneSet} parameter will all be conditioned on the gene sets provided here.
-2) a vector of gene set names present in \code{geneSet}, all genesets specified in the geneSetList/geneSetFile
-will be conditioned on the genesets specified here.}
+\item{condition}{Perform conditional analyses.
+Input can be 1) a \code{\link{geneSetList}} or \code{\link{geneSetFile}}, in which case
+the genesets specified in the \code{geneSet} parameter will all be conditioned
+on the gene sets provided here.
+2) a vector of gene set names present in \code{geneSet},
+all genesets specified in the geneSetList/geneSetFile will be conditioned
+on the genesets specified here.}
 
-\item{covar}{a vector of covariates}
+\item{covar}{A vector of covariates}
 
 \item{test}{Vector of tests to perform.
-Currently implemented tests are the competitive tests lm,mlm,fisher and self-contained tests ttest,ztest and ACAT.}
+Currently implemented tests are the competitive tests lm,mlm,fisher
+and self-contained tests ttest,ztest and ACAT.}
 
-\item{threshold}{A vector of thresholds for cutoff-based tests (fisher's exact test / glm).}
+\item{threshold}{A vector of thresholds for cutoff-based tests (fisher's exact test).}
 
 \item{Zcutoffs}{A vector (length=2, minimum and maximum) of cutoffs to apply to the Z-scores.
 Z scores below/above these cutoffs will be set equal to the cutoff.}
 
 \item{INT}{Apply inverse normal transformation to Z-scores? Defaults to \code{FALSE}.}
 
-\item{scoreCutoffs}{If \code{scoreMatrix} is specified, this parameter can be set to cap scores in the scorematrix.
-It should be a vector of length 2 (minimum and maximum sd). Defaults to \code{NULL}, in which case no score cutoffs are applied.}
+\item{scoreCutoffs}{If \code{scoreMatrix} is specified,
+this parameter can be set to cap scores in the scorematrix.
+It should be a vector of length 2 (minimum and maximum sd).
+Defaults to \code{NULL}, in which case no score cutoffs are applied.}
 
-\item{minSetSize}{Exclude genesets with size < minSetSize}
+\item{minSetSize}{Exclude genesets with size < minSetSize.}
 
-\item{maxSetSize}{Exclude genesets with size > maxSetSize}
+\item{maxSetSize}{Exclude genesets with size > maxSetSize.}
 
 \item{oneSided}{Calculate a one-sided P-value? Defaults to \code{TRUE}.}
 
@@ -70,9 +76,26 @@ It should be a vector of length 2 (minimum and maximum sd). Defaults to \code{NU
 \item{ID}{ID column in the rvbResult that corresponds with the IDs used in the geneSetList.
 Defaults to 'unit'.}
 
-\item{output}{Optional: save results to specified path}
+\item{output}{Optional: save results to specified file path.}
 
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
+}
+\value{
+An object of class \code{\link{gsaResult}} or a data.frame if \code{scoreMatrix} is used.
+The columns are described below:
+\itemize{
+\item \code{geneSetName}:  Name of the gene set.
+\item \code{test}:  Statistical test used.
+\item \code{covar}:  Covariates included.
+\item \code{threshold}:  Threshold used for cutoff-based tests.
+\item \code{geneSetSize}:  Number of genes in the gene set.
+\item \code{genesObs}:  Number of genes observed in the input results.
+\item \code{effect}:  Effect size estimate.
+\item \code{effectSE}:  Standard error of the effect size estimate.
+\item \code{effectCIlower}:  Lower confidence interval of the effect size estimate.
+\item \code{effectCIupper}:  Upper confidence interval of the effect size estimate.
+\item \code{P}:  P-value.
+}
 }
 \description{
 Perform self-contained or competitive gene set analyses.
@@ -150,16 +173,10 @@ GSAresults <- geneSetAssoc(
   threshold = 1e-4,
   maxSetSize = 500
 )
-
-
 }
 \references{
 Gogarten SM, Sofer T, Chen H, Yu C, Brody JA, Thornton TA, Rice KM, Conomos MP. Genetic association testing using the GENESIS R/Bioconductor package. Bioinformatics. 2019 Dec 15;35(24):5346-5348
 }
 \seealso{
-\code{\link{buildGeneSet}}
-
-\code{\link{geneSetList}}
-
-\code{\link{geneSetFile}}
+\code{\link{buildGeneSet}}, \code{\link{geneSetList}}, \code{\link{geneSetFile}}
 }
