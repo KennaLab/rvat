@@ -47,8 +47,8 @@ or a character vector of column names to be written.
 See the section on ‘CSV files’ for the meaning of col.names = NA.}
 
 \item{qmethod}{a character string specifying how to deal with embedded double quote characters when quoting strings.
-Must be one of "escape" (default for write.table), i
-n which case the quote character is escaped in C style by a backslash, or "double" (default for write.csv and write.csv2),
+Must be one of "escape" (default for write.table),
+in which case the quote character is escaped in C style by a backslash, or "double" (default for write.csv and write.csv2),
 in which case it is doubled. You can specify just the initial letter.}
 
 \item{fileEncoding}{character string: if non-empty declares the encoding to be used on a file (not a connection) so the character data can be re-encoded as they are written.}

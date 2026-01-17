@@ -28,7 +28,7 @@ respectively)
 \item \code{caseN}:  Number of cases.
 \item \code{ctrlN}:  Number of controls.
 \item \code{caseCallRate}:  Variant call-rate in cases. For aggregate tests this is the average call-rate across variants.
-\item \code{ctrlCallRate}:  Variant call-rate in controls For aggregate tests this is the average call-rate across variants.
+\item \code{ctrlCallRate}:  Variant call-rate in controls. For aggregate tests this is the average call-rate across variants.
 \item \code{effectAllele}:  (singlevarResult) Allele to which the effect estimate refers.
 \item \code{otherAllele}:  (singlevarResult) Non-effect allele
 \item \code{effect}:  Effect estimate for specified statistical test.
@@ -114,4 +114,7 @@ Liu, Y. et al. ACAT: A Fast and Powerful p Value Combination Method for Rare-Var
 Firth, D. Bias Reduction of Maximum Likelihood Estimates. Biometrika 80, 27–38 (1993).
 
 Zhao, Z. et al. UK Biobank Whole-Exome Sequence Binary Phenome Analysis with Robust Region-Based Rare-Variant Test. The American Journal of Human Genetics 106, 3–12 (2020).
+}
+\seealso{
+\code{\link{assocTest-genoMatrix}}, \code{\link{assocTest-gdb}}, \code{\link{assocTest-aggdb}}
 }

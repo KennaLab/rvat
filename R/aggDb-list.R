@@ -2,7 +2,8 @@
 #' @include allGenerics.R
 #' @include allInternalData.R
 
-# aggdbList constructor -----------------------------------------------------
+#' @rdname aggdbList
+#' @export
 aggdbList <- function(filelist, checkDups = TRUE) {
   # input validation
   check_character(filelist)

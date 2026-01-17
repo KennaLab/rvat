@@ -1,5 +1,3 @@
-# geneSet --------------------------------------------------------
-
 #' @rdname geneSet
 #' @usage NULL
 #' @export
@@ -716,7 +714,8 @@ setMethod(
 
 #' Build a geneSetList or geneSetFile
 #'
-#' Build a [`geneSetList`] or [`geneSetFile`] for use in gene set analyses ([`geneSetAssoc`] or [`assocTest-aggdb`])
+#' Build a [`geneSetList`] or [`geneSetFile`] for use in gene set analyses 
+#' ([`geneSetAssoc`] or [`assocTest-aggdb`])
 #' Currently these can be build directly from GMT-files, data.frames and lists.
 #'
 #' @param data Can be 1) data.frame where the first column includes the names of geneSets,
@@ -725,34 +724,13 @@ setMethod(
 #' and the fourth column contains metadata.
 #' or 2) a list, where the names of the list represent the geneSet names and each element in the list contains
 #' a vector with the genes included in the respective geneset.
-#' @param gmtpath Path to a gmt-file
+#' @param gmtpath Path to a gmt-file.
 #' @param output Optional output file path (output will be gz compressed text).
 #' Defaults to `NULL`, in which case a [`geneSetList`] is returned.
 #' @param sep Separator used in input file.
-#' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
+#' @param verbose Should the function be verbose? (TRUE/FALSE). Defaults to `TRUE`.
 #'
-#' @examples
-#'
-#' # build a genesetlist from a list (see ?geneSetList)
-#' genesetlist <- buildGeneSet(
-#'   list("geneset1" = c("SOD1", "NEK1"),
-#'        "geneset2" = c("ABCA4", "SOD1", "NEK1"),
-#'        "geneset3" = c("FUS", "NEK1")
-#'        ))
-#'
-#' # specify the output parameter to write to disk in the geneSetFile format (see ?geneSetFile)
-#' file <- tempfile()
-#' buildGeneSet(
-#'   list("geneset1" = c("SOD1", "NEK1"),
-#'        "geneset2" = c("ABCA4", "SOD1", "NEK1"),
-#'        "geneset3" = c("FUS", "NEK1")
-#'   ),
-#'   output = file
-#'   )
-#' genesetfile <- geneSetFile(file)
-#'
-#' # the `gmtpath` parameter can be used to build a geneset from a mSigDb GMT-file
-#' # see the tutorials on the RVAT website for examples
+#' @example inst/examples/example-geneSet.R
 #'
 #' @export
 buildGeneSet <- function(

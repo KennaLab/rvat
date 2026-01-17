@@ -39,7 +39,7 @@ buildResamplingFile(nSamples = 25000,
 resamplingfile <- resamplingFile(file)
 
 # perform resampled association tests 
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 assoc <- assocTest(
   gdb,
   VAR_id = 1:10,

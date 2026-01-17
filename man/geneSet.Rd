@@ -12,7 +12,8 @@
 \title{Class that represents a geneSet}
 \description{
 An S4 class to manage an individual geneSet record. Usually multiple geneSets
-will be included in a \code{\link{geneSetList}} or \code{\link{geneSetFile}} object, which can be generated using the \code{\link{buildGeneSet}} method.
+will be included in a \code{\link{geneSetList}} or \code{\link{geneSetFile}} object,
+which can be generated using the \code{\link{buildGeneSet}} method.
 }
 \section{Slots}{
 
@@ -30,8 +31,10 @@ will be included in a \code{\link{geneSetList}} or \code{\link{geneSetFile}} obj
 
 In the following code snippets, x is a geneSet object.
 \itemize{
-\item \code{listUnits(x)}: Return a vector of all units included in the geneSet
-\item \code{listWeights(x)}: Return a vector of all weights in the geneSet
+\item \code{listUnits(x)}: Return a vector of all units included in the geneSet.
+\item \code{listWeights(x)}: Return a vector of all weights in the geneSet.
+\item \code{length(x)}: Return the number of units in the geneSet.
+\item \code{metadata(x)}: Return the metadata.
 }
 }
 
@@ -49,8 +52,6 @@ listWeights(geneset)
 
 # note that usually you'll work with geneSets in either a geneSetList or 
 # a geneSetFile (see ?geneSetList and ?geneSetFile)
-
-
 }
 \seealso{
 \code{\link{geneSetFile}}

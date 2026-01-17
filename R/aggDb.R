@@ -25,6 +25,9 @@ aggdb <- function(path) {
 
 
 # aggdb misc methods -------------------------------------------------------
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("close", signature = "aggdb", definition = function(con) {
   DBI::dbDisconnect(con)
 })

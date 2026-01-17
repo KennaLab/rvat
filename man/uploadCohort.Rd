@@ -23,7 +23,7 @@ uploadCohort(
 
 \item{sep}{Field delimiter (applies only when value is a text file). Defaults to \verb{\\\\t}.}
 
-\item{overWrite}{Flag indicating whether \code{output} should be overwritten if it already exists.
+\item{overWrite}{Flag indicating whether an existing cohort table with the same \code{name} should be overwritten.
 Defaults to \code{FALSE}.}
 
 \item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
@@ -42,5 +42,4 @@ uploadCohort(object = gdb, name = "cohortinfo", value = pheno)
 # similarly, a cohort table can be imported directly from file
 filepath <- rvat_example("rvatData.pheno")
 uploadCohort(object = gdb, name = "cohortinfo2", value = filepath)
-
 }

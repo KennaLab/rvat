@@ -12,6 +12,8 @@ collapseAggDbs(object, output = NULL, overWrite = FALSE, verbose = TRUE)
 \item{output}{Output file name (output will be gz compressed text).
 Defaults to \code{NULL}, in which case a data.frame will be returned.}
 
+\item{overWrite}{Should existing output files be overwritten? Defaults to \code{TRUE}.}
+
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
@@ -21,7 +23,7 @@ The output will be a two-column matrix including sample IDs and aggregate scores
 }
 \examples{
 library(rvatData)
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 
 # generate two aggregate files
 varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))

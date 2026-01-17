@@ -15,7 +15,7 @@
   name = "none",
   continuous = FALSE,
   covar = NULL,
-  substractCovar = NULL,
+  subtractCovar = NULL,
   dropUnits = NULL,
   maxitFirth = 1000L,
   keep = NULL,
@@ -25,20 +25,20 @@
 )
 }
 \arguments{
-\item{object}{a \code{\link{aggdb}} object (generated using the \code{\link{aggregate}} method).}
+\item{object}{an \code{\link{aggdb}} object (generated using the \code{\link{aggregate}} method).}
 
 \item{pheno}{field to test as response variable, the response variable
-can either be binary (0/1) or continuous. If the response variable is continuous set
-\code{continuous} to \code{TRUE}.}
+can either be binary (0/1) or continuous. If the response variable is continuous,
+set \code{continuous} to \code{TRUE}.}
 
 \item{test}{Vector of statistical tests to run,
 options include firth,glm,lm, and nbinom.}
 
-\item{geneSet}{a \code{\link{geneSetList}} or \code{\link{geneSetFile}} object}
+\item{geneSet}{a \code{\link{geneSetList}} or \code{\link{geneSetFile}} object.}
 
 \item{gdb}{a \code{\link{gdb}} object, this will be used to load the cohort data.}
 
-\item{cohort}{Cohort name (present in the gdb)}
+\item{cohort}{Cohort name (uploaded to the gdb).}
 
 \item{name}{Optional name of the analysis.}
 
@@ -46,16 +46,15 @@ options include firth,glm,lm, and nbinom.}
 
 \item{covar}{Character vector of covariates, or list with multiple sets of covariates.}
 
-\item{substractCovar}{Covariate from which aggregate should be substracted.
-Useful when adjusting for total variant counts, by specifying the total variant count variable
-here, the aggregate score of the gene set tested will be substracted from the total count variable.}
+\item{subtractCovar}{Covariate from which aggregate should be subtracted.
+Useful when adjusting for total variant counts by specifying the total variant count variable
+here, the aggregate score of the gene set tested will be subtracted from the total count variable.}
 
 \item{dropUnits}{Optional, vector of units to exclude.}
 
 \item{maxitFirth}{Maximum number of iterations to use for estimating firth confidence intervals.}
 
-\item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.
-Defaults to \code{FALSE}.}
+\item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
 
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written but returned as a \code{data.frame()}.}
@@ -66,12 +65,12 @@ Defaults to \code{NULL}, in which case results are not written but returned as a
 checking whether supplied aggdb was generated from the same gdb as specified in \code{gdb}.}
 }
 \description{
-Run \code{\link{assocTest}} on a \code{\link{aggdb}} object.
+Run \code{\link{assocTest}} on an \code{\link{aggdb}} object.
 See the main \code{\link{assocTest}} page for details.
 }
 \examples{
 library(rvatData)
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 
 # assocTest-aggdb allows for running association tests on pre-constructed aggregates.
 # below we first generate the aggregates based on a varSetFile
@@ -111,5 +110,4 @@ aggAssoc <- assocTest(
   covar = paste0("PC", 1:4),
   verbose = FALSE
 )
-
 }

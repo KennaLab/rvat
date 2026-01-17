@@ -17,10 +17,9 @@ buildGdb(
 }
 \arguments{
 \item{vcf}{Input vcf file used to structure and populate gdb.
-Warning, this function makes the following of assumptions:
+Warning, this function makes the following assumptions:
 \enumerate{
 \item strict adherence to vcf format (GT subfield first element in genotype fields),
-\item multiallelic records have been split,
 \item desired genotype QC has already been applied (DP,GQ filters),
 \item GT values conform to the set {0/0,0/1,1/0,1/1,./.,0|0,0|1,1|0,1|1,.|.}.
 Multiallelic parsing and genotype QC can be performed using vcftools and/or
@@ -29,7 +28,7 @@ accompanying parser scripts included in the rvat repository.
 
 \item{output}{Path for output \code{\link{gdb}} file}
 
-\item{skipIndexes}{Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM, POS,REF,ALT).
+\item{skipIndexes}{Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM,POS,REF,ALT).
 Typically only required if you plan to use \code{\link{concatGdb}} to concatenate a series of separately generated gdb files.}
 
 \item{skipVarRanges}{Flag to skip generation of ranged var table.
@@ -45,12 +44,11 @@ If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the
 \item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 }
 \description{
-Creates a new \code{\link{gdb}} file and returns a connection object of type gdb-class.
+Creates a new \code{\link{gdb}} file.
 The gdb can be structured and populated using a provided vcf file.
 If no input variant file is provided then only an empty gdb is created.
 }
 \examples{
-
 library(rvatData)
 vcfpath <- rvat_example("rvatData.vcf.gz")
 gdbpath <- tempfile()

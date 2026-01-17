@@ -24,16 +24,16 @@
 \alias{dropTable,gdb-method}
 \title{Connect and interact with a gdb}
 \description{
-Compressed SQLite (".gdb") representation of genotype data and associated variant annotation and sample info tables
-These allow for rapid and memory-efficient of loading sample genotype data en associated metadata within R.
-The slots of the gdb class are inherited entirely from the RSQLite SQLiteConnection class.
+Compressed SQLite (".gdb") representation of genotype data and associated variant annotation and sample info tables.
+These allow for rapid and memory-efficient loading of sample genotype data and associated metadata within R.
+The slots of the gdb class are inherited entirely from the \code{\link[RSQLite:SQLiteConnection-class]{RSQLite::SQLiteConnection}}.
 A host of RVAT methods described here allow for convenient querying and manipulation of a gdb, for complex queries
 users can also directly perform SQL queries on the gdb as exemplified in the examples and tutorials.
 }
 \section{Connect}{
 
 \itemize{
-\item \code{gdb(x)}: Connect to a  gdb object  (created using \code{\link[=buildGdb]{buildGdb()}}), where \code{x} is the filepath.
+\item \code{gdb(path)}: Connect to a gdb object (created using \code{\link[=buildGdb]{buildGdb()}}), where \code{path} is the filepath.
 }
 }
 
@@ -41,7 +41,7 @@ users can also directly perform SQL queries on the gdb as exemplified in the exa
 
 In the following code snippets, x is a gdb object.
 \itemize{
-\item \code{buildGdb(x)}: build a gdb directly from a vcf, see \code{\link[=buildGdb]{buildGdb()}} for details.
+\item \code{buildGdb(file, ...)}: build a gdb directly from a vcf, see \code{\link[=buildGdb]{buildGdb()}} for details.
 }
 }
 
@@ -49,13 +49,13 @@ In the following code snippets, x is a gdb object.
 
 In the following code snippets, x is a gdb object.
 \itemize{
-\item \code{getGT(x, ...)}: Retrieve genotype data from the gdb, returns a \code{\link[=genoMatrix]{genoMatrix()}} object.
+\item \code{getGT(x, ...)}: Retrieve genotype data from the gdb, returns a \code{\linkS4class{genoMatrix}} object.
 See \code{\link[=getGT]{getGT()}} for details.
 \item \code{getAnno(x, ...)}: Get an annotation table from gdb. See the \code{\link[=getAnno]{getAnno()}} documentation for details.
 \item \code{getCohort(x, ...)}: Get a cohort table from gdb. See the \code{\link[=getCohort]{getCohort()}} documentation for details.
 \item \code{listCohort(x)}: List sample cohort tables that have been uploaded to the gdb.
 \item \code{listAnno(x)}: List variant info tables that have been uploaded to the gdb.
-\item \code{getGdbId(x)}, \code{getGdbPath(x)}, \code{getCreationDate(x)}, \code{getGenomeBuild(x)}: various methods to retrieve indicate metadata from gdb
+\item \code{getGdbId(x)}, \code{getGdbPath(x)}, \code{getCreationDate(x)}, \code{getGenomeBuild(x)}: various methods to retrieve metadata from gdb
 }
 }
 
@@ -69,14 +69,15 @@ See the \code{\link[=uploadCohort]{uploadCohort()}} documentation for details.
 See the \code{\link[=uploadAnno]{uploadAnno()}} documentation for details
 \item \code{mapVariants(x, ...)}: Map variants in the gdb onto features provided in a bed,gff/gtf or ranges file.
 See \code{\link[=mapVariants]{mapVariants()}} for details.
-\item \code{dropTable(x, name)}: Drop table with the name specified in \code{name} from gdb and clear from annotation / cohort metadata tables.
+\item \code{dropTable(x, name)}: Drop table with the name specified in \code{name} from
+gdb and clear from annotation / cohort metadata tables.
 }
 }
 
 \section{Subsetting & Merging}{
 
 \itemize{
-\item \code{subSetGdb}: Create a new gdb that is a subset of the input gdb. See \code{\link[=subsetGdb]{subsetGdb()}} for details.
+\item \code{subsetGdb}: Create a new gdb that is a subset of the input gdb. See \code{\link[=subsetGdb]{subsetGdb()}} for details.
 \item \code{concatGdb}: Function to concatenate gdb databases. See \code{\link[=concatGdb]{concatGdb()}} for details.
 }
 }
@@ -89,16 +90,15 @@ See \code{\link[=mapVariants]{mapVariants()}} for details.
 }
 
 \examples{
-
 library(rvatData)
  
 # build a gdb directly from a vcf file
 vcfpath <- rvat_example("rvatData.vcf.gz") # example vcf from rvatData package
 gdbpath <- tempfile() # write gdb to temporary file
-gdb <- buildGdb(vcf = vcfpath,
-                output = gdbpath, 
-                genomeBuild = "GRCh38")
-
+buildGdb(vcf = vcfpath,
+         output = gdbpath, 
+         genomeBuild = "GRCh38")
+gdb <- gdb(gdbpath)
 
 # upload variant info
 varinfo <- rvat_example("rvatData.varinfo") # example variant info from rvatData package
@@ -179,5 +179,7 @@ close(gdb)
 \code{\link{concatGdb}}
 
 \code{\link{writeVcf}}
+
+\code{\link{assocTest-gdb}}
 }
 \keyword{gdb}

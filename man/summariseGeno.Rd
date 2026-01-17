@@ -4,12 +4,14 @@
 \alias{summariseGeno}
 \title{Return variant summaries}
 \arguments{
-\item{object}{a \code{\link{gdb}} object}
+\item{object}{a \code{\link{gdb}} object.}
 
-\item{cohort}{If a valid cohort name is provided, then the uploaded data for this cohort is used to filter and annotate the genotypes
+\item{cohort}{If a valid cohort name is provided,
+then the uploaded data for this cohort is used to filter and annotate the genotypes
 If not specified, all samples in the gdb will be loaded.}
 
-\item{varSet}{a \code{\link{varSetList}} or \code{\link{varSetFile}} object. Alternatively the VAR_id parameter can be specified.}
+\item{varSet}{a \code{\link{varSetList}} or \code{\link{varSetFile}} object.
+Alternatively the VAR_id parameter can be specified.}
 
 \item{VAR_id}{A list of VAR_ids, alternatively the varSet parameter can be specified.
 The \code{memlimit} argument controls how many variants to analyze at a time.}
@@ -22,10 +24,13 @@ this can be useful to filter samples which have missing data for the response va
 \item{geneticModel}{Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 Defaults to \code{allelic}.}
 
-\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
+\item{checkPloidy}{Version of the human genome to use when assigning variant ploidy
+(diploid, XnonPAR, YnonPAR).
 Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-If not specified, the genome build in the \code{\link{gdb}} will be used, if available (included if the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
-Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"}
+If not specified, the genome build in the \code{\link{gdb}} will be used,
+if available (included if the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
+Otherwise, if the genome build is not included in the gdb metadata,
+and no value is provided, then all variants are assigned the default ploidy of "diploid"}
 
 \item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
 
@@ -61,7 +66,8 @@ Defaults to \code{NULL}, in which case results are not written.}
 \item{verbose}{Should the function be verbose? (TRUE/FALSE), defaults to \code{TRUE}.}
 
 \item{strict}{Should strict checks be performed? Defaults to \code{TRUE}.
-Strict checks currently includes checking whether supplied varSetFile/varSetList was generated from the same gdb as specified in \code{object}.}
+Strict checks currently includes checking whether supplied varSetFile/varSetList
+was generated from the same gdb as specified in \code{object}.}
 }
 \value{
 Returns a \code{data.frame} with the following columns:
@@ -81,11 +87,13 @@ When \code{geneticModel} = 'recessive' this represents the number of individuals
 for the alternate allele.
 \item \code{geno2}: When \code{geneticModel} = 'allelic', the number of individuals who are homozygous
 for the alternate allele.
+\item \code{hweP}: HWE P-value (Exact test).
 }
 }
 \description{
 Returns a per variant summary of genotype counts, frequencies, call-rates and hwe testing.
-Note, the \code{\link{gdb}} implementation is described here, \code{summariseGeno} can also be run directly on a
+Note, the \code{\link{gdb}} implementation is described here,
+\code{summariseGeno} can also be run directly on a
 \code{\link{genoMatrix}} object as described in the \code{\link{genoMatrix}} documentation.
 }
 \examples{
