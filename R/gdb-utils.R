@@ -2,7 +2,7 @@
 #'
 #' Function to concatenate [`gdb`] databases. Only retains content of base tables (SM, var, dosage).
 #'
-#' @param targets File listing full paths of gdbs to concatenate.
+#' @param targets Character vector of gdb file paths, or a single path to a file listing gdb paths.
 #' @param output Output gdb file path.
 #' @param skipRemap Skip resetting of VAR_id to row id after concatenation? Defaults to `FALSE`.
 #' @param skipIndexes Skip generation of standard var and dosage table indexes (VAR_id;CHROM, POS,REF,ALT)?
@@ -33,8 +33,12 @@ concatGdb <- function(
   )
 
   # read gdb filepaths
-  gdb_list <- scan(targets, what = "character", quiet = TRUE)
-  
+  if (length(targets) == 1L) {
+    gdb_list <- scan(targets, what = "character", quiet = TRUE)
+  } else {
+    gdb_list <- targets
+  }
+
   # validate gdb filepaths (existence, duplicates, at least 2 gdbs)
   .concatgdb_validate_gdbs(gdb_list)
 
@@ -61,7 +65,9 @@ concatGdb <- function(
   names(versions) <- gdb_list
   names(builds) <- gdb_list
   for (gdb_i in gdb_list) {
-    if (verbose) message(sprintf("Merging '%s'", gdb_i))
+    if (verbose) {
+      message(sprintf("Merging '%s'", gdb_i))
+    }
     DBI::dbExecute(gdb, "attach :src as src", params = list(src = gdb_i))
     DBI::dbExecute(gdb, "insert into var select * from src.var")
     DBI::dbExecute(gdb, "insert into dosage select * from src.dosage")
@@ -75,7 +81,7 @@ concatGdb <- function(
     )$value
     DBI::dbExecute(gdb, "detach src")
   }
-  
+
   # check if all gdbs share the same version and genome build
   version <- unique(versions)
   build <- unique(builds)
@@ -144,15 +150,19 @@ concatGdb <- function(
   args
 ) {
   # targets should be a single existing filepath
-  check_wrapper(check_character, args, "targets", length_equal = 1L)
-  if (!file.exists(args[["targets"]])) {
-    stop(
-      sprintf(
-        "File specified in `targets`: '%s', does not exist.",
-        args[["targets"]]
-      ),
-      call. = FALSE
-    )
+  check_wrapper(check_character, args, "targets")
+
+  # if length of targets is 1, assume it is a file path to a file listing gdbs
+  if (length(args[["targets"]]) == 1L) {
+    if (!file.exists(args[["targets"]])) {
+      stop(
+        sprintf(
+          "File specified in `targets`: '%s', does not exist.",
+          args[["targets"]]
+        ),
+        call. = FALSE
+      )
+    }
   }
 
   # output should be a single filepath
@@ -186,7 +196,7 @@ concatGdb <- function(
     }
     gdb_i <- gdb(i)
     if (i == gdb_list[1]) {
-      IID <- DBI::dbGetQuery(gdb_i, "select * from SM")$IID 
+      IID <- DBI::dbGetQuery(gdb_i, "select * from SM")$IID
     } else {
       IID_i <- DBI::dbGetQuery(gdb_i, "select * from SM")$IID
       if (!identical(IID, IID_i)) {
@@ -207,11 +217,12 @@ concatGdb <- function(
 
 
 .concatgdb_create_schema <- function(gdb, gdb_list, verbose) {
-  if (verbose)
+  if (verbose) {
     message(sprintf(
       "%s\tCreating db tables",
       as.character(round(Sys.time(), units = "secs"))
     ))
+  }
 
   # create new var and dosage tables
   DBI::dbExecute(
@@ -221,7 +232,9 @@ concatGdb <- function(
   DBI::dbExecute(gdb, "create table dosage (VAR_id integer, GT BLOB);")
 
   # copy SM table and create new anno, cohort and meta metadata tables
-  if (verbose) message("Creating SM, anno and cohort tables")
+  if (verbose) {
+    message("Creating SM, anno and cohort tables")
+  }
   DBI::dbExecute(gdb, "attach :src as src", params = list(src = gdb_list[1]))
   DBI::dbExecute(gdb, "create table SM as select * from src.SM")
   DBI::dbExecute(gdb, "detach src")
@@ -377,7 +390,13 @@ setMethod(
   .gdb_check_varid(args[["VAR_id"]])
 
   # where
-  check_wrapper(check_character, args, "where", length_equal = 1L, allow_null = TRUE)
+  check_wrapper(
+    check_character,
+    args,
+    "where",
+    length_equal = 1L,
+    allow_null = TRUE
+  )
 
   # tables
   check_wrapper(check_character, args, "tables", allow_null = TRUE)
@@ -482,7 +501,12 @@ setMethod(
   for (cohort_i in tables.cohort) {
     DBI::dbExecute(
       gdb,
-      sprintf("create table %s.%s as select * from %s", attach_name, cohort_i, cohort_i)
+      sprintf(
+        "create table %s.%s as select * from %s",
+        attach_name,
+        cohort_i,
+        cohort_i
+      )
     )
   }
 
@@ -638,7 +662,7 @@ setMethod(
 
   # IID
   check_wrapper(check_character, args, "IID", allow_null = TRUE)
-  
+
   # memlimit
   check_positive(args[["memlimit"]], arg = "memlimit", length_equal = 1L)
 
@@ -699,12 +723,13 @@ setMethod(
   } else {
     IID_bool <- SM$IID %in% IID
   }
-  if (verbose)
+  if (verbose) {
     message(sprintf(
       "%s/%s samples to be retained in output",
       sum(IID_bool),
       nrow(SM)
     ))
+  }
 
   # variant retrieval queries with / without genotype data
   if (includeGeno) {

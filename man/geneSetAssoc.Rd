@@ -65,9 +65,9 @@ this parameter can be set to cap scores in the scorematrix.
 It should be a vector of length 2 (minimum and maximum sd).
 Defaults to \code{NULL}, in which case no score cutoffs are applied.}
 
-\item{minSetSize}{Exclude genesets with size < minSetSize.}
+\item{minSetSize}{Exclude genesets with size < minSetSize. Defaults to 1.}
 
-\item{maxSetSize}{Exclude genesets with size > maxSetSize.}
+\item{maxSetSize}{Exclude genesets with size > maxSetSize. Defaults to Inf.}
 
 \item{oneSided}{Calculate a one-sided P-value? Defaults to \code{TRUE}.}
 

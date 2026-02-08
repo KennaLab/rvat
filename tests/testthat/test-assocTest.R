@@ -23,11 +23,19 @@ test_that("assocTest-gdb works", {
   moderate_varsetfile <- withr::local_tempfile()
   merged_varsetfile <- withr::local_tempfile()
 
-  moderate_varsets <- getVarSet(varsetfile, varSetName = "Moderate", unit = c("CYP19A1", "FUS", "OPTN"))
-  merged_varsets <- getVarSet(varsetfile, varSetName = c("Moderate", "High", "CADD"), unit = c("CYP19A1", "FUS", "OPTN"))
+  moderate_varsets <- getVarSet(
+    varsetfile,
+    varSetName = "Moderate",
+    unit = c("CYP19A1", "FUS", "OPTN")
+  )
+  merged_varsets <- getVarSet(
+    varsetfile,
+    varSetName = c("Moderate", "High", "CADD"),
+    unit = c("CYP19A1", "FUS", "OPTN")
+  )
   write(moderate_varsets, moderate_varsetfile)
   write(merged_varsets, merged_varsetfile)
-  
+
   ## looping through either a varSetList or a varSetFile should yield identical result
   varset <- varSetFile(moderate_varsetfile)
   test1 <- assocTest(
@@ -153,6 +161,22 @@ test_that("assocTest-gdb works", {
   test3 <- test3[match(test2$ID, test3$ID), ]
   metadata(test3)$creationDate <- NA_character_
   expect_identical(test2, test3)
+
+  # test writing to output
+  varset <- varSetFile(moderate_varsetfile)
+  output_assoctest <- withr::local_tempfile()
+  test_output <- assocTest(
+    gdb,
+    cohort = "pheno",
+    varSet = varset,
+    pheno = "pheno",
+    covar = paste0("PC", 1:4),
+    test = "scoreSPA",
+    verbose = FALSE,
+    append = TRUE,
+    output = output_assoctest
+  )
+  test_from_file <- rvbResult(output_assoctest)
 })
 
 test_that("assocTest-gdb and assocTest-GT result in identical output", {

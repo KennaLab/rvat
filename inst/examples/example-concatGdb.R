@@ -17,12 +17,10 @@ subsetGdb(
 )
 
 # write filepaths of gdbs to concatenate to a file
-targets <- tempfile()
-readr::write_lines(c(gdb1, gdb2), file = targets)
 concatgdb <- tempfile()
 
 # concatenate
 concatGdb(
-  targets = targets,
+  targets = c(gdb1, gdb2),
   output = concatgdb,
 )

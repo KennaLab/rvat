@@ -17,11 +17,11 @@ buildCorMatrix(
 )
 }
 \arguments{
-\item{object}{\code{\link{rvatResult}} object}
+\item{object}{An \code{\link{rvatResult}} object.}
 
-\item{aggdb}{\code{\link{aggdb}} object}
+\item{aggdb}{An \code{\link{aggdb}} object.}
 
-\item{memlimit}{maximum number of units to load from the aggdb at a time. Defaults to 1000.}
+\item{memlimit}{Maximum number of units to load from the aggdb at a time. Defaults to 1000.}
 
 \item{minR2}{R2 values < minR2 will be set to zero (leading to increased sparsity). Defaults to 1e-04.}
 

@@ -26,7 +26,7 @@ Multiallelic parsing and genotype QC can be performed using vcftools and/or
 accompanying parser scripts included in the rvat repository.
 }}
 
-\item{output}{Path for output \code{\link{gdb}} file}
+\item{output}{Path for output \code{\link{gdb}} file.}
 
 \item{skipIndexes}{Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM,POS,REF,ALT).
 Typically only required if you plan to use \code{\link{concatGdb}} to concatenate a series of separately generated gdb files.}
@@ -34,7 +34,7 @@ Typically only required if you plan to use \code{\link{concatGdb}} to concatenat
 \item{skipVarRanges}{Flag to skip generation of ranged var table.
 Typically only useful (i.e., faster) if you plan to use \code{\link{concatGdb}} to concatenate a series of separately generated gdb files.}
 
-\item{overWrite}{overwrite if \code{output} already exists? Defaults to \code{FALSE}, in which case an error is raised.}
+\item{overWrite}{Overwrite if \code{output} already exists? Defaults to \code{FALSE}, in which case an error is raised.}
 
 \item{genomeBuild}{Optional genome build to include in the gdb metadata.
 If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the genome build is implemented in RVAT (currently: GRCh37, hg19, GRCh38, hg38).}
@@ -46,7 +46,6 @@ If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the
 \description{
 Creates a new \code{\link{gdb}} file.
 The gdb can be structured and populated using a provided vcf file.
-If no input variant file is provided then only an empty gdb is created.
 }
 \examples{
 library(rvatData)

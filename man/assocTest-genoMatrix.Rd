@@ -51,8 +51,7 @@ can either be binary (0/1) or continuous. If the response variable is continuous
 \code{continuous} to \code{TRUE}.}
 
 \item{test}{Vector of statistical tests to run,
-options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_fwe,skat_burden_fwe,
-skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA.
+options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth.
 See \code{\link{assocTest}} for details.}
 
 \item{name}{Optional name for the analysis, defaults to "none".}

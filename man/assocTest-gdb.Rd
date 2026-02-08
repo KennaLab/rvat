@@ -50,7 +50,7 @@
 )
 }
 \arguments{
-\item{object}{a \code{\link{gdb}} object}
+\item{object}{A \code{\link{gdb}} object}
 
 \item{pheno}{colData field to test as response variable, the response variable
 can either be binary (0/1) or continuous.
@@ -58,18 +58,17 @@ If the response variable is continuous set \code{continuous} to \code{TRUE}.
 Multiple phenotypes can be specified, which will then be tested separately.}
 
 \item{test}{Vector of statistical tests to run,
-options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_fwe,skat_burden_fwe,
-skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA.
+options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth.
 See \code{\link{assocTest}} for details.}
 
 \item{cohort}{If a valid cohort name is provided, then the uploaded data for
 this cohort is used to filter and annotate the genoMatrix object.
 If not specified, all samples in the gdb will be loaded.}
 
-\item{varSet}{a \code{\link{varSetFile}} or \code{\link{varSetList}} object.
+\item{varSet}{A \code{\link{varSetFile}} or \code{\link{varSetList}} object.
 Alternatively a vector of VAR_ids can be specified using the \code{VAR_id} parameter.}
 
-\item{VAR_id}{a vector of VAR_ids, alternatively the \code{varSet} parameter can be specified.
+\item{VAR_id}{A vector of VAR_ids, alternatively the \code{varSet} parameter can be specified.
 If single variant tests are run, the \code{memlimit} argument controls how many variants to analyze at a time.}
 
 \item{name}{Optional name for the analysis, defaults to "none".}
@@ -99,11 +98,11 @@ Multiple MAFweights can be specified, in which case each will be analyzed separa
 Defaults to 1000.}
 
 \item{checkPloidy}{Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
-Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-If not specified, the genome build in the \code{\link{gdb}} will be used, if available
+Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
+If not specified, the genome build in the \code{\link{gdb}} will be used, if available.
 (included if the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
 Otherwise, if the genome build is not included in the gdb metadata,
-and no value is provided, then all variants are assigned the default ploidy of "diploid"}
+and no value is provided, then all variants are assigned the default ploidy of "diploid".}
 
 \item{keep}{Vector of sample IDs to keep, defaults to \code{NULL},
 in which case all samples are kept.}
@@ -116,7 +115,7 @@ Should results be appended to \code{output}?}
 
 \item{returnDF}{Return a data.frame rather than a rvatResult. Defaults to \code{FALSE}.}
 
-\item{methodResampling}{Which method to use for resampling? ('permutation' currently implemented)
+\item{methodResampling}{Which method to use for resampling? ('permutation' currently implemented).
 Defaults to \code{NULL}, in which case no resampling is performed.}
 
 \item{resamplingMatrix}{Pre-calculated resampling matrix (n x p),
