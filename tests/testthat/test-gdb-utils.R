@@ -34,6 +34,12 @@ test_that("subsetGdb and concatGdb roundtrip works", {
 
   ## compare gdbs
   compare_gdbs(gdb, gdbconcat, check_tables = FALSE)
+  
+  ## supplying targets as character vector also works
+  gdbconcat_fromvector <- withr::local_tempfile()
+  suppressMessages(concatGdb(tmpfiles, output = gdbconcat_fromvector, verbose = TRUE))
+  gdbconcat_fromvector <- gdb(gdbconcat_fromvector)
+  compare_gdbs(gdb, gdbconcat_fromvector, check_tables = FALSE)
 })
 
 

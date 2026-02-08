@@ -5,21 +5,20 @@
 #' @rdname assocTest-gdb
 #' @name assocTest-gdb
 #' @aliases assocTest,gdb-method
-#' @param object a [`gdb`] object
+#' @param object A [`gdb`] object
 #' @param pheno colData field to test as response variable, the response variable
 #' can either be binary (0/1) or continuous. 
 #' If the response variable is continuous set `continuous` to `TRUE`.
 #' Multiple phenotypes can be specified, which will then be tested separately.
 #' @param test Vector of statistical tests to run,
-#' options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_fwe,skat_burden_fwe,
-#' skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA. 
+#' options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth. 
 #' See [`assocTest`] for details.
 #' @param cohort If a valid cohort name is provided, then the uploaded data for 
 #' this cohort is used to filter and annotate the genoMatrix object. 
 #' If not specified, all samples in the gdb will be loaded.
-#' @param varSet a [`varSetFile`] or [`varSetList`] object. 
+#' @param varSet A [`varSetFile`] or [`varSetList`] object. 
 #' Alternatively a vector of VAR_ids can be specified using the `VAR_id` parameter.
-#' @param VAR_id a vector of VAR_ids, alternatively the `varSet` parameter can be specified.
+#' @param VAR_id A vector of VAR_ids, alternatively the `varSet` parameter can be specified.
 #' If single variant tests are run, the `memlimit` argument controls how many variants to analyze at a time.
 #' @param name Optional name for the analysis, defaults to "none".
 #' @param continuous Is the response variable continuous? (TRUE/FALSE). Defaults to `FALSE`.
@@ -39,11 +38,11 @@
 #' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals. 
 #' Defaults to 1000.
 #' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
-#' Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-#' If not specified, the genome build in the [`gdb`] will be used, if available 
+#' Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
+#' If not specified, the genome build in the [`gdb`] will be used, if available. 
 #' (included if the `genomeBuild` parameter was set in [`buildGdb`]).
 #' Otherwise, if the genome build is not included in the gdb metadata, 
-#' and no value is provided, then all variants are assigned the default ploidy of "diploid"
+#' and no value is provided, then all variants are assigned the default ploidy of "diploid".
 #' @param keep Vector of sample IDs to keep, defaults to `NULL`, 
 #' in which case all samples are kept.
 #' @param output Output file path for results.
@@ -51,7 +50,7 @@
 #' @param append Relevant if the `output` parameter is not `NULL`. 
 #' Should results be appended to `output`?
 #' @param returnDF Return a data.frame rather than a rvatResult. Defaults to `FALSE`.
-#' @param methodResampling Which method to use for resampling? ('permutation' currently implemented)
+#' @param methodResampling Which method to use for resampling? ('permutation' currently implemented).
 #' Defaults to `NULL`, in which case no resampling is performed. 
 #' @param resamplingMatrix Pre-calculated resampling matrix (n x p), 
 #' where n = number of samples, and p number of resamplings.

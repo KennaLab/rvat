@@ -715,19 +715,22 @@ setMethod(
 #' Build a geneSetList or geneSetFile
 #'
 #' Build a [`geneSetList`] or [`geneSetFile`] for use in gene set analyses 
-#' ([`geneSetAssoc`] or [`assocTest-aggdb`])
-#' Currently these can be build directly from GMT-files, data.frames and lists.
+#' ([`geneSetAssoc`] or [`assocTest-aggdb`]).
+#' Currently these can be built directly from GMT-files, data.frames and lists.
 #'
-#' @param data Can be 1) data.frame where the first column includes the names of geneSets,
-#' the second column contains the genes included in the geneSet (comma-delimited).
-#' The third and fourth column are optional: the third column contains weights (comma-delimited),
-#' and the fourth column contains metadata.
-#' or 2) a list, where the names of the list represent the geneSet names and each element in the list contains
-#' a vector with the genes included in the respective geneset.
+#' @param data Can be:
+#' \itemize{
+#'   \item A `data.frame` where the first column includes the names of geneSets,
+#'   the second column contains the genes included in the geneSet (comma-delimited).
+#'   The third and fourth column are optional: the third column contains weights (comma-delimited),
+#'   and the fourth column contains metadata.
+#'   \item A `list`, where the names of the list represent the geneSet names and each element in the list contains
+#'   a vector with the genes included in the respective geneset.
+#' }
 #' @param gmtpath Path to a gmt-file.
 #' @param output Optional output file path (output will be gz compressed text).
 #' Defaults to `NULL`, in which case a [`geneSetList`] is returned.
-#' @param sep Separator used in input file.
+#' @param sep Separator used in input file. Defaults to `\t`.
 #' @param verbose Should the function be verbose? (TRUE/FALSE). Defaults to `TRUE`.
 #'
 #' @example inst/examples/example-geneSet.R

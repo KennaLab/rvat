@@ -13,26 +13,29 @@ buildGeneSet(
 )
 }
 \arguments{
-\item{data}{Can be 1) data.frame where the first column includes the names of geneSets,
+\item{data}{Can be:
+\itemize{
+\item A \code{data.frame} where the first column includes the names of geneSets,
 the second column contains the genes included in the geneSet (comma-delimited).
 The third and fourth column are optional: the third column contains weights (comma-delimited),
 and the fourth column contains metadata.
-or 2) a list, where the names of the list represent the geneSet names and each element in the list contains
-a vector with the genes included in the respective geneset.}
+\item A \code{list}, where the names of the list represent the geneSet names and each element in the list contains
+a vector with the genes included in the respective geneset.
+}}
 
 \item{gmtpath}{Path to a gmt-file.}
 
 \item{output}{Optional output file path (output will be gz compressed text).
 Defaults to \code{NULL}, in which case a \code{\link{geneSetList}} is returned.}
 
-\item{sep}{Separator used in input file.}
+\item{sep}{Separator used in input file. Defaults to \verb{\\t}.}
 
 \item{verbose}{Should the function be verbose? (TRUE/FALSE). Defaults to \code{TRUE}.}
 }
 \description{
 Build a \code{\link{geneSetList}} or \code{\link{geneSetFile}} for use in gene set analyses
-(\code{\link{geneSetAssoc}} or \code{\link{assocTest-aggdb}})
-Currently these can be build directly from GMT-files, data.frames and lists.
+(\code{\link{geneSetAssoc}} or \code{\link{assocTest-aggdb}}).
+Currently these can be built directly from GMT-files, data.frames and lists.
 }
 \examples{
 genesetlist <- buildGeneSet(

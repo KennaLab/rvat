@@ -15,12 +15,12 @@
 )
 }
 \arguments{
-\item{object}{A data.frame containing variant annotations
+\item{object}{A data.frame containing variant annotations.
 Must contain a 'VAR_id' column, and columns matching \code{unitName} and \code{fields}.}
 
 \item{unitName}{Field to utilize for aggregation unit names.}
 
-\item{fields}{Which fields in the data.frame to use as variant annotations.
+\item{fields}{Character vector of fields in the data.frame to use as variant annotations.
 These fields can be 1) an indicator (0,1 or FALSE/TRUE) that flags variants with the annotation,
 e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function;
 or 2) variant weights, e.g. a column named 'CADD' that contains CADD scores.
