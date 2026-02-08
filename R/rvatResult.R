@@ -1131,7 +1131,7 @@ rvbResult <- function(object) {
   if (is.data.frame(object)) object <- S4Vectors::DataFrame(object)
   object[, rle_cols] <- lapply(
     object[, rle_cols],
-    S4Vectors::Rle
+    function(x) S4Vectors::Rle(as.character(x))
   )
   object[, num_cols] <- lapply(
     object[, num_cols],
