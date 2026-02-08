@@ -208,6 +208,9 @@ setMethod(
         weights <- listWeights(varset)
 
         metadata(GT)$varSetName <- if(is.null(VAR_id)) vs else "none"
+
+        is_first_chunk <- (unit == units_all[1] && vs == varsets_names[1])
+        current_append <- if (is_first_chunk) append else TRUE
         results <- assocTest(
           recode(GT[vars, ], weights = weights),
           pheno = pheno,
@@ -223,7 +226,7 @@ setMethod(
           maxitFirth = maxitFirth,
           keep = keep,
           output = output,
-          append = append,
+          append = current_append,
           returnDF = returnDF,
           methodResampling = methodResampling,
           resamplingMatrix = resamplingMatrix,
