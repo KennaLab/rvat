@@ -1,13 +1,13 @@
 #' The genoMatrix class for storing genotype data and associated sample and variant info.
-#' 
+#'
 #' @name genoMatrix
 #' @rdname genoMatrix
 #' @order 1
-#' 
+#'
 #' @description
 #' The genoMatrix class is specifically designed to represent genotype data and associated sample and variant info.
 #' It extends the Bioconductor [`SummarizedExperiment::SummarizedExperiment-class`] class to accommodate genotype data.
-#' 
+#'
 #' @import methods
 #' @import S4Vectors
 #' @import SummarizedExperiment
@@ -18,58 +18,58 @@
 #'
 #' @section Accessors:
 #' The accessors are fully described in [`SummarizedExperiment::SummarizedExperiment-class`], and
-#' include `assays(x)`, `rowData(x)`, `colData(x)`, `metadata(x)`, `dim(x)`, `nrow(x)`, `ncol(x)`, `colnames(x)` and `rownames(x)`. 
-#' 
+#' include `assays(x)`, `rowData(x)`, `colData(x)`, `metadata(x)`, `dim(x)`, `nrow(x)`, `ncol(x)`, `colnames(x)` and `rownames(x)`.
+#'
 #' @section Getters:
 #' In the following code snippets, x is a genoMatrix object
-#' * `getAF(x)`: Returns alternate allele frequencies. 
+#' * `getAF(x)`: Returns alternate allele frequencies.
 #'    These will be equal to the minor allele frequences after applying `flipToMinor()`.
 #' * `getMAF(x)`: Returns variant minor allele frequencies.
-#' * `getAC(x)`: Returns alternate allele counts. 
+#' * `getAC(x)`: Returns alternate allele counts.
 #'    These will be equal to the minor allele counts after applying `flipToMinor()`.
 #' * `getMAC(x)`: Returns minor allele counts.
-#' * `getCR(x, var = TRUE)`: Returns call-rates for variants or samples. 
+#' * `getCR(x, var = TRUE)`: Returns call-rates for variants or samples.
 #' `var=TRUE` by default, set to `FALSE` to return sample call-rates.
-#' * `getNCarriers(x)`: Returns number of carriers of the alternate allele for each variant. 
+#' * `getNCarriers(x)`: Returns number of carriers of the alternate allele for each variant.
 #' Note that when geneticModel = 'recessive' it will return the number of homozygous carriers.
 #' * `summariseGeno(x)`: Returns a per variant summary of genotype counts and hwe testing.
-#' * `getCarriers(x, VAR_id = NULL, colDataFields = NULL, rowDataFields = NULL, groupBy = NULL)`: 
-#' Return sample IDs for carriers of each of the variants in the genoMatrix. 
-#' `VAR_id` can be specified to return for the specified subset of variants. 
-#' `colDataFields` and `rowDataFields` can be specified include additional 
+#' * `getCarriers(x, VAR_id = NULL, colDataFields = NULL, rowDataFields = NULL, groupBy = NULL)`:
+#' Return sample IDs for carriers of each of the variants in the genoMatrix.
+#' `VAR_id` can be specified to return for the specified subset of variants.
+#' `colDataFields` and `rowDataFields` can be specified include additional
 #' fields from `colData(x)` or `rowData(x)` in the output.
-#' The `groupBy` parameter can be set to calculate carrier frequency among groups 
+#' The `groupBy` parameter can be set to calculate carrier frequency among groups
 #' (such as cohort or phenotype), multiple groups can be set.
 #' The `aggregate` parameter can be set to TRUE to return mean burden scores among the groupings.
-#' 
-#' Note: Variant ploidy (diploid, XnonPAR, YnonPAR) are handled according to sample sex. 
+#'
+#' Note: Variant ploidy (diploid, XnonPAR, YnonPAR) are handled according to sample sex.
 #' Samples for which sex are not provided are excluded during AF calculation at non-diploid variants.
-#' 
+#'
 #' @section Subsetting:
-#' * `x[i, j]`: Standard subsetting of variants (rows) and samples (columns). 
+#' * `x[i, j]`: Standard subsetting of variants (rows) and samples (columns).
 #'    See the example section for examples.
-#' 
+#'
 #' @section Recode:
 #' In the following code snippets, x is a genoMatrix object
 #' * `flipToMinor(x)`: Function to flip genotype dosages such that all GT values represent minor allele counts.
-#' * `recode(x, geneticModel,imputeMethod,weights,MAFweights)`: Returns a recoded genoMatrix object, 
+#' * `recode(x, geneticModel,imputeMethod,weights,MAFweights)`: Returns a recoded genoMatrix object,
 #'    genetic model, imputation, and weights can be recoded. See [`recode()`] for details.
-#' * `updateGT(x, SM = NULL, anno = NULL)`: Safe replacement of the colData or 
+#' * `updateGT(x, SM = NULL, anno = NULL)`: Safe replacement of the colData or
 #'    rowData table within a genoMatrix with a new table.
-#' 
+#'
 #' @section Rare variant testing:
 #'  In the following code snippets, x is a genoMatrix object
-#' * `aggregate()`: Returns per sample aggregate dosage for a genoMatrix object. 
+#' * `aggregate()`: Returns per sample aggregate dosage for a genoMatrix object.
 #' The genoMatrix shouldn't contain missing values, use [`recode()`] to impute missing values.
-#' Aggregation is dependent on `geneticModel`, `MAFweights` and `weights`, 
+#' Aggregation is dependent on `geneticModel`, `MAFweights` and `weights`,
 #' all can be set using the [`recode()`] method.
-#' By default, an updated genoMatrix is returned with an `aggregate` field in `colData`. 
+#' By default, an updated genoMatrix is returned with an `aggregate` field in `colData`.
 #' Set `returnGT` to `FALSE` to return a vector of aggregates.
-#' * `assocTest()`: Perform aggregate (burden) and single variant association test. 
+#' * `assocTest()`: Perform aggregate (burden) and single variant association test.
 #'    See [`assocTest()`] for details.
-#' 
+#'
 #' @example inst/examples/example-genoMatrix.R
-#' 
+#'
 #' @seealso [`getGT`]
 #' @seealso [`assocTest`]
 #' @seealso [`recode`]
@@ -80,22 +80,22 @@ NULL
 #' @rdname genoMatrix
 #' @usage NULL
 #' @export
-setClass("genoMatrix", contains="SummarizedExperiment")
+setClass("genoMatrix", contains = "SummarizedExperiment")
 
 
 #' Connect and interact with a gdb
-#' 
+#'
 #' @name gdb
 #' @rdname gdb
 #' @order 1
-#' 
+#'
 #' @description
 #' Compressed SQLite (".gdb") representation of genotype data and associated variant annotation and sample info tables.
 #' These allow for rapid and memory-efficient loading of sample genotype data and associated metadata within R.
 #' The slots of the gdb class are inherited entirely from the [`RSQLite::SQLiteConnection-class`].
 #' A host of RVAT methods described here allow for convenient querying and manipulation of a gdb, for complex queries
 #' users can also directly perform SQL queries on the gdb as exemplified in the examples and tutorials.
-#' 
+#'
 #' @usage NULL
 
 #' @section Connect:
@@ -107,34 +107,34 @@ setClass("genoMatrix", contains="SummarizedExperiment")
 #'
 #' @section Getters:
 #' In the following code snippets, x is a gdb object.
-#' * `getGT(x, ...)`: Retrieve genotype data from the gdb, returns a [`genoMatrix-class`] object. 
+#' * `getGT(x, ...)`: Retrieve genotype data from the gdb, returns a [`genoMatrix-class`] object.
 #' See [`getGT()`] for details.
 #' * `getAnno(x, ...)`: Get an annotation table from gdb. See the [`getAnno()`] documentation for details.
 #' * `getCohort(x, ...)`: Get a cohort table from gdb. See the [`getCohort()`] documentation for details.
 #' * `listCohort(x)`: List sample cohort tables that have been uploaded to the gdb.
 #' * `listAnno(x)`: List variant info tables that have been uploaded to the gdb.
 #' * `getGdbId(x)`, `getGdbPath(x)`, `getCreationDate(x)`, `getGenomeBuild(x)`: various methods to retrieve metadata from gdb
-#' 
+#'
 #' @section Upload and delete sample and variant info tables:
 #' In the following code snippets, x is a gdb object.
-#' * `uploadCohort(x, ...)`: Upload cohort data tables to gdb. 
+#' * `uploadCohort(x, ...)`: Upload cohort data tables to gdb.
 #' See the [`uploadCohort()`] documentation for details.
-#' * `uploadAnno(x, ...)`: Upload variant annotation data into gdb. 
+#' * `uploadAnno(x, ...)`: Upload variant annotation data into gdb.
 #' See the [`uploadAnno()`] documentation for details
 #' * `mapVariants(x, ...)`: Map variants in the gdb onto features provided in a bed,gff/gtf or ranges file.
 #' See [`mapVariants()`] for details.
-#' * `dropTable(x, name)`: Drop table with the name specified in `name` from 
+#' * `dropTable(x, name)`: Drop table with the name specified in `name` from
 #'    gdb and clear from annotation / cohort metadata tables.
-#' 
+#'
 #' @section Subsetting & Merging:
 #' * `subsetGdb`: Create a new gdb that is a subset of the input gdb. See [`subsetGdb()`] for details.
 #' * `concatGdb`: Function to concatenate gdb databases. See [`concatGdb()`] for details.
-#' 
+#'
 #' @section Exports:
 #' * `writeVcf`: Convert a gdb to a vcf-file. See [`writeVcf()`] for details.
-#' 
+#'
 #' @example inst/examples/example-gdb.R
-#' 
+#'
 #' @seealso [`getGT`]
 #' @seealso [`buildGdb`]
 #' @seealso [`getAnno`]
@@ -169,7 +169,7 @@ setClass("gdb", contains = "SQLiteConnection")
 #' the [`buildVarSet()`] method. Specific units and/or annotations can be retrieved using
 #' the `getVarSet` method. A varSetList can be used directly as input in [`assocTest()`] to perform
 #' burden/single variant association tests on the varSets included in the varSetList.
-#' The on-disk equivalent of a `varSetList` is [`varSetFile()`], from which varSets can be retrieved 
+#' The on-disk equivalent of a `varSetList` is [`varSetFile()`], from which varSets can be retrieved
 #' in the same way as a varset list using the `getVarSet` method.
 #'
 #' @section Build a varSetList:
@@ -184,31 +184,31 @@ setClass("gdb", contains = "SQLiteConnection")
 #' * `listVarSets(x)`: Return a vector of all varSetNames included in the varSetList.
 #' * `getGdbId(x)`: Get gdb ID from metadata.
 #' * `metadata(x)`: Get metadata from varSetList.
-#' 
+#'
 #' @section Subsetting:
 #' A varSetList can be subsetted in the same way as a normal R list,
 #' however, `getVarSet` is the most convenient way to select varSets (see above).
 #' Some examples, where x is a varSetList object:
 #' * `x[[i]]`: Return the i'th varSet
 #' * `x[i:j]`: Return the i'th till j'th varSets
-#' 
+#'
 #' @section Association testing:
-#' A varSetList can be directly supplied to the [`assocTest()`] gdb method, using the 
+#' A varSetList can be directly supplied to the [`assocTest()`] gdb method, using the
 #' `varSet` parameter. Association tests will then be performed for each varSet included
 #' in the varSetList.
-#' 
+#'
 #' @section Miscellaneous:
 #' In the following code snippets, x is a varSetList object:
-#' * `collapseVarSetList(x, unit = "unnamed", varSetName = "unnamed")`: 
-#' Merge all varSets into one varSet. All weights will be set to 1. 
+#' * `collapseVarSetList(x, unit = "unnamed", varSetName = "unnamed")`:
+#' Merge all varSets into one varSet. All weights will be set to 1.
 #' Optionally, the unit name and varSetName can be specified.
 #' This method is mainly used when you want to load the genotypes for all variants
-#' in a varSetList using [`getGT()`]. 
-#' * `write(x, file = "data", append = "FALSE")`: Write the varSetList to disk, in 
+#' in a varSetList using [`getGT()`].
+#' * `write(x, file = "data", append = "FALSE")`: Write the varSetList to disk, in
 #' the [`varSetFile`] format.
 #'
 #' @example inst/examples/example-varSetList.R
-#' 
+#'
 #' @seealso [`varSetFile`]
 #' @seealso [`buildVarSet`]
 #' @seealso [`getGT`]
@@ -221,7 +221,7 @@ setClassUnion("listOrNull", c("list", "NULL"))
 #' Class that represents a set of variants and weights
 #'
 #' An S4 class to manage an individual varSet record. Usually multiple varSets
-#' will be included in a [`varSetList`] or [`varSetFile`] object, 
+#' will be included in a [`varSetList`] or [`varSetFile`] object,
 #' which can be generated using the [`buildVarSet`] method.
 #' @name varSet
 #' @rdname varSet
@@ -231,18 +231,18 @@ setClassUnion("listOrNull", c("list", "NULL"))
 #' @slot VAR_id VAR_ids included in the varSet
 #' @slot w weights included in the varSet
 #' @slot metadata metadata
-#' 
+#'
 #' @section Getters:
 #' In the following code snippets, x is a varSet object.
 #' * `listVars(x)`: Return a vector of all VAR_ids included in the varSet
 #' * `listWeights(x)`: Return a vector of all weights in the varSet
-#' 
+#'
 #' @section Retrieve genotypes:
-#' A varSet object can be supplied to the `varSet` parameter in the [`getGT()`] method to load the 
-#' variants included in the varSet. 
-#' 
+#' A varSet object can be supplied to the `varSet` parameter in the [`getGT()`] method to load the
+#' variants included in the varSet.
+#'
 #' @example inst/examples/example-varSet.R
-#' 
+#'
 #' @seealso [`varSetFile`]
 #' @seealso [`varSetList`]
 #' @seealso [`getGT`]
@@ -252,24 +252,28 @@ NULL
 #' @rdname varSet
 #' @usage NULL
 #' @export
-setClass("varSet",
-         representation(
-           unit="character",
-           varSetName="character",
-           VAR_id="character",
-           w="character",
-           metadata="listOrNull"
-         ))
+setClass(
+  "varSet",
+  representation(
+    unit = "character",
+    varSetName = "character",
+    VAR_id = "character",
+    w = "character",
+    metadata = "listOrNull"
+  )
+)
 
 #' @rdname varSetList
 #' @usage NULL
 #' @export
-setClass("varSetList", 
+setClass(
+  "varSetList",
   representation(
-    varSets="list",
-    units="character",
-    metadata="list"
-  ))
+    varSets = "list",
+    units = "character",
+    metadata = "list"
+  )
+)
 
 
 #' Class to manage interactions with a varSetFile
@@ -278,20 +282,20 @@ setClass("varSetList",
 #' @order 1
 #' @usage NULL
 #' @description
-#' An S4 class to manage interactions with varSetFiles. 
-#' varSets can be generated from annotations using the [`buildVarSet()`] method. 
+#' An S4 class to manage interactions with varSetFiles.
+#' varSets can be generated from annotations using the [`buildVarSet()`] method.
 #' Specific units and/or annotations can be loaded using
 #' the [`getVarSet`] method. A varSetFile can be used as input in [`assocTest()`] to perform
 #' burden/single variant association tests on the varSets included in the varSetFile.
 #'
 #' @section Build a varSetFile:
 #' * `buildVarSet(x, ...)`: Generate a varSetList or [`varSetFile()`] that stores weighted variant sets
-#' for use in association testing. This can be based on 
+#' for use in association testing. This can be based on
 #' 1) annotations uploaded to the gdb or 2) a data.frame including annotations.
 #' See [`buildVarSet()`] for details.
-#' 
+#'
 #' @section Connect to a varSetFile:
-#' * `varSetFile(path, memlimit = 5000)`: Connect to a varSetFile object. 
+#' * `varSetFile(path, memlimit = 5000)`: Connect to a varSetFile object.
 #'
 #' @section Getters:
 #' In the following code snippets, x is a varSetFile object.
@@ -305,14 +309,14 @@ setClass("varSetList",
 #'
 #' @section Map ranges:
 #' * `getRanges(x, ...)`: Retrieve genomic ranges for variant sets. See [`getRanges`].
-#' 
+#'
 #' @section Association testing:
-#' A varSetFile can be directly supplied to the [`assocTest()`] gdb method, using the 
+#' A varSetFile can be directly supplied to the [`assocTest()`] gdb method, using the
 #' `varSet` parameter. Association tests will then be performed for each varSet included
 #' in the varSetFile.
 #'
 #' @example inst/examples/example-varSetFile.R
-#' 
+#'
 #' @seealso [`varSetList`]
 #' @seealso [`buildVarSet`]
 #' @seealso [`assocTest`]
@@ -324,140 +328,141 @@ NULL
 #' @rdname varSetFile
 #' @usage NULL
 #' @export
-setClass("varSetFile",
-         representation(
-           path="character",
-           units="character",
-           metadata="list"
-           )
+setClass(
+  "varSetFile",
+  representation(
+    path = "character",
+    units = "character",
+    metadata = "list"
+  )
 )
 
 
 # VIRTUAL class rvatResult
 
 #' Class for handling and visualizing results generated using rvat.
-#' 
+#'
 #' @name rvatResult
 #' @rdname rvatResult
 #' @order 1
-#' 
+#'
 #' @description
 #' The rvatResult class is specifically designed to represent association results
 #' generated using RVAT (with [`assocTest`] or [`geneSetAssoc`] for example).
 #' It extends the BioConductor [`S4Vectors::DFrame`] class, and allows for basic
-#' operations such as subsetting and merging as well as visualization (manhattan, qqplot, forest plots) and 
-#' downstream analyses (e.g. [`ACAT`]). 
+#' operations such as subsetting and merging as well as visualization (manhattan, qqplot, forest plots) and
+#' downstream analyses (e.g. [`ACAT`]).
 #' Different type of results have their own subclasses (rvbResult, singlevarResult, gsaResult) that inherit from
 #' rvatResult.
-#' 
+#'
 #' @importClassesFrom S4Vectors DataFrame DFrame
 #'
 #' @usage NULL
 #' @section Constructing:
-#' * `rvbResult(object, header = TRUE)`: Initialize an `rvbResult` object, 	
-#' including singlevar results as generated by the [`assocTest`] method. 
+#' * `rvbResult(object, header = TRUE)`: Initialize an `rvbResult` object,
+#' including singlevar results as generated by the [`assocTest`] method.
 #' `object` can be either a data.frame/DataFrame or a filepath pointing to the results.
-#' * `singlevarResult(object, header = TRUE)`: Initialize a `singlevarResult` object, 	
-#' including rvb results as generated by the [`assocTest`] method. 
+#' * `singlevarResult(object, header = TRUE)`: Initialize a `singlevarResult` object,
+#' including rvb results as generated by the [`assocTest`] method.
 #' `object` can be either a data.frame/DataFrame or a filepath pointing to the results.
-#' * `gsaResult(object, header = TRUE)`: Initialize a `gsaResult` object, 	
-#' including rvb results as generated by the [`geneSetAssoc`] or [`assocTest`] methods. 
+#' * `gsaResult(object, header = TRUE)`: Initialize a `gsaResult` object,
+#' including rvb results as generated by the [`geneSetAssoc`] or [`assocTest`] methods.
 #' `object` can be either a data.frame/DataFrame or a filepath pointing to the results
 #' * `readResults(path, header = TRUE, type = NULL, sep = "\t")`: Alternatively,
 #' results can be read using `readResults` where `type` can be set to `rvbResult`/`singlevarResult`/`gsaResult`.
 #' If type is not set, it will be inferred from the input.
-#' 
+#'
 #'
 #' @section Subsetting:
-#' 
+#'
 #' Subsetting an rvatResult object is equivalent to subsetting a DataFrame/DFrame object and is fully described
-#' in [`S4Vectors::DataFrame-class`]. DataFrame objects behave very 
-#' similar to the base `data.frame`, with the most notable exceptions that 
+#' in [`S4Vectors::DataFrame-class`]. DataFrame objects behave very
+#' similar to the base `data.frame`, with the most notable exceptions that
 #' row names are optional and it can hold alternative vectors such as run-length encoded  vectors ([`S4Vectors::Rle-class`]).
 #' Please see the example section for examples.
 #'
 #' @section Merging:
 #'
-#' * `merge(x, y, by)`: Merge an `rvatResult` object with a `data.frame` or `DataFrame` object. 
-#' The `by` parameter specifies which variables to join by. 
-#' For example, by = c("a" = "b") will match x$a to y$b. 
+#' * `merge(x, y, by)`: Merge an `rvatResult` object with a `data.frame` or `DataFrame` object.
+#' The `by` parameter specifies which variables to join by.
+#' For example, by = c("a" = "b") will match x$a to y$b.
 #' Join by multiple variable by providing a vector of length>1 to `by`.
-#' 
+#'
 #' @section Displaying:
 #'In the following code snippets, x is an rvatResult object
 #' * `show(x)`: By the default the number of rows and columns will be displayed + the first five rows.
 #' * `summary(x, asList = FALSE)`: Shows a summary of the contents of the `rvatResult`.
 #'  Optionally the output can be stored as a list by setting `asList = TRUE`.
 #' * `topResult(x, n=10)`: Show the top N most significant results (based on the P-value).
-#' 
+#'
 #' @section Visualization:
 #' * `qqplot`: Plot a qqplot based on the P-values stored in an rvatResult object. See [`qqplot`] for details
 #' * `manhattan`: Generate a manhattan plot for an `rvatResult` object. See [`manhattan`] for details.
 #'
 #' @section Downsteam analyses:
-#' * `geneSetAssoc`: An `rvbResult` can be used as input for `geneSetAssoc` to perform 
+#' * `geneSetAssoc`: An `rvbResult` can be used as input for `geneSetAssoc` to perform
 #' gene set analyses. See [`geneSetAssoc`] for details.
 #' * `ACAT`: P-values in an `rvbResult` can be combined using the ACAT method. See [`ACAT`] for details.
-#' 
+#'
 #' @section Writing:
 #' * `writeResult(x, ...)`: Write an `rvatResult` to disk, see [`writeResult`] for details.
-#' 
+#'
 #' @section Getters:
 #' * `getGdbId(x)`: Get the gdb ID
 #' * `getGenomeBuild(x)`: Get gdb genome build
 #'
 #' @example inst/examples/example-rvatResult.R
-#' 
+#'
 #' @seealso [`assocTest`]
 #' @seealso [`geneSetAssoc`]
 #' @seealso [`qqplot`]
 #' @seealso [`manhattan`]
-#' 
+#'
 NULL
 
 #' rvatResult-class
 #' @rdname rvatResult
 #' @usage NULL
 #' @export
-setClass("rvatResult",
-         representation(
-           "VIRTUAL"),
-         contains="DFrame")
+setClass(
+  "rvatResult",
+  representation(
+    "VIRTUAL"
+  ),
+  contains = "DFrame"
+)
 
 #' rvbResult-class
 #' @rdname rvatResult
 #' @usage NULL
 #' @export
-setClass("rvbResult",
-         contains="rvatResult")
+setClass("rvbResult", contains = "rvatResult")
 
 #' singlevarResult-class
 #' @rdname rvatResult
 #' @usage NULL
 #' @export
-setClass("singlevarResult",
-         contains="rvatResult")
+setClass("singlevarResult", contains = "rvatResult")
 
 #' gsaResult-class
 #' @rdname rvatResult
 #' @usage NULL
 #' @export
-setClass("gsaResult",
-         contains="rvatResult")
+setClass("gsaResult", contains = "rvatResult")
 
 
 #' Generate and manage permutations
-#' 
+#'
 #' @name resamplingFile
 #' @rdname resamplingFile
 #' @order 1
-#' 
+#'
 #' @description
-#' This class is designed to generate and manage permutations. For some purposes 
+#' This class is designed to generate and manage permutations. For some purposes
 #' it is useful to store permutations, for example for empirically establishing the correlation
 #' among genes using permutations. In this case identical permutations should be used across genes,
 #' which can be achieved by storing the permutations in a resamplingFile.
-#' 
+#'
 
 #' @usage NULL
 #' @section Construct a  resamplingFile:
@@ -476,34 +481,36 @@ NULL
 #' @rdname resamplingFile
 #' @usage NULL
 #' @export
-setClass("resamplingFile",
-         representation(
-           path="character",
-           methodResampling="character",
-           nSamples="numeric",
-           nResampling="numeric"
-         ))
+setClass(
+  "resamplingFile",
+  representation(
+    path = "character",
+    methodResampling = "character",
+    nSamples = "numeric",
+    nResampling = "numeric"
+  )
+)
 
 #' Class that represents a geneSet
 #'
 #' An S4 class to manage an individual geneSet record. Usually multiple geneSets
-#' will be included in a [`geneSetList`] or [`geneSetFile`] object, 
+#' will be included in a [`geneSetList`] or [`geneSetFile`] object,
 #' which can be generated using the [`buildGeneSet`] method.
 #' @name geneSet
 #' @slot geneSetName name of the geneset
 #' @slot units units (usually genes) in the geneSet
 #' @slot w optional weights (defaults to 1 for each unit)
 #' @slot metadata optional metadata for each geneset
-#' 
+#'
 #' @section Getters:
 #' In the following code snippets, x is a geneSet object.
 #' * `listUnits(x)`: Return a vector of all units included in the geneSet.
 #' * `listWeights(x)`: Return a vector of all weights in the geneSet.
 #' * `length(x)`: Return the number of units in the geneSet.
 #' * `metadata(x)`: Return the metadata.
-#' 
+#'
 #' @example inst/examples/example-geneSet.R
-#' 
+#'
 #' @seealso [`geneSetFile`]
 #' @seealso [`geneSetList`]
 #' @seealso [`buildGeneSet`]
@@ -513,13 +520,15 @@ NULL
 #' @rdname geneSet
 #' @usage NULL
 #' @export
-setClass("geneSet", 
-         representation(
-           geneSetName="character",
-           units="character",
-           w="character",
-           metadata="character"
-         ))
+setClass(
+  "geneSet",
+  representation(
+    geneSetName = "character",
+    units = "character",
+    w = "character",
+    metadata = "character"
+  )
+)
 
 #' Class to manage multiple geneSets
 #' @name geneSetList
@@ -531,12 +540,12 @@ setClass("geneSet",
 #' the [`buildGeneSet()`] method. Specific geneSets can be retrieved using
 #' the [`getGeneSet`] method. A geneSetList can be used directly as input in
 #'  [`geneSetAssoc()`] or [`assocTest`] to perform gene set analyses.
-#' The on-disk equivalent of a `geneSetList` is [`geneSetFile()`], from which geneSets can be retrieved 
+#' The on-disk equivalent of a `geneSetList` is [`geneSetFile()`], from which geneSets can be retrieved
 #' in the same way as a geneSetList using the `getGeneSet` method.
 #'
 #' @section Build a geneSetList:
 #' * `buildGeneSet(x, ...)`: Generate a geneSetList or [`geneSetFile()`] that stores (weighted) gene sets
-#' for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) 
+#' for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/)
 #' and 2) a list of vectors of units per gene set.
 #' See [`buildGeneSet()`] for details.
 #'
@@ -549,7 +558,7 @@ setClass("geneSet",
 #' * `listMetadata(x)`: Return a list of metadata for each gene set.
 #' * `length(x)`: Return the number of gene sets.
 #' * `lengths(x)`: Return the number of units in each gene set.
-#' 
+#'
 #' @section Subsetting:
 #' A geneSetList can be subsetted in the same way as a normal R list,
 #' however, [`getGeneSet`] is the most convenient way to select genesets (see above).
@@ -560,21 +569,21 @@ setClass("geneSet",
 #' @section Conversions:
 #' * `as.list(x)`: Convert to a list of units (character vectors).
 #' * `as.data.frame(x)`: Convert to a data.frame.
-#' 
+#'
 #' @section Gene set analyses:
-#' A geneSetList can be directly supplied to the [`geneSetAssoc()`] method, using the 
+#' A geneSetList can be directly supplied to the [`geneSetAssoc()`] method, using the
 #' `geneSet` parameter, in combination with an [`rvbResult`] object.
 #' To perform gene set burden analyses, [`assocTest`] can be used.
-#' 
+#'
 #' @section Miscellaneous:
 #' In the following code snippets, x is a geneSetList object:
-#' * `write(x, file = "data", append = "FALSE")`: Write the geneSet to disk, in 
+#' * `write(x, file = "data", append = "FALSE")`: Write the geneSet to disk, in
 #' the [`geneSetFile`] format.
 #' * `remapIDs(x,...)`: Remap IDs used in geneSets, see [`remapIDs`] for details.
 #' * `dropUnits(x, unit = NULL)`: Remove specified units from geneSets included in the geneSetList.
-#' 
+#'
 #' @example inst/examples/example-geneSetList.R
-#' 
+#'
 #' @seealso [`geneSetFile`]
 #' @seealso [`geneSet`]
 #' @seealso [`geneSetAssoc`]
@@ -585,12 +594,14 @@ NULL
 #' @rdname geneSetList
 #' @usage NULL
 #' @export
-setClass("geneSetList", 
-         representation(
-           geneSets="list",
-           geneSetNames="character",
-           metadata="list"
-         ))
+setClass(
+  "geneSetList",
+  representation(
+    geneSets = "list",
+    geneSetNames = "character",
+    metadata = "list"
+  )
+)
 
 #' Class to manage interactions with a geneSetFile
 #' @name geneSetFile
@@ -600,17 +611,17 @@ setClass("geneSetList",
 #' @description
 #' An S4 class to manage interactions with geneSetFiles. A geneSetFile can be generated from gmt-files or a list of gene
 #' sets using the [`buildGeneSet()`] method. Specific geneSets can be retrieved using
-#' the [`getGeneSet`] method. A geneSetFile can be used as input in [`geneSetAssoc()`] or [`assocTest()`] 
+#' the [`getGeneSet`] method. A geneSetFile can be used as input in [`geneSetAssoc()`] or [`assocTest()`]
 #' to perform competitive/self-contained gene set analyses.
 #'
 #' @section Build a geneSetFile:
 #' * `buildGeneSet(x, ...)`: Generate a [`geneSetList`] or geneSetFile that stores (weighted) gene sets
-#' for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) and 
+#' for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) and
 #' 2) a list of vectors of units per gene set.
 #' See [`buildGeneSet()`] for details.
-#' 
+#'
 #' @section Connect to a geneSetFile:
-#' * `geneSetFile(path)`: Connect to a geneSetFile object. 
+#' * `geneSetFile(path)`: Connect to a geneSetFile object.
 #'
 #' @section Getters:
 #' In the following code snippets, x is a geneSetFile object.
@@ -622,14 +633,14 @@ setClass("geneSetList",
 #'
 #' @section Conversion:
 #' * `as.geneSetList(x)`: Convert the geneSetFile to a geneSetList object.
-#' 
+#'
 #' @section Association testing:
-#' A geneSetFile can be directly supplied to the [`geneSetAssoc()`] method, using the 
+#' A geneSetFile can be directly supplied to the [`geneSetAssoc()`] method, using the
 #' `geneSet` parameter, in combination with an [`rvbResult`] object.
 #' To perform gene set burden analyses, [`assocTest`] can be used.
-#' 
+#'
 #' @example inst/examples/example-geneSetFile.R
-#' 
+#'
 #' @seealso [`geneSetList`]
 #' @seealso [`buildGeneSet`]
 #' @seealso [`geneSetAssoc`]
@@ -641,12 +652,13 @@ NULL
 #' @rdname geneSetFile
 #' @usage NULL
 #' @export
-setClass("geneSetFile",
-         representation = representation(
-           path="character",
-           sets="character",
-           metadata="list"
-           )
+setClass(
+  "geneSetFile",
+  representation = representation(
+    path = "character",
+    sets = "character",
+    metadata = "list"
+  )
 )
 
 
@@ -663,28 +675,28 @@ setClass("geneSetFile",
 #' @section Build an aggdb:
 #' * `aggregate(x, ...)`: Returns an aggregate of genotypes for each individual.
 #' See [`aggregate()`] for details.
-#' 
+#'
 #' @section Connect to an aggdb:
-#' * `aggdb(path)`: Connect to an aggdb object. 
+#' * `aggdb(path)`: Connect to an aggdb object.
 #'
 #' @section Getters:
 #' In the following code snippets, x is an aggdb object.
-#' * `getUnit(x, unit)`: Retrieve aggregates for specified unit(s). 
+#' * `getUnit(x, unit)`: Retrieve aggregates for specified unit(s).
 #' Use `listUnits(x)` to list the units includes in the aggdb
 #' Output will be a matrix.
 #' * `listUnits(x)`: Return a vector of all units included in the aggdb
 #' * `listSamples(x)`: Return a vector of all sample IDs included in the aggdb
 #' * `listParams(x)`: Return a list of parameters used to generate the aggdb.
 #' * `metadata(x)`, `getGdbId(x)`, `getRvatVersion(x)`: various methods to retrieve metadata from the aggdb.
-#' 
+#'
 #' @section Association testing:
 #' An aggdb can be directly supplied to the [`assocTest()`] method.
-#' 
+#'
 #' @section Merging:
-#' Aggdbs can be merged using the [`mergeAggDbs`] method. 
-#' 
+#' Aggdbs can be merged using the [`mergeAggDbs`] method.
+#'
 #' @example inst/examples/example-aggdb-class.R
-#' 
+#'
 #' @seealso [`aggregate`]
 #' @seealso [`mergeAggDbs`]
 #' @seealso [`aggdbList`]
@@ -698,15 +710,14 @@ NULL
 setClass("aggdb", contains = "SQLiteConnection")
 
 
-
 #' Class to facilitate merging aggdbs
-#' 
+#'
 #' @name aggdbList
 #' @rdname aggdbList
 #' @order 1
 #' @usage NULL
 #' @description
-#' 
+#'
 #' Class to facilitate merging aggdbs. By providing a vector of aggdb filepaths,
 #' aggdbList will check whether identical samples are included and if duplicated units are included.
 #' The aggdbList can then be used to merge the aggdbs into either a new aggdb,
@@ -724,18 +735,18 @@ setClass("aggdb", contains = "SQLiteConnection")
 #' * `listParams(x)`: Return a list of parameters.
 #' * `metadata(x)`: Return metadata.
 #' * `length(x)`: Return the number of aggdbs included.
-#' 
+#'
 #' @section Merge or collapse aggdbs:
-#' * `mergeAggDbs(object, output = NULL, verbose = TRUE)`: 
+#' * `mergeAggDbs(object, output = NULL, verbose = TRUE)`:
 #' Merge aggregrateFiles, this will generate a new `aggdb` including all aggregates across provided aggdbs.
 #' See [`mergeAggDbs`] for details.
-#' * `collapseAggDbs(object, output = NULL, verbose = TRUE)`: Collapse aggdbs by aggregating values across aggdbs. 
-#' This will result in one aggregate score for each sample, representing the aggregate value across aggregate files. 
+#' * `collapseAggDbs(object, output = NULL, verbose = TRUE)`: Collapse aggdbs by aggregating values across aggdbs.
+#' This will result in one aggregate score for each sample, representing the aggregate value across aggregate files.
 #' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
 #' See [`collapseAggDbs`] for details.
 #'
 #' @example inst/examples/example-mergeAggDbs.R
-#' 
+#'
 #' @seealso [`mergeAggDbs`]
 #' @seealso [`collapseAggDbs`]
 #' @seealso [`assocTest-aggdb`]
@@ -759,101 +770,112 @@ setClass(
 )
 
 #' An S4 class to store and handle null models for mixed linear model gene set analysis.
-#' 
+#'
 #' @name nullModelGSA-class
 #' @rdname nullModelGSA-class
 #' @order 1
-#' 
+#'
 #' @description
 #' An S4 class to store and handle null models for mixed linear model gene set analysis.
-#' 
-#' @usage NULL 
+#'
+#' @usage NULL
 #' @section Generate a GSA null model:
 #' `fitNullModelGSA`: Generate a GSA null model, see [`buildCorMatrix()`] for details.
-#' 
+#'
 #' @section Getters:
 #' In the following code snippets, x is a nullModelGSA object
-#' * `getCovar(x)`: Returns fixed effects 
+#' * `getCovar(x)`: Returns fixed effects
 #' * `getResults(x)`: Returns input results
 #' * `getNullModel(x)`: Returns the null model
 #' * `listUnits(x)`: Returns the units included
-#' 
+#'
 #' @seealso [`geneSetAssoc`]
 #' @seealso [`buildCorMatrix`]
 #' @seealso [`assocTest`]
 NULL
 
 #' nullModelGSA-class
-#' 
+#'
 #' An S4 class to store and handle null models for gene set analysis
 #' @name nullModelGSA-class
 #' @slot nullmodel the null model
 #' @slot ID ID field
 #' @slot results the rvbResults the nullmodel was based on
-#' @slot units units 
+#' @slot units units
 #' @slot covar covariates included in the null model
 #' @slot method which method was used, currently 'GENESIS' is implemented.
 #' @export
-setClass("nullModelGSA", 
-         representation(
-           nullmodel="ANY",
-           ID="integer",
-           results="rvatResult",
-           units="character",
-           covar="character",
-           method="character"
-         ))
+setClass(
+  "nullModelGSA",
+  representation(
+    nullmodel = "ANY",
+    ID = "integer",
+    results = "rvatResult",
+    units = "character",
+    covar = "character",
+    method = "character"
+  )
+)
 
 #' @rdname nullModelGSA-class
 #' @usage NULL
 #' @param x [`nullModelGSA-class`] object.
 #' @export
-setMethod("listUnits", signature = "nullModelGSA",
-          definition = function(object) {
-            object@units
-          })
+setMethod(
+  "listUnits",
+  signature = "nullModelGSA",
+  definition = function(object) {
+    object@units
+  }
+)
 
 #' @rdname nullModelGSA-class
 #' @usage NULL
 #' @export
-setMethod("length", signature = "nullModelGSA",
-          definition = function(x) {
-            length(listUnits(x))
-          })
-
-
-#' @rdname nullModelGSA-class
-#' @usage NULL
-#' @export
-setMethod("show", 
-          signature = "nullModelGSA",
-          definition = function(object) {
-            message(sprintf("nullModelGSA, generated with %s", object@method))
-            message(sprintf("Contains a null model including %s units",length(object)))
-            message(sprintf("Covar: %s", paste(getCovar(object), collapse=",")))
-          })
-
-#' @rdname nullModelGSA-class
-#' @usage NULL
-#' @export
-setMethod("getNullModel", signature = "nullModelGSA",
-          definition = function(object) {
-            object@nullmodel
-          })
+setMethod("length", signature = "nullModelGSA", definition = function(x) {
+  length(listUnits(x))
+})
 
 
 #' @rdname nullModelGSA-class
 #' @usage NULL
 #' @export
-setMethod("getResults", signature = "nullModelGSA",
-          definition = function(object) {
-            object@results
-          })
+setMethod("show", signature = "nullModelGSA", definition = function(object) {
+  message(sprintf("nullModelGSA, generated with %s", object@method))
+  message(sprintf("Contains a null model including %s units", length(object)))
+  message(sprintf("Covar: %s", paste(getCovar(object), collapse = ",")))
+})
 
 #' @rdname nullModelGSA-class
 #' @usage NULL
 #' @export
-setMethod("getCovar", signature = "nullModelGSA",
-          definition = function(object) {
-            object@covar
-          })
+setMethod(
+  "getNullModel",
+  signature = "nullModelGSA",
+  definition = function(object) {
+    object@nullmodel
+  }
+)
+
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setMethod(
+  "getResults",
+  signature = "nullModelGSA",
+  definition = function(object) {
+    object@results
+  }
+)
+
+#' @rdname nullModelGSA-class
+#' @usage NULL
+#' @export
+setMethod(
+  "getCovar",
+  signature = "nullModelGSA",
+  definition = function(object) {
+    object@covar
+  }
+)
