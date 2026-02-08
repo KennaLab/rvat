@@ -889,4 +889,42 @@ Provide a valid function call for detailed help.\n%s",
       as.character(round(Sys.time(), units = "secs"))
     ))
   }
+
+  # writeVcf
+  if ("writeVcf" %in% args_raw) {
+      required <- c("writeVcf", "gdb", "output")
+      expected <- c(
+        "gdb",
+        "writeVcf",
+        "not-includeGeno",
+        "quiet",
+        names(formals(writeVcf)))
+
+      check_args(
+        func_name = "writeVcf",
+        args = args_raw,
+        help = help,
+        required = required,
+        expected = expected
+      )
+
+      gdb <- gdb(args[["gdb"]])
+      if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
+        VAR_id <- NULL
+      if (!is.null(args[["IID"]])) IID <- readLines(args[["IID"]]) else
+        IID <- NULL
+      if (!args[["not-includeGeno"]] || "includeGeno" %in% args_raw)
+        includeGeno <- TRUE else includeGeno <- FALSE
+      writeVcf(
+        gdb,
+        output = args[["output"]],
+        VAR_id = VAR_id,
+        IID = IID,
+        memlimit = args[["memlimit"]],
+        includeGeno = includeGeno,
+        includeVarId = args[["includeVarId"]],
+        overWrite = args[["overWrite"]],
+        verbose = verbose
+      )
+  }
 }

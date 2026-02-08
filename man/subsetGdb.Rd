@@ -23,14 +23,14 @@ subsetGdb(
 \item{output}{Output gdb path (output will be a new gdb file).}
 
 \item{intersection}{Additional tables to filter through intersection (i.e. variants absent from intersection tables will not appear in output).
-Multiple tables should be ',' delimited.}
+Can be a character vector of table names or a single comma-delimited string.}
 
 \item{where}{An SQL compliant where clause to filter output;
-eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
+e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 
-\item{VAR_id}{Retain only variants with matching VAR_id.}
+\item{VAR_id}{Character vector of VAR_ids to retain.}
 
-\item{tables}{Optional, vector of tables to retain from the gdb.
+\item{tables}{Optional, character vector of tables to retain from the gdb.
 By default all tables will be included in the output gdb.}
 
 \item{skipIndexes}{Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM,POS,REF,ALT).

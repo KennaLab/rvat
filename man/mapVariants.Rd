@@ -23,7 +23,7 @@ mapVariants(
 \arguments{
 \item{object}{a \code{\link{gdb}} object.}
 
-\item{ranges}{Can be 1) a data.frame, including at least 'CHROM','start', and 'end' columns.
+\item{ranges}{Can be 1)a data.frame, including at least 'CHROM','start', and 'end' columns.
 2) a \code{\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}} object.
 3) a filepath to a ranges file containing at least 'CHROM','start', and 'end' columns.
 Separator can be specified using the \code{sep} parameter (defaults to \verb{\\\\t}).}
@@ -32,11 +32,13 @@ Separator can be specified using the \code{sep} parameter (defaults to \verb{\\\
 
 \item{bed}{Path to a bed-file. Specify extra columns using the \code{bedCols} parameter.}
 
-\item{bedCols}{A character vector of names of the extra columns to read from the BED-file.
-Optionally the vector can be a named vector to indicate the classes of the columns (i.e. c("gene_id" = "character", "gene_name"="character")).
+\item{bedCols}{Character vector of names of the extra columns to read from the BED-file.
+Optionally the vector can be a named vector to indicate the classes of the columns
+(i.e. c("gene_id" = "character", "gene_name"="character")).
 If not named, all extra columns will be read as character columns (see examples).}
 
-\item{fields}{Feature fields to keep. Defaults to \code{NULL} in which case all fields are kept.}
+\item{fields}{Character vector of feature fields to keep.
+Defaults to \code{NULL} in which case all fields are kept.}
 
 \item{uploadName}{Name of table to upload to the gdb.
 If not specified, either specify \code{output} to write the results to disk,

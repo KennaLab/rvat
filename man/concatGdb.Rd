@@ -14,7 +14,7 @@ concatGdb(
 )
 }
 \arguments{
-\item{targets}{File listing full paths of gdbs to concatenate.}
+\item{targets}{Character vector of gdb file paths, or a single path to a file listing gdb paths.}
 
 \item{output}{Output gdb file path.}
 
@@ -51,13 +51,11 @@ subsetGdb(
 )
 
 # write filepaths of gdbs to concatenate to a file
-targets <- tempfile()
-readr::write_lines(c(gdb1, gdb2), file = targets)
 concatgdb <- tempfile()
 
 # concatenate
 concatGdb(
-  targets = targets,
+  targets = c(gdb1, gdb2),
   output = concatgdb,
 )
 }

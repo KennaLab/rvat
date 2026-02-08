@@ -2131,3 +2131,99 @@ test_that("--vcfInfo2Table works", {
   
 })
 
+
+# writeVcf
+test_that("--writeVcf works", {
+  # generate mocked function/method that returns the environment
+  forms <- formals(writeVcf)
+  mock_function <- function() {}
+  formals(mock_function) <- forms
+  body(mock_function) <- quote({
+    mock_args <<- as.list(environment())
+    invisible()
+  })
+  local_mocked_bindings(
+    writeVcf = mock_function,
+    .package = "rvat"
+  )
+  
+  # test defaults 
+  local_mocked_bindings(
+    commandArgs = function(trailingOnly = TRUE) {
+      c("--writeVcf",
+        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+              "--output=writeVcf.txt.gz"
+    )},
+    .package = "base"
+  )
+  collected_args <- rvat:::collect_args()
+  
+  # run cli 
+  suppressMessages(rvat:::rvat_cli(
+    args = collected_args[["args"]],
+    args_raw = collected_args[["args_raw"]]
+  ))
+  
+  # check against expected args
+  expected_args <- list(
+    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    output = "writeVcf.txt.gz"
+  )
+
+  expect_s4_class(mock_args[["object"]], "gdb")
+  expected_args <- c(expected_args, formals(writeVcf)[!names(formals(writeVcf)) %in% names(expected_args)])
+  expected_args <- expected_args[sort(names(expected_args))]
+  mock_args <- mock_args[sort(names(mock_args))]
+  expect_equal(expected_args[!names(expected_args) %in% c("object")],
+               mock_args[!names(mock_args) %in% c("object")])
+  
+  # test non-defaults 
+  varids <- withr::local_tempfile()
+  readr::write_lines(1:10, varids)
+  iids <- withr::local_tempfile()
+  readr::write_lines(1:10, iids)
+  
+  local_mocked_bindings(
+    commandArgs = function(trailingOnly = TRUE) {
+      c("--writeVcf",
+        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+                "--output=writeVcf.txt.gz",
+                sprintf("--VAR_id=%s", varids),
+                sprintf("--IID=%s", iids),
+                "--memlimit=10000",
+                "--not-includeGeno",
+                "--includeVarId",
+                "--overWrite",
+                "--quiet"
+      )
+    },
+    .package = "base"
+  )
+  collected_args <- rvat:::collect_args()
+  
+  # run cli 
+  suppressMessages(rvat:::rvat_cli(
+    args = collected_args[["args"]],
+    args_raw = collected_args[["args_raw"]]
+  ))
+  
+  # check against expected args
+  expected_args <- list(
+    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    output = "writeVcf.txt.gz",
+    VAR_id = as.character(1:10),
+    IID = as.character(1:10),
+    memlimit = 10000, 
+    includeGeno = FALSE,
+    includeVarId = TRUE,
+    overWrite = TRUE,
+    verbose = FALSE
+  )
+  
+  expect_s4_class(mock_args[["object"]], "gdb")
+  expected_args <- c(expected_args, formals(writeVcf)[!names(formals(writeVcf)) %in% names(expected_args)])
+  expected_args <- expected_args[sort(names(expected_args))]
+  mock_args <- mock_args[sort(names(mock_args))]
+  expect_equal(expected_args[!names(expected_args) %in% c("object")],
+               mock_args[!names(mock_args) %in% c("object")])
+})

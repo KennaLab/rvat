@@ -174,11 +174,11 @@ setGeneric("getGT", function(object, varSet = NULL, VAR_id = NULL, ranges = NULL
 #' @param object A [`gdb`] object.
 #' @param output Output gdb path (output will be a new gdb file).
 #' @param intersection Additional tables to filter through intersection (i.e. variants absent from intersection tables will not appear in output). 
-#' Multiple tables should be ',' delimited.
+#' Can be a character vector of table names or a single comma-delimited string.
 #' @param where An SQL compliant where clause to filter output; 
-#' eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
-#' @param VAR_id Retain only variants with matching VAR_id.
-#' @param tables Optional, vector of tables to retain from the gdb. 
+#' e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
+#' @param VAR_id Character vector of VAR_ids to retain.
+#' @param tables Optional, character vector of tables to retain from the gdb. 
 #' By default all tables will be included in the output gdb.
 #' @param skipIndexes Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM,POS,REF,ALT). 
 #' Typically only required if you plan to use [`concatGdb`] to concatenate a series of 
@@ -194,7 +194,11 @@ setGeneric("subsetGdb", function(object, output, intersection = NULL, where = NU
 
 #' Upload variant annotation into gdb.
 #'
-#' Function to upload variant annotation data into gdb. Assignment of VAR_id is performed automatically through mapping to the var table, but can be skipped using the skipRemap option. Indexing of the imported table based on VAR_id is also automated but can also be skipped, this could be desirable if it is intended to concatenate many separately generated gdb as otherwise intermediate indexes are generated unecessarily.
+#' Function to upload variant annotation data into gdb. 
+#' Assignment of VAR_id is performed automatically through mapping to the var table, 
+#' but can be skipped using the skipRemap option. 
+#' Indexing of the imported table based on VAR_id is also automated but can also be skipped, 
+#' this could be desirable if it is intended to concatenate many separately generated gdb as otherwise intermediate indexes are generated unnecessarily.
 #'
 #' @param object A [`gdb`] object.
 #' @param name Name to assign to annotation table.
@@ -226,16 +230,18 @@ setGeneric("uploadAnno", function(object, name, value, sep="\t", skipRemap=FALSE
 #' The output can be written to disk  (`output` parameter) or directly uploaded to the [`gdb`] (`uploadName` parameter). 
 #' 
 #' @param object a [`gdb`] object.
-#' @param ranges Can be 1) a data.frame, including at least 'CHROM','start', and 'end' columns.
+#' @param ranges Can be 1)a data.frame, including at least 'CHROM','start', and 'end' columns.
 #' 2) a [`GenomicRanges::GRanges`] object. 
 #' 3) a filepath to a ranges file containing at least 'CHROM','start', and 'end' columns.
 #' Separator can be specified using the `sep` parameter (defaults to `\\t`).
 #' @param gff Path to a gff- or gtf-file. 
 #' @param bed Path to a bed-file. Specify extra columns using the `bedCols` parameter.
-#' @param bedCols A character vector of names of the extra columns to read from the BED-file. 
-#' Optionally the vector can be a named vector to indicate the classes of the columns (i.e. c("gene_id" = "character", "gene_name"="character")).
+#' @param bedCols Character vector of names of the extra columns to read from the BED-file. 
+#' Optionally the vector can be a named vector to indicate the classes of the columns 
+#' (i.e. c("gene_id" = "character", "gene_name"="character")).
 #' If not named, all extra columns will be read as character columns (see examples).
-#' @param fields Feature fields to keep. Defaults to `NULL` in which case all fields are kept.
+#' @param fields Character vector of feature fields to keep. 
+#' Defaults to `NULL` in which case all fields are kept.
 #' @param uploadName Name of table to upload to the gdb. 
 #' If not specified, either specify `output` to write the results to disk, 
 #' or otherwise the results will be returned in the R session.
@@ -270,8 +276,10 @@ setGeneric("mapVariants", function(object,
 #'
 #' @param object A [`gdb`] object.
 #' @param name Name to assign to cohort.
-#' @param value Input data frame or a valid file path. Must contain an 'IID' column matching to SM table and a 'sex' column (0=missing,1=male,2=female).
-#' @param sep Field delimiter (applies only when value is a text file). Defaults to `\\t`.
+#' @param value Input data frame or a valid file path. 
+#' Must contain an 'IID' column matching to SM table and a 'sex' column (0=missing,1=male,2=female).
+#' @param sep Field delimiter (applies only when value is a text file). 
+#' Defaults to `\\t`.
 #' @param overWrite Flag indicating whether an existing cohort table with the same `name` should be overwritten.
 #' Defaults to `FALSE`.
 #' @param verbose Should the method be verbose? Defaults to `TRUE`.
@@ -284,7 +292,7 @@ setGeneric("uploadCohort", function(object,name,value,sep="\t",overWrite=FALSE,v
 #'
 #' Drop table from [`gdb`] and clear from annotation / cohort metadata tables.
 #' @param object [`gdb`] object.
-#' @param name  Name of table to drop.
+#' @param name Name of table to drop.
 #' @param verbose Should the method be verbose? Defaults to `TRUE`.
 #' @example inst/examples/example-dropTable.R
 #' 
@@ -335,34 +343,34 @@ setGeneric("getNCarriers", function(object) standardGeneric("getNCarriers"))
 #' @export
 setGeneric("getCR", function(object, var = TRUE) standardGeneric("getCR"))
 
-##' Return variant summaries
+#' Return variant summaries
 #' 
 #'  Returns a per variant summary of genotype counts, frequencies, call-rates and hwe testing.
 #'  Note, the [`gdb`] implementation is described here, 
 #' `summariseGeno` can also be run directly on a 
 #'  [`genoMatrix`] object as described in the [`genoMatrix`] documentation.
 #' 
-#' @param object a [`gdb`] object.
+#' @param object A [`gdb`] object.
 #' @param cohort If a valid cohort name is provided, 
-#' then the uploaded data for this cohort is used to filter and annotate the genotypes 
+#' then the uploaded data for this cohort is used to filter and annotate the genotypes.
 #' If not specified, all samples in the gdb will be loaded.
 #' @param varSet a [`varSetList`] or [`varSetFile`] object. 
 #' Alternatively the VAR_id parameter can be specified.
-#' @param VAR_id A list of VAR_ids, alternatively the varSet parameter can be specified.
+#' @param VAR_id Vector of VAR_ids, alternatively the varSet parameter can be specified.
 #' The `memlimit` argument controls how many variants to analyze at a time.
 #' @param pheno colData field to test as response variable, although not used within this method,
 #' this can be useful to filter samples which have missing data for the response variable.
 #' @param memlimit Maximum number of variants to load at once (if `VAR_id` is specified).
-#' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
-#' Defaults to `allelic`.
+#' @param geneticModel Genetic model to apply ('allelic', 'recessive' or 'dominant').
+#' Defaults to 'allelic'.
 #' @param checkPloidy Version of the human genome to use when assigning variant ploidy 
 #' (diploid, XnonPAR, YnonPAR). 
-#' Accepted inputs are GRCh37, hg19, GRCh38, hg38.
+#' Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
 #' If not specified, the genome build in the [`gdb`] will be used, 
 #' if available (included if the `genomeBuild` parameter was set in [`buildGdb`]).
 #' Otherwise, if the genome build is not included in the gdb metadata,
 #'  and no value is provided, then all variants are assigned the default ploidy of "diploid"
-#' @param keep vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
+#' @param keep Vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
 #' @param output Output file path for results.
 #' Defaults to `NULL`, in which case results are not written.
 #' @param splitBy Split variant summaries by labels indicated in the specified field.
@@ -380,8 +388,8 @@ setGeneric("getCR", function(object, var = TRUE) standardGeneric("getCR"))
 #' @param maxCarrierFreq Maximum carrier frequency for variant retention.
 #' @param verbose Should the function be verbose? (TRUE/FALSE), defaults to `TRUE`.
 #' @param strict Should strict checks be performed? Defaults to `TRUE`. 
-#' Strict checks currently includes checking whether supplied varSetFile/varSetList
-#'  was generated from the same gdb as specified in `object`.
+#' Strict checks currently includes checking whether supplied varSetFile/varSetList 
+#' was generated from the same gdb as specified in `object`.
 #' @return 
 #' Returns a `data.frame` with the following columns:
 #' \itemize{
@@ -552,7 +560,7 @@ setGeneric("getRanges", function(object,
 #' @param output Output file name (output will be gz compressed text).
 #' @param varSetName Name to assign varSet grouping. 
 #' This identifier column is used to allow for subsequent merging of multiple varSet files 
-#' for coordinated analysis of multiple variant filtering/weighting strategies)
+#' for coordinated analysis of multiple variant filtering/weighting strategies.
 #' @param unitTable Table containing aggregation unit mappings.
 #' @param unitName Field to utilize for aggregation unit names.
 #' @param windowSize Numeric vector to indicate starting fixed window size (number of variants)
@@ -562,17 +570,18 @@ setGeneric("getRanges", function(object,
 #' (i.e. variants absent from intersection tables will not appear in output). 
 #' Multiple tables should be ',' delimited.
 #' @param where An SQL compliant where clause to filter output; 
-#' eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
-#' @param weightName Field name for desired variant weighting, 
-#' must be a column within unitTable or other intersection table. 
+#' e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
+#' @param weightName Field name for desired variant weighting.
+#' Must be a column within unitTable or other intersection table. 
 #' Default value of 1 is equivalent to no weighting.
 #' @param posField Column name to take as variants position. 
-#' Default is 'POS' which typically corresponds to genomics position. 
+#' Default is 'POS' which typically corresponds to genomic position. 
 #' Can be reset to use CDS or other coordinates. "HGVSc" is a recognized identifier and 
 #' CDS coordinates will be extracted automatically.
 #' @param minTry Minimum number of variants in varset to perform clustering on. 
 #' If number of variants < minTry, all variants will be returned as a single cluster.
-#' @param memlimit Maximum number of varsets to load at a time. Defaults to 1000.
+#' Defaults to 5.
+#' @param memlimit Chunk size used for processing rows. Defaults to 1000.
 #' @param warning Raise a warning when clusters can't be generated? Defaults to `TRUE`.
 #' 
 #' @references
@@ -904,12 +913,11 @@ setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 
 #' Merge multiple aggregate files
 #' 
-#' Merge aggdbs, this will generate a new `aggdb` including all aggregates across provided aggdbs
+#' Merge aggdbs, this will generate a new `aggdb` including all aggregates across provided aggdbs.
 #'
 #' @param object an [`aggdbList`] object.
 #' @param output Output file name (output will be an aggdb). 
-#' Defaults to `NULL`, in which case a data.frame will be returned.
-#' @param overWrite Should existing output files be overwritten? Defaults to `TRUE`.
+#' @param overWrite Should existing output files be overwritten? Defaults to `FALSE`.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #' @example inst/examples/example-mergeAggDbs.R
 #'
@@ -1043,8 +1051,8 @@ setGeneric("checkDuplicates", function(object, stop = TRUE) standardGeneric("che
 #' this parameter can be set to cap scores in the scorematrix. 
 #' It should be a vector of length 2 (minimum and maximum sd). 
 #' Defaults to `NULL`, in which case no score cutoffs are applied.
-#' @param minSetSize Exclude genesets with size < minSetSize.
-#' @param maxSetSize Exclude genesets with size > maxSetSize.
+#' @param minSetSize Exclude genesets with size < minSetSize. Defaults to 1.
+#' @param maxSetSize Exclude genesets with size > maxSetSize. Defaults to Inf.
 #' @param oneSided Calculate a one-sided P-value? Defaults to `TRUE`.
 #' @param memlimit Maximum number of genesets to process in one go.
 #' @param ID ID column in the rvbResult that corresponds with the IDs used in the geneSetList.
@@ -1106,9 +1114,9 @@ setGeneric("addBlocks", function(object, maxDist = 2.5e6) standardGeneric("addBl
 #' all gene-gene correlations beyond the block are set to zero.
 #' This function is based on previous work (\url{https://github.com/opain/TWAS-GSEA}).
 #' 
-#' @param object [`rvatResult`] object
-#' @param aggdb [`aggdb`] object
-#' @param memlimit maximum number of units to load from the aggdb at a time. Defaults to 1000.
+#' @param object An [`rvatResult`] object.
+#' @param aggdb An [`aggdb`] object.
+#' @param memlimit Maximum number of units to load from the aggdb at a time. Defaults to 1000.
 #' @param minR2 R2 values < minR2 will be set to zero (leading to increased sparsity). Defaults to 1e-04.
 #' @param makePD Make the correlation matrix positive definite? (TRUE/FALSE)
 #' @param absolute Should cormatrix be absolute? Defaults to `TRUE`.

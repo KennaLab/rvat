@@ -19,30 +19,31 @@
 )
 }
 \arguments{
-\item{object}{a \code{\link{gdb}} object.}
+\item{object}{A \code{\link{gdb}} object.}
 
 \item{varSetName}{Name to assign varSet grouping.
 This identifier column is used to allow for subsequent merging of multiple
-varSet files for coordinated analysis of multiple variant filtering/weighting strategies}
+varSet files for coordinated analysis of multiple variant filtering/weighting strategies.}
 
 \item{unitTable}{Table containing aggregation unit mappings.}
 
 \item{unitName}{Field to utilize for aggregation unit names.}
 
-\item{output}{Output file name (output will be gz compressed text).}
+\item{output}{Output file name (output will be gz compressed text).
+If no output file is specified, a \code{\link{varSetList}} object will be returned directly.}
 
 \item{intersection}{Additional tables to filter through intersection
 (i.e. variants absent from intersection tables will not appear in output).
-Multiple tables should be ',' delimited.}
+Can be a character vector or a comma-delimited string.}
 
 \item{where}{An SQL compliant where clause to filter output;
 e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 
-\item{weightName}{Field name for desired variant weighting,
-must be a column within unitTable or other intersection table.
+\item{weightName}{Field name for desired variant weighting.
+Must be a column within \code{unitTable} or other \code{intersection} table.
 Default value of 1 is equivalent to no weighting.}
 
-\item{memlimit}{Chunk size used for processing rows.}
+\item{memlimit}{Chunk size used for processing rows. Defaults to 1000.}
 
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }

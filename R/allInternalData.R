@@ -79,9 +79,6 @@ assocTest_tests <- c(
   "skat_burden_robust",
   "skat_robust",
   "skato_robust",
-  "skat_burden_fwe",
-  "skat_fwe",
-  "skato_fwe",
   "acatv",
   "acatvSPA",
   "acatvfirth"
@@ -104,9 +101,6 @@ assocTest_rvb_cont_tests <- c(
   "skat_burden",
   "skat",
   "skato",
-  "skat_burden_fwe",
-  "skat_fwe",
-  "skato_fwe",
   "acatv"
 )
 
@@ -119,9 +113,6 @@ assocTest_rvb_bin_tests <- c(
   "skat_robust",
   "skato_robust",
   "skat_burden_robust",
-  "skat_burden_fwe",
-  "skat_fwe",
-  "skato_fwe",
   "acatv",
   "acatvSPA",
   "acatvfirth",
@@ -163,9 +154,6 @@ assocTest_offset_tests <- c(
   "skat_burden_robust",
   "skat_robust",
   "skato_robust",
-  "skat_burden_fwe",
-  "skat_fwe",
-  "skato_fwe",
   "acatvSPA",
   "acatvfirth"
 )

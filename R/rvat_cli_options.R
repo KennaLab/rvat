@@ -80,6 +80,11 @@ rvat_cli_methods <- list(
                         action = "store_true", 
                         default = NULL,
                         help = ""),
+
+  optparse::make_option(c("--writeVcf"), 
+                        action = "store_true", 
+                        default = NULL,
+                        help = ""),
   
   optparse::make_option(c("--assocTest"), 
                         action = "store_true", 
@@ -748,6 +753,25 @@ rvat_cli_parameters <- list(
                         type = "logical",
                         default = FALSE,
                         help = ""),
+
+  ## writeVcf --------------------------------------------------------------
+  optparse::make_option(c("--not-includeGeno"), 
+                        action = "store_true", 
+                        type = "logical",
+                        default = FALSE,
+                        help = ""),
+
+  optparse::make_option(c("--includeVarId"), 
+                        action = "store_true", 
+                        type = "logical",
+                        default = FALSE,
+                        help = ""),
+  optparse::make_option(c("--IID"), 
+              action = "store", 
+              type = "character",
+              default = NULL,
+              help = ""),
+  
   
   ## help
   optparse::make_option(c("--help"), 

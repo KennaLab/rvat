@@ -9,15 +9,14 @@ mergeAggDbs(object, output, overWrite = FALSE, verbose = TRUE)
 \arguments{
 \item{object}{an \code{\link{aggdbList}} object.}
 
-\item{output}{Output file name (output will be an aggdb).
-Defaults to \code{NULL}, in which case a data.frame will be returned.}
+\item{output}{Output file name (output will be an aggdb).}
 
-\item{overWrite}{Should existing output files be overwritten? Defaults to \code{TRUE}.}
+\item{overWrite}{Should existing output files be overwritten? Defaults to \code{FALSE}.}
 
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
-Merge aggdbs, this will generate a new \code{aggdb} including all aggregates across provided aggdbs
+Merge aggdbs, this will generate a new \code{aggdb} including all aggregates across provided aggdbs.
 }
 \examples{
 library(rvatData)
