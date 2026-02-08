@@ -173,10 +173,27 @@ test_that("assocTest-gdb works", {
     covar = paste0("PC", 1:4),
     test = "scoreSPA",
     verbose = FALSE,
-    append = TRUE,
     output = output_assoctest
   )
   test_from_file <- rvbResult(output_assoctest)
+  expect_equal(as.data.frame(test_output), as.data.frame(test_from_file))
+  
+  ## also check for singlevar
+  varset <- varSetFile(moderate_varsetfile)
+  output_assoctest <- withr::local_tempfile()
+  test_output <- assocTest(
+    gdb,
+    cohort = "pheno",
+    varSet = varset,
+    pheno = "pheno",
+    covar = paste0("PC", 1:4),
+    test = "scoreSPA",
+    singlevar = TRUE,
+    verbose = FALSE,
+    output = output_assoctest
+  )
+  test_from_file <- singlevarResult(output_assoctest)
+  expect_equal(as.data.frame(test_output), as.data.frame(test_from_file))
 })
 
 test_that("assocTest-gdb and assocTest-GT result in identical output", {
