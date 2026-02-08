@@ -640,22 +640,23 @@ setMethod("as.data.frame", signature = "varSet", definition = function(x) {
 #' @rdname buildVarSet-gdb
 #' @name buildVarSet-gdb
 #' @aliases buildVarSet,gdb-method
-#' @param object a [`gdb`] object.
+#' @param object A [`gdb`] object.
 #' @param varSetName Name to assign varSet grouping.
 #' This identifier column is used to allow for subsequent merging of multiple 
-#' varSet files for coordinated analysis of multiple variant filtering/weighting strategies
+#' varSet files for coordinated analysis of multiple variant filtering/weighting strategies.
 #' @param unitTable Table containing aggregation unit mappings.
 #' @param unitName Field to utilize for aggregation unit names.
 #' @param output Output file name (output will be gz compressed text).
+#' If no output file is specified, a [`varSetList`] object will be returned directly.
 #' @param intersection Additional tables to filter through intersection 
 #' (i.e. variants absent from intersection tables will not appear in output). 
-#' Multiple tables should be ',' delimited.
+#' Can be a character vector or a comma-delimited string.
 #' @param where An SQL compliant where clause to filter output; 
 #' e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
-#' @param weightName Field name for desired variant weighting, 
-#' must be a column within unitTable or other intersection table. 
+#' @param weightName Field name for desired variant weighting.
+#' Must be a column within `unitTable` or other `intersection` table. 
 #' Default value of 1 is equivalent to no weighting.
-#' @param memlimit Chunk size used for processing rows.
+#' @param memlimit Chunk size used for processing rows. Defaults to 1000.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #'
 #' @example inst/examples/example-buildVarSet-gdb.R
@@ -909,10 +910,10 @@ setMethod(
 #' @rdname buildVarSet-data.frame
 #' @name buildVarSet-data.frame
 #' @aliases buildVarSet,data.frame-method
-#' @param object A data.frame containing variant annotations
+#' @param object A data.frame containing variant annotations.
 #' Must contain a 'VAR_id' column, and columns matching `unitName` and `fields`.
 #' @param unitName Field to utilize for aggregation unit names.
-#' @param fields Which fields in the data.frame to use as variant annotations.
+#' @param fields Character vector of fields in the data.frame to use as variant annotations.
 #' These fields can be 1) an indicator (0,1 or FALSE/TRUE) that flags variants with the annotation,
 #' e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function;
 #' or 2) variant weights, e.g. a column named 'CADD' that contains CADD scores.

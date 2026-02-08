@@ -19,9 +19,11 @@ uploadCohort(
 
 \item{name}{Name to assign to cohort.}
 
-\item{value}{Input data frame or a valid file path. Must contain an 'IID' column matching to SM table and a 'sex' column (0=missing,1=male,2=female).}
+\item{value}{Input data frame or a valid file path.
+Must contain an 'IID' column matching to SM table and a 'sex' column (0=missing,1=male,2=female).}
 
-\item{sep}{Field delimiter (applies only when value is a text file). Defaults to \verb{\\\\t}.}
+\item{sep}{Field delimiter (applies only when value is a text file).
+Defaults to \verb{\\\\t}.}
 
 \item{overWrite}{Flag indicating whether an existing cohort table with the same \code{name} should be overwritten.
 Defaults to \code{FALSE}.}

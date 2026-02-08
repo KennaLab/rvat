@@ -1,3 +1,63 @@
+#'  Aggregate genotypes into a single (burden) score for each individual.
+#' 
+#'  Returns an aggregate of genotypes for each individual. 
+#'  Note, the [`gdb`] implementation is described here, `aggregate` can also be run directly on a 
+#'  [`genoMatrix`] object as described in the [`genoMatrix`] documentation.
+#'  The specified genetic model, weights, MAF-weighting are taken into account when aggregating.
+#'  Aggregates are written to disk in the [`aggdb`] format, which can be used as input
+#'  for [`assocTest-aggdb`] to perform gene set burden analyses.
+#' 
+#' @param x A [`gdb`] object.
+#' @param cohort If a valid cohort name is provided, 
+#' the uploaded data for this cohort is used to filter and annotate the genotypes.
+#' If not specified, all samples in the gdb will be loaded.
+#' @param varSet A [`varSetList`] or [`varSetFile`] object.
+#' @param VAR_id A vector of VAR_ids, alternatively the varSet parameter can be specified.
+#' The `memlimit` argument controls how many variants to aggregate at a time.
+#' @param pheno colData field to test as response variable, although not used within this method,
+#' this can be useful to filter samples which have missing data for the response variable.
+#' @param memlimit Maximum number of variants to load at once (if `VAR_id` is specified).
+#' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
+#' Defaults to `allelic`.
+#' @param imputeMethod Which imputation method to apply? ('meanImpute' or 'missingToRef').
+#' Defaults to `meanImpute`.
+#' @param MAFweights MAF weighting method. 
+#' Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.
+#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
+#' Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
+#' If not specified, the genome build in the [`gdb`] will be used if available 
+#' (included if the `genomeBuild` parameter was set in [`buildGdb`]).
+#' Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, 
+#' then all variants are assigned the default ploidy of "diploid".
+#' @param keep Vector of sample IDs to keep. 
+#' Defaults to `NULL`, in which case all samples are kept.
+#' @param output Output file path for results.
+#' Defaults to `NULL`, in which case results are not written.
+#' @param signif Number of significant digits to store. Defaults to 6.
+#' @param minCallrateVar Minimum genotype rate for variant retention.
+#' @param maxCallrateVar Maximum genotype rate for variant retention.
+#' @param minCallrateSM Minimum genotype rate for sample retention.
+#' @param maxCallrateSM Maximum genotype rate for sample retention.
+#' @param minMAF Minimum minor allele frequency for variant retention.
+#' @param maxMAF Maximum minor allele frequency for variant retention.
+#' @param minMAC Minimum minor allele count for variant retention.
+#' @param maxMAC Maximum minor allele count for variant retention.
+#' @param minCarriers Minimum carrier count for variant retention.
+#' @param maxCarriers Maximum carrier count for variant retention.
+#' @param minCarrierFreq Minimum carrier frequency for variant retention.
+#' @param maxCarrierFreq Maximum carrier frequency for variant retention.
+#' @param overWrite Should the output file be overwritten if it already exists? 
+#' Defaults to `FALSE`.
+#' @param verbose Should the function be verbose? (TRUE/FALSE). 
+#' Defaults to `TRUE`.
+#' @param strict Should strict checks be performed? 
+#' Defaults to `TRUE`. Strict tests currently includes
+#' checking whether supplied varSetFile/varSetList was generated from the 
+#' same gdb as specified in `object`.
+#' 
+#' @example inst/examples/example-gdb-aggregate.R
+#'
+#' @export
 setMethod(
   "aggregate",
   signature = signature(x = "gdb"),
@@ -58,7 +118,7 @@ setMethod(
     )
     on.exit(close(aggdb), add = TRUE)
 
-    # check if varSet doesn't contain duplicated unitss
+    # check if varSet doesn't contain duplicated units
     units <- listUnits(varSet)
     # varSet shouldn't contain multiple annotations
     # (which would result in duplicated units)

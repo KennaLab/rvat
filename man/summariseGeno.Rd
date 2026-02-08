@@ -4,16 +4,16 @@
 \alias{summariseGeno}
 \title{Return variant summaries}
 \arguments{
-\item{object}{a \code{\link{gdb}} object.}
+\item{object}{A \code{\link{gdb}} object.}
 
 \item{cohort}{If a valid cohort name is provided,
-then the uploaded data for this cohort is used to filter and annotate the genotypes
+then the uploaded data for this cohort is used to filter and annotate the genotypes.
 If not specified, all samples in the gdb will be loaded.}
 
 \item{varSet}{a \code{\link{varSetList}} or \code{\link{varSetFile}} object.
 Alternatively the VAR_id parameter can be specified.}
 
-\item{VAR_id}{A list of VAR_ids, alternatively the varSet parameter can be specified.
+\item{VAR_id}{Vector of VAR_ids, alternatively the varSet parameter can be specified.
 The \code{memlimit} argument controls how many variants to analyze at a time.}
 
 \item{pheno}{colData field to test as response variable, although not used within this method,
@@ -21,18 +21,18 @@ this can be useful to filter samples which have missing data for the response va
 
 \item{memlimit}{Maximum number of variants to load at once (if \code{VAR_id} is specified).}
 
-\item{geneticModel}{Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
-Defaults to \code{allelic}.}
+\item{geneticModel}{Genetic model to apply ('allelic', 'recessive' or 'dominant').
+Defaults to 'allelic'.}
 
 \item{checkPloidy}{Version of the human genome to use when assigning variant ploidy
 (diploid, XnonPAR, YnonPAR).
-Accepted inputs are GRCh37, hg19, GRCh38, hg38.
+Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
 If not specified, the genome build in the \code{\link{gdb}} will be used,
 if available (included if the \code{genomeBuild} parameter was set in \code{\link{buildGdb}}).
 Otherwise, if the genome build is not included in the gdb metadata,
 and no value is provided, then all variants are assigned the default ploidy of "diploid"}
 
-\item{keep}{vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
+\item{keep}{Vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
 
 \item{output}{Output file path for results.
 Defaults to \code{NULL}, in which case results are not written.}

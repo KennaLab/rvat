@@ -9,8 +9,6 @@
   null,
   covar,
   continuous,
-  output = NULL,
-  append = FALSE,
   maxitFirth = 1000L,
   nResampling = 1000L,
   returnDF = FALSE
@@ -333,109 +331,6 @@
     }
   }
 
-  # skat with resampling for fwe estimation
-  if (sum(c("skat_burden_fwe", "skat_fwe", "skato_fwe") %in% test) > 0) {
-    skat.null <- SKAT::SKAT_Null_Model(
-      null,
-      data = colData(GT),
-      out_type = out_type,
-      n.Resampling = nResampling
-    )
-
-    if ("skat_burden_fwe" %in% test) {
-      tryCatch(
-        {
-          if (continuous) {
-            fit <- SKAT::SKAT(
-              t(assays(GT)$GT),
-              skat.null,
-              r.corr = 1,
-              impute.method = "fixed",
-              weights = rowData(GT)$w,
-              missing_cutoff = 1
-            )
-          } else {
-            fit <- SKAT::SKATBinary(
-              t(assays(GT)$GT),
-              skat.null,
-              method = "Burden",
-              impute.method = "fixed",
-              weights = rowData(GT)$w,
-              missing_cutoff = 1
-            )
-          }
-
-          P["skat_burden_fwe"] <- SKAT::Get_Resampling_Pvalue(fit)$p.value
-        },
-        error = function(e) {
-          message(sprintf("Failed test '%s'\n%s", "skat_burden_fwe", e))
-        }
-      )
-    }
-
-    if ("skat_fwe" %in% test) {
-      tryCatch(
-        {
-          if (continuous) {
-            fit <- SKAT::SKAT(
-              t(assays(GT)$GT),
-              skat.null,
-              r.corr = 0,
-              impute.method = "fixed",
-              weights = rowData(GT)$w,
-              missing_cutoff = 1
-            )
-          } else {
-            fit <- SKAT::SKATBinary(
-              t(assays(GT)$GT),
-              skat.null,
-              method = "SKAT",
-              impute.method = "fixed",
-              weights = rowData(GT)$w,
-              missing_cutoff = 1
-            )
-          }
-
-          P["skat_fwe"] <- SKAT::Get_Resampling_Pvalue(fit)$p.value
-        },
-        error = function(e) {
-          message(sprintf("Failed test '%s'\n%s", "skat_fwe", e))
-        }
-      )
-    }
-
-    if ("skato_fwe" %in% test) {
-      tryCatch(
-        {
-          if (continuous) {
-            fit <- SKAT::SKAT(
-              t(assays(GT)$GT),
-              skat.null,
-              method = "SKATO",
-              impute.method = "fixed",
-              weights = rowData(GT)$w,
-              missing_cutoff = 1
-            )
-          } else {
-            fit <- SKAT::SKATBinary(
-              t(assays(GT)$GT),
-              skat.null,
-              method = "SKATO",
-              impute.method = "fixed",
-              weights = rowData(GT)$w,
-              missing_cutoff = 1
-            )
-          }
-
-          P["skato_fwe"] <- SKAT::Get_Resampling_Pvalue(fit)$p.value
-        },
-        error = function(e) {
-          message(sprintf("Failed test '%s'\n%s", "skato_fwe", e))
-        }
-      )
-    }
-  }
-
   if (sum(c("acatv", "acatvSPA", "acatvfirth") %in% test) > 0) {
     if ("acatv" %in% test) {
       tryCatch(
@@ -548,8 +443,6 @@
   null,
   covar,
   continuous,
-  output = NULL,
-  append = FALSE,
   returnDF = FALSE,
   maxitFirth = 1000L,
   verbose = TRUE

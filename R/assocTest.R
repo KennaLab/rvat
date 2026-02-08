@@ -10,8 +10,7 @@
 #' can either be binary (0/1) or continuous. If the response variable is continuous set
 #' `continuous` to `TRUE`.
 #' @param test Vector of statistical tests to run,
-#' options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_fwe,skat_burden_fwe,
-#' skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA. 
+#' options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth. 
 #' See [`assocTest`] for details.
 #' @param name Optional name for the analysis, defaults to "none".
 #' @param continuous Is the response variable continuous? (TRUE/FALSE). Defaults to `FALSE`.
@@ -180,11 +179,9 @@ setMethod(
       continuous = continuous,
       singlevar = singlevar,
       offset = offset,
-      append = append,
       imputeMethod = imputeMethod,
       maxitFirth = maxitFirth,
       keep = keep,
-      output = output,
       returnDF = returnDF,
       methodResampling = methodResampling,
       resamplingMatrix = resamplingMatrix,
@@ -231,11 +228,9 @@ setMethod(
   continuous,
   singlevar,
   offset,
-  append,
   imputeMethod,
   maxitFirth,
   keep,
-  output,
   returnDF,
   methodResampling,
   resamplingMatrix,
@@ -337,8 +332,6 @@ setMethod(
         offset = offset,
         imputeMethod = imputeMethod,
         test_resampling = test_resampling,
-        output = output,
-        append = append,
         minCarriers = minCarriers,
         maxitFirth = maxitFirth,
         returnDF = returnDF,
@@ -367,8 +360,6 @@ setMethod(
   offset,
   imputeMethod,
   test_resampling,
-  output,
-  append,
   minCarriers,
   maxitFirth,
   returnDF,
@@ -433,8 +424,6 @@ setMethod(
         name = name,
         test = test,
         continuous = continuous,
-        output = output,
-        append = append,
         maxitFirth = maxitFirth,
         returnDF = returnDF,
         verbose = verbose
@@ -507,8 +496,6 @@ setMethod(
         test = test,
         test_resampling = test_resampling,
         continuous = continuous,
-        output = output,
-        append = append,
         nResampling = nResampling,
         maxitFirth = maxitFirth,
         returnDF = returnDF,
@@ -536,8 +523,6 @@ setMethod(
   test,
   test_resampling,
   continuous,
-  output,
-  append,
   nResampling,
   maxitFirth,
   returnDF,
@@ -634,8 +619,6 @@ setMethod(
       null = null,
       covar = task_covar,
       continuous = continuous,
-      output = output,
-      append = append,
       nResampling = nResampling,
       maxitFirth = maxitFirth,
       returnDF = returnDF
@@ -677,8 +660,6 @@ setMethod(
   name,
   test,
   continuous,
-  output,
-  append,
   maxitFirth,
   returnDF,
   verbose
@@ -772,8 +753,6 @@ setMethod(
       null = null,
       covar = task_covar,
       continuous = continuous,
-      output = output,
-      append = append,
       returnDF = returnDF,
       maxitFirth = maxitFirth,
       verbose = verbose

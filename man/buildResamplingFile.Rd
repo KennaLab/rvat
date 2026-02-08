@@ -13,7 +13,7 @@ buildResamplingFile(
 )
 }
 \arguments{
-\item{nSamples}{Number of samples}
+\item{nSamples}{Number of samples.}
 
 \item{nResampling}{Number of resamplings. Defaults to 1000.}
 

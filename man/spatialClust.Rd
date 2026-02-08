@@ -29,7 +29,7 @@ spatialClust(
 
 \item{varSetName}{Name to assign varSet grouping.
 This identifier column is used to allow for subsequent merging of multiple varSet files
-for coordinated analysis of multiple variant filtering/weighting strategies)}
+for coordinated analysis of multiple variant filtering/weighting strategies.}
 
 \item{unitTable}{Table containing aggregation unit mappings.}
 
@@ -45,21 +45,22 @@ for coordinated analysis of multiple variant filtering/weighting strategies)}
 Multiple tables should be ',' delimited.}
 
 \item{where}{An SQL compliant where clause to filter output;
-eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
+e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".}
 
-\item{weightName}{Field name for desired variant weighting,
-must be a column within unitTable or other intersection table.
+\item{weightName}{Field name for desired variant weighting.
+Must be a column within unitTable or other intersection table.
 Default value of 1 is equivalent to no weighting.}
 
 \item{posField}{Column name to take as variants position.
-Default is 'POS' which typically corresponds to genomics position.
+Default is 'POS' which typically corresponds to genomic position.
 Can be reset to use CDS or other coordinates. "HGVSc" is a recognized identifier and
 CDS coordinates will be extracted automatically.}
 
 \item{minTry}{Minimum number of variants in varset to perform clustering on.
-If number of variants < minTry, all variants will be returned as a single cluster.}
+If number of variants < minTry, all variants will be returned as a single cluster.
+Defaults to 5.}
 
-\item{memlimit}{Maximum number of varsets to load at a time. Defaults to 1000.}
+\item{memlimit}{Chunk size used for processing rows. Defaults to 1000.}
 
 \item{warning}{Raise a warning when clusters can't be generated? Defaults to \code{TRUE}.}
 }

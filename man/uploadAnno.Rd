@@ -47,7 +47,11 @@ Defaults to \code{FALSE}.}
 \item{verbose}{Should the method be verbose? Defaults to \code{TRUE}.}
 }
 \description{
-Function to upload variant annotation data into gdb. Assignment of VAR_id is performed automatically through mapping to the var table, but can be skipped using the skipRemap option. Indexing of the imported table based on VAR_id is also automated but can also be skipped, this could be desirable if it is intended to concatenate many separately generated gdb as otherwise intermediate indexes are generated unecessarily.
+Function to upload variant annotation data into gdb.
+Assignment of VAR_id is performed automatically through mapping to the var table,
+but can be skipped using the skipRemap option.
+Indexing of the imported table based on VAR_id is also automated but can also be skipped,
+this could be desirable if it is intended to concatenate many separately generated gdb as otherwise intermediate indexes are generated unnecessarily.
 }
 \examples{
 library(rvatData)

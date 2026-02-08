@@ -27,9 +27,9 @@
 \arguments{
 \item{object}{an \code{\link{aggdb}} object (generated using the \code{\link{aggregate}} method).}
 
-\item{pheno}{field to test as response variable, the response variable
-can either be binary (0/1) or continuous. If the response variable is continuous,
-set \code{continuous} to \code{TRUE}.}
+\item{pheno}{field to test as response variable.
+The response variable can either be binary (0/1) or continuous.
+If the response variable is continuous, set \code{continuous} to \code{TRUE}.}
 
 \item{test}{Vector of statistical tests to run,
 options include firth,glm,lm, and nbinom.}
