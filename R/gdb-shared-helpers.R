@@ -335,7 +335,7 @@
     existing_tables <- listCohort(gdb)$name
   } else {
     stop(
-      "Invalid 'type' specified.",
+      "Invalid 'type' specified. ",
       "Must be 'anno' or 'cohort'.",
       call. = FALSE
     )

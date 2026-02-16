@@ -406,6 +406,7 @@ setMethod(
       maxCarriers = maxCarriers,
       minCarrierFreq = minCarrierFreq,
       maxCarrierFreq = maxCarrierFreq,
+      geneticModel = geneticModel,
       pheno = pheno,
       keep = keep,
       return_value_if_empty = NULL,
@@ -464,6 +465,7 @@ setMethod(
   maxCarriers,
   minCarrierFreq,
   maxCarrierFreq,
+  geneticModel,
   pheno,
   keep,
   return_value_if_empty,
@@ -501,6 +503,7 @@ setMethod(
     maxCarriers = maxCarriers,
     minCarrierFreq = minCarrierFreq,
     maxCarrierFreq = maxCarrierFreq,
+    geneticModel = geneticModel,
     returnGT = FALSE,
     filterWeights = TRUE,
     verbose = verbose

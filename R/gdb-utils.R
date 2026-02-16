@@ -69,13 +69,13 @@ concatGdb <- function(
       message(sprintf("Merging '%s'", gdb_i))
     }
     DBI::dbExecute(gdb, "attach :src as src", params = list(src = gdb_i))
-    DBI::dbExecute(gdb, "insert into var select * from src.var")
-    DBI::dbExecute(gdb, "insert into dosage select * from src.dosage")
-    versions[gdb_i] <- dbGetQuery(
+    DBI::dbExecute(gdb, "insert into var select * from src.var order by VAR_id")
+    DBI::dbExecute(gdb, "insert into dosage select * from src.dosage order by VAR_id")
+    versions[gdb_i] <- DBI::dbGetQuery(
       gdb,
       "select * from src.meta where name = 'rvatVersion'"
     )$value
-    builds[gdb_i] <- dbGetQuery(
+    builds[gdb_i] <- DBI::dbGetQuery(
       gdb,
       "select * from src.meta where name = 'genomeBuild'"
     )$value
@@ -88,7 +88,7 @@ concatGdb <- function(
   if (length(version) > 1L) {
     warning(
       "Not all input gdbs were created with the same RVAT version, ",
-      "we recommend generating the input gdbs with the same RVAT version.",
+      "we recommend generating the input gdbs with the same RVAT version. ",
       "The version of the first input gdb will be recorded in the output gdb.",
       call. = FALSE
     )
@@ -210,6 +210,7 @@ concatGdb <- function(
         )
       }
     }
+    close(gdb_i)
   }
 
   invisible(NULL)
@@ -355,6 +356,7 @@ setMethod(
 
     # generate ranged varinfo and meta table (not copied from source)
     gdb <- gdb(output)
+    on.exit(close(gdb), add = TRUE)
 
     ## ranged varinfo
     addRangedVarinfo(gdb, overwrite = TRUE, verbose = verbose)
