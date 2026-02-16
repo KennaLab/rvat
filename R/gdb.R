@@ -213,6 +213,10 @@ setMethod(
     )
     rownames(queries) <- NULL
 
+    if (is.null(queries) || nrow(queries) == 0L) {
+      return(character(0))
+    }
+
     # use GRanges to identify overlaps taking into account variants where length(REF) > 1
     gr <- GenomicRanges::GRanges(
       seqnames = queries$CHROM,
