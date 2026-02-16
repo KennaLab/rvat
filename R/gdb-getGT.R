@@ -47,9 +47,15 @@ setMethod(
     rm(handle_vars)
 
     # retrieve and process cohort info
+    cohort_name <- if (!is.null(cohort) && !is.character(cohort)) {
+      deparse(substitute(cohort))
+    } else {
+      NULL
+    }
     handle_cohort <- .getGT_handle_cohort(
       object = object,
       cohort = cohort,
+      cohort_name = cohort_name,
       verbose = verbose
     )
     SM <- handle_cohort$SM
@@ -117,15 +123,39 @@ setMethod(
 
 .getGT_validate_input <- function(args) {
   # varSet and ranges parameters are checked in .getGT_handle_vars
-  # ranges parameter is checked in
+  # ranges parameter is checked in extractRanges
   # Check if VAR_id is not NULL and is not a numeric or character vector
   .gdb_check_varid(args[["VAR_id"]])
-  check_wrapper(check_character, args, "anno", length_equal = 1L, allow_null = TRUE)
+  check_wrapper(
+    check_character,
+    args,
+    "anno",
+    length_equal = 1L,
+    allow_null = TRUE
+  )
   check_wrapper(check_character, args, "annoFields", allow_null = TRUE)
   check_wrapper(check_bool, args, "includeVarInfo", length_equal = 1L)
-  check_wrapper(check_character, args, "checkPloidy", allow_null = TRUE, length_equal = 1L)
-  check_wrapper(check_character, args, "varSetName", allow_null = TRUE, length_equal = 1L)
-  check_wrapper(check_character, args, "unit", allow_null = TRUE, length_equal = 1L)
+  check_wrapper(
+    check_character,
+    args,
+    "checkPloidy",
+    allow_null = TRUE,
+    length_equal = 1L
+  )
+  check_wrapper(
+    check_character,
+    args,
+    "varSetName",
+    allow_null = TRUE,
+    length_equal = 1L
+  )
+  check_wrapper(
+    check_character,
+    args,
+    "unit",
+    allow_null = TRUE,
+    length_equal = 1L
+  )
   check_wrapper(check_number_whole, args, "padding", length_equal = 1L)
   check_positive(args[["padding"]], arg = "padding")
   check_wrapper(check_bool, args, "verbose", length_equal = 1L)
@@ -220,7 +250,7 @@ setMethod(
   } else if (is(varSet, "varSetList") && length(varSet) > 1L) {
     stop(
       "A varSetList with >1 varSets is supplied. ",
-      "Only 1 varSet can be supplied to `getGT()`, use `collapseVarSetList`",
+      "Only 1 varSet can be supplied to `getGT()`, use `collapseVarSetList` ",
       "to merge the records of a varSetList",
       call. = FALSE
     )
@@ -249,6 +279,7 @@ setMethod(
 .getGT_handle_cohort <- function(
   object,
   cohort,
+  cohort_name,
   verbose
 ) {
   if (is.null(cohort)) {
@@ -266,7 +297,7 @@ setMethod(
     if (is(cohort, "DFrame") && "name" %in% names(metadata(cohort))) {
       cohort_name <- metadata(cohort)$name
     } else {
-      cohort_name <- deparse(substitute(cohort))
+      cohort_name <- if (!is.null(cohort_name)) cohort_name else "cohort"
     }
 
     # convert DFrame to data.frame
@@ -309,13 +340,13 @@ setMethod(
     sprintf(
       paste0(
         "select VAR_id, 'diploid' as ploidy, CHROM, POS, REF ",
-        "from var where VAR_id in ('%s');"
+        "from var where VAR_id in (%s);"
       ),
-      paste(VAR_id, collapse = "','")
+      paste(as.integer(VAR_id), collapse = ",")
     )
   )
 
-  # return early if varInfo is empy
+  # return early if varInfo is empty
   if (nrow(varInfo) == 0L) {
     return(data.frame(
       VAR_id = character(),
@@ -325,7 +356,7 @@ setMethod(
   }
 
   # convert varinfo to genomicRanges
-  varInfo$end <- varInfo$POS + nchar(varInfo$REF)
+  varInfo$end <- varInfo$POS + nchar(varInfo$REF) - 1L
   varInfo <- makeGRangesFromDataFrame(
     varInfo,
     seqnames.field = "CHROM",
@@ -418,7 +449,7 @@ setMethod(
   annoFields
 ) {
   if (is.null(VAR_id)) {
-    VAR_id <- ""
+    VAR_id <- integer(0)
   }
   if (includeVarInfo) {
     # extract var table

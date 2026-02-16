@@ -515,7 +515,7 @@ setMethod(
     cohort$sex <- suppressWarnings(as.numeric(as.character(cohort$sex)))
     if (any(is.na(cohort$sex) & !is.na(original))) {
       warning(
-        "`sex` should be coded as 0=unknown, 1=male, 2=female.",
+        "`sex` should be coded as 0=unknown, 1=male, 2=female. ",
         "Non-numeric values in 'sex' column were coerced to NA. ",
         call. = FALSE
       )

@@ -116,7 +116,6 @@ setMethod(
     check_character,
     args,
     "keep",
-    length_equal = 1L,
     allow_null = TRUE
   )
   check_wrapper(
@@ -271,6 +270,7 @@ setMethod(
       maxCarriers = maxCarriers,
       minCarrierFreq = minCarrierFreq,
       maxCarrierFreq = maxCarrierFreq,
+      geneticModel = geneticModel,
       pheno = pheno,
       keep = keep,
       return_value_if_empty = NULL,
