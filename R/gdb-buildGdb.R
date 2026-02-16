@@ -45,6 +45,7 @@ buildGdb <- function(
 
   # initialize gdb
   mygdb <- gdb_init(output)
+  on.exit(close(mygdb), add = TRUE)
 
   # create schema
   if (verbose) {
@@ -196,7 +197,7 @@ setMethod(
 
             # write genotype data
             gtia <- gt
-            for (carrier in 1:carrierN) {
+            for (carrier in seq_len(carrierN)) {
               gtia[carrierIndex[carrier]] <- paste(
                 ifelse(carrierGt[[carrier]] == as.character(ai), "1", "0"),
                 collapse = "/"
@@ -303,7 +304,7 @@ setMethod(
     if ("var_ranges" %in% DBI::dbListTables(object)) {
       if (!overwrite) {
         stop(
-          "'var_ranges' is already present in the gdb.",
+          "'var_ranges' is already present in the gdb. ",
           "Set `overwrite = TRUE` to overwrite.",
           call. = FALSE
         )
