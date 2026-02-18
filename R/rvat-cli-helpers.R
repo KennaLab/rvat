@@ -1,4 +1,4 @@
-#' @include rvat_cli_options.R
+#' @include rvat-cli-options.R
 
 # collect & parse command-line args
 collect_args <- function() {
@@ -54,7 +54,7 @@ check_required_args <- function(args, required,required_one_of = NULL, func_name
 }
 
 # check arguments
-check_args <- function(func_name, args, help, required, expected, required_one_of = NULL) {
+check_args <- function(func_name, args, required, expected, required_one_of = NULL) {
   check_required_args(args = args, required = required, required_one_of = required_one_of, func_name = func_name)
   check_expected_args(args = args, expected = expected, func_name = func_name)
 }

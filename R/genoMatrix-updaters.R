@@ -17,7 +17,8 @@ setMethod(
 
     # variants to flip
     flip <- getAF(object) > 0.5
-
+    flip[is.na(flip)] <- FALSE
+    
     # flip effect alleles in variant info
     if (all(c("effectAllele", "otherAllele") %in% colnames(rowData(object)))) {
       effectAllele <- ifelse(
@@ -348,7 +349,7 @@ setMethod(
       # early return if genoMatrix is empty
       if (nrow(object) == 0L) {
         warning(
-          "Annotations can't be added to an empty genoMatrix.",
+          "Annotations can't be added to an empty genoMatrix. ",
           "The input genoMatrix is returned unchanged.",
           call. = FALSE
         )

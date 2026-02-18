@@ -352,7 +352,7 @@ setMethod(
     pheno_is_binary <- .check_pheno_binary(cohort_df, pheno)
     if (!all(pheno_is_binary)) {
       stop(
-        "Binary phenotypes should be coded 0,1.",
+        "Binary phenotypes should be coded 0,1. ",
         "If the phenotype is continuous, set `continuous = TRUE`",
         call. = FALSE
       )
@@ -739,7 +739,7 @@ setMethod(
   check_binary <- vapply(
     pheno,
     FUN = function(phen) {
-      all(cohort[[phen]] %in% c(0, 1), na.rm = TRUE)
+      all(cohort[[phen]] %in% c(0, 1, NA), na.rm = TRUE)
     },
     FUN.VALUE = logical(1L),
     USE.NAMES = FALSE
@@ -787,7 +787,7 @@ setMethod(
       sum(cohort[, pheno] == 0) < 2L ||
       sum(cohort$aggregate > 0) < 2L
   ) {
-    test <- c()
+    test <- vector(mode = "character", length = 0L)
   }
 
   if (sum(cohort$aggregate > 0.0) < 2L) {
@@ -895,7 +895,6 @@ setMethod(
 
 
 .rvb_tests_rvb_cont_aggregate <- function(
-  GT,
   cohort,
   results,
   test,

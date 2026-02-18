@@ -31,7 +31,7 @@ Provide a valid function call for detailed help.\n%s",
 
   # return help message if --help argument is specified or a function is called
   # without arguments
-  check_help(args = args_raw)
+  check_help(args_raw = args_raw)
 
   # check verbosity
   if (!args[["quiet"]] || "verbose" %in% args_raw) verbose <- TRUE else
@@ -56,7 +56,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "buildGdb",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -80,7 +79,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "concatGdb",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -102,12 +100,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "subsetGdb",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
 
     if (is.null(args[["VAR_id"]])) {
       VAR_id <- NULL
@@ -117,7 +115,7 @@ Provide a valid function call for detailed help.\n%s",
     if (is.null(args[["tables"]])) {
       tables <- NULL
     } else {
-      tables <- unlist(strsplit(args[["tables"]], split = ","))
+      tables <- unlist(strsplit(args[["tables"]], split = ",", fixed = TRUE))
     }
 
     subsetGdb(
@@ -140,12 +138,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "uploadAnno",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     uploadAnno(
       object = gdb,
       name = args[["name"]],
@@ -168,12 +166,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "uploadCohort",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     uploadCohort(
       gdb,
       name = args[["name"]],
@@ -191,12 +189,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "listAnno",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     listAnno(gdb)
   }
 
@@ -207,12 +205,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "listCohort",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     listCohort(gdb)
   }
 
@@ -223,12 +221,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "dropTable",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     dropTable(
       object = gdb,
       name = args[["name"]],
@@ -243,20 +241,20 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "mapVariants",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     if (!is.null(args[["fields"]])) {
-      fields <- unlist(strsplit(args[["fields"]], split = ","))
+      fields <- unlist(strsplit(args[["fields"]], split = ",", fixed = TRUE))
     } else {
       fields <- NULL
     }
 
     if (length(args[["bedCols"]]) > 0) {
-      bedCols <- unlist(strsplit(args[["bedCols"]], split = ","))
+      bedCols <- unlist(strsplit(args[["bedCols"]], split = ",", fixed = TRUE))
     } else {
       bedCols <- args[["bedCols"]]
     }
@@ -289,12 +287,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "buildVarSet",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     buildVarSet(
       object = gdb,
       varSetName = args[["varSetName"]],
@@ -324,17 +322,18 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "spatialClust",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     windowSize <- as.numeric(unlist(strsplit(
       args[["windowSize"]],
-      split = ","
+      split = ",",
+      fixed = TRUE
     )))
-    overlap <- as.numeric(unlist(strsplit(args[["overlap"]], split = ",")))
+    overlap <- as.numeric(unlist(strsplit(args[["overlap"]], split = ",", fixed = TRUE)))
 
     spatialClust(
       object = gdb,
@@ -365,12 +364,12 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "summariseGeno",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     if (!is.null(args[["varSet"]])) varSet <- varSetFile(args[["varSet"]]) else
       varSet <- NULL
     if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
@@ -385,7 +384,7 @@ Provide a valid function call for detailed help.\n%s",
       VAR_id = VAR_id,
       pheno = args[["pheno"]],
       memlimit = args[["memlimit"]],
-      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",")),
+      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",", fixed = TRUE)),
       checkPloidy = args[["checkPloidy"]],
       keep = keep,
       output = args[["output"]],
@@ -421,13 +420,13 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "aggregate",
       args = args_raw,
-      help = help,
       required = required,
       required_one_of = required_one_of,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     if (!is.null(args[["varSet"]])) varSet <- varSetFile(args[["varSet"]]) else
       varSet <- NULL
     if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
@@ -444,9 +443,9 @@ Provide a valid function call for detailed help.\n%s",
       VAR_id = VAR_id,
       pheno = args[["pheno"]],
       memlimit = args[["memlimit"]],
-      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",")),
+      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",", fixed = TRUE)),
       imputeMethod = imputeMethod,
-      MAFweights = unlist(strsplit(args[["MAFweights"]], split = ",")),
+      MAFweights = unlist(strsplit(args[["MAFweights"]], split = ",", fixed = TRUE)),
       checkPloidy = args[["checkPloidy"]],
       keep = keep,
       output = args[["output"]],
@@ -481,7 +480,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "mergeAggDbs",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -514,7 +512,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "collapseAggDbs",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -549,13 +546,13 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "assocTest",
       args = args_raw,
-      help = help,
       required = required,
       required_one_of = required_one_of,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     if (!is.null(args[["varSet"]])) varSet <- varSetFile(args[["varSet"]]) else
       varSet <- NULL
     if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
@@ -563,8 +560,8 @@ Provide a valid function call for detailed help.\n%s",
     if (!is.null(args[["name"]])) name <- args[["name"]] else name <- "none"
     if (!is.null(args[["covar"]])) {
       covar <- lapply(
-        unlist(strsplit(args[["covar"]], split = "/")),
-        FUN = function(x) unlist(strsplit(x, split = ","))
+        unlist(strsplit(args[["covar"]], split = "/", fixed = TRUE)),
+        FUN = function(x) unlist(strsplit(x, split = ",", fixed = TRUE))
       )
     } else {
       covar <- NULL
@@ -580,8 +577,8 @@ Provide a valid function call for detailed help.\n%s",
 
     assocTest(
       object = gdb,
-      pheno = unlist(strsplit(args[["pheno"]], split = ",")),
-      test = unlist(strsplit(args[["test"]], split = ",")),
+      pheno = unlist(strsplit(args[["pheno"]], split = ",", fixed = TRUE)),
+      test = unlist(strsplit(args[["test"]], split = ",", fixed = TRUE)),
       cohort = args[["cohort"]],
       varSet = varSet,
       VAR_id = VAR_id,
@@ -590,9 +587,9 @@ Provide a valid function call for detailed help.\n%s",
       singlevar = args[["singlevar"]],
       covar = covar,
       offset = args[["offset"]],
-      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",")),
+      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",", fixed = TRUE)),
       imputeMethod = args[["imputeMethod"]],
-      MAFweights = unlist(strsplit(args[["MAFweights"]], split = ",")),
+      MAFweights = unlist(strsplit(args[["MAFweights"]], split = ",", fixed = TRUE)),
       maxitFirth = args[["maxitFirth"]],
       checkPloidy = args[["checkPloidy"]],
       keep = keep,
@@ -633,18 +630,19 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "assocTest",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
     genesetfile <- geneSetFile(args[["geneSet"]])
     aggdb <- aggdb(args[["aggdb"]])
+    on.exit(close(aggdb), add = TRUE)
     if (!is.null(args[["covar"]])) {
       covar <- lapply(
-        unlist(strsplit(args[["covar"]], split = "/")),
-        FUN = function(x) unlist(strsplit(x, split = ","))
+        unlist(strsplit(args[["covar"]], split = "/", fixed = TRUE)),
+        FUN = function(x) unlist(strsplit(x, split = ",", fixed = TRUE))
       )
     } else {
       covar <- NULL
@@ -660,8 +658,8 @@ Provide a valid function call for detailed help.\n%s",
 
     assocTest(
       object = aggdb,
-      pheno = unlist(strsplit(args[["pheno"]], split = ",")),
-      test = unlist(strsplit(args[["test"]], split = ",")),
+      pheno = unlist(strsplit(args[["pheno"]], split = ",", fixed = TRUE)),
+      test = unlist(strsplit(args[["test"]], split = ",", fixed = TRUE)),
       geneSet = genesetfile,
       gdb = gdb,
       cohort = args[["cohort"]],
@@ -685,7 +683,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "buildResamplingFile",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -711,7 +708,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "buildGeneSet",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -739,13 +735,13 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "buildCorMatrix",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
 
     result <- rvbResult(args[["rvbResult"]])
     aggdb <- aggdb(args[["aggdb"]])
+    on.exit(close(aggdb), add = TRUE)
     if (!args[["not-makePD"]] || "makePD" %in% args_raw) makePD <- TRUE else
       makePD <- FALSE
     if (!args[["not-absolute"]] || "absolute" %in% args_raw)
@@ -778,7 +774,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "geneSetAssoc",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -804,7 +799,7 @@ Provide a valid function call for detailed help.\n%s",
       } else if (args[["condition_type"]] == "matrix") {
         condition <- readRDS(args[["condition"]])
       } else if (args[["condition_type"]] == "vector") {
-        condition <- unlist(strsplit(args[["condition"]], split = ","))
+        condition <- unlist(strsplit(args[["condition"]], split = ",", fixed = TRUE))
       } else {
         stop(
           "--condition_type should be one of 'geneSet', 'matrix', or 'vector'"
@@ -815,16 +810,18 @@ Provide a valid function call for detailed help.\n%s",
     }
 
     if (!is.null(args[["covar"]]))
-      covar <- unlist(strsplit(args[["covar"]], split = ",")) else covar <- NULL
+      covar <- unlist(strsplit(args[["covar"]], split = ",", fixed = TRUE)) else covar <- NULL
     if (!is.null(args[["Zcutoffs"]]))
       Zcutoffs <- as.numeric(unlist(strsplit(
         args[["Zcutoffs"]],
-        split = ","
+        split = ",",
+        fixed = TRUE
       ))) else Zcutoffs <- NULL
     if (!is.null(args[["scoreCutoffs"]]))
       scoreCutoffs <- as.numeric(unlist(strsplit(
         args[["scoreCutoffs"]],
-        split = ","
+        split = ",",
+        fixed = TRUE
       ))) else scoreCutoffs <- NULL
     if (!args[["twoSided"]] || "oneSided" %in% args_raw) oneSided <- TRUE else
       oneSided <- FALSE
@@ -836,7 +833,7 @@ Provide a valid function call for detailed help.\n%s",
       cormatrix = cormatrix,
       condition = condition,
       covar = covar,
-      test = unlist(strsplit(args[["test"]], split = ",")),
+      test = unlist(strsplit(args[["test"]], split = ",", fixed = TRUE)),
       threshold = args[["threshold"]],
       Zcutoffs = Zcutoffs,
       INT = args[["INT"]],
@@ -862,7 +859,6 @@ Provide a valid function call for detailed help.\n%s",
     check_args(
       func_name = "vcfInfo2Table",
       args = args_raw,
-      help = help,
       required = required,
       expected = expected
     )
@@ -877,18 +873,6 @@ Provide a valid function call for detailed help.\n%s",
     )
   }
 
-  if (length(warnings()) > 0) {
-    message("Overview of warnings:")
-    summary(warnings())
-  }
-
-  if (verbose) {
-    message("\nFinished!")
-    message(sprintf(
-      "End time: %s",
-      as.character(round(Sys.time(), units = "secs"))
-    ))
-  }
 
   # writeVcf
   if ("writeVcf" %in% args_raw) {
@@ -903,12 +887,12 @@ Provide a valid function call for detailed help.\n%s",
       check_args(
         func_name = "writeVcf",
         args = args_raw,
-        help = help,
         required = required,
         expected = expected
       )
 
       gdb <- gdb(args[["gdb"]])
+      on.exit(close(gdb), add = TRUE)
       if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
         VAR_id <- NULL
       if (!is.null(args[["IID"]])) IID <- readLines(args[["IID"]]) else
@@ -926,5 +910,19 @@ Provide a valid function call for detailed help.\n%s",
         overWrite = args[["overWrite"]],
         verbose = verbose
       )
+  }
+
+  # overview of warnings and final message
+  if (length(warnings()) > 0) {
+    message("Overview of warnings:")
+    summary(warnings())
+  }
+
+  if (verbose) {
+    message("\nFinished!")
+    message(sprintf(
+      "End time: %s",
+      as.character(round(Sys.time(), units = "secs"))
+    ))
   }
 }

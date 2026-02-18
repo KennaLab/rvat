@@ -226,6 +226,15 @@ setMethod("sort", "geneSetList", function(x) {
 #' @usage NULL
 #' @export
 setMethod("as.data.frame", signature = "geneSetList", definition = function(x) {
+  if (length(x) == 0L) {
+     return(data.frame(
+      geneSetName = character(0L),
+      units = character(0L),
+      w = character(0L),
+      metadata = character(0L),
+      stringsAsFactors = FALSE
+    ))
+  }
   do.call(rbind, lapply(x@geneSets, FUN = as.data.frame))
 })
 
@@ -518,7 +527,7 @@ geneSetFile <- function(path, memlimit = 5000L) {
     stop("`path` must be a single, non-empty file path string.", call. = FALSE)
   }
   if (!file.exists(path)) {
-    stop(sprintf("File does not exist '%s", path), call. = FALSE)
+    stop(sprintf("File does not exist '%s'", path), call. = FALSE)
   }
   check_number_whole(memlimit, min = 1)
 
@@ -553,6 +562,9 @@ geneSetFile <- function(path, memlimit = 5000L) {
       )[, 1L]
   }
   sets <- unlist(sets, use.names = FALSE)
+  if (is.null(sets)) {
+    sets <- character(0L)
+  }
 
   # return geneSetFile
   new("geneSetFile", path = path, sets = sets, metadata = metadata)
@@ -714,7 +726,7 @@ setMethod(
 
 #' Build a geneSetList or geneSetFile
 #'
-#' Build a [`geneSetList`] or [`geneSetFile`] for use in gene set analyses 
+#' Build a [`geneSetList`] or [`geneSetFile`] for use in gene set analyses
 #' ([`geneSetAssoc`] or [`assocTest-aggdb`]).
 #' Currently these can be built directly from GMT-files, data.frames and lists.
 #'
@@ -785,9 +797,9 @@ buildGeneSet <- function(
     if (verbose) {
       message(sprintf("Generated geneSetFile: %s", output))
     }
-    close(out)
 
     # return geneSetFile connection
+    close(out)
     geneSetFile(output)
   } else {
     # if output is not specified, return geneSetList

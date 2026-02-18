@@ -33,6 +33,13 @@ setMethod(
 
     # check methods and available tests
     ## only 'lm' is implemented for `scoreMatrix` object
+    if (!is.null(scoreMatrix) && !is.null(geneSet)) {
+      stop(
+        "Specify either `geneSet` or `scoreMatrix`, not both.",
+        call. = FALSE
+      )
+    }
+
     if (!is.null(scoreMatrix)) {
       test <- test[test %in% geneSetAssoc_tests_score]
     } else if (!is.null(geneSet)) {
@@ -41,11 +48,6 @@ setMethod(
       } else {
         test <- test[test %in% geneSetAssoc_tests]
       }
-    } else if (!is.null(scoreMatrix) && !is.null(geneSet)) {
-      stop(
-        "Specify either `geneSet` or `scoreMatrix`, not both.",
-        call. = FALSE
-      )
     } else {
       stop(
         "Either `geneSet` or `scoreMatrix` must be specified.",
@@ -56,15 +58,6 @@ setMethod(
     if (length(test) == 0L) {
       stop("No valid test specified.", call. = FALSE)
     }
-
-    # prepare test-stats (Z-scores, covariates, etc.)
-    object <- .prepare_stats_GSA(
-      object,
-      covar,
-      Zcutoffs,
-      INT,
-      verbose = verbose
-    )
 
     # handle MLM null model
     nullmodel <- NULL
@@ -78,7 +71,7 @@ setMethod(
       }
       if (is.null(cormatrix)) {
         stop(
-          "The mlm test requires specifying the 'cormatrix' argument,",
+          "The mlm test requires specifying the 'cormatrix' argument, ",
           "see the `buildCorMatrix` method.",
           call. = FALSE
         )
@@ -91,6 +84,15 @@ setMethod(
         Zcutoffs = Zcutoffs
       )
       object <- getResults(nullmodel)
+    } else {
+      # prepare test-stats (Z-scores, covariates, etc.)
+      object <- .prepare_stats_GSA(
+        object,
+        covar,
+        Zcutoffs,
+        INT,
+        verbose = verbose
+      )
     }
 
     # handle condition parameter, if specified
@@ -122,11 +124,13 @@ setMethod(
       )
 
       if (!is.null(output)) {
+        out_con <- gzfile(output, "w")
+        on.exit(close(out_con), add = TRUE)
         write.table(
           result_scorematrix,
           sep = "\t",
           quote = FALSE,
-          file = gzfile(output),
+          file = out_con,
           row.names = FALSE
         )
         return(invisible(NULL))
@@ -149,7 +153,7 @@ setMethod(
         maxSetSize = maxSetSize,
         verbose = verbose
       )
-      
+
       # format results
       result_gsa <- gsaResult(result_gsa)
       metadata(result_gsa)$rvatVersion <- as.character(packageVersion("rvat"))
@@ -395,8 +399,6 @@ setMethod(
         condition.type = cond_data[["type"]],
         genesetlist = current_sets,
         mappedMatrix = as.matrix(mappedMatrix),
-        geneSetFile = geneSetFile,
-        geneSetList = geneSetList,
         nullmodel = nullmodel,
         covar = covar,
         test = test,
@@ -495,8 +497,6 @@ gsa_conditional <- function(
   condition.type,
   genesetlist,
   mappedMatrix,
-  geneSetFile = NULL,
-  geneSetList = NULL,
   nullmodel = NULL,
   covar = NULL,
   test = "lm",

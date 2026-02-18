@@ -82,7 +82,7 @@ setMethod(
         exonPadding
       )
 
-      # write to ouput if specified
+      # write to output if specified
       if (!is.null(res_chr)) {
         if (!is.null(output)) {
           write.table(
@@ -102,6 +102,9 @@ setMethod(
 
     # return results
     if (is.null(output)) {
+      if (length(results_list) == 0L) {
+        return(NULL)
+      }
       results <- do.call(rbind, results_list)
       rownames(results) <- NULL
       results
@@ -173,9 +176,9 @@ setMethod(
 
 .mapToCDS_get_overlapping_chroms <- function(object, exons) {
   chrom <- unique(as.character(seqnames(exons)))
-  chrom_gdb <- RSQLite::dbGetQuery(object, "select CHROM from var_ranges")
-  if (any(grepl("chr", chrom_gdb$CHROM, fixed = TRUE))) {
-    chrom_gdb <- gsub("chr", "", chrom_gdb$CHROM, fixed = TRUE)
+  chrom_gdb <- RSQLite::dbGetQuery(object, "select CHROM from var_ranges")$CHROM
+  if (any(grepl("chr", chrom_gdb, fixed = TRUE))) {
+    chrom_gdb <- gsub("chr", "", chrom_gdb, fixed = TRUE)
   }
   chrom <- intersect(chrom, chrom_gdb)
   if (length(chrom) == 0L) {
@@ -242,20 +245,24 @@ setMethod(
     gaps_tx <- GenomicRanges::gaps(exons_tx)
     gaps_tx <- gaps_tx[
       as.character(GenomicRanges::strand(gaps_tx)) == strand_tx &
-      as.character(GenomicRanges::seqnames(gaps_tx)) == as.character(GenomicRanges::seqnames(exons_tx)[1])
+        as.character(GenomicRanges::seqnames(gaps_tx)) ==
+          as.character(GenomicRanges::seqnames(exons_tx)[1])
     ]
-    
+
     # calculate cumulative gap widths for position adjustment
     # deductionsPlus: for positive strand
     # deductionsMinus: for negative strand
-    deductionsPlus <- cumsum(width(gaps_tx))
-    
-    if (length(deductionsPlus) == 1L) {
+    if (length(gaps_tx) == 0L) {
+      deductionsPlus <- 0L
       deductionsMinus <- 0L
-    } else if (length(deductionsPlus) > 1L) {
+    } else if (length(gaps_tx) == 1L) {
+      deductionsPlus <- cumsum(width(gaps_tx))
+      deductionsMinus <- 0L
+    } else {
+      deductionsPlus <- cumsum(width(gaps_tx))
       deductionsMinus <- rev(c(
         0L,
-        cumsum(rev(width(GenomicRanges::gaps(exons_tx)[2:length(exons_tx)])))
+        cumsum(rev(width(gaps_tx[2:length(gaps_tx)])))
       ))
     }
     exons_tx$deductionsPlus <- deductionsPlus
@@ -282,7 +289,7 @@ setMethod(
     # process padded variants: adjust their positions to nearest exon boundary
     if (length(overlaps_padded) > 0L) {
       vars_tx_padded <- vars_tx[S4Vectors::queryHits(overlaps_padded)]
-      
+
       # calculate distance to start and end of nearest exon
       vars_tx_padded$distStart <- start(exons_tx[S4Vectors::subjectHits(
         overlaps_padded
@@ -292,7 +299,7 @@ setMethod(
       vars_tx_padded$distEnd <- start(vars_tx_padded) -
         end(exons_tx[S4Vectors::subjectHits(overlaps_padded)]) -
         1L
-      
+
       # update position to nearest exon boundary
       vars_tx_padded$POS_updated <- ifelse(
         vars_tx_padded$distStart >= 0L &
@@ -300,16 +307,16 @@ setMethod(
         start(vars_tx_padded) + vars_tx_padded$distStart + 1L,
         start(vars_tx_padded) - vars_tx_padded$distEnd - 1L
       )
-      
+
       # update ranges with adjusted positions
       ranges(vars_tx_padded) <- IRanges::IRanges(
         start = vars_tx_padded$POS_updated,
         end = vars_tx_padded$POS_updated
       )
-      
+
       # clean up temporary columns
       vars_tx_padded$distStart <- vars_tx_padded$distEnd <- vars_tx_padded$POS_updated <- NULL
-      
+
       # add exon metadata (gene_id, transcript_id, deductions)
       mcols(vars_tx_padded) <- cbind(
         mcols(vars_tx_padded),
@@ -326,7 +333,7 @@ setMethod(
     # process variants with direct exon overlaps
     if (length(overlaps) > 0L) {
       vars_tx <- vars_tx[S4Vectors::queryHits(overlaps)]
-      
+
       # add exon metadata
       mcols(vars_tx) <- cbind(
         mcols(vars_tx),
@@ -363,7 +370,7 @@ setMethod(
           start(vars_tx) -
           vars_tx$deductionsMinus
       }
-      
+
       # convert to data frame with selected columns
       names(vars_tx) <- NULL
       vars_tx <- as.data.frame(vars_tx)[, c(
@@ -393,5 +400,3 @@ setMethod(
   # combine results
   do.call(rbind, results)
 }
-
-

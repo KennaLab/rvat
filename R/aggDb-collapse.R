@@ -13,10 +13,10 @@ setMethod(
   ) {
     # input validation
     check_character(output, allow_null = TRUE)
+    check_length(output, equal = 1L, allow_null = TRUE)
     if (!is.null(output)) {
       .check_output(output, overWrite = overWrite, verbose = verbose)
     }
-    check_length(output, equal = 1L, allow_null = TRUE)
     check_bool(verbose)
 
     # initialize

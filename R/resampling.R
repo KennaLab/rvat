@@ -4,10 +4,10 @@
 #' @export
 resamplingFile <- function(path) {
   con = gzfile(path, "r")
+  on.exit(close(con), add = TRUE)
   methodResampling <- scan(con, nlines = 1, what = "character", quiet = TRUE)
   nSamples <- scan(con, nlines = 1, what = "character", quiet = TRUE)
   nResampling <- scan(con, nlines = 1, what = "character", quiet = TRUE)
-  close(con)
   new(
     "resamplingFile",
     path = path,
@@ -58,6 +58,7 @@ buildResamplingFile <- function(
   if (methodResampling == "permutation") {
     if (!is.null(output)) {
       output <- gzcon(file(output, open = "wb"))
+      on.exit(close(output), add = TRUE)
       write(methodResampling, file = output, append = FALSE)
       write(nSamples, file = output, append = TRUE)
       write(nResampling, file = output, append = TRUE)
@@ -66,7 +67,7 @@ buildResamplingFile <- function(
       if (sum(chunks) - nResampling != 0) {
         chunks <- c(chunks, nResampling - sum(chunks))
       }
-      for (i in 1:length(chunks)) {
+      for (i in seq_along(chunks)) {
         perms <- matrix(
           rep(1:nSamples, chunks[i]),
           ncol = chunks[i],
@@ -82,7 +83,6 @@ buildResamplingFile <- function(
           append = TRUE
         )
       }
-      close(output)
     } else {
       perms <- matrix(
         rep(1:nSamples, nResampling),
@@ -93,5 +93,7 @@ buildResamplingFile <- function(
       colnames(perms) <- paste0("perm", 1:nResampling)
       perms
     }
+  } else {
+    stop(sprintf("Unknown methodResampling: %s", methodResampling), call. = FALSE)
   }
 }

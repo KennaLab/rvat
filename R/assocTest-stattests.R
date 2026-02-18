@@ -720,8 +720,8 @@
   if (sum(mac == 0) > 0) {
     G <- G[, mac > 0, drop = FALSE]
     weights <- weights[mac > 0]
-    mac <- mac[mac > 0]
     maf <- maf[mac > 0]
+    mac <- mac[mac > 0]
     if (length(mac) == 0) {
       stop("The genotype matrix does not have non-zero elements!", call. = FALSE)
     }
@@ -1313,7 +1313,7 @@
       if (length(P[["skato_robust"]]) == 0 & "skato_robust" %in% test)
         P[["skato_robust"]] <- rep(NA_real_, ncol(perms))
       if (
-        length(P[["skat_burden_robust"]] & "skat_burden_robust" %in% test) == 0
+        length(P[["skat_burden_robust"]]) == 0 & "skat_burden_robust" %in% test
       )
         P[["skat_burden_robust"]] <- rep(NA_real_, ncol(perms))
     }
