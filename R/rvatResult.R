@@ -145,7 +145,9 @@ readResults <- function(path, type = NULL, sep = "\t") {
 #' @export
 setMethod("getGdbId", signature = "rvatResult", definition = function(object) {
   value <- metadata(object)$gdbId
-  if (length(value) == 0L) value <- NA_character_
+  if (length(value) == 0L) {
+    value <- NA_character_
+  }
   value
 })
 
@@ -172,7 +174,9 @@ setMethod(
   signature = "rvatResult",
   definition = function(object) {
     value <- metadata(object)$genomeBuild
-    if (length(value) == 0L) value <- NA_character_
+    if (length(value) == 0L) {
+      value <- NA_character_
+    }
     value
   }
 )
@@ -502,8 +506,11 @@ setMethod(
   # subset records with missing P-values
   qq_data <- .qqplot_prepare_data(qq_data, verbose = verbose)
   lambda <- .get_lambda(qq_data$P)
-  lambda1000_value <- if (lambda1000)
-    .get_lambda1000(lambda, case, control) else NULL
+  lambda1000_value <- if (lambda1000) {
+    .get_lambda1000(lambda, case, control)
+  } else {
+    NULL
+  }
   anno <- .qqplot_annotation(
     lambda_value = lambda,
     lambda1000_value = lambda1000_value,
@@ -689,7 +696,7 @@ setMethod(
         limits = c(min(man_data$POS_cumulative), max(man_data$POS_cumulative)),
         expand = c(0, 0),
         breaks = (contigs_df$increment + contigs_df$Length / 2),
-        labels = c(1:22, "X", "Y")
+        labels = .convert_num_to_chrom(contigs_df$CHROM)
       ) +
       ggplot2::scale_y_continuous(
         limits = c(0, max(man_data$logp) + 0.75),
@@ -858,8 +865,18 @@ setMethod(
   }
 
   # get data.frame of contigs based on specified contigs
-  if (is.character(contigs) || length(contigs) == 1L) {
+  if (is.character(contigs)) {
     contigs_df <- .build_contigs[[contigs]]
+    if (is.null(contigs_df)) {
+      stop(
+        sprintf(
+          "Unknown genome build '%s'. Available builds: %s",
+          contigs,
+          paste(names(.build_contigs), collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
   } else if (is.data.frame(contigs)) {
     contigs_df <- contigs
   }
@@ -914,7 +931,9 @@ setMethod(
   }
   plot_data <- plot_data[!missing_P & !not_in_contig, ]
 
-  if (nrow(plot_data) == 0L) return(plot_data) # Return empty if no data remains
+  if (nrow(plot_data) == 0L) {
+    return(plot_data)
+  } # Return empty if no data remains
 
   # add contigs
   plot_data <- dplyr::left_join(
@@ -963,7 +982,7 @@ setMethod(
   ) {
     if (checkClassrvatResult(object) == "gsaResult") {
       stop(
-        "gsaResult objects do not have per-test P-values, only per gene set.",
+        "gsaResult objects do not have per-test P-values, only per gene set. ",
         "For 'object', select an rvbResult or singlevarResult object.",
         call. = FALSE
       )
@@ -1128,7 +1147,9 @@ rvbResult <- function(object) {
   }
 
   # set correct types
-  if (is.data.frame(object)) object <- S4Vectors::DataFrame(object)
+  if (is.data.frame(object)) {
+    object <- S4Vectors::DataFrame(object)
+  }
   object[, rle_cols] <- lapply(
     object[, rle_cols],
     function(x) S4Vectors::Rle(as.character(x))
@@ -1332,7 +1353,9 @@ setMethod(
     # validate input
     .ACAT_validate_input(as.list(environment()))
     fixpval_method <- match.arg(fixpval_method)
-    if (is.character(aggregate)) aggregate <- list(aggregate)
+    if (is.character(aggregate)) {
+      aggregate <- list(aggregate)
+    }
     aggregate_all <- unlist(aggregate)
 
     # group should contain all aggregate columns
@@ -1501,8 +1524,18 @@ setMethod(
   # see: FAQ in https://github.com/yaowuliu/ACAT for other solutions
   if (fixpval && fixpval_method %in% c("minmax", "manual")) {
     if (fixpval_method == "minmax") {
-      P_max <- max(object[["P"]][object[["P"]] != 1], na.rm = TRUE)
-      P_min <- min(object[["P"]][object[["P"]] != 0], na.rm = TRUE)
+      P_non1 <- object[["P"]][object[["P"]] != 1]
+      P_non0 <- object[["P"]][object[["P"]] != 0]
+      P_max <- if (length(P_non1) > 0L) {
+        max(P_non1, na.rm = TRUE)
+      } else {
+        fixpval_maxP
+      }
+      P_min <- if (length(P_non0) > 0L) {
+        min(P_non0, na.rm = TRUE)
+      } else {
+        fixpval_minP
+      }
     } else if (fixpval_method == "manual") {
       P_max <- fixpval_maxP
       P_min <- fixpval_minP
@@ -1537,7 +1570,7 @@ setMethod(
       object[["P"]] <- ifelse(object[["P"]] == 0, P_min, object[["P"]])
     }
     dat <- as.data.frame(object)[, c(group, "P")]
-  } else if (fixpval_method == "Liu") {
+  } else if (fixpval && fixpval_method == "Liu") {
     dat <- as.data.frame(object)[, c(group, "P")] %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(group))) %>%
       dplyr::mutate(
@@ -1559,6 +1592,8 @@ setMethod(
       }
       dat[["P"]] <- ifelse(dat[["P"]] == 0, fixpval_minP, dat[["P"]])
     }
+  } else if (!fixpval) {
+    dat <- as.data.frame(object)[, c(group, "P")]
   }
 
   dat

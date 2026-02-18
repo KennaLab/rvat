@@ -3,8 +3,8 @@
 \docType{class}
 \name{aggdb}
 \alias{aggdb}
-\alias{listSamples}
 \alias{getUnit}
+\alias{listSamples}
 \alias{listParams}
 \alias{aggdb-class}
 \alias{close,aggdb-method}

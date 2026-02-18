@@ -4,7 +4,7 @@
 
 # Constructor
 proto_gsaResult <- S4Vectors::DataFrame(
-  geneSetName =Rle(character(0)),
+  geneSetName = Rle(character(0)),
   test = Rle(character(0)),
   covar = character(),
   threshold = numeric(),
@@ -23,27 +23,43 @@ proto_gsaResult <- S4Vectors::DataFrame(
 #' Can be either a data.frame or a filepath pointing to the results.
 #' @export
 gsaResult <- function(object) {
-  if(missing(object) || is.null(object)) {
+  if (missing(object) || is.null(object)) {
     object <- proto_gsaResult
-  } 
-  
+  }
+
   if (is.character(object)) {
     readResults(path = object, type = "gsaResult")
-  } else if ( is.data.frame(object) || is(object, "DFrame")) {
+  } else if (is.data.frame(object) || is(object, "DFrame")) {
     if (!all(names(columns_gsaResults) %in% colnames(object))) {
-      stop(sprintf("The following columns are missing: %s", 
-                   paste(names(columns_gsaResults)[!names(columns_gsaResults) %in% colnames(object)], collapse=",")))
+      stop(sprintf(
+        "The following columns are missing: %s",
+        paste(
+          names(columns_gsaResults)[
+            !names(columns_gsaResults) %in% colnames(object)
+          ],
+          collapse = ","
+        )
+      ), call. = FALSE)
     }
-    object <- cbind(object[,names(columns_gsaResults)], object[,!colnames(object) %in% names(columns_gsaResults), drop = FALSE])
-    if(is.data.frame(object)) object <- S4Vectors::DataFrame(object)
-    object[,columns_gsaResults_rle] <- lapply(object[,columns_gsaResults_rle], S4Vectors::Rle)
-    object[,columns_gsaResults_numeric] <- lapply(object[,columns_gsaResults_numeric], as.numeric)
-    
-    
+    object <- cbind(
+      object[, names(columns_gsaResults)],
+      object[, !colnames(object) %in% names(columns_gsaResults), drop = FALSE]
+    )
+    if (is.data.frame(object)) {
+      object <- S4Vectors::DataFrame(object)
+    }
+    object[, columns_gsaResults_rle] <- lapply(
+      object[, columns_gsaResults_rle],
+      S4Vectors::Rle
+    )
+    object[, columns_gsaResults_numeric] <- lapply(
+      object[, columns_gsaResults_numeric],
+      as.numeric
+    )
+
     #Addition to make the 'threshold' column numeric, as this was not the case in the test object
     object$threshold <- as.numeric(object$threshold)
     new("gsaResult", object)
-    
   } else {
     stop("`object` should be either a data.frame/DataFrame or a filepath.")
   }
@@ -52,28 +68,57 @@ gsaResult <- function(object) {
 # validity
 setValidity2("gsaResult", function(object) {
   msg <- NULL
-  
-  if (!all(names(columns_gsaResults) %in% colnames(object)) && ncol(object) != 1) {
-    msg <- c(msg, sprintf("The following columns are missing: %s",
-                          paste(names(columns_gsaResults)[!names(columns_gsaResults) %in% colnames(object)], collapse=",")))
+
+  if (
+    !all(names(columns_gsaResults) %in% colnames(object)) && ncol(object) != 1
+  ) {
+    msg <- c(
+      msg,
+      sprintf(
+        "The following columns are missing: %s",
+        paste(
+          names(columns_gsaResults)[
+            !names(columns_gsaResults) %in% colnames(object)
+          ],
+          collapse = ","
+        )
+      )
+    )
   }
-  
-  if(ncol(object) != 1) {
-    columns <- names(columns_gsaResults)[names(columns_gsaResults) %in% colnames(object)]
+
+  if (ncol(object) != 1) {
+    columns <- names(columns_gsaResults)[
+      names(columns_gsaResults) %in% colnames(object)
+    ]
     types <- unlist(lapply(object@listData, class))
-    type_check <- unlist(lapply(columns, FUN = function(x) types[x] %in% columns_gsaResults[[x]]))
+    type_check <- unlist(lapply(columns, FUN = function(x) {
+      types[x] %in% columns_gsaResults[[x]]
+    }))
     names(type_check) <- columns
     if (!all(type_check) && ncol(object) != 1) {
       type_msg <- lapply(
-        names(type_check)[!type_check], FUN = function(x) sprintf("%s: %s", x, paste(columns_gsaResults[[x]], collapse=" or "))
-      ) %>% paste(collapse="\n")
-      msg <- c(msg,sprintf("The following columns should be of type:\n%s", type_msg))
+        names(type_check)[!type_check],
+        FUN = function(x) {
+          sprintf(
+            "%s: %s",
+            x,
+            paste(columns_gsaResults[[x]], collapse = " or ")
+          )
+        }
+      ) %>%
+        paste(collapse = "\n")
+      msg <- c(
+        msg,
+        sprintf("The following columns should be of type:\n%s", type_msg)
+      )
     }
   }
-  
+
   if (is.null(msg)) {
     TRUE
-  } else msg
+  } else {
+    msg
+  }
 })
 
 ## Methods ---------------------------------------------------------------------
@@ -83,22 +128,21 @@ setValidity2("gsaResult", function(object) {
 #' @rdname rvatResult
 #' @usage NULL
 #' @export
-setMethod("summary", "gsaResult",
-          function(object, asList=FALSE, ...)
-          {
-            info <- list()
-            info[["Ngenesets"]] <- length(unique(object[["geneSetName"]]))
-            info[["tests"]] <- unique(object[["test"]])
-            info[["covar"]] <- unique(object[["covar"]])
-            
-            if(asList) {
-              return(info)
-            } else {
-              cat(sprintf("%s object\n-------------------\n", class(object)[1]))
-              cat(sprintf("n gene sets = %s\ntests = %s\ncovar = %s", 
-                          info$Ngenesets,
-                          paste(info[["tests"]],collapse=","), 
-                          paste(info[["covar"]],collapse=",")
-              ))
-            }
-          })
+setMethod("summary", "gsaResult", function(object, asList = FALSE, ...) {
+  info <- list()
+  info[["Ngenesets"]] <- length(unique(object[["geneSetName"]]))
+  info[["tests"]] <- unique(object[["test"]])
+  info[["covar"]] <- unique(object[["covar"]])
+
+  if (asList) {
+    return(info)
+  } else {
+    cat(sprintf("%s object\n-------------------\n", class(object)[1]))
+    cat(sprintf(
+      "n gene sets = %s\ntests = %s\ncovar = %s",
+      info$Ngenesets,
+      paste(info[["tests"]], collapse = ","),
+      paste(info[["covar"]], collapse = ",")
+    ))
+  }
+})

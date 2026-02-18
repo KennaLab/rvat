@@ -12,7 +12,7 @@ collapseAggDbs(object, output = NULL, overWrite = FALSE, verbose = TRUE)
 \item{output}{Output file name (output will be gz compressed text).
 Defaults to \code{NULL}, in which case a data.frame will be returned.}
 
-\item{overWrite}{Should existing output files be overwritten? Defaults to \code{TRUE}.}
+\item{overWrite}{Should existing output files be overwritten? Defaults to \code{FALSE}.}
 
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
