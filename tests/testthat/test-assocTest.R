@@ -177,7 +177,7 @@ test_that("assocTest-gdb works", {
   )
   test_from_file <- rvbResult(output_assoctest)
   expect_equal(as.data.frame(test_output), as.data.frame(test_from_file))
-  
+
   ## also check for singlevar
   varset <- varSetFile(moderate_varsetfile)
   output_assoctest <- withr::local_tempfile()
@@ -194,6 +194,168 @@ test_that("assocTest-gdb works", {
   )
   test_from_file <- singlevarResult(output_assoctest)
   expect_equal(as.data.frame(test_output), as.data.frame(test_from_file))
+})
+
+## test dominant / recessive models
+test_that("dominant/recessive model filtering works", {
+  gdb <- create_example_gdb()
+  varids <- getAnno(gdb, "var", fields = "VAR_id")$VAR_id
+
+  #
+  test_dominant_recessive_sv <- assocTest(
+    gdb,
+    VAR_id = varids,
+    test = "scoreSPA",
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = c("dominant", "recessive"),
+    minCarriers = 2,
+    maxCarriers = 5,
+    singlevar = TRUE,
+    memlimit = 5000L,
+    verbose = FALSE
+  )
+
+  test_dominant_recessive_rvb <- assocTest(
+    gdb,
+    VAR_id = varids,
+    test = "scoreSPA",
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = c("dominant", "recessive"),
+    minCarriers = 2,
+    maxCarriers = 5,
+    memlimit = 5000L,
+    verbose = FALSE
+  )
+
+  test_dominant_recessive_sv_2 <- assocTest(
+    gdb,
+    VAR_id = varids,
+    test = "scoreSPA",
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = c("dominant", "recessive"),
+    maxMAC = 10,
+    minCarrierFreq = 1 / 25000,
+    singlevar = TRUE,
+    memlimit = 5000L,
+    verbose = FALSE
+  )
+
+  test_dominant_recessive_rvb_2 <- assocTest(
+    gdb,
+    VAR_id = varids,
+    test = "scoreSPA",
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = c("dominant", "recessive"),
+    maxMAC = 10,
+    minCarrierFreq = 1 / 25000,
+    memlimit = 5000L,
+    verbose = FALSE
+  )
+
+  result_list <- list(
+    test_dominant_recessive_sv,
+    test_dominant_recessive_sv_2,
+    test_dominant_recessive_rvb,
+    test_dominant_recessive_rvb_2
+  )
+  for (i in seq_along(result_list)) {
+   metadata(result_list[[i]])$rvatVersion <- NULL
+   metadata(result_list[[i]])$creationDate <- NULL
+  }
+
+  ## build list and snapshot
+  expect_snapshot_value(result_list, style = "serialize")
+
+  ## also check carrier_freq
+  aggdb_recessive_path <- withr::local_tempfile()
+  aggregate(
+    gdb,
+    output = aggdb_recessive_path,
+    VAR_id = varids,
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = "recessive",
+    imputeMethod = "missingToRef",
+    minCarriers = 2,
+    maxCarriers = 5,
+    memlimit = 5000L,
+    verbose = FALSE,
+    overWrite = TRUE
+  )
+  aggdb_recessive <- aggdb(aggdb_recessive_path)
+  aggs_recessive <- getUnit(aggdb_recessive, unit = "chunk1")
+  expect_equal(
+    sum(aggs_recessive[1, ] >= 1),
+    test_dominant_recessive_rvb[
+      test_dominant_recessive_rvb$geneticModel == "recessive",
+    ][, c("caseCarriers", "ctrlCarriers")] %>%
+      as.data.frame() %>%
+      rowSums() %>%
+      sum()
+  )
+
+  aggdb_dominant_path <- withr::local_tempfile()
+  aggregate(
+    gdb,
+    output = aggdb_dominant_path,
+    VAR_id = varids,
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = "dominant",
+    imputeMethod = "missingToRef",
+    minCarriers = 2,
+    maxCarriers = 5,
+    memlimit = 5000L,
+    verbose = FALSE,
+    overWrite = TRUE
+  )
+  aggdb_dominant <- aggdb(aggdb_dominant_path)
+  aggs_dominant <- getUnit(aggdb_dominant, unit = "chunk1")
+  expect_equal(
+    sum(aggs_dominant[1, ] >= 1),
+    test_dominant_recessive_rvb[
+      test_dominant_recessive_rvb$geneticModel == "dominant",
+    ][, c("caseCarriers", "ctrlCarriers")] %>%
+      as.data.frame() %>%
+      rowSums() %>%
+      sum()
+  )
+
+  ## MAF/MAC filters should return same filtering as allelic model
+  test_allelic_sv_macfilters <- assocTest(
+    gdb,
+    VAR_id = varids,
+    test = "scoreSPA",
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = "allelic",
+    minMAC = 1,
+    maxMAC = 10,
+    singlevar = TRUE,
+    memlimit = 5000L,
+    verbose = FALSE
+  )
+  test_dominant_recessive_sv_macfilters <- assocTest(
+    gdb,
+    VAR_id = varids,
+    test = "scoreSPA",
+    cohort = "pheno",
+    pheno = "pheno",
+    geneticModel = c("dominant", "recessive"),
+    minMAC = 1,
+    maxMAC = 10,
+    singlevar = TRUE,
+    memlimit = 5000L,
+    verbose = FALSE
+  )
+  expect_equal(
+    2 * nrow(test_allelic_sv_macfilters),
+    nrow(test_dominant_recessive_sv_macfilters)
+  )
 })
 
 test_that("assocTest-gdb and assocTest-GT result in identical output", {

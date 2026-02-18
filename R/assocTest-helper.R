@@ -580,7 +580,7 @@
     keepSamples <- keepSamples & keepCR
   }
 
-  if (!is.null(covar)) {
+  if (!is.null(covar) && length(covar) != 0L) {
     keep_covar <- complete.cases(colData(object)[, covar])
     if (!all(keep_covar) && (verbose || verboseCR)) {
       message(sprintf(
@@ -631,6 +631,7 @@
   maxCarriers = Inf,
   minCarrierFreq = 0,
   maxCarrierFreq = 1,
+  geneticModel = "allelic",
   returnGT = TRUE,
   filterWeights = TRUE,
   verbose = TRUE
@@ -642,6 +643,7 @@
     keepGeno <- keepGeno &
       maf >= minMAF &
       maf <= maxMAF
+    keepGeno[is.na(keepGeno)] <- FALSE
   }
 
   if (minMAC > 0 || maxMAC < Inf) {
@@ -664,7 +666,11 @@
       minCarrierFreq > 0.0 ||
       maxCarrierFreq < 1.0
   ) {
-    carriers <- getNCarriers(object)
+    if (geneticModel == "recessive" && metadata(object)$geneticModel != "recessive") {
+      carriers <- rowSums(assays(object)$GT >= 2, na.rm = TRUE)
+    } else {
+      carriers <- getNCarriers(object)
+    }
     carrierFreq <- carriers / ncol(object)
     keepGeno <- keepGeno &
       carriers >= minCarriers &
@@ -935,7 +941,7 @@
 
 .generate_models <- function(covar = NULL, offset = NULL, pheno) {
   # null models
-  if (is.null(covar) && is.null(offset)) {
+  if ((is.null(covar) || length(covar) == 0L) && is.null(offset)) {
     null <- as.formula(sprintf("%s ~ 1", pheno))
   } else if (is.null(offset)) {
     null <- as.formula(paste(
@@ -1071,8 +1077,9 @@
         file = outputResampling,
         sep = "\t",
         quote = FALSE,
-        append = FALSE,
-        row.names = FALSE
+        append = append,
+        row.names = FALSE,
+        col.names = !append
       )
     }
     return(results)
@@ -1146,7 +1153,7 @@
       chunks <- c(chunks, nResampling - sum(chunks))
     }
     permResult <- list()
-    for (k in 1:length(chunks)) {
+    for (k in seq_along(chunks)) {
       skip <- if (k == 1) 3 else cumsum(chunks)[(k - 1)] + 3
       perms <- t(as.matrix(data.table::fread(
         resamplingFile@path,
@@ -1186,7 +1193,7 @@
 
     # generate permutations per chunk
     permResult <- list()
-    for (i in 1:length(chunks)) {
+    for (i in seq_along(chunks)) {
       perms <- buildResamplingFile(
         nSamples = ncol(object),
         methodResampling = methodResampling,

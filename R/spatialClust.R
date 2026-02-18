@@ -231,10 +231,6 @@ distanceCluster <- function(
   names <- comb[, 2]
   bdiff <- diff(b)
 
-  # calculate lambda under the assumption that distances follow exp distribution
-
-  lambda <- log(2) / median(bdiff)
-
   #observed mean values in the windows
 
   obsMeanWindow <- zoo::rollapply(
@@ -345,8 +341,8 @@ distanceCluster <- function(
     stop(
       sprintf(
         "Number of provided window sizes (%s) does not match number of provided overlaps (%s)",
-        paste(windowSize, collapse = ","),
-        paste(overlap, collapse = ",")
+        paste(args[["windowSize"]], collapse = ","),
+        paste(args[["overlap"]], collapse = ",")
       ),
       call. = FALSE
     )

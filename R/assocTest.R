@@ -10,13 +10,13 @@
 #' can either be binary (0/1) or continuous. If the response variable is continuous set
 #' `continuous` to `TRUE`.
 #' @param test Vector of statistical tests to run,
-#' options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth. 
+#' options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth.
 #' See [`assocTest`] for details.
 #' @param name Optional name for the analysis, defaults to "none".
 #' @param continuous Is the response variable continuous? (TRUE/FALSE). Defaults to `FALSE`.
 #' @param singlevar Run single variant tests? (TRUE/FALSE).
 #' Defaults to `FALSE`, in which case collapsing tests are run
-#' @param covar Character vector of covariates. 
+#' @param covar Character vector of covariates.
 #' These should be present in the colData slot of the genoMatrix.
 #' @param offset Optional model offset, can be used to account for regenie LOCO predictions.
 #' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
@@ -28,27 +28,27 @@
 #' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals.
 #' @param keep Vector of sample IDs to keep, defaults to `NULL`, in which case all samples are kept.
 #' @param output Output file path for results.
-#' Defaults to `NULL`, in which case results are not written to disk, 
+#' Defaults to `NULL`, in which case results are not written to disk,
 #' but returned as an [`rvatResult`] object.
-#' @param append Relevant if the `output` parameter is not `NULL`. 
+#' @param append Relevant if the `output` parameter is not `NULL`.
 #' Should results be appended to `output`?
 #' @param returnDF Return a data.frame rather than a rvatResult. Defaults to `FALSE`.
 #' @param methodResampling Which method to use for resampling? ('permutation' currently implemented)
 #' Defaults to `NULL`, in which case no resampling is performed.
-#' @param resamplingMatrix Pre-calculated resampling matrix (n x p), 
+#' @param resamplingMatrix Pre-calculated resampling matrix (n x p),
 #' where n = number of samples, and p number of resamplings.
 #' Can be generated using [`buildResamplingFile`].
 #' @param resamplingFile A [`resamplingFile`] object.
 #' @param nResampling Number of resamplings to perform if methodResampling is specified.
-#' @param outputResampling If `TRUE` or a filepath, 
+#' @param outputResampling If `TRUE` or a filepath,
 #' results for each resampling are returned (or saved to the filepath).
-#' This can be useful if permutations are used to calculated to estimate 
+#' This can be useful if permutations are used to calculated to estimate
 #' correlations among genes for example.
 #' Defaults to `FALSE` in which case resampling is used to calculate resampled P-values,
 #' results for individual resamplings are not returned.
 #' @param memlimitResampling Maximum number of resamplings to perform at a time.
 #' Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
-#' thus, for large number of resamplings it can be more efficient to split 
+#' thus, for large number of resamplings it can be more efficient to split
 #' the permutations in chunks of size `memlimitResampling`.
 #' Defaults to `NULL` in which case all permutations are performed.
 #' @param minCallrateVar Minimum genotype rate for variant retention.
@@ -140,7 +140,7 @@ setMethod(
     # generate sample masks for each param combination
     sample_masks <- lapply(seq_len(nrow(params)), function(i) {
       task <- params[i, ]
-      cohort_fields <- c(task$pheno, unlist(task$covar))
+      cohort_fields <- c(task$pheno, unlist(task$covar_list))
       complete.cases(colData(object)[, cohort_fields, drop = FALSE])
     })
 
@@ -274,33 +274,6 @@ setMethod(
         GT <- flipToMinor(GT)
       }
 
-      # variant filtering
-      keepGeno <- .filterGT_vars(
-        GT,
-        minCallrateVar = minCallrateVar,
-        maxCallrateVar = maxCallrateVar,
-        minMAF = minMAF,
-        maxMAF = maxMAF,
-        minMAC = minMAC,
-        maxMAC = maxMAC,
-        minCarriers = minCarriers,
-        maxCarriers = maxCarriers,
-        minCarrierFreq = minCarrierFreq,
-        maxCarrierFreq = maxCarrierFreq,
-        returnGT = FALSE,
-        filterWeights = TRUE,
-        verbose = FALSE
-      )
-
-      # subset variants and perform early return if no variants left
-      if (sum(keepGeno) == 0L) {
-        return(.return_empty_results(
-          singlevar = singlevar,
-          returnDF = TRUE
-        ))
-      }
-      GT <- GT[keepGeno, ]
-
       # split tasks by geneticModel + MAFweights
       task_sample_mask$model_id <- paste(
         task_sample_mask$geneticModel,
@@ -332,7 +305,16 @@ setMethod(
         offset = offset,
         imputeMethod = imputeMethod,
         test_resampling = test_resampling,
+        minCallrateVar = minCallrateVar,
+        maxCallrateVar = maxCallrateVar,
+        minMAF = minMAF,
+        maxMAF = maxMAF,
+        minMAC = minMAC,
+        maxMAC = maxMAC,
         minCarriers = minCarriers,
+        maxCarriers = maxCarriers,
+        minCarrierFreq = minCarrierFreq,
+        maxCarrierFreq = maxCarrierFreq,
         maxitFirth = maxitFirth,
         returnDF = returnDF,
         methodResampling = methodResampling,
@@ -360,7 +342,16 @@ setMethod(
   offset,
   imputeMethod,
   test_resampling,
+  minCallrateVar,
+  maxCallrateVar,
+  minMAF,
+  maxMAF,
+  minMAC,
+  maxMAC,
   minCarriers,
+  maxCarriers,
+  minCarrierFreq,
+  maxCarrierFreq,
   maxitFirth,
   returnDF,
   methodResampling,
@@ -375,6 +366,34 @@ setMethod(
     task_model <- params_by_model[[i]]
     task_geneticModel <- task_model$geneticModel[1L]
     task_MAFweights <- task_model$MAFweights[1L]
+
+    # variant filtering
+    keepGeno <- .filterGT_vars(
+      GT,
+      minCallrateVar = minCallrateVar,
+      maxCallrateVar = maxCallrateVar,
+      minMAF = minMAF,
+      maxMAF = maxMAF,
+      minMAC = minMAC,
+      maxMAC = maxMAC,
+      minCarriers = minCarriers,
+      maxCarriers = maxCarriers,
+      minCarrierFreq = minCarrierFreq,
+      maxCarrierFreq = maxCarrierFreq,
+      geneticModel = task_geneticModel,
+      returnGT = FALSE,
+      filterWeights = TRUE,
+      verbose = FALSE
+    )
+
+    # subset variants and perform early return if no variants left
+    if (sum(keepGeno) == 0L) {
+      return(.return_empty_results(
+        singlevar = singlevar,
+        returnDF = TRUE
+      ))
+    }
+    GT <- GT[keepGeno, ]
 
     # single variant tests
     if (singlevar) {
@@ -428,10 +447,9 @@ setMethod(
         returnDF = returnDF,
         verbose = verbose
       )
-      
+
       # rvb tests
     } else {
-      
       # generate MAFweights, if specified
       if (task_MAFweights != "none") {
         GT <- recode(GT, MAFweights = task_MAFweights)
@@ -441,7 +459,7 @@ setMethod(
       if (task_geneticModel != metadata(GT)$geneticModel) {
         GT <- recode(GT, geneticModel = task_geneticModel)
       }
-      
+
       # get callrate and carriers before imputation
       carriers <- as.integer(
         Matrix::colSums(assays(GT)$GT >= 1, na.rm = TRUE) >= 1
@@ -535,7 +553,7 @@ setMethod(
 ) {
   results <- lapply(seq_len(nrow(task_model)), FUN = function(i) {
     task <- task_model[i, ]
-    task_covar <- unlist(task$covar)
+    task_covar <- unlist(task$covar_list)
     task_pheno <- task$pheno
     task_MAFweights <- task$MAFweights
     task_geneticModel <- task$geneticModel
@@ -625,7 +643,11 @@ setMethod(
     )
 
     # resampled rvb tests (if specified)
-    if (!is.null(resamplingMatrix) || !is.null(resamplingFile) || !is.null(methodResampling)) {
+    if (
+      !is.null(resamplingMatrix) ||
+        !is.null(resamplingFile) ||
+        !is.null(methodResampling)
+    ) {
       res <- .permute_rvb_wrapper(
         GT,
         res = res,
@@ -666,7 +688,7 @@ setMethod(
 ) {
   results <- lapply(seq_len(nrow(task_model)), FUN = function(i) {
     task <- task_model[i, ]
-    task_covar <- unlist(task$covar)
+    task_covar <- unlist(task$covar_list)
     task_pheno <- task$pheno
     caseMAF <- MAF_per_pheno[[task_pheno]]$caseMAF
     ctrlMAF <- MAF_per_pheno[[task_pheno]]$ctrlMAF
@@ -757,7 +779,7 @@ setMethod(
       maxitFirth = maxitFirth,
       verbose = verbose
     )
-    
+
     # set original colData (i.e. before dummy coding)
     colData(GT) <- coldata_original
 

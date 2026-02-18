@@ -407,6 +407,7 @@ varSetFile <- function(path, memlimit = 5000L) {
       )[, 1L]
   }
   units <- unlist(units, use.names = FALSE)
+  if (is.null(units)) units <- character(0L)
 
   # return varSetFile
   new("varSetFile", path = path, units = units, metadata = metadata)
@@ -484,7 +485,7 @@ setMethod(
       }
       varSet(
         unit = line_content[1L],
-        varSet = line_content[4L],
+        varSetName = line_content[4L],
         VAR_id = line_content[2L],
         w = line_content[3L]
       )
@@ -616,6 +617,15 @@ setMethod("write", "varSetList", function(x, file = "data") {
 #' @usage NULL
 #' @export
 setMethod("as.data.frame", signature = "varSetList", definition = function(x) {
+  if (length(x) == 0L) {
+    return(data.frame(
+      unit = character(0L),
+      VAR_id = character(0L),
+      w = character(0L),
+      varSetName = character(0L),
+      stringsAsFactors = FALSE
+    ))
+  }
   do.call(rbind, lapply(x@varSets, FUN = as.data.frame))
 })
 
@@ -642,19 +652,19 @@ setMethod("as.data.frame", signature = "varSet", definition = function(x) {
 #' @aliases buildVarSet,gdb-method
 #' @param object A [`gdb`] object.
 #' @param varSetName Name to assign varSet grouping.
-#' This identifier column is used to allow for subsequent merging of multiple 
+#' This identifier column is used to allow for subsequent merging of multiple
 #' varSet files for coordinated analysis of multiple variant filtering/weighting strategies.
 #' @param unitTable Table containing aggregation unit mappings.
 #' @param unitName Field to utilize for aggregation unit names.
 #' @param output Output file name (output will be gz compressed text).
 #' If no output file is specified, a [`varSetList`] object will be returned directly.
-#' @param intersection Additional tables to filter through intersection 
-#' (i.e. variants absent from intersection tables will not appear in output). 
+#' @param intersection Additional tables to filter through intersection
+#' (i.e. variants absent from intersection tables will not appear in output).
 #' Can be a character vector or a comma-delimited string.
-#' @param where An SQL compliant where clause to filter output; 
+#' @param where An SQL compliant where clause to filter output;
 #' e.g.: "CHROM=2 AND POS between 5000 AND 50000 AND AF<0.01 AND (cadd.caddPhred>15 OR snpEff.SIFT='D')".
 #' @param weightName Field name for desired variant weighting.
-#' Must be a column within `unitTable` or other `intersection` table. 
+#' Must be a column within `unitTable` or other `intersection` table.
 #' Default value of 1 is equivalent to no weighting.
 #' @param memlimit Chunk size used for processing rows. Defaults to 1000.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
@@ -1062,7 +1072,7 @@ setMethod(
     is_mask <- vapply(
       fields,
       function(field) {
-        all(data[[field]] %in% c(0, 1), na.rm = TRUE)
+        all(data[[field]] %in% c(0, 1, NA), na.rm = TRUE)
       },
       logical(1L),
       USE.NAMES = TRUE
@@ -1101,7 +1111,7 @@ setMethod(
   varset <- varSetList(lapply(seq_along(chunks), function(x) {
     varSet <- varSet(
       unit = paste0("chunk", x),
-      varSet = "none",
+      varSetName = "none",
       VAR_id = paste(chunks[[x]], collapse = ","),
       w = paste(rep("1", length(chunks[[x]])), collapse = ",")
     )
@@ -1125,7 +1135,7 @@ setMethod(
     VAR_id <- unique(unlist(lapply(object@varSets, listVars)))
     varset <- varSet(
       unit = unit,
-      varSet = varSetName,
+      varSetName = varSetName,
       VAR_id = paste(VAR_id, collapse = ","),
       w = paste(rep("1", length(VAR_id)), collapse = ",")
     )
