@@ -1163,11 +1163,6 @@ setGeneric("topResult", function(object, n = 10) standardGeneric("topResult"))
 #' @rdname aggdb
 #' @usage NULL
 #' @export
-setGeneric("listSamples", function(object) standardGeneric("listSamples"))
-
-#' @rdname aggdb
-#' @usage NULL
-#' @export
 setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 
 #' Merge multiple aggregate files
@@ -1203,7 +1198,7 @@ setGeneric(
 #' @param object an [`aggdbList`] object.
 #' @param output Output file name (output will be gz compressed text).
 #' Defaults to `NULL`, in which case a data.frame will be returned.
-#' @param overWrite Should existing output files be overwritten? Defaults to `TRUE`.
+#' @param overWrite Should existing output files be overwritten? Defaults to `FALSE`.
 #' @param verbose Should the function be verbose? Defaults to `TRUE`.
 #' @example inst/examples/example-collapseAggDbs.R
 #' @export

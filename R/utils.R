@@ -25,7 +25,7 @@
 
     # parse metadata
     metadata <- header[2:length(header)]
-    metadata <- strsplit(metadata, ": ")
+    metadata <- strsplit(metadata, ": ", fixed = TRUE)
     if (!all(lengths(metadata) == 2)) {
       stop("Unexpected metadata")
     }
@@ -104,7 +104,7 @@
   # check if gdb id in object and gdb match
   if (
     !is.null(getGdbId(object)) &&
-      !is.na(getGdbId(object)) &
+      !is.na(getGdbId(object)) &&
       !is.null(getGdbId(gdb)) &&
       !is.na(getGdbId(gdb))
   ) {
@@ -119,7 +119,7 @@
   if (is.null(minVersion)) {
     if (
       !is.null(getRvatVersion(object)) &&
-        !is.na(getRvatVersion(object)) &
+        !is.na(getRvatVersion(object)) &&
         !is.null(getRvatVersion(gdb)) &&
         !is.na(getRvatVersion(gdb))
     ) {
@@ -135,7 +135,7 @@
     version_object <- getRvatVersion(object)
     if (
       !is.null(version_object) &&
-        !is.na(version_object) &
+        !is.na(version_object) &&
         !is.null(version_gdb) &&
         !is.na(version_gdb)
     ) {
@@ -173,6 +173,17 @@
   }
 
   # return
+  CHROM
+}
+
+.convert_num_to_chrom <- function(CHROM) {
+  if (is.null(CHROM) || length(CHROM) == 0L) {
+    return(character(0L))
+  }
+  map <- c(`23` = "X", `24` = "Y", `26` = "MT")
+  CHROM <- as.character(CHROM)
+  idx <- CHROM %in% names(map)
+  CHROM[idx] <- unname(map[CHROM[idx]])
   CHROM
 }
 
@@ -220,26 +231,6 @@
     }
   }
 
-  invisible(NULL)
-}
-
-.check_input_path <- function(path) {
-
-  # path should be a single filepath
-  if (!is.character(output) || length(output) != 1L || !nzchar(output)) {
-    stop("`output` must be a single filepath", call. = FALSE)
-  }
-
-  # check if path exists
-  if (!file.exists(path)) {
-    stop(sprintf("The file %s does not exist.", path), call. = FALSE)
-  }
-
-  # check if path is a file (not a directory)
-  if (dir.exists(path)) {
-    stop(sprintf("'%s' is a directory, not a file.", path), call. = FALSE)
-  }
-  
   invisible(NULL)
 }
 
