@@ -3,6 +3,13 @@
 #' @include allInternalData.R
 
 #' @rdname aggdbList
+#'
+#' @param filelist Character vector of file paths pointing to [`aggdb`] files.
+#' @param checkDups Logical. If `TRUE` (the default), an error is raised when
+#'   unit names are duplicated across the provided aggdbs. If `FALSE`, duplicated
+#'   unit names are replaced with unique identifiers.
+#'
+#' @return An [`aggdbList-class`] object.
 #' @export
 aggdbList <- function(filelist, checkDups = TRUE) {
   # input validation
@@ -113,6 +120,10 @@ aggdbList <- function(filelist, checkDups = TRUE) {
 }
 
 # aggdbList methods -------------------------------------------------------
+
+#' @rdname aggdbList
+#' @usage NULL
+#' @export
 setMethod("show", signature = "aggdbList", definition = function(object) {
   cat(sprintf(
     "aggdbList object\naggdbs: %s\nSamples: %s\nUnits: %s\n",
@@ -154,6 +165,9 @@ setMethod("metadata", signature = "aggdbList", definition = function(x) {
   x@metadata
 })
 
+#' @rdname aggdbList
+#' @usage NULL
+#' @export
 setMethod("listParams", signature = "aggdbList", definition = function(object) {
   object@params
 })

@@ -8,6 +8,13 @@
 \alias{listParams}
 \alias{aggdb-class}
 \alias{close,aggdb-method}
+\alias{metadata,aggdb-method}
+\alias{getGdbId,aggdb-method}
+\alias{getRvatVersion,aggdb-method}
+\alias{listSamples,aggdb-method}
+\alias{listUnits,aggdb-method}
+\alias{listParams,aggdb-method}
+\alias{getUnit,aggdb-method}
 \title{Class to manage interactions with an aggdb}
 \description{
 The \code{\link{aggregate}} method saves genotype aggregates compressed in an aggdb file.

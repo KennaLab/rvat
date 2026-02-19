@@ -2,6 +2,9 @@
 #' @include allGenerics.R
 #' @include allInternalData.R
 
+#' @rdname collapseAggDbs
+#' @usage NULL
+#' @export
 setMethod(
   "collapseAggDbs",
   signature = signature(object = "aggdbList"),
