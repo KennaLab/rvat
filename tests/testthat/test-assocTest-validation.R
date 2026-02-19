@@ -567,7 +567,7 @@ test_that("assocTest input validation work", {
   varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
   test_gdb <- withr::local_tempfile(fileext = ".gdb")
   buildGdb(
-    "../data/vcf_multiallelic.vcf",
+    test_path("data/vcf_multiallelic.vcf"),
     output = test_gdb,
     genomeBuild = "GRCh38",
     verbose = FALSE

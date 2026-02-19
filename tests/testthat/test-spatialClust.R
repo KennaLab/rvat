@@ -3,7 +3,7 @@ gdb <- create_example_gdb()
 # # check mapToCds
 test_that("spatialClust works",{
 
-  gtf <- rtracklayer::import("../data/Homo_sapiens.GRCh38.105.rvatData.gtf")
+  gtf <- rtracklayer::import(test_path("data/Homo_sapiens.GRCh38.105.rvatData.gtf"))
   transcripts <- unique(gtf$transcript_id)
   output <- withr::local_tempfile()
   expect_no_error({suppressMessages(mapToCDS(

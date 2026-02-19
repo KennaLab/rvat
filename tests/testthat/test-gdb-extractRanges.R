@@ -52,7 +52,7 @@ test_that("extractRanges handles different input formats", {
 
   # ensembl gene info
   gtf <- readr::read_tsv(
-    "../data/Homo_sapiens.GRCh38.105.gene.txt.gz",
+    test_path("data/Homo_sapiens.GRCh38.105.gene.txt.gz"),
     show_col_types = FALSE
   )
   colnames(gtf)[1] <- "CHROM"

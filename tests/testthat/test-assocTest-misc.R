@@ -22,14 +22,14 @@ test_that("assocTest covar/pheno missingness is handled correctly", {
   )
   
   ## run assocTest with keep-list based on non-missing covariate values
-  assoc_missing_covar_check <- assocTest(
+  assoc_missing_covar_check <- suppressMessages(assocTest(
     object = GT_missing_covar_check,
     pheno = "pheno",
     test = "scoreSPA",
     covar = c("PC2", "covar_with_missings"),
     keep = keeplist,
     verbose = TRUE
-  )
+  ))
   metadata(assoc_missing_covar)$creationDate <- NA_character_
   metadata(assoc_missing_covar_check)$creationDate <- NA_character_
   
@@ -47,17 +47,17 @@ test_that("assocTest covar/pheno missingness is handled correctly", {
     !is.na(GT_missing_pheno$pheno_with_missings)
   ]
 
-  assoc_missing_pheno <- assocTest(
+  assoc_missing_pheno <- suppressMessages(assocTest(
     object = GT_missing_pheno,
     pheno = "pheno_with_missings",
     test = "lm",
     covar = paste0("PC", 2:4),
     continuous = TRUE,
     verbose = TRUE
-  )
+  ))
 
   ## run assocTest with keep-list based on non-missing pheno values
-  assoc_missing_pheno_check <- assocTest(
+  assoc_missing_pheno_check <- suppressMessages(assocTest(
     object = GT_missing_pheno_check,
     pheno = "pheno_with_missings",
     test = "lm",
@@ -65,7 +65,7 @@ test_that("assocTest covar/pheno missingness is handled correctly", {
     continuous = TRUE,
     keep = keeplist,
     verbose = TRUE
-  )
+  ))
   metadata(assoc_missing_pheno)$creationDate <- NA_character_
   metadata(assoc_missing_pheno_check)$creationDate <- NA_character_
   expect_equal(assoc_missing_pheno, assoc_missing_pheno_check)
