@@ -13,13 +13,13 @@ test_that("assocTest covar/pheno missingness is handled correctly", {
     !is.na(GT_missing_covar$covar_with_missings)
   ]
   ## run assocTest
-  assoc_missing_covar <- assocTest(
+  assoc_missing_covar <- suppressMessages(assocTest(
     object = GT_missing_covar,
     pheno = "pheno",
     test = "scoreSPA",
     covar = c("PC2", "covar_with_missings"),
     verbose = TRUE
-  )
+  ))
   
   ## run assocTest with keep-list based on non-missing covariate values
   assoc_missing_covar_check <- suppressMessages(assocTest(

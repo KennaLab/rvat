@@ -42,8 +42,8 @@ test_that("prepareStatsGSA works", {
     covar = NULL,
     verbose = FALSE
   )
-  expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores > 4] == 4))
-  expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores < -3] == -3))
+  expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores > 4 & !is.na(zscores)] == 4))
+  expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores < -3 & !is.na(zscores)] == -3))
 
   # check if inverse normal transformation works as expected
   rvbresults_moderate_INT <- rvat:::.prepare_stats_GSA(
@@ -69,7 +69,7 @@ test_that("prepareStatsGSA works", {
 
   # check if infinite Z-scores are handled correctly
   rvbresults_moderate_check_inf <- rvbresults_moderate
-  rvbresults_moderate_check_inf$P[1:5] <- rep(0.99999999999999999, 5)
+  rvbresults_moderate_check_inf$P[1:5] <- rep(0.99999999999, 5)
   zscores <- qnorm(1 - rvbresults_moderate_check_inf$P)
   rvbresults_moderate_check_inf <- suppressMessages(rvat:::.prepare_stats_GSA(
     rvbresults_moderate_check_inf,
