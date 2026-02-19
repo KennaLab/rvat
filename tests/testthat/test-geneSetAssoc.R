@@ -2,7 +2,7 @@ data(rvbresults, envir = environment())
 genesetfile_c5 <- withr::local_tempfile()
 suppressMessages(
   genesetfile <- buildGeneSet(
-    gmtpath = "../data/c5.go.mf.v2023.2.Hs.symbols.gmt",
+    gmtpath = test_path("data/c5.go.mf.v2023.2.Hs.symbols.gmt"),
     output = genesetfile_c5
   )
 )

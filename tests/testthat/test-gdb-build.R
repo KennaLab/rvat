@@ -85,9 +85,13 @@ test_that("buildGdb creates consistent variant ranges", {
 test_that("buildGdb handles multi-allelic variants correctly", {
   # parse multi-allelic vcf with `parseMultiAllelic.py`
   out_parsed <- withr::local_tempfile()
+  vcf_path <- test_path("data/vcf_multiallelic.vcf")
+  pyscript <- system.file("exec", "parseMultiAllelic.py", package = "rvat")
   system(
     sprintf(
-      "python3 ../../exec/parseMultiAllelic.py ../data/vcf_multiallelic.vcf > %s",
+      "python3 %s %s > %s",
+      pyscript,
+      vcf_path,
       out_parsed
     )
   )
@@ -96,7 +100,7 @@ test_that("buildGdb handles multi-allelic variants correctly", {
 
   # build from multi-allelic vcf directly
   buildGdb(
-    "../data/vcf_multiallelic.vcf",
+    test_path("data/vcf_multiallelic.vcf"),
     output = gdb_path1,
     genomeBuild = "GRCh38",
     verbose = FALSE
@@ -217,7 +221,7 @@ test_that("buildGdb input validation works correctly", {
   suppressMessages(expect_message(
     {
       buildGdb(
-        vcf = "../data/vcf_multiallelic.vcf",
+        vcf = test_path("data/vcf_multiallelic.vcf"),
         output = tmp_output,
         genomeBuild = "GRCh38",
         overWrite = TRUE
