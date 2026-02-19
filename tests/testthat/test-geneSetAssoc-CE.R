@@ -4,13 +4,13 @@ res <- rvbresults[
   rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",
 ]
 gene_anno <- readr::read_tsv(
-  "../data/Homo_sapiens.GRCh38.105.gene.txt.gz",
+  test_path("data/Homo_sapiens.GRCh38.105.gene.txt.gz"),
   show_col_types = FALSE,
   progress = FALSE
 )
 ## from https://github.com/Kyoko-wtnb/FUMA_scRNA_data/tree/master/processed_data
 data <- readr::read_tsv(
-  "../data/GSE67835_Human_Cortex.txt.gz",
+  test_path("data/GSE67835_Human_Cortex.txt.gz"),
   show_col_types = FALSE,
   progress = FALSE
 )

@@ -12,7 +12,7 @@ test_that("mapVariants handles different input formats", {
   ## gtf
   mapVariants(
     gdb,
-    gff = "../data/protein_coding_genes.gtf",
+    gff = test_path("data/protein_coding_genes.gtf"),
     output = output_gtf,
     verbose = FALSE
   )
@@ -20,7 +20,7 @@ test_that("mapVariants handles different input formats", {
   ## bed file
   mapVariants(
     gdb,
-    bed = "../data/protein_coding_genes.bed",
+    bed = test_path("data/protein_coding_genes.bed"),
     bedCols = c("gene_id", "gene_name"),
     output = output_bed,
     verbose = FALSE
@@ -29,7 +29,7 @@ test_that("mapVariants handles different input formats", {
   ## ranges file
   mapVariants(
     gdb,
-    ranges = "../data/protein_coding_genes.ranges",
+    ranges = test_path("data/protein_coding_genes.ranges"),
     output = output_ranges,
     verbose = FALSE
   )
@@ -37,7 +37,7 @@ test_that("mapVariants handles different input formats", {
   ## GRanges
   ranges <- GenomicRanges::makeGRangesFromDataFrame(
     readr::read_tsv(
-      "../data/protein_coding_genes.ranges",
+      test_path("data/protein_coding_genes.ranges"),
       show_col_types = FALSE
     ),
     keep.extra.columns = TRUE
@@ -74,7 +74,7 @@ test_that("mapVariants handles different input formats", {
   # also test w/o specifying output
   genes <- mapVariants(
     gdb,
-    gff = "../data/protein_coding_genes.gtf",
+    gff = test_path("data/protein_coding_genes.gtf"),
     verbose = FALSE
   )
   output_gtf_data$score <- as.numeric(output_gtf_data$score)
@@ -89,7 +89,7 @@ test_that("mapVariants matches vcfanno output", {
   output_file <- withr::local_tempfile()
   mapVariants(
     gdb,
-    gff = "../data/protein_coding_genes.gtf",
+    gff = test_path("data/protein_coding_genes.gtf"),
     output = output_file,
     verbose = FALSE
   )
@@ -98,7 +98,7 @@ test_that("mapVariants matches vcfanno output", {
 
   # compare with vcfanno
   vcfanno <- readr::read_tsv(
-    "../data/rvatData.parsed.vcfAnno.gene.vcfInfo2Table",
+    test_path("data/rvatData.parsed.vcfAnno.gene.vcfInfo2Table"),
     show_col_types = FALSE
   )
 
@@ -237,8 +237,8 @@ test_that("mapVariants input validation works correctly", {
   expect_error(
     mapVariants(
       gdb,
-      gff = "../data/protein_coding_genes.gtf",
-      bed = "../data/protein_coding_genes.bed",
+      gff = test_path("data/protein_coding_genes.gtf"),
+      bed = test_path("data/protein_coding_genes.bed"),
       output = output_file,
       verbose = FALSE
     ),
@@ -308,7 +308,7 @@ test_that("mapVariants input validation works correctly", {
       {
         mapVariants(
           gdb,
-          gff = "../data/protein_coding_genes.gtf",
+          gff = test_path("data/protein_coding_genes.gtf"),
           uploadName = sprintf("upload%sname", mark),
           verbose = FALSE
         )
@@ -332,7 +332,7 @@ test_that("mapVariants input validation works correctly", {
       {
         mapVariants(
           gdb,
-          gff = "../data/protein_coding_genes.gtf",
+          gff = test_path("data/protein_coding_genes.gtf"),
           uploadName = name,
           verbose = FALSE
         )
@@ -346,7 +346,7 @@ test_that("mapVariants input validation works correctly", {
     {
       mapVariants(
         gdb,
-        gff = "../data/protein_coding_genes.gtf",
+        gff = test_path("data/protein_coding_genes.gtf"),
         uploadName = TRUE,
         verbose = FALSE
       )
@@ -359,7 +359,7 @@ test_that("mapVariants input validation works correctly", {
     {
       mapVariants(
         gdb,
-        gff = "../data/protein_coding_genes.gtf",
+        gff = test_path("data/protein_coding_genes.gtf"),
         uploadName = "varInfo",
         verbose = FALSE
       )
@@ -379,7 +379,7 @@ test_that("mapVariants input validation works correctly", {
   output <- capture_messages({
     mapVariants(
       gdb,
-      gff = "../data/protein_coding_genes.gtf",
+      gff = test_path("data/protein_coding_genes.gtf"),
       uploadName = "gene",
       verbose = TRUE,
       overWrite = TRUE

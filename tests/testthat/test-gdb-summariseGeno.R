@@ -173,7 +173,7 @@ test_that("gdb-summariseGeno input validation works", {
   ## build small test gdb
   test_gdb <- withr::local_tempfile(fileext = ".gdb")
   buildGdb(
-    "../data/vcf_multiallelic.vcf",
+    test_path("data/vcf_multiallelic.vcf"),
     output = test_gdb,
     genomeBuild = "GRCh38",
     verbose = FALSE

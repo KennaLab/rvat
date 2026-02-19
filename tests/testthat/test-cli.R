@@ -1913,7 +1913,7 @@ test_that("--geneSetAssoc works", {
   ## geneSetFile
   genesetfile <- withr::local_tempfile()
   null <- buildGeneSet(
-    gmtpath = "../data/c5.go.mf.v2023.2.Hs.symbols.gmt",
+    gmtpath = test_path("data/c5.go.mf.v2023.2.Hs.symbols.gmt"),
     output = genesetfile,
     verbose = FALSE
   )
@@ -1958,7 +1958,7 @@ test_that("--geneSetAssoc works", {
   
   ## scorematrix
   scorematrix <- withr::local_tempfile()
-  data <- readr::read_tsv("../data/GSE67835_Human_Cortex.txt.gz", 
+  data <- readr::read_tsv(test_path("data/GSE67835_Human_Cortex.txt.gz"), 
                           show_col_types = FALSE, 
                           progress = FALSE)
   genes <- data$GENE

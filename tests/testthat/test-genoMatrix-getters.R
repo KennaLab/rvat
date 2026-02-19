@@ -13,19 +13,19 @@ test_that("genoMatrix getters work", {
 
   # load freq/counts/hwe/cr generated with plink
   plink_freq <- readr::read_table(
-    "../data/rvatData.frq.gz",
+    test_path("data/rvatData.frq.gz"),
     show_col_types = FALSE
   )
   plink_counts <- readr::read_table(
-    "../data/rvatData.frq.counts.gz",
+    test_path("data/rvatData.frq.counts.gz"),
     show_col_types = FALSE
   )
   plink_hwe <- suppressWarnings(readr::read_table(
-    "../data/rvatData.hwe.gz",
+    test_path("data/rvatData.hwe.gz"),
     show_col_types = FALSE
   ))
   plink_cr <- readr::read_table(
-    "../data/rvatData.lmiss.gz",
+    test_path("data/rvatData.lmiss.gz"),
     show_col_types = FALSE
   )
 
@@ -81,7 +81,7 @@ test_that("genoMatrix getters work", {
 
   # check sample call rates
   plink_cr <- readr::read_table(
-    "../data/rvatData.imiss.gz",
+    test_path("data/rvatData.imiss.gz"),
     show_col_types = FALSE
   )
   rvat_cr <- getCR(GT_all, var = FALSE)
@@ -94,19 +94,19 @@ test_that("genoMatrix getters work for random subset", {
 
   # load freq/counts/hwe/cr generated with plink
   plink_freq <- readr::read_table(
-    "../data/rvatData.randomsubset.frq.gz",
+    test_path("data/rvatData.randomsubset.frq.gz"),
     show_col_types = FALSE
   )
   plink_counts <- readr::read_table(
-    "../data/rvatData.randomsubset.frq.counts.gz",
+    test_path("data/rvatData.randomsubset.frq.counts.gz"),
     show_col_types = FALSE
   )
   plink_hwe <- suppressWarnings(readr::read_table(
-    "../data/rvatData.randomsubset.hwe.gz",
+    test_path("data/rvatData.randomsubset.hwe.gz"),
     show_col_types = FALSE
   ))
   plink_cr <- readr::read_table(
-    "../data/rvatData.randomsubset.lmiss",
+    test_path("data/rvatData.randomsubset.lmiss"),
     show_col_types = FALSE
   )
 
@@ -135,7 +135,7 @@ test_that("genoMatrix getters work for random subset", {
     var$ALT
   )
   keep <- readr::read_table(
-    "../data/rvatData.random.keep",
+    test_path("data/rvatData.random.keep"),
     col_names = FALSE,
     show_col_types = FALSE
   )
@@ -168,7 +168,7 @@ test_that("genoMatrix getters work for random subset", {
 
   # Also check sample callrates for subset
   plink_cr <- readr::read_table(
-    "../data/rvatData.randomsubset.imiss.gz",
+    test_path("data/rvatData.randomsubset.imiss.gz"),
     show_col_types = FALSE
   )
   plink_cr <- plink_cr[match(colnames(GT_subset), plink_cr$IID), ]

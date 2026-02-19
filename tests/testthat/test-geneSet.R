@@ -6,7 +6,7 @@ test_that("buildGeneSet from list and gmt results in identical output", {
   # build GO gene set from gmt
   expect_no_error(
     suppressMessages(buildGeneSet(
-      gmtpath = "../data/c5.go.mf.v2023.2.Hs.symbols.gmt",
+      gmtpath = test_path("data/c5.go.mf.v2023.2.Hs.symbols.gmt"),
       output = genesetfile_c5
     ))
   )
@@ -26,7 +26,7 @@ test_that("buildGeneSet from list and gmt results in identical output", {
 })
 
 buildGeneSet(
-  gmtpath = "../data/c5.go.mf.v2023.2.Hs.symbols.gmt",
+  gmtpath = test_path("data/c5.go.mf.v2023.2.Hs.symbols.gmt"),
   output = genesetfile_c5,
   verbose = FALSE
 )
@@ -91,8 +91,9 @@ test_that("core geneSetList methods work", {
   )))
 
   # check if genesetlist includes all genes in gmt
+  path <- test_path("data/c5.go.mf.v2023.2.Hs.symbols.gmt")
   genes <- system(
-    "cut -f3- ../data/c5.go.mf.v2023.2.Hs.symbols.gmt | tr '\t' '\n' | sort | uniq",
+    sprintf("cut -f3- %s | tr '\t' '\n' | sort | uniq", path),
     intern = TRUE
   )
   expect_equal(sort(listUnits(genesetlist)), sort(genes))
@@ -165,7 +166,7 @@ test_that("core geneSetList methods work", {
 
   # remapIDs: check if dictionary mapping works correctly
   linker <- readr::read_tsv(
-    "../data/Homo_sapiens.GRCh38.105.gene.txt.gz",
+    test_path("data/Homo_sapiens.GRCh38.105.gene.txt.gz"),
     show_col_types = FALSE,
     progress = FALSE
   )
@@ -240,7 +241,7 @@ test_that("core geneSetFile methods work", {
 
   ## listGeneSets
   pathways <- readr::read_lines(
-    "../data/c5.go.mf.v2023.2.Hs.symbols.pathways.txt"
+    test_path("data/c5.go.mf.v2023.2.Hs.symbols.pathways.txt")
   )
   expect_equal(listGeneSets(genesetlist), listGeneSets(genesetfile))
   expect_equal(sort(listGeneSets(genesetfile)), sort(pathways))
