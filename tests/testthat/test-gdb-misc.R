@@ -20,7 +20,7 @@ test_that("gdb integrity checks work", {
 test_that("misc gdb methods work", {
   gdb <- withr::local_tempfile(fileext = ".gdb")
   buildGdb(
-    "../data/vcf_multiallelic.vcf",
+    test_path("data/vcf_multiallelic.vcf"),
     output = gdb,
     genomeBuild = "GRCh38",
     verbose = FALSE
