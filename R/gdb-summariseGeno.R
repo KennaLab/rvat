@@ -8,6 +8,9 @@ columns_summariseGeno <- list(
   hweP = "numeric"
 )
 
+#' @rdname summariseGeno
+#' @usage NULL
+#' @export
 setMethod(
   "summariseGeno",
   signature = signature(object = "gdb"),

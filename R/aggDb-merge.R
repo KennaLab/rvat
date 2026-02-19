@@ -2,6 +2,9 @@
 #' @include allGenerics.R
 #' @include allInternalData.R
 
+#' @rdname mergeAggDbs
+#' @usage NULL
+#' @export
 setMethod(
   "mergeAggDbs",
   signature = signature(object = "aggdbList"),

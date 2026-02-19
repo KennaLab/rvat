@@ -33,30 +33,48 @@ setMethod("close", signature = "aggdb", definition = function(con) {
 })
 
 # aggdb getters/listers -------------------------------------------------------
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("metadata", signature = "aggdb", definition = function(x) {
   meta <- DBI::dbGetQuery(x, "select * from meta")
   meta <- as.list(setNames(meta$value, nm = meta$name))
   meta
 })
 
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("getGdbId", signature = "aggdb", definition = function(object) {
   metadata(object)$gdbId
 })
 
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("getRvatVersion", signature = "aggdb", definition = function(object) {
   metadata(object)$rvatVersion
 })
 
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("listSamples", signature = "aggdb", definition = function(object) {
   IID <- DBI::dbGetQuery(object, "select * from SM")$IID
   IID
 })
 
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("listUnits", signature = "aggdb", definition = function(object) {
   unit <- DBI::dbGetQuery(object, "select unit from aggregates")$unit
   unit
 })
 
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("listParams", signature = "aggdb", definition = function(object) {
   params <- DBI::dbGetQuery(object, "select * from params order by name")
   params <- as.list(setNames(params$value, nm = params$name))
@@ -64,6 +82,10 @@ setMethod("listParams", signature = "aggdb", definition = function(object) {
 })
 
 # getUnit method -------------------------------------------------------------
+
+#' @rdname aggdb
+#' @usage NULL
+#' @export
 setMethod("getUnit", signature = "aggdb", definition = function(object, unit) {
   # check if unit is of type character and length > 0
   if (!is.character(unit) || length(unit) == 0L) {

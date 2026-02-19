@@ -4,13 +4,25 @@
 \name{aggdbList}
 \alias{aggdbList}
 \alias{aggdbList-class}
+\alias{show,aggdbList-method}
 \alias{listUnits,aggdbList-method}
 \alias{listSamples,aggdbList-method}
 \alias{length,aggdbList-method}
 \alias{metadata,aggdbList-method}
+\alias{listParams,aggdbList-method}
 \title{Class to facilitate merging aggdbs}
 \usage{
 aggdbList(filelist, checkDups = TRUE)
+}
+\arguments{
+\item{filelist}{Character vector of file paths pointing to \code{\link{aggdb}} files.}
+
+\item{checkDups}{Logical. If \code{TRUE} (the default), an error is raised when
+unit names are duplicated across the provided aggdbs. If \code{FALSE}, duplicated
+unit names are replaced with unique identifiers.}
+}
+\value{
+An \code{\linkS4class{aggdbList}} object.
 }
 \description{
 Class to facilitate merging aggdbs. By providing a vector of aggdb filepaths,
