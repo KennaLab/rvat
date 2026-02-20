@@ -190,7 +190,7 @@ setMethod(
           carrierN <- length(carrierIndex)
           for (ai in seq_along(alleles)) {
             # write variant info
-            insertVarRecord(
+            var_id <- insertVarRecord(
               object,
               record = c(records[i, 1:4], alleles[ai], records[i, 6:9])
             )
@@ -203,14 +203,15 @@ setMethod(
                 collapse = "/"
               )
             }
-            insertDosageRecord(object, record = gtia)
+            insertDosageRecord(object, record = gtia, var_id = var_id)
           }
           # bi-allelic site
         } else {
-          insertVarRecord(object, record = records[i, 1:9])
+          var_id <- insertVarRecord(object, record = records[i, 1:9])
           insertDosageRecord(
             object,
-            record = substr(records[i, -(1:9), drop = FALSE], 1, 3)
+            record = substr(records[i, -(1:9), drop = FALSE], 1, 3),
+            var_id = var_id
           )
         }
       }
@@ -233,32 +234,34 @@ setMethod(
   "insertVarRecord",
   signature = "gdb",
   definition = function(object, record) {
-    DBI::dbExecute(
+    var_id <- DBI::dbGetQuery(
       object,
-      paste0(
-        "insert into var(CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT) ",
-        "values (:chrom, :pos, :id, :ref, :alt, :qual, :flt, :info, :form)"
-      ),
+      "INSERT INTO var(CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING VAR_id;",
       params = list(
-        chrom = record[1],
-        pos = record[2],
-        id = record[3],
-        ref = record[4],
-        alt = record[5],
-        qual = record[6],
-        flt = record[7],
-        info = record[8],
-        form = record[9]
+        record[1], # CHROM
+        as.integer(record[2]), # POS
+        record[3], # ID
+        record[4], # REF
+        record[5], # ALT
+        record[6], # QUAL
+        record[7], # FILTER
+        record[8], # INFO
+        record[9] # FORMAT
       )
-    )
+    )$VAR_id
+
+    return(var_id)
   }
 )
 
 setMethod(
   "insertDosageRecord",
   signature = "gdb",
-  definition = function(object, record) {
-    record[record == "0/0"] <- "0"
+  definition = function(object, record, var_id) {
+    ## record contains the rows of the VCF file, where each row corresponds to a variant, the first 9 columns correspond to headers (CHROM, POS, etc.) and from column 10 the samples. var_id is added so that it can be passed from teh insertVarRecord function
+    record[record == "0/0"] <- "0" ## all different options, if a allele is unkown (due to for example sequence quality), it is set to 0 (the reference allele)
     record[record == "./0"] <- "0"
     record[record == "0/1"] <- "1"
     record[record == "1/0"] <- "1"
@@ -272,8 +275,9 @@ setMethod(
     record[record == "1|1"] <- "2"
     record[record == ".|."] <- "N"
     record[record == ".:0"] <- "N"
-    obs <- sort(unique(c(record)))
+    obs <- sort(unique(c(record))) ## stores all unique genotypes
     if (sum(!obs %in% c("0", "1", "2", "N")) > 0L) {
+      ## if the obs contains other characters than 0, 1, 2, N it leads to an error
       stop(
         sprintf(
           paste0(
@@ -285,12 +289,15 @@ setMethod(
         call. = FALSE
       )
     }
-
+    ## compress
     record <- I(list(memCompress(paste(record, collapse = ""), type = "gzip")))
+
     DBI::dbExecute(
+      ## opens the connection to the gdb
       object,
-      "insert into dosage(GT) values (:record)",
-      params = list(record = record)
+      "INSERT INTO dosage(VAR_id, GT) 
+        VALUES (?, ?)", ## inserts into the var_id, since this is not done automatically with duckDB
+      params = list(var_id, record)
     )
   }
 )
@@ -340,10 +347,10 @@ setMethod(
       # insert GRanges into gdb as blobs per chromosome
       DBI::dbExecute(
         object,
-        statement = "insert into var_ranges(CHROM,ranges) values (:CHROM, :ranges)",
+        statement = "insert into var_ranges(CHROM,ranges) values (?, ?)",
         params = list(
-          CHROM = chrom,
-          ranges = list(serialize(gr, connection = NULL))
+          chrom,
+          list(serialize(gr, connection = NULL))
         )
       )
     }
@@ -373,23 +380,70 @@ setMethod(
   invisible(NULL)
 }
 
+.buildgdb_create_schema <- function(gdb, verbose = TRUE) {
+  ## drop tables if they already exist. This is needed in DuckDB. When overwrite is set to TRUE, is does not overwrite tables. So they need to be dropped first.
+  .drop_duckdb_objects(gdb, verbose = verbose)
 
-.buildgdb_create_schema <- function(gdb) {
+  # create sequence
+  DBI::dbExecute(gdb, "CREATE SEQUENCE var_seq START 1;")
+
+  # create table with default VAR_id from sequence
   DBI::dbExecute(
     gdb,
-    paste0(
-      "create table var (VAR_id integer primary key, CHROM text, POS int, ",
-      "ID text, REF text, ALT text, QUAL text, FILTER text, INFO text, FORMAT text);"
-    )
+    "
+      CREATE TABLE var (
+        VAR_id INTEGER PRIMARY KEY DEFAULT nextval('var_seq'),
+        CHROM TEXT,
+        POS INT,
+        ID TEXT,
+        REF TEXT,
+        ALT TEXT,
+        QUAL TEXT,
+        FILTER TEXT,
+        INFO TEXT,
+        FORMAT TEXT
+      );"
   )
-  DBI::dbExecute(gdb, "create table SM (IID text, sex int)")
-  DBI::dbExecute(
-    gdb,
-    "create table dosage (VAR_id integer primary key, GT BLOB);"
-  )
-  DBI::dbExecute(gdb, "create table anno (name text,value text,date text)")
-  DBI::dbExecute(gdb, "create table cohort (name text,value text,date text)")
-  DBI::dbExecute(gdb, "create table meta (name text,value text)")
+
+  DBI::dbExecute(gdb, "CREATE TABLE SM (IID TEXT, sex INT);")
+  DBI::dbExecute(gdb, "CREATE TABLE dosage (VAR_id INTEGER, GT BLOB);")
+  DBI::dbExecute(gdb, "CREATE TABLE anno (name TEXT,value TEXT,date TEXT);")
+  DBI::dbExecute(gdb, "CREATE TABLE cohort (name TEXT,value TEXT,date TEXT);")
+  DBI::dbExecute(gdb, "CREATE TABLE meta (name TEXT,value TEXT);")
 
   invisible(NULL)
+}
+
+
+.drop_duckdb_objects <- function(gdb, verbose = TRUE) {
+  # drop tables if they exist
+  tables <- DBI::dbListTables(gdb)
+  for (tbl in c(
+    "var",
+    "SM",
+    "dosage",
+    "anno",
+    "cohort",
+    "meta",
+    "var_ranges"
+  )) {
+    if (tbl %in% tables) {
+      if (verbose) {
+        message(sprintf("Dropping existing table '%s'", tbl))
+      }
+      DBI::dbExecute(gdb, sprintf("DROP TABLE %s;", tbl))
+    }
+  }
+
+  # drop sequence
+  sequences <- DBI::dbGetQuery(
+    gdb,
+    "SELECT sequence_name FROM duckdb_sequences();"
+  )
+  if ("var_seq" %in% sequences$sequence_name) {
+    if (verbose) {
+      message("Dropping existing sequence 'var_seq'")
+    }
+    DBI::dbExecute(gdb, "DROP SEQUENCE var_seq;")
+  }
 }

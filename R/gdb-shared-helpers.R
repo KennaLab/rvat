@@ -61,20 +61,20 @@
   # add rvat version to meta table
   DBI::dbExecute(
     gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
+    "INSERT INTO meta VALUES (?, ?)",
     params = list(
-      name = "rvatVersion",
-      value = as.character(packageVersion("rvat"))
+      "rvatVersion",
+      as.character(packageVersion("rvat"))
     )
   )
 
   # add random identifier
   DBI::dbExecute(
     gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
+    "INSERT INTO meta VALUES (?, ?)",
     params = list(
-      name = "id",
-      value = paste(sample(c(letters, 0:9), 28L, replace = TRUE), collapse = "")
+      "id",
+      paste(sample(c(letters, 0:9), 28L, replace = TRUE), collapse = "")
     )
   )
 
@@ -94,27 +94,6 @@
       call. = FALSE
     )
   }
-
-  DBI::dbExecute(
-    gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
-    params = list(
-      name = "genomeBuild",
-      value = if (is.null(genomeBuild)) NA_character_ else genomeBuild
-    )
-  )
-
-  # add creation date
-  DBI::dbExecute(
-    gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
-    params = list(
-      name = "creationDate",
-      value = as.character(round(Sys.time(), units = "secs"))
-    )
-  )
-
-  invisible(NULL)
 }
 
 

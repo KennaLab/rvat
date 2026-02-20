@@ -156,7 +156,7 @@ NULL
 #' @import DBI
 #' @importClassesFrom RSQLite SQLiteConnection
 #' @export
-setClass("gdb", contains = "SQLiteConnection")
+setClass("gdb", contains = "duckdb_connection")
 
 
 #' Class to manage multiple varSets

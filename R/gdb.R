@@ -4,6 +4,7 @@
 #' @rdname gdb
 #' @usage NULL
 #' @export
+#'
 setMethod("show", "gdb", function(object) {
   cat("rvat gdb object\n", "Path:", getGdbPath(object), "\n")
 })
@@ -11,6 +12,7 @@ setMethod("show", "gdb", function(object) {
 #' @rdname gdb
 #' @usage NULL
 #' @export
+#'
 setMethod("close", signature = "gdb", definition = function(con) {
   DBI::dbDisconnect(con)
 })
