@@ -111,7 +111,7 @@ setMethod(
       unit = unit,
       cohortname = cohort_name,
       genomeBuild = getGenomeBuild(object),
-      gdbpath = object@dbname,
+      gdbpath = getGdbPath(object),
       gdbid = getGdbId(object),
       verbose = verbose
     ))
