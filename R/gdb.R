@@ -5,7 +5,7 @@
 #' @usage NULL
 #' @export
 setMethod("show", signature = "gdb", definition = function(object) {
-  cat("rvat gdb object\n", "Path:", object@dbname, "\n")
+  cat("rvat gdb object\n", "Path:", getGdbPath(object), "\n")
 })
 
 #' @rdname gdb
