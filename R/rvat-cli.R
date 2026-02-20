@@ -34,20 +34,29 @@ Provide a valid function call for detailed help.\n%s",
   check_help(args_raw = args_raw)
 
   # check verbosity
-  if (!args[["quiet"]] || "verbose" %in% args_raw) verbose <- TRUE else
+  if (!args[["quiet"]] || "verbose" %in% args_raw) {
+    verbose <- TRUE
+  } else {
     verbose <- FALSE
+  }
 
   # check strictness
-  if (!args[["not-strict"]] || "strict" %in% args_raw) strict <- TRUE else
+  if (!args[["not-strict"]] || "strict" %in% args_raw) {
+    strict <- TRUE
+  } else {
     strict <- FALSE
+  }
 
   # print options
-  if (verbose)
+  if (verbose) {
     message(sprintf(
       "Analysis started at: %s\n\n",
       as.character(round(Sys.time(), units = "secs"))
     ))
-  if (verbose) print_args(args, args_raw, rvat_cli_flags)
+  }
+  if (verbose) {
+    print_args(args, args_raw, rvat_cli_flags)
+  }
 
   # buildGdb
   if ("buildGdb" %in% args_raw) {
@@ -333,7 +342,11 @@ Provide a valid function call for detailed help.\n%s",
       split = ",",
       fixed = TRUE
     )))
-    overlap <- as.numeric(unlist(strsplit(args[["overlap"]], split = ",", fixed = TRUE)))
+    overlap <- as.numeric(unlist(strsplit(
+      args[["overlap"]],
+      split = ",",
+      fixed = TRUE
+    )))
 
     spatialClust(
       object = gdb,
@@ -370,12 +383,21 @@ Provide a valid function call for detailed help.\n%s",
 
     gdb <- gdb(args[["gdb"]])
     on.exit(close(gdb), add = TRUE)
-    if (!is.null(args[["varSet"]])) varSet <- varSetFile(args[["varSet"]]) else
+    if (!is.null(args[["varSet"]])) {
+      varSet <- varSetFile(args[["varSet"]])
+    } else {
       varSet <- NULL
-    if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
+    }
+    if (!is.null(args[["VAR_id"]])) {
+      VAR_id <- readLines(args[["VAR_id"]])
+    } else {
       VAR_id <- NULL
-    if (!is.null(args[["keep"]])) keep <- readLines(args[["keep"]]) else
+    }
+    if (!is.null(args[["keep"]])) {
+      keep <- readLines(args[["keep"]])
+    } else {
       keep <- NULL
+    }
 
     summariseGeno(
       object = gdb,
@@ -384,7 +406,11 @@ Provide a valid function call for detailed help.\n%s",
       VAR_id = VAR_id,
       pheno = args[["pheno"]],
       memlimit = args[["memlimit"]],
-      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",", fixed = TRUE)),
+      geneticModel = unlist(strsplit(
+        args[["geneticModel"]],
+        split = ",",
+        fixed = TRUE
+      )),
       checkPloidy = args[["checkPloidy"]],
       keep = keep,
       output = args[["output"]],
@@ -427,14 +453,26 @@ Provide a valid function call for detailed help.\n%s",
 
     gdb <- gdb(args[["gdb"]])
     on.exit(close(gdb), add = TRUE)
-    if (!is.null(args[["varSet"]])) varSet <- varSetFile(args[["varSet"]]) else
+    if (!is.null(args[["varSet"]])) {
+      varSet <- varSetFile(args[["varSet"]])
+    } else {
       varSet <- NULL
-    if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
+    }
+    if (!is.null(args[["VAR_id"]])) {
+      VAR_id <- readLines(args[["VAR_id"]])
+    } else {
       VAR_id <- NULL
-    if (!is.null(args[["keep"]])) keep <- readLines(args[["keep"]]) else
+    }
+    if (!is.null(args[["keep"]])) {
+      keep <- readLines(args[["keep"]])
+    } else {
       keep <- NULL
-    if (!is.null(args[["imputeMethod"]]))
-      imputeMethod <- args[["imputeMethod"]] else imputeMethod <- "meanImpute"
+    }
+    if (!is.null(args[["imputeMethod"]])) {
+      imputeMethod <- args[["imputeMethod"]]
+    } else {
+      imputeMethod <- "meanImpute"
+    }
 
     aggregate(
       x = gdb,
@@ -443,9 +481,17 @@ Provide a valid function call for detailed help.\n%s",
       VAR_id = VAR_id,
       pheno = args[["pheno"]],
       memlimit = args[["memlimit"]],
-      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",", fixed = TRUE)),
+      geneticModel = unlist(strsplit(
+        args[["geneticModel"]],
+        split = ",",
+        fixed = TRUE
+      )),
       imputeMethod = imputeMethod,
-      MAFweights = unlist(strsplit(args[["MAFweights"]], split = ",", fixed = TRUE)),
+      MAFweights = unlist(strsplit(
+        args[["MAFweights"]],
+        split = ",",
+        fixed = TRUE
+      )),
       checkPloidy = args[["checkPloidy"]],
       keep = keep,
       output = args[["output"]],
@@ -553,11 +599,21 @@ Provide a valid function call for detailed help.\n%s",
 
     gdb <- gdb(args[["gdb"]])
     on.exit(close(gdb), add = TRUE)
-    if (!is.null(args[["varSet"]])) varSet <- varSetFile(args[["varSet"]]) else
+    if (!is.null(args[["varSet"]])) {
+      varSet <- varSetFile(args[["varSet"]])
+    } else {
       varSet <- NULL
-    if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
+    }
+    if (!is.null(args[["VAR_id"]])) {
+      VAR_id <- readLines(args[["VAR_id"]])
+    } else {
       VAR_id <- NULL
-    if (!is.null(args[["name"]])) name <- args[["name"]] else name <- "none"
+    }
+    if (!is.null(args[["name"]])) {
+      name <- args[["name"]]
+    } else {
+      name <- "none"
+    }
     if (!is.null(args[["covar"]])) {
       covar <- lapply(
         unlist(strsplit(args[["covar"]], split = "/", fixed = TRUE)),
@@ -566,14 +622,24 @@ Provide a valid function call for detailed help.\n%s",
     } else {
       covar <- NULL
     }
-    if (!is.null(args[["keep"]])) keep <- readLines(args[["keep"]]) else
+    if (!is.null(args[["keep"]])) {
+      keep <- readLines(args[["keep"]])
+    } else {
       keep <- NULL
-    if (!is.null(args[["resamplingFile"]]))
-      resamplingFile <- resamplingFile(args[["resamplingFile"]]) else
+    }
+    if (!is.null(args[["resamplingFile"]])) {
+      resamplingFile <- resamplingFile(args[["resamplingFile"]])
+    } else {
       resamplingFile <- NULL
-    if (!is.null(args[["seed"]])) set.seed(args[["seed"]])
-    if (args[["outputResampling"]] == "FALSE") outputResampling <- FALSE else
+    }
+    if (!is.null(args[["seed"]])) {
+      set.seed(args[["seed"]])
+    }
+    if (args[["outputResampling"]] == "FALSE") {
+      outputResampling <- FALSE
+    } else {
       outputResampling <- args[["outputResampling"]]
+    }
 
     assocTest(
       object = gdb,
@@ -587,9 +653,17 @@ Provide a valid function call for detailed help.\n%s",
       singlevar = args[["singlevar"]],
       covar = covar,
       offset = args[["offset"]],
-      geneticModel = unlist(strsplit(args[["geneticModel"]], split = ",", fixed = TRUE)),
+      geneticModel = unlist(strsplit(
+        args[["geneticModel"]],
+        split = ",",
+        fixed = TRUE
+      )),
       imputeMethod = args[["imputeMethod"]],
-      MAFweights = unlist(strsplit(args[["MAFweights"]], split = ",", fixed = TRUE)),
+      MAFweights = unlist(strsplit(
+        args[["MAFweights"]],
+        split = ",",
+        fixed = TRUE
+      )),
       maxitFirth = args[["maxitFirth"]],
       checkPloidy = args[["checkPloidy"]],
       keep = keep,
@@ -647,9 +721,16 @@ Provide a valid function call for detailed help.\n%s",
     } else {
       covar <- NULL
     }
-    if (!is.null(args[["name"]])) name <- args[["name"]] else name <- "none"
-    if (!is.null(args[["keep"]])) keep <- readLines(args[["keep"]]) else
+    if (!is.null(args[["name"]])) {
+      name <- args[["name"]]
+    } else {
+      name <- "none"
+    }
+    if (!is.null(args[["keep"]])) {
+      keep <- readLines(args[["keep"]])
+    } else {
       keep <- NULL
+    }
     if (!is.null(args[["dropUnits"]])) {
       dropUnits <- readLines(args[["dropUnits"]])
     } else {
@@ -687,10 +768,14 @@ Provide a valid function call for detailed help.\n%s",
       expected = expected
     )
 
-    if (!is.null(args[["seed"]])) set.seed(args[["seed"]])
-    if (!is.null(args[["methodResampling"]]))
-      methodResampling <- args[["methodResampling"]] else
+    if (!is.null(args[["seed"]])) {
+      set.seed(args[["seed"]])
+    }
+    if (!is.null(args[["methodResampling"]])) {
+      methodResampling <- args[["methodResampling"]]
+    } else {
       methodResampling <- "permutation"
+    }
 
     buildResamplingFile(
       nSamples = args[["nSamples"]],
@@ -742,10 +827,16 @@ Provide a valid function call for detailed help.\n%s",
     result <- rvbResult(args[["rvbResult"]])
     aggdb <- aggdb(args[["aggdb"]])
     on.exit(close(aggdb), add = TRUE)
-    if (!args[["not-makePD"]] || "makePD" %in% args_raw) makePD <- TRUE else
+    if (!args[["not-makePD"]] || "makePD" %in% args_raw) {
+      makePD <- TRUE
+    } else {
       makePD <- FALSE
-    if (!args[["not-absolute"]] || "absolute" %in% args_raw)
-      absolute <- TRUE else absolute <- FALSE
+    }
+    if (!args[["not-absolute"]] || "absolute" %in% args_raw) {
+      absolute <- TRUE
+    } else {
+      absolute <- FALSE
+    }
 
     cormatrix <- buildCorMatrix(
       object = result,
@@ -785,12 +876,18 @@ Provide a valid function call for detailed help.\n%s",
     genesetfile <- geneSetFile(args[["geneSet"]])
 
     # load scoreMatrix, if specified
-    if (!is.null(args[["scoreMatrix"]]))
-      scoreMatrix <- readRDS(args[["scoreMatrix"]]) else scoreMatrix <- NULL
+    if (!is.null(args[["scoreMatrix"]])) {
+      scoreMatrix <- readRDS(args[["scoreMatrix"]])
+    } else {
+      scoreMatrix <- NULL
+    }
 
     # load cormatrix, if specified
-    if (!is.null(args[["cormatrix"]]))
-      cormatrix <- readRDS(args[["cormatrix"]]) else cormatrix <- NULL
+    if (!is.null(args[["cormatrix"]])) {
+      cormatrix <- readRDS(args[["cormatrix"]])
+    } else {
+      cormatrix <- NULL
+    }
 
     # condition
     if (!is.null(args[["condition"]])) {
@@ -799,7 +896,11 @@ Provide a valid function call for detailed help.\n%s",
       } else if (args[["condition_type"]] == "matrix") {
         condition <- readRDS(args[["condition"]])
       } else if (args[["condition_type"]] == "vector") {
-        condition <- unlist(strsplit(args[["condition"]], split = ",", fixed = TRUE))
+        condition <- unlist(strsplit(
+          args[["condition"]],
+          split = ",",
+          fixed = TRUE
+        ))
       } else {
         stop(
           "--condition_type should be one of 'geneSet', 'matrix', or 'vector'"
@@ -809,22 +910,34 @@ Provide a valid function call for detailed help.\n%s",
       condition <- NULL
     }
 
-    if (!is.null(args[["covar"]]))
-      covar <- unlist(strsplit(args[["covar"]], split = ",", fixed = TRUE)) else covar <- NULL
-    if (!is.null(args[["Zcutoffs"]]))
+    if (!is.null(args[["covar"]])) {
+      covar <- unlist(strsplit(args[["covar"]], split = ",", fixed = TRUE))
+    } else {
+      covar <- NULL
+    }
+    if (!is.null(args[["Zcutoffs"]])) {
       Zcutoffs <- as.numeric(unlist(strsplit(
         args[["Zcutoffs"]],
         split = ",",
         fixed = TRUE
-      ))) else Zcutoffs <- NULL
-    if (!is.null(args[["scoreCutoffs"]]))
+      )))
+    } else {
+      Zcutoffs <- NULL
+    }
+    if (!is.null(args[["scoreCutoffs"]])) {
       scoreCutoffs <- as.numeric(unlist(strsplit(
         args[["scoreCutoffs"]],
         split = ",",
         fixed = TRUE
-      ))) else scoreCutoffs <- NULL
-    if (!args[["twoSided"]] || "oneSided" %in% args_raw) oneSided <- TRUE else
+      )))
+    } else {
+      scoreCutoffs <- NULL
+    }
+    if (!args[["twoSided"]] || "oneSided" %in% args_raw) {
+      oneSided <- TRUE
+    } else {
       oneSided <- FALSE
+    }
 
     geneSetAssoc(
       object = result,
@@ -863,8 +976,11 @@ Provide a valid function call for detailed help.\n%s",
       expected = expected
     )
 
-    if (!args[["not-splitMultiallelic"]] || "splitMultiAllelic" %in% args_raw)
-      splitMultiallelic <- TRUE else splitMultiallelic <- FALSE
+    if (!args[["not-splitMultiallelic"]] || "splitMultiAllelic" %in% args_raw) {
+      splitMultiallelic <- TRUE
+    } else {
+      splitMultiallelic <- FALSE
+    }
 
     vcfInfo2Table(
       vcf = args[["vcf"]],
@@ -873,43 +989,52 @@ Provide a valid function call for detailed help.\n%s",
     )
   }
 
-
   # writeVcf
   if ("writeVcf" %in% args_raw) {
-      required <- c("writeVcf", "gdb", "output")
-      expected <- c(
-        "gdb",
-        "writeVcf",
-        "not-includeGeno",
-        "quiet",
-        names(formals(writeVcf)))
+    required <- c("writeVcf", "gdb", "output")
+    expected <- c(
+      "gdb",
+      "writeVcf",
+      "not-includeGeno",
+      "quiet",
+      names(formals(writeVcf))
+    )
 
-      check_args(
-        func_name = "writeVcf",
-        args = args_raw,
-        required = required,
-        expected = expected
-      )
+    check_args(
+      func_name = "writeVcf",
+      args = args_raw,
+      required = required,
+      expected = expected
+    )
 
-      gdb <- gdb(args[["gdb"]])
-      on.exit(close(gdb), add = TRUE)
-      if (!is.null(args[["VAR_id"]])) VAR_id <- readLines(args[["VAR_id"]]) else
-        VAR_id <- NULL
-      if (!is.null(args[["IID"]])) IID <- readLines(args[["IID"]]) else
-        IID <- NULL
-      if (!args[["not-includeGeno"]] || "includeGeno" %in% args_raw)
-        includeGeno <- TRUE else includeGeno <- FALSE
-      writeVcf(
-        gdb,
-        output = args[["output"]],
-        VAR_id = VAR_id,
-        IID = IID,
-        memlimit = args[["memlimit"]],
-        includeGeno = includeGeno,
-        includeVarId = args[["includeVarId"]],
-        overWrite = args[["overWrite"]],
-        verbose = verbose
-      )
+    gdb <- gdb(args[["gdb"]])
+    on.exit(close(gdb), add = TRUE)
+    if (!is.null(args[["VAR_id"]])) {
+      VAR_id <- readLines(args[["VAR_id"]])
+    } else {
+      VAR_id <- NULL
+    }
+    if (!is.null(args[["IID"]])) {
+      IID <- readLines(args[["IID"]])
+    } else {
+      IID <- NULL
+    }
+    if (!args[["not-includeGeno"]] || "includeGeno" %in% args_raw) {
+      includeGeno <- TRUE
+    } else {
+      includeGeno <- FALSE
+    }
+    writeVcf(
+      gdb,
+      output = args[["output"]],
+      VAR_id = VAR_id,
+      IID = IID,
+      memlimit = args[["memlimit"]],
+      includeGeno = includeGeno,
+      includeVarId = args[["includeVarId"]],
+      overWrite = args[["overWrite"]],
+      verbose = verbose
+    )
   }
 
   # overview of warnings and final message

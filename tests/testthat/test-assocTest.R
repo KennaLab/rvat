@@ -263,8 +263,8 @@ test_that("dominant/recessive model filtering works", {
     test_dominant_recessive_rvb_2
   )
   for (i in seq_along(result_list)) {
-   metadata(result_list[[i]])$rvatVersion <- NULL
-   metadata(result_list[[i]])$creationDate <- NULL
+    metadata(result_list[[i]])$rvatVersion <- NULL
+    metadata(result_list[[i]])$creationDate <- NULL
   }
 
   ## build list and snapshot

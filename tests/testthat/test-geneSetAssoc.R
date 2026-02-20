@@ -42,8 +42,12 @@ test_that("prepareStatsGSA works", {
     covar = NULL,
     verbose = FALSE
   )
-  expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores > 4 & !is.na(zscores)] == 4))
-  expect_true(all(rvbresults_moderate_zcutoffs$Z[zscores < -3 & !is.na(zscores)] == -3))
+  expect_true(all(
+    rvbresults_moderate_zcutoffs$Z[zscores > 4 & !is.na(zscores)] == 4
+  ))
+  expect_true(all(
+    rvbresults_moderate_zcutoffs$Z[zscores < -3 & !is.na(zscores)] == -3
+  ))
 
   # check if inverse normal transformation works as expected
   rvbresults_moderate_INT <- rvat:::.prepare_stats_GSA(

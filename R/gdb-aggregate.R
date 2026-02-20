@@ -1,14 +1,14 @@
 #'  Aggregate genotypes into a single (burden) score for each individual.
-#' 
-#'  Returns an aggregate of genotypes for each individual. 
-#'  Note, the [`gdb`] implementation is described here, `aggregate` can also be run directly on a 
+#'
+#'  Returns an aggregate of genotypes for each individual.
+#'  Note, the [`gdb`] implementation is described here, `aggregate` can also be run directly on a
 #'  [`genoMatrix`] object as described in the [`genoMatrix`] documentation.
 #'  The specified genetic model, weights, MAF-weighting are taken into account when aggregating.
 #'  Aggregates are written to disk in the [`aggdb`] format, which can be used as input
 #'  for [`assocTest-aggdb`] to perform gene set burden analyses.
-#' 
+#'
 #' @param x A [`gdb`] object.
-#' @param cohort If a valid cohort name is provided, 
+#' @param cohort If a valid cohort name is provided,
 #' the uploaded data for this cohort is used to filter and annotate the genotypes.
 #' If not specified, all samples in the gdb will be loaded.
 #' @param varSet A [`varSetList`] or [`varSetFile`] object.
@@ -21,15 +21,15 @@
 #' Defaults to `allelic`.
 #' @param imputeMethod Which imputation method to apply? ('meanImpute' or 'missingToRef').
 #' Defaults to `meanImpute`.
-#' @param MAFweights MAF weighting method. 
+#' @param MAFweights MAF weighting method.
 #' Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.
-#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
+#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
 #' Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
-#' If not specified, the genome build in the [`gdb`] will be used if available 
+#' If not specified, the genome build in the [`gdb`] will be used if available
 #' (included if the `genomeBuild` parameter was set in [`buildGdb`]).
-#' Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, 
+#' Otherwise, if the genome build is not included in the gdb metadata, and no value is provided,
 #' then all variants are assigned the default ploidy of "diploid".
-#' @param keep Vector of sample IDs to keep. 
+#' @param keep Vector of sample IDs to keep.
 #' Defaults to `NULL`, in which case all samples are kept.
 #' @param output Output file path for results.
 #' Defaults to `NULL`, in which case results are not written.
@@ -46,15 +46,15 @@
 #' @param maxCarriers Maximum carrier count for variant retention.
 #' @param minCarrierFreq Minimum carrier frequency for variant retention.
 #' @param maxCarrierFreq Maximum carrier frequency for variant retention.
-#' @param overWrite Should the output file be overwritten if it already exists? 
+#' @param overWrite Should the output file be overwritten if it already exists?
 #' Defaults to `FALSE`.
-#' @param verbose Should the function be verbose? (TRUE/FALSE). 
+#' @param verbose Should the function be verbose? (TRUE/FALSE).
 #' Defaults to `TRUE`.
-#' @param strict Should strict checks be performed? 
+#' @param strict Should strict checks be performed?
 #' Defaults to `TRUE`. Strict tests currently includes
-#' checking whether supplied varSetFile/varSetList was generated from the 
+#' checking whether supplied varSetFile/varSetList was generated from the
 #' same gdb as specified in `object`.
-#' 
+#'
 #' @example inst/examples/example-gdb-aggregate.R
 #'
 #' @export
@@ -412,7 +412,9 @@ setMethod(
       return_value_if_empty = NULL,
       verbose = verbose
     )
-    if (is.null(GT)) return(NULL)
+    if (is.null(GT)) {
+      return(NULL)
+    }
 
     # recode
     GT <- recode(

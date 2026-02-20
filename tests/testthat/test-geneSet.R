@@ -297,13 +297,15 @@ test_that("geneSet/geneSetList/geneSetFile input validaton works", {
     genesetfile,
     geneSet = genesets
   )
-  # expect error when geneSet units and weights don't match 
-  expect_error({
-    geneSet(
-      geneSetName = "test",
-      units = "A,B,C",
-      w = "1,2"
-    )},
+  # expect error when geneSet units and weights don't match
+  expect_error(
+    {
+      geneSet(
+        geneSetName = "test",
+        units = "A,B,C",
+        w = "1,2"
+      )
+    },
     regexp = "Number of weights"
   )
   # expect error when neither `geneSet` or `unit` is specified
@@ -331,31 +333,35 @@ test_that("geneSet/geneSetList/geneSetFile input validaton works", {
   ## should result in equal genestlists
   expect_equal(genesets_fromlist2, genesets_fromlist)
   expect_equal(genesets_fromfile2, genesets_fromfile)
-  
+
   # expect error when buildGeneSet input is of wrong type
   expect_error(
     {
       buildGeneSet(data = "test")
-    }, regexp = "`data` should be"
+    },
+    regexp = "`data` should be"
   )
   # buildgeneSet: either one of data or gmtpath must be provided
   expect_error(
     {
       buildGeneSet(data = NULL, gmtpath = NULL)
-    }, regexp = "Specify one of"
+    },
+    regexp = "Specify one of"
   )
 
   # buildgeneSet: either one of data or gmtpath must be provided
   expect_error(
     {
       buildGeneSet(data = list("A" = c("gene1", "gene2"), "B" = TRUE))
-    }, regexp = "Each element in the list"
+    },
+    regexp = "Each element in the list"
   )
 
   # buildgeneSet: data.frame should contain at least two columns
   expect_error(
     {
       buildGeneSet(data = data.frame(geneSetName = c("geneSet1", "geneSet2")))
-    }, regexp = "data.frame should have at least"
+    },
+    regexp = "data.frame should have at least"
   )
 })

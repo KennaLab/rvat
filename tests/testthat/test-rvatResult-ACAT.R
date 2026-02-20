@@ -15,7 +15,7 @@ test_that("ACAT snapshots are consistent", {
 
 test_that("ACAT input validation works", {
   data(rvbresults, envir = environment())
-  rvbresults_P0 <- rvbresults[1:50,]
+  rvbresults_P0 <- rvbresults[1:50, ]
   rvbresults_P0$P[1:5] <- 0
   expect_warning(
     {
@@ -27,7 +27,7 @@ test_that("ACAT input validation works", {
         fixpval_maxP = 0.99,
         fixpval_minP = 1e-16
       ))
-    }, "are exactly 0"
+    },
+    "are exactly 0"
   )
-}
-)
+})

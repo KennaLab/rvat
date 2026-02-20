@@ -1,6 +1,6 @@
 #' Create a gdb file.
 #'
-#' Creates a new [`gdb`] file. 
+#' Creates a new [`gdb`] file.
 #' The gdb can be structured and populated using a provided vcf file.
 #'
 #' @param vcf Input vcf file used to structure and populate gdb.
@@ -25,7 +25,7 @@
 buildGdb <- function(
   vcf,
   output,
-  skipIndexes = FALSE,
+  skipIndexes = TRUE, ## DuckDB does indexing internally, so no need to do it manually as well
   skipVarRanges = FALSE,
   overWrite = FALSE,
   genomeBuild = NULL,

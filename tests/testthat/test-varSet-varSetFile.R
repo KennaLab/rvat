@@ -1,18 +1,27 @@
 test_that("varSetFile input validation works", {
   varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-  
+
   # expect error if varSetFile is called with incorrect input
-  expect_error({
-    varSetFile("")
-  }, regexp = "must be a single, non-empty file path string")
-  
-  expect_error({
-    varSetFile(character(0))
-  }, regexp = "must be a single, non-empty file path string")
-  
-  expect_error({
-    varSetFile("/nonexistent/file.txt")
-  }, regexp = "File does not exist")
+  expect_error(
+    {
+      varSetFile("")
+    },
+    regexp = "must be a single, non-empty file path string"
+  )
+
+  expect_error(
+    {
+      varSetFile(character(0))
+    },
+    regexp = "must be a single, non-empty file path string"
+  )
+
+  expect_error(
+    {
+      varSetFile("/nonexistent/file.txt")
+    },
+    regexp = "File does not exist"
+  )
 
   # expect error if varSetFile has incorrect unit count
   tmpfile <- withr::local_tempfile()

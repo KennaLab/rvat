@@ -238,7 +238,7 @@ test_that("buildGdb input validation works correctly", {
       buildGdb(
         vcf = rvat_example("rvatData.vcf.gz"),
         output = tmp_dir,
-        overWrite = TRUE,      
+        overWrite = TRUE,
         genomeBuild = "GRCh38"
       )
     },

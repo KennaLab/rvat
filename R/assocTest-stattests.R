@@ -36,7 +36,10 @@
     if (
       sum(colData(GT)[, pheno] == 1) < 2 || sum(colData(GT)[, pheno] == 0) < 2
     ) {
-      warning("Fewer than two cases or controls, skipping tests.", call. = FALSE)
+      warning(
+        "Fewer than two cases or controls, skipping tests.",
+        call. = FALSE
+      )
       test <- c()
     }
   }
@@ -337,8 +340,11 @@
         {
           acat_null <- .acat_NULL_Model(
             colData(GT)[[pheno]],
-            Z = if (!is.null(covar))
-              as.matrix(colData(GT)[, covar, drop = FALSE]) else NULL
+            Z = if (!is.null(covar)) {
+              as.matrix(colData(GT)[, covar, drop = FALSE])
+            } else {
+              NULL
+            }
           )
 
           # fit
@@ -455,12 +461,16 @@
       2
   )
   if (length(testable) < nrow(GT)) {
-    if (verbose)
-      warning(sprintf(
-        "%s/%s variants have less than 2 carriers, tests will be skipped for these variants.",
-        nrow(GT) - length(testable),
-        nrow(GT)
-      ), call. = FALSE)
+    if (verbose) {
+      warning(
+        sprintf(
+          "%s/%s variants have less than 2 carriers, tests will be skipped for these variants.",
+          nrow(GT) - length(testable),
+          nrow(GT)
+        ),
+        call. = FALSE
+      )
+    }
   }
   Pl <- ORl <- effectl <- effectSEl <- effectCIlowerl <- effectCIupperl <- list()
 
@@ -703,17 +713,27 @@
 
   ### check if null model is provided (if method = "original")
   if (method == "original" && is.null(obj)) {
-    stop("if method == 'original', a NULL model should be provided", call. = FALSE)
+    stop(
+      "if method == 'original', a NULL model should be provided",
+      call. = FALSE
+    )
   }
 
   ### check if weights match length of genotypes
   if (!is.null(weights) && length(weights) != ncol(G)) {
-    stop("The length of weights must equal to the number of variants!", call. = FALSE)
+    stop(
+      "The length of weights must equal to the number of variants!",
+      call. = FALSE
+    )
   }
 
   n <- nrow(G)
-  if (is.null(mac)) mac <- Matrix::colSums(G, na.rm = TRUE)
-  if (is.null(maf)) maf <- mac / (2 * n)
+  if (is.null(mac)) {
+    mac <- Matrix::colSums(G, na.rm = TRUE)
+  }
+  if (is.null(maf)) {
+    maf <- mac / (2 * n)
+  }
   p <- length(mac)
 
   ### remove SNPs with mac=0
@@ -723,7 +743,10 @@
     maf <- maf[mac > 0]
     mac <- mac[mac > 0]
     if (length(mac) == 0) {
-      stop("The genotype matrix does not have non-zero elements!", call. = FALSE)
+      stop(
+        "The genotype matrix does not have non-zero elements!",
+        call. = FALSE
+      )
     }
   }
 
@@ -739,9 +762,11 @@
         weights = weights[is.very.rare]
       )
     } else if (method == "scoreSPA") {
-      w <- if (is.null(weights))
-        dbeta(maf[is.very.rare], weights.beta[1], weights.beta[2]) else
+      w <- if (is.null(weights)) {
+        dbeta(maf[is.very.rare], weights.beta[1], weights.beta[2])
+      } else {
         weights[is.very.rare]
+      }
       agg <- Matrix::rowSums(
         as(G[, is.very.rare, drop = FALSE], "sparseMatrix") %*%
           diag(w, ncol = length(w), nrow = length(w))
@@ -752,9 +777,11 @@
         minmac = 0
       )$p.value
     } else if (method == "firth") {
-      w <- if (is.null(weights))
-        dbeta(maf[is.very.rare], weights.beta[1], weights.beta[2]) else
+      w <- if (is.null(weights)) {
+        dbeta(maf[is.very.rare], weights.beta[1], weights.beta[2])
+      } else {
         weights[is.very.rare]
+      }
       agg <- Matrix::rowSums(
         as(G[, is.very.rare, drop = FALSE], "sparseMatrix") %*%
           diag(w, ncol = length(w), nrow = length(w))
@@ -1209,8 +1236,9 @@
           message(sprintf("Failed test '%s'\n%s", "skat_burden", e))
         }
       )
-      if (length(P[["skat_burden"]]) == 0)
+      if (length(P[["skat_burden"]]) == 0) {
         P[["skat_burden"]] <- rep(NA_real_, ncol(perms))
+      }
     }
 
     if ("skat" %in% test) {
@@ -1301,29 +1329,42 @@
           "skat_burden_robust",
           "skato_robust"
         )
-        P[["skat_robust"]] <- if ("skat_robust" %in% test)
-          skat_robust_perms[, "skat_robust"] else NULL
-        P[["skato_robust"]] <- if ("skato_robust" %in% test)
-          skat_robust_perms[, "skato_robust"] else NULL
-        P[["skat_burden_robust"]] <- if ("skat_burden_robust" %in% test)
+        P[["skat_robust"]] <- if ("skat_robust" %in% test) {
+          skat_robust_perms[, "skat_robust"]
+        } else {
+          NULL
+        }
+        P[["skato_robust"]] <- if ("skato_robust" %in% test) {
+          skat_robust_perms[, "skato_robust"]
+        } else {
+          NULL
+        }
+        P[["skat_burden_robust"]] <- if ("skat_burden_robust" %in% test) {
           skat_robust_perms[, "skat_burden_robust"]
+        }
       }
-      if (length(P[["skat_robust"]]) == 0 & "skat_robust" %in% test)
+      if (length(P[["skat_robust"]]) == 0 & "skat_robust" %in% test) {
         P[["skat_robust"]] <- rep(NA_real_, ncol(perms))
-      if (length(P[["skato_robust"]]) == 0 & "skato_robust" %in% test)
+      }
+      if (length(P[["skato_robust"]]) == 0 & "skato_robust" %in% test) {
         P[["skato_robust"]] <- rep(NA_real_, ncol(perms))
+      }
       if (
         length(P[["skat_burden_robust"]]) == 0 & "skat_burden_robust" %in% test
-      )
+      ) {
         P[["skat_burden_robust"]] <- rep(NA_real_, ncol(perms))
+      }
     }
   }
 
   if (sum(c("acatv") %in% test) > 0) {
     acat_null = .acat_NULL_Model(
       colData(GT)[[pheno]],
-      Z = if (!is.null(covar))
-        as.matrix(colData(GT)[, covar, drop = FALSE]) else NULL
+      Z = if (!is.null(covar)) {
+        as.matrix(colData(GT)[, covar, drop = FALSE])
+      } else {
+        NULL
+      }
     )
 
     if ("acatv" %in% test) {

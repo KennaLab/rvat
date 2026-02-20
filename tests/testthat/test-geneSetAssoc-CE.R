@@ -134,7 +134,11 @@ test_that("cell-type enrichment snapshots are equal", {
     verbose = FALSE,
     output = output
   )
-  ce_from_file <- readr::read_tsv(output, progress = FALSE, show_col_types = FALSE)
+  ce_from_file <- readr::read_tsv(
+    output,
+    progress = FALSE,
+    show_col_types = FALSE
+  )
   rownames(ce_interactive) <- NULL
   rownames(ce_from_file) <- NULL
   expect_equal(ce_interactive, as.data.frame(ce_from_file))

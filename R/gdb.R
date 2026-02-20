@@ -4,8 +4,8 @@
 #' @rdname gdb
 #' @usage NULL
 #' @export
-setMethod("show", signature = "gdb", definition = function(object) {
-  cat("rvat gdb object\n", "Path:", object@dbname, "\n")
+setMethod("show", "gdb", function(object) {
+  cat("rvat gdb object\n", "Path:", getGdbPath(object), "\n")
 })
 
 #' @rdname gdb
@@ -15,18 +15,20 @@ setMethod("close", signature = "gdb", definition = function(con) {
   DBI::dbDisconnect(con)
 })
 
+
 # constructors --------------------------------------------
 
 #' @rdname gdb
 #' @usage NULL
 #' @export
+
 gdb <- function(path) {
   if (!file.exists(path)) {
     stop(sprintf("'%s' doesn't exist.", path), call. = FALSE)
   }
   tryCatch(
     {
-      con <- DBI::dbConnect(DBI::dbDriver("SQLite"), path)
+      con <- DBI::dbConnect(duckdb::duckdb(), path)
     },
     error = function(e) {
       stop(sprintf("Invalid gdb path '%s'", path), call. = FALSE)
@@ -35,10 +37,11 @@ gdb <- function(path) {
   new("gdb", con)
 }
 
+
 gdb_init <- function(path) {
   tryCatch(
     {
-      con <- DBI::dbConnect(DBI::dbDriver("SQLite"), path)
+      con <- DBI::dbConnect(duckdb::duckdb(), path)
     },
     error = function(e) {
       stop(sprintf("Invalid gdb path '%s'", path), call. = FALSE)
@@ -92,7 +95,7 @@ setMethod("getGdbId", signature = "gdb", definition = function(object) {
 #' @usage NULL
 #' @export
 setMethod("getGdbPath", signature = "gdb", definition = function(object) {
-  object@dbname
+  DBI::dbGetInfo(object)$dbname
 })
 
 #' @rdname gdb
@@ -198,7 +201,7 @@ setMethod(
         ranges[x, ][["end"]] + padding
       )
       query <- paste("select * from var where", paste(query, collapse = " or "))
-      query <- RSQLite::dbGetQuery(gdb, query)
+      query <- DBI::dbGetQuery(gdb, query)
       query
     }
     queries <- do.call(

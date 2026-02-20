@@ -1395,67 +1395,71 @@ z_test <- function(x, mu = 0, var = 1, alternative = "two.sided") {
   # But direct subsetting `mappedMatrix[, i]` can be slow if not careful.
   # We use the fact that it is sparse to get indices efficiently.
 
-  results <- vapply(seq_len(ncol(mappedMatrix)), function(i) {
-    # Get indices of units in this set
-    # For a sparse matrix, `which` or subsetting returns the indices
-    mappedMatrix_i <- mappedMatrix[, i, drop = TRUE]
+  results <- vapply(
+    seq_len(ncol(mappedMatrix)),
+    function(i) {
+      # Get indices of units in this set
+      # For a sparse matrix, `which` or subsetting returns the indices
+      mappedMatrix_i <- mappedMatrix[, i, drop = TRUE]
 
-    subset_Z <- Z[mappedMatrix_i]
-    subset_P <- Pvals[mappedMatrix_i]
+      subset_Z <- Z[mappedMatrix_i]
+      subset_P <- Pvals[mappedMatrix_i]
 
-    out_template <- c(
-      effect = NA_real_,
-      effectSE = NA_real_,
-      effectCIlower = NA_real_,
-      effectCIupper = NA_real_,
-      P = NA_real_
-    )
-
-    result_list <- list()
-    if (test_selfcontained == "ttest") {
-      out_ttest <- out_template
-      tryCatch(
-        {
-          fit <- t.test(
-            subset_Z,
-            alternative = if (oneSided) "greater" else "two.sided"
-          )
-          out_ttest["effect"] <- unname(fit$estimate)
-          out_ttest["effectSE"] <- unname(fit$estimate / fit$statistic)
-          out_ttest["effectCIlower"] <- fit$conf.int[1]
-          out_ttest["effectCIupper"] <- fit$conf.int[2]
-          out_ttest["P"] <- fit$p.value
-        }
+      out_template <- c(
+        effect = NA_real_,
+        effectSE = NA_real_,
+        effectCIlower = NA_real_,
+        effectCIupper = NA_real_,
+        P = NA_real_
       )
-      result_list[["ttest"]] <- out_ttest
-    } else if (test_selfcontained == "ztest") {
-      out_ztest <- out_template
-      tryCatch(
-        {
-          fit <- z_test(
-            subset_Z,
-            alternative = if (oneSided) "greater" else "two.sided"
-          )
-          out_ztest["effect"] <- fit$mean
-          out_ztest["effectSE"] <- fit$SE
-          out_ztest["effectCIlower"] <- fit$CIlower
-          out_ztest["effectCIupper"] <- fit$CIupper
-          out_ztest["P"] <- fit$P
-        }
-      )
-      result_list[["ztest"]] <- out_ztest
-    } else if (test_type == "ACAT") {
-      out_acat <- out_template
-      tryCatch(
-        {
-          out_acat["P"] <- .rvat_ACAT(subset_P)
-        }
-      )
-      result_list[["ACAT"]] <- out_acat
-    }
 
-    result_list
-  }, FUN.VALUE = numeric(5))
+      result_list <- list()
+      if (test_selfcontained == "ttest") {
+        out_ttest <- out_template
+        tryCatch(
+          {
+            fit <- t.test(
+              subset_Z,
+              alternative = if (oneSided) "greater" else "two.sided"
+            )
+            out_ttest["effect"] <- unname(fit$estimate)
+            out_ttest["effectSE"] <- unname(fit$estimate / fit$statistic)
+            out_ttest["effectCIlower"] <- fit$conf.int[1]
+            out_ttest["effectCIupper"] <- fit$conf.int[2]
+            out_ttest["P"] <- fit$p.value
+          }
+        )
+        result_list[["ttest"]] <- out_ttest
+      } else if (test_selfcontained == "ztest") {
+        out_ztest <- out_template
+        tryCatch(
+          {
+            fit <- z_test(
+              subset_Z,
+              alternative = if (oneSided) "greater" else "two.sided"
+            )
+            out_ztest["effect"] <- fit$mean
+            out_ztest["effectSE"] <- fit$SE
+            out_ztest["effectCIlower"] <- fit$CIlower
+            out_ztest["effectCIupper"] <- fit$CIupper
+            out_ztest["P"] <- fit$P
+          }
+        )
+        result_list[["ztest"]] <- out_ztest
+      } else if (test_type == "ACAT") {
+        out_acat <- out_template
+        tryCatch(
+          {
+            out_acat["P"] <- .rvat_ACAT(subset_P)
+          }
+        )
+        result_list[["ACAT"]] <- out_acat
+      }
+
+      result_list
+    },
+    FUN.VALUE = numeric(5)
+  )
 
   list(
     effect = vapply(res, function(x) x$eff, numeric(1)),

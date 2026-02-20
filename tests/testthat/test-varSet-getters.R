@@ -69,26 +69,32 @@ test_that("getVarSet input validation works", {
     "Not all specified units are present in the varSetFile"
   )
 
-
   ## should still return valid results for existing units
   expect_identical(varsets, varsets2)
-  
+
   # at least one of unit or varSetName should be specified
-  expect_error({
-    varsets <- getVarSet(varsetlist)
-  }, regexp = "At least one of")
-  
+  expect_error(
+    {
+      varsets <- getVarSet(varsetlist)
+    },
+    regexp = "At least one of"
+  )
+
   # expect error if varSetFile contains malformed lines
   tmpfile <- withr::local_tempfile()
   ## line with three fields
-  writeLines("unit1|field1|field2", tmpfile) 
-  varsetfile_malformed <- new("varSetFile", 
-                        path = tmpfile, 
-                        units = "unit1",
-                        metadata = list())
-  
-  expect_error({
-    getVarSet(varsetfile_malformed, unit = "unit1")
-  }, regexp = "Malformed line encountered")
+  writeLines("unit1|field1|field2", tmpfile)
+  varsetfile_malformed <- new(
+    "varSetFile",
+    path = tmpfile,
+    units = "unit1",
+    metadata = list()
+  )
 
+  expect_error(
+    {
+      getVarSet(varsetfile_malformed, unit = "unit1")
+    },
+    regexp = "Malformed line encountered"
+  )
 })
