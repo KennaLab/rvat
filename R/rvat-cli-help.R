@@ -1,4 +1,4 @@
-rvat_cli_help  <- list(
+rvat_cli_help <- list(
   buildGdb = "
 buildGdb
 
@@ -27,7 +27,7 @@ Arguments:
   memlimit         Maximum number of vcf records to parse at a time, defaults to 1000.
   quiet            Flag to suppress verbose messages.
   ",
-  
+
   concatGdb = "
 concatGdb
 
@@ -45,8 +45,8 @@ Arguments:
   overWrite      Flag to indicate that output gdb file should be overwritten if it already exists.
   quiet          Flag to suppress verbose messages.
 ",
-  
-  subsetGdb="
+
+  subsetGdb = "
 subsetGdb
 
   Function to allow for generation of a child gdb from a parent gdb, 
@@ -70,7 +70,7 @@ Arguments:
   overWrite      Flag indicating whether output gdb should be overwritten if it already exists.
   quiet          Flag to suppress verbose messages.
 ",
-  
+
   uploadAnno = "
 uploadAnno
 
@@ -96,8 +96,8 @@ Arguments:
   overWrite      Flag indicating whether to overwrite existing table with same name in gdb. 
   quiet          Flag to suppress verbose messages.
 ",
-  
-  uploadCohort="
+
+  uploadCohort = "
 uploadCohort
 
   Function to upload cohort data tables to gdb. 
@@ -115,8 +115,8 @@ Arguments:
   overWrite      Flag indicating whether to overwrite existing table with same name in gdb. 
   quiet          Flag to suppress verbose messages.
 ",
-  
-  listAnno="
+
+  listAnno = "
 listAnno
 
   List variant info tables that have been uploaded to the gdb.
@@ -128,7 +128,7 @@ Arguments:
   gdb            gdb file path.
 
 ",
-  listCohort="
+  listCohort = "
 listCohort
   
   List sample cohort tables that have been uploaded to the gdb.
@@ -141,7 +141,7 @@ Arguments:
 
 ",
 
-  dropTable="
+  dropTable = "
 dropTable
 
   Drop table from gdb and clear from annotation / cohort metadata tables.
@@ -154,8 +154,8 @@ Arguments:
   name          Name of table to drop.
   quiet         Flag to suppress verbose messages.
 ",
-  
-  mapVariants="
+
+  mapVariants = "
 mapVariants
 
   Method to map the variants in a gdb to a set of ranges or features. 
@@ -186,8 +186,8 @@ Arguments:
                  Relevant if --uploadName is specified.
   quiet          Flag to suppress verbose messages.
 ",
-  
-  buildVarSet="
+
+  buildVarSet = "
 buildVarSet
 
   Generate optionally weighted variant sets using annotation table(s) uploaded to the gdb.
@@ -215,7 +215,7 @@ Arguments:
   quiet         Flag to suppress verbose messages.
 ",
 
-  spatialClust="
+  spatialClust = "
 spatialClust
 
   Generate weighted variant sets for use in association testing, 
@@ -253,7 +253,7 @@ Arguments:
  
 ",
 
-  summariseGeno="
+  summariseGeno = "
 summariseGeno
 
   Returns a per variant summary of genotype counts, frequencies, call-rates and hwe testing.
@@ -296,8 +296,8 @@ Arguments:
   not-strict      Flag to turn off strict checks. Strict checks currently includes checking whether supplied varSetFile/varSetList was generated from the same gdb as the gdb provided in --gdb.
   quiet           Flag to suppress verbose messages.
   ",
-  
-  aggregate="
+
+  aggregate = "
 aggregate
 
   Returns an aggregate of genotypes for each individual. 
@@ -382,7 +382,7 @@ Arguments:
   quiet          Flag to suppress verbose messages.
 ",
 
-  assocTest="
+  assocTest = "
 assocTest
 
   Main method for performing association tests on binary or quantitative traits. 
@@ -481,8 +481,8 @@ Arguments:
                       Strict checks currently includes checking whether supplied varSetFile/varSetList was generated from the same gdb as the gdb provided in --gdb.
   quiet               Flag to suppress verbose messages.
   ",
-  
-  buildResamplingFile="
+
+  buildResamplingFile = "
 buildResamplingFile
 
   Currently the 'permutation' approach is implemented. 
@@ -500,7 +500,7 @@ Arguments:
   output              File path (.gz extension) to write output to.
   seed                Set a seed for reproducibility.
 ",
-  
+
   buildGeneSet = "
 buildGeneSet
 
@@ -517,7 +517,7 @@ Arguments:
   sep             Separator used in input file. Defaults to '\t'.
   quiet           Flag to suppress verbose messages.
   ",
-  
+
   buildCorMatrix = "
 buildCorMatrix
 
@@ -543,7 +543,7 @@ Arguments:
   output            Output file path (R's RDS format).
   quiet             Flag to suppress verbose messages.
   ",
-  
+
   geneSetAssoc = "
 
 geneSetAssoc
@@ -589,7 +589,7 @@ Arguments:
   quiet           Flag to suppress verbose messages.
   ",
 
-  vcfInfo2Table="
+  vcfInfo2Table = "
 vcfInfo2Table
 
   Convert vcf info field to table format. 
@@ -604,7 +604,7 @@ Arguments:
   not-splitMultiallelic   Flag to disable splitting of multiallelic variants into separate rows (one row per allele).
 ",
 
-  writeVcf="
+  writeVcf = "
 writeVcf
 
   Export gdb to vcf format. 

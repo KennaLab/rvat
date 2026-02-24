@@ -1,22 +1,22 @@
 #' assocTest-gdb
-#' 
+#'
 #' Run [`assocTest`] on a [`gdb`] object. See the main [`assocTest`] page for details.
-#' 
+#'
 #' @rdname assocTest-gdb
 #' @name assocTest-gdb
 #' @aliases assocTest,gdb-method
 #' @param object A [`gdb`] object
 #' @param pheno colData field to test as response variable, the response variable
-#' can either be binary (0/1) or continuous. 
+#' can either be binary (0/1) or continuous.
 #' If the response variable is continuous set `continuous` to `TRUE`.
 #' Multiple phenotypes can be specified, which will then be tested separately.
 #' @param test Vector of statistical tests to run,
-#' options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth. 
+#' options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth.
 #' See [`assocTest`] for details.
-#' @param cohort If a valid cohort name is provided, then the uploaded data for 
-#' this cohort is used to filter and annotate the genoMatrix object. 
+#' @param cohort If a valid cohort name is provided, then the uploaded data for
+#' this cohort is used to filter and annotate the genoMatrix object.
 #' If not specified, all samples in the gdb will be loaded.
-#' @param varSet A [`varSetFile`] or [`varSetList`] object. 
+#' @param varSet A [`varSetFile`] or [`varSetList`] object.
 #' Alternatively a vector of VAR_ids can be specified using the `VAR_id` parameter.
 #' @param VAR_id A vector of VAR_ids, alternatively the `varSet` parameter can be specified.
 #' If single variant tests are run, the `memlimit` argument controls how many variants to analyze at a time.
@@ -24,7 +24,7 @@
 #' @param continuous Is the response variable continuous? (TRUE/FALSE). Defaults to `FALSE`.
 #' @param singlevar Run single variant tests? (TRUE/FALSE).
 #' Defaults to `FALSE`, in which case aggregate tests are run.
-#' @param covar Character vector of covariates, or a list of character vectors of covariates 
+#' @param covar Character vector of covariates, or a list of character vectors of covariates
 #' in which case each covariate set will be tested separately.
 #' @param offset Optional model offset, can be used to account for regenie LOCO predictions.
 #' @param geneticModel Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
@@ -32,35 +32,35 @@
 #' Multiple geneticModels can be specified, in which case each will be analyzed separately.
 #' @param imputeMethod Which imputation method to apply? ('meanImpute' or 'missingToRef').
 #' Defaults to `meanImpute`.
-#' @param MAFweights MAF weighting method. Currently Madsen-Browning ('mb') is implemented, 
+#' @param MAFweights MAF weighting method. Currently Madsen-Browning ('mb') is implemented,
 #' by default no MAF weighting is applied.
 #' Multiple MAFweights can be specified, in which case each will be analyzed separately.
-#' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals. 
+#' @param maxitFirth Maximum number of iterations to use for estimating firth confidence intervals.
 #' Defaults to 1000.
-#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR). 
+#' @param checkPloidy Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
 #' Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
-#' If not specified, the genome build in the [`gdb`] will be used, if available. 
+#' If not specified, the genome build in the [`gdb`] will be used, if available.
 #' (included if the `genomeBuild` parameter was set in [`buildGdb`]).
-#' Otherwise, if the genome build is not included in the gdb metadata, 
+#' Otherwise, if the genome build is not included in the gdb metadata,
 #' and no value is provided, then all variants are assigned the default ploidy of "diploid".
-#' @param keep Vector of sample IDs to keep, defaults to `NULL`, 
+#' @param keep Vector of sample IDs to keep, defaults to `NULL`,
 #' in which case all samples are kept.
 #' @param output Output file path for results.
 #' Defaults to `NULL`, in which case results are not written.
-#' @param append Relevant if the `output` parameter is not `NULL`. 
+#' @param append Relevant if the `output` parameter is not `NULL`.
 #' Should results be appended to `output`?
 #' @param returnDF Return a data.frame rather than a rvatResult. Defaults to `FALSE`.
 #' @param methodResampling Which method to use for resampling? ('permutation' currently implemented).
-#' Defaults to `NULL`, in which case no resampling is performed. 
-#' @param resamplingMatrix Pre-calculated resampling matrix (n x p), 
+#' Defaults to `NULL`, in which case no resampling is performed.
+#' @param resamplingMatrix Pre-calculated resampling matrix (n x p),
 #' where n = number of samples, and p number of resamplings.
 #' Can be generated using [`buildResamplingFile`].
 #' @param resamplingFile A [`resamplingFile`] object.
 #' @param nResampling Number of resamplings to perform if methodResampling is specified.
-#' @param outputResampling If `TRUE` or a filepath, 
+#' @param outputResampling If `TRUE` or a filepath,
 #' results for each resampling are returned (or saved to the filepath).
 #' This can be useful if permutations are used to estimate correlations among genes for example.
-#' Defaults to `FALSE` in which case resampling is used to calculate resampled P-values, 
+#' Defaults to `FALSE` in which case resampling is used to calculate resampled P-values,
 #' results for individual resamplings are not returned.
 #' @param memlimitResampling Maximum number of resamplings to perform at a time.
 #' Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
@@ -207,7 +207,7 @@ setMethod(
         vars <- listVars(varset)
         weights <- listWeights(varset)
 
-        metadata(GT)$varSetName <- if(is.null(VAR_id)) vs else "none"
+        metadata(GT)$varSetName <- if (is.null(VAR_id)) vs else "none"
 
         is_first_chunk <- (unit == units_all[1] && vs == varsets_names[1])
         current_append <- if (is_first_chunk) append else TRUE

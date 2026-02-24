@@ -117,13 +117,13 @@ test_that("genoMatrix recode input validation works", {
     recode(GT_imputed, geneticModel = "dominant"),
     regexp = "Provide a non-imputed genoMatrix"
   )
-  
+
   # expect message when GT is already imputed
   expect_message(
     recode(GT_imputed, imputeMethod = "meanImpute"),
     regexp = "GT is already imputed"
   )
-  
+
   # expect aggregates to be rest
   GT_agg <- aggregate(recode(GT, imputeMethod = "meanImpute"), returnGT = TRUE)
   GT_agg_recoded <- recode(GT_agg, weights = rowData(GT_agg)$w * 2)

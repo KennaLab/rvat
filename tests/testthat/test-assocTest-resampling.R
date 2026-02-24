@@ -73,11 +73,9 @@ test_that("resamplingFile and resamplingMatrix are identical", {
   metadata(test_resamplingfile)$creationDate <- NA_character_
   metadata(test_resamplingmatrix)$creationDate <- NA_character_
   expect_equal(test_resamplingfile, test_resamplingmatrix)
-  }
-)
+})
 
 test_that("outputting resamplings works", {
-  
   # output resamplings to file
   outputresampling <- withr::local_tempfile()
   set.seed(10)

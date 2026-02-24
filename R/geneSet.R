@@ -227,7 +227,7 @@ setMethod("sort", "geneSetList", function(x) {
 #' @export
 setMethod("as.data.frame", signature = "geneSetList", definition = function(x) {
   if (length(x) == 0L) {
-     return(data.frame(
+    return(data.frame(
       geneSetName = character(0L),
       units = character(0L),
       w = character(0L),

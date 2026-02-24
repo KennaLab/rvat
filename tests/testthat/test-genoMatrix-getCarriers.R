@@ -69,32 +69,31 @@ test_that("getCarriers input validation works", {
     },
     regexp = "Not all specified rowDataFields are present in"
   )
-  
+
   # expect error when non-existent VAR_ids are provided
   expect_error(
     {
       getCarriers(GT, VAR_id = c("a", "b"))
-      
     },
     regexp = "Not all specified VAR_ids are present in the genotype matrix."
   )
-  
+
   # expect error when groupBy field is not present
   expect_error(
-  {
+    {
       getCarriers(GT, aggregate = TRUE, groupBy = "a")
     },
     regexp = "Not all specified `groupBy`"
-  ) 
-  
+  )
+
   # expect error when aggregate = TRUE, but no groupBy provided
   expect_error(
-  {
+    {
       getCarriers(GT, aggregate = TRUE)
     },
     regexp = "The `groupBy` argument should be specified"
-  ) 
-  
+  )
+
   # expect empty data.frame when no carriers found
   carriers <- getCarriers(GT)
   varid <- unique(carriers$VAR_id)[1]
@@ -105,5 +104,4 @@ test_that("getCarriers input validation works", {
   )
   expect_true(nrow(carriers_empty) == 0)
   expect_equal(colnames(carriers_empty), colnames(carriers))
-  
 })

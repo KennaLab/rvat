@@ -407,7 +407,9 @@ varSetFile <- function(path, memlimit = 5000L) {
       )[, 1L]
   }
   units <- unlist(units, use.names = FALSE)
-  if (is.null(units)) units <- character(0L)
+  if (is.null(units)) {
+    units <- character(0L)
+  }
 
   # return varSetFile
   new("varSetFile", path = path, units = units, metadata = metadata)

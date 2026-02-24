@@ -180,7 +180,6 @@ test_that("mergeAggDbs input validation works", {
 })
 
 test_that("collapseAggDbs input validation works", {
-
   # expect error when merge fails
   varsetlist1 <- getVarSet(varsetlist, unit = listUnits(varsetlist)[1])
   varsetlist2 <- getVarSet(varsetlist, unit = listUnits(varsetlist)[2])

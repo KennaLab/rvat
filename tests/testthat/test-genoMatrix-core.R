@@ -134,7 +134,7 @@ test_that("genoMatric constructor validation works", {
     },
     regexp = "Length of `w`"
   )
-  
+
   # expect errors when weights are non-numeric
   expect_error(
     {

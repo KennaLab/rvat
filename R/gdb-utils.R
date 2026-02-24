@@ -70,7 +70,10 @@ concatGdb <- function(
     }
     DBI::dbExecute(gdb, "attach :src as src", params = list(src = gdb_i))
     DBI::dbExecute(gdb, "insert into var select * from src.var order by VAR_id")
-    DBI::dbExecute(gdb, "insert into dosage select * from src.dosage order by VAR_id")
+    DBI::dbExecute(
+      gdb,
+      "insert into dosage select * from src.dosage order by VAR_id"
+    )
     versions[gdb_i] <- DBI::dbGetQuery(
       gdb,
       "select * from src.meta where name = 'rvatVersion'"
