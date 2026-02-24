@@ -94,6 +94,9 @@ buildResamplingFile <- function(
       perms
     }
   } else {
-    stop(sprintf("Unknown methodResampling: %s", methodResampling), call. = FALSE)
+    stop(
+      sprintf("Unknown methodResampling: %s", methodResampling),
+      call. = FALSE
+    )
   }
 }

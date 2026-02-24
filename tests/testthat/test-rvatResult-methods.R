@@ -70,7 +70,6 @@ test_that("misc rvatResult methods work", {
 
 
 test_that("rvatResult input validation works", {
-
   data(rvbresults, envir = environment())
   # expect error when object is of invalid type
   expect_error(

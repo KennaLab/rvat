@@ -96,7 +96,7 @@ test_that("gdb-summariseGeno works with varSetFile", {
 test_that("gdb-summariseGeno edge cases work", {
   gdb <- create_example_gdb()
 
-  # no remaining variants 
+  # no remaining variants
   sumgeno <- summariseGeno(
     gdb,
     VAR_id = 1:100,

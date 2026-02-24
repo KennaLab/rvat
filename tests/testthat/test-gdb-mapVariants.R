@@ -140,7 +140,10 @@ test_that("mapVariants field selection works", {
     verbose = FALSE,
     overWrite = TRUE
   )
-  expect_equal(colnames(output), c("VAR_id", "seqnames", "start", "end", "gene_name"))
+  expect_equal(
+    colnames(output),
+    c("VAR_id", "seqnames", "start", "end", "gene_name")
+  )
 })
 
 test_that("mapVariants produces identical results to uploadAnno for single positions", {

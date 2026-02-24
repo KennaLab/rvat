@@ -38,9 +38,7 @@
       call. = FALSE
     )
   }
-  if (
-    !setequal(SM$IID, colnames(GT))
-  ) {
+  if (!setequal(SM$IID, colnames(GT))) {
     stop(
       "IID values in SM table do not match existing genoMatrix column names.",
       call. = FALSE
@@ -118,7 +116,6 @@
 
   invisible(NULL)
 }
-
 
 
 .gdb_create_indexes <- function(
@@ -258,15 +255,15 @@
       call. = FALSE
     )
   } else if (tolower(name) %in% existing_tables && overWrite) {
-      if (verbose) {
-        message(
-          sprintf(
-            "`%s` already exists and will be overwritten given `overWrite = TRUE`.",
-            name
-          )
+    if (verbose) {
+      message(
+        sprintf(
+          "`%s` already exists and will be overwritten given `overWrite = TRUE`.",
+          name
         )
-      }
-      dropTable(object = object, name = name, verbose = verbose)
+      )
+    }
+    dropTable(object = object, name = name, verbose = verbose)
   }
 
   invisible(NULL)
