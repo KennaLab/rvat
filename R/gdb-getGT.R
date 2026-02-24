@@ -111,7 +111,7 @@ setMethod(
       unit = unit,
       cohortname = cohort_name,
       genomeBuild = getGenomeBuild(object),
-      gdbpath = object@dbname,
+      gdbpath = getGdbPath(object),
       gdbid = getGdbId(object),
       verbose = verbose
     ))
@@ -342,7 +342,7 @@ setMethod(
         "select VAR_id, 'diploid' as ploidy, CHROM, POS, REF ",
         "from var where VAR_id in (%s);"
       ),
-      paste(as.integer(VAR_id), collapse = ",")
+      paste(as.integer(VAR_id), collapse = ",") ##TODO, will this work if VAR_id is very large? or better to split into chunks?
     )
   )
 
@@ -404,7 +404,7 @@ setMethod(
     "select VAR_id, GT from dosage where VAR_id in (%s);",
     paste(as.integer(VAR_id), collapse = ",")
   )
-  GT <- RSQLite::dbGetQuery(object, query)
+  GT <- DBI::dbGetQuery(object, query)
 
   # check if all variants are found
   success <- sum(VAR_id %in% GT[, 1])

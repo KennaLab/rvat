@@ -25,7 +25,7 @@
 buildGdb <- function(
   vcf,
   output,
-  skipIndexes = TRUE, ## DuckDB does indexing internally, so no need to do it manually as well
+  skipIndexes = FALSE, ## DuckDB does indexing internally, so no need to do it manually as well ##TODO: check is this is true
   skipVarRanges = FALSE,
   overWrite = FALSE,
   genomeBuild = NULL,
@@ -381,7 +381,7 @@ setMethod(
 }
 
 .buildgdb_create_schema <- function(gdb, verbose = TRUE) {
-  ## drop tables if they already exist. This is needed in DuckDB. When overwrite is set to TRUE, is does not overwrite tables. So they need to be dropped first.
+  ## drop tables if they already exist. This is needed in DuckDB.
   .drop_duckdb_objects(gdb, verbose = verbose)
 
   # create sequence
@@ -431,7 +431,7 @@ setMethod(
       if (verbose) {
         message(sprintf("Dropping existing table '%s'", tbl))
       }
-      DBI::dbExecute(gdb, sprintf("DROP TABLE %s;", tbl))
+      DBI::dbExecute(gdb, sprintf("DROP TABLE IF EXISTS %s;", tbl))
     }
   }
 

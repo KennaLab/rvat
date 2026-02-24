@@ -14,7 +14,7 @@ aggdb <- function(path) {
   }
   tryCatch(
     {
-      con <- DBI::dbConnect(RSQLite::SQLite(), path)
+      con <- DBI::dbConnect(duckdb::duckdb(), path)
     },
     error = function(e) {
       stop(sprintf("Invalid aggdb path '%s'", path), call. = FALSE)
@@ -146,7 +146,7 @@ setMethod("getUnit", signature = "aggdb", definition = function(object, unit) {
   # connect to db
   tryCatch(
     {
-      aggdb <- DBI::dbConnect(RSQLite::SQLite(), output)
+      aggdb <- DBI::dbConnect(duckdb::duckdb(), output)
     },
     error = function(e) {
       stop(sprintf("Invalid aggdb path '%s'", output), call. = FALSE)
