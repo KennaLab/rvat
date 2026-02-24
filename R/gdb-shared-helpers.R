@@ -61,25 +61,33 @@
   # add rvat version to meta table
   DBI::dbExecute(
     gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
+    "INSERT INTO meta VALUES (?, ?)",
     params = list(
-      name = "rvatVersion",
-      value = as.character(packageVersion("rvat"))
+      "rvatVersion",
+      as.character(packageVersion("rvat"))
     )
   )
 
   # add random identifier
   DBI::dbExecute(
     gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
+    "INSERT INTO meta VALUES (?, ?)",
     params = list(
-      name = "id",
-      value = paste(sample(c(letters, 0:9), 28L, replace = TRUE), collapse = "")
+      "id",
+      paste(sample(c(letters, 0:9), 28L, replace = TRUE), collapse = "")
     )
   )
 
   # add genome build
-  if (!is.null(genomeBuild) && !genomeBuild %in% names(nonPAR)) {
+  if (!is.null(genomeBuild)) {
+    ## added this to insert into genomeBuild into the meta table
+    DBI::dbExecute(
+      gdb,
+      "INSERT INTO meta VALUES (?, ?)",
+      params = list("genomeBuild", genomeBuild)
+    )
+  }
+  if (!genomeBuild %in% names(nonPAR)) {
     warning(
       sprintf(
         paste0(
@@ -94,27 +102,6 @@
       call. = FALSE
     )
   }
-
-  DBI::dbExecute(
-    gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
-    params = list(
-      name = "genomeBuild",
-      value = if (is.null(genomeBuild)) NA_character_ else genomeBuild
-    )
-  )
-
-  # add creation date
-  DBI::dbExecute(
-    gdb,
-    "INSERT INTO meta VALUES (:name, :value)",
-    params = list(
-      name = "creationDate",
-      value = as.character(round(Sys.time(), units = "secs"))
-    )
-  )
-
-  invisible(NULL)
 }
 
 
@@ -129,8 +116,11 @@
       as.character(round(Sys.time(), units = "secs"))
     ))
   }
-  DBI::dbExecute(gdb, "create index var_idx on var (VAR_id)")
-  DBI::dbExecute(gdb, "create index var_idx2 on var (CHROM,POS,REF,ALT)")
+  DBI::dbExecute(gdb, "create index IF NOT EXISTS var_idx on var (VAR_id)")
+  DBI::dbExecute(
+    gdb,
+    "create index IF NOT EXISTS var_idx2 on var (CHROM,POS,REF,ALT)"
+  )
 
   # SM indexes
   if (verbose) {
@@ -139,7 +129,7 @@
       as.character(round(Sys.time(), units = "secs"))
     ))
   }
-  DBI::dbExecute(gdb, "create index SM_idx on SM (IID)")
+  DBI::dbExecute(gdb, "create index IF NOT EXISTS SM_idx on SM (IID)")
 
   # dosage indexes
   if (verbose) {
@@ -148,7 +138,12 @@
       as.character(round(Sys.time(), units = "secs"))
     ))
   }
-  DBI::dbExecute(gdb, "create index dosage_idx on dosage (VAR_id)")
+  DBI::dbExecute(
+    gdb,
+    "create index IF NOT EXISTS dosage_idx on dosage (VAR_id)"
+  )
+
+  DBI::dbExecute(gdb, "ANALYZE") ##TODO: SEE IF THIS IS INTERESTING TO USE
 
   # return nothing
   invisible(NULL)
@@ -340,28 +335,28 @@
 
   if (table_name %in% existing_tables) {
     delete_query <- sprintf(
-      "DELETE FROM %s WHERE name = :name",
+      "DELETE FROM %s WHERE name = ?",
       meta_table
     )
     DBI::dbExecute(
       gdb,
       delete_query,
-      params = list(name = table_name)
+      params = list(table_name)
     )
   }
 
   # using :name, :value, :date as placeholders
   insert_query <- sprintf(
-    "INSERT INTO %s (name, value, date) VALUES (:name, :value, :date)",
+    "INSERT INTO %s (name, value, date) VALUES (?, ?, ?)",
     meta_table
   )
   DBI::dbExecute(
     gdb,
     insert_query,
     params = list(
-      name = table_name,
-      value = source_info,
-      date = date()
+      table_name,
+      source_info,
+      date()
     )
   )
 
