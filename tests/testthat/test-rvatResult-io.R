@@ -1,28 +1,28 @@
 # generate sv results for testing
 data(GTsmall, envir = environment())
 sv_results <- assocTest(
-    GTsmall,
-    covar = paste0("PC", 1:4),
-    test = "scoreSPA",
-    singlevar = TRUE,
-    pheno = "pheno",
-    verbose = FALSE
-  )
+  GTsmall,
+  covar = paste0("PC", 1:4),
+  test = "scoreSPA",
+  singlevar = TRUE,
+  pheno = "pheno",
+  verbose = FALSE
+)
 
 test_that("rvbResult read/write roundtrip preserves data", {
   data(rvbresults, envir = environment())
-  
+
   resultfile <- withr::local_tempfile()
   writeResult(rvbresults, file = resultfile)
   rvbresults_read <- rvbResult(resultfile)
-  
+
   expect_equal(rvbresults, rvbresults_read)
 })
 
 test_that("rvbResult appending works correctly", {
   data(rvbresults, envir = environment())
   resultfile <- withr::local_tempfile()
-  
+
   # write results in chunks using append
   writeResult(rvbresults[1:100, ], file = resultfile)
   writeResult(
@@ -30,11 +30,11 @@ test_that("rvbResult appending works correctly", {
     file = resultfile,
     append = TRUE
   )
-  
+
   # should match writing in one go
   resultfile_onechunk <- withr::local_tempfile()
   writeResult(rvbresults, file = resultfile_onechunk)
-  
+
   expect_equal(
     rvbResult(resultfile),
     rvbResult(resultfile_onechunk)
@@ -43,10 +43,10 @@ test_that("rvbResult appending works correctly", {
 
 test_that("readResults infers rvbResult type correctly", {
   data(rvbresults, envir = environment())
-  
+
   resultfile <- withr::local_tempfile()
   writeResult(rvbresults, file = resultfile)
-  
+
   # read results without specifying type, should be inferred
   rvbresults_read <- readResults(resultfile)
   expect_s4_class(rvbresults_read, "rvbResult")
@@ -59,13 +59,13 @@ test_that("readResults infers rvbResult type correctly", {
     file = resultfile_no_header,
     progress = FALSE
   )
-  
+
   ## expect warning when reading
   expect_warning(
     rvbresults_read <- rvbResult(resultfile_no_header),
     regexp = "The following metadata fields are missing"
   )
-  
+
   ## results should be identical
   expect_equal(
     as.data.frame(rvbresults),
@@ -77,14 +77,14 @@ test_that("singlevarResult read/write roundtrip preserves data", {
   resultfile <- withr::local_tempfile()
   writeResult(sv_results, file = resultfile)
   sv_results_read <- singlevarResult(resultfile)
-  
+
   expect_equal(sv_results, sv_results_read)
 })
 
 test_that("readResults infers singlevarResult type correctly", {
   resultfile <- withr::local_tempfile()
   writeResult(sv_results, file = resultfile)
-  
+
   sv_results_read <- readResults(resultfile)
   expect_s4_class(sv_results_read, "singlevarResult")
   expect_equal(sv_results, sv_results_read)
@@ -96,12 +96,12 @@ test_that("readResults infers singlevarResult type correctly", {
     file = resultfile_no_header,
     progress = FALSE
   )
-  
+
   expect_warning(
     sv_read <- singlevarResult(resultfile_no_header),
     regexp = "The following metadata"
   )
-  
+
   expect_equal(
     as.data.frame(sv_results),
     as.data.frame(sv_read)
@@ -110,13 +110,12 @@ test_that("readResults infers singlevarResult type correctly", {
 
 
 test_that("reading and writing rvatResults input validation works", {
-
   # reading rvbResult as singlevarResult fails
   data(rvbresults, envir = environment())
-  
+
   resultfile <- withr::local_tempfile()
   writeResult(rvbresults, file = resultfile)
-  
+
   expect_error(singlevarResult(resultfile), regexp = "Unexpected filetype")
 
   # reading singlevarResult as rvbResult fails

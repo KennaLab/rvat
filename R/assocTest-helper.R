@@ -319,7 +319,6 @@
     args[["geneticModel"]] <- GT_geneticmodel
   }
 
-
   # imputeMethod
   # - max. length = 1
   # - default is 'meanImpute'
@@ -442,7 +441,6 @@
       call. = FALSE
     )
   }
-
 
   # nResampling
   # - positive number
@@ -666,7 +664,10 @@
       minCarrierFreq > 0.0 ||
       maxCarrierFreq < 1.0
   ) {
-    if (geneticModel == "recessive" && metadata(object)$geneticModel != "recessive") {
+    if (
+      geneticModel == "recessive" &&
+        metadata(object)$geneticModel != "recessive"
+    ) {
       carriers <- rowSums(assays(object)$GT >= 2, na.rm = TRUE)
     } else {
       carriers <- getNCarriers(object)

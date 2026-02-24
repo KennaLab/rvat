@@ -1,6 +1,6 @@
 #' Create a gdb file.
 #'
-#' Creates a new [`gdb`] file. 
+#' Creates a new [`gdb`] file.
 #' The gdb can be structured and populated using a provided vcf file.
 #'
 #' @param vcf Input vcf file used to structure and populate gdb.

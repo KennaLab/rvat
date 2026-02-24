@@ -91,11 +91,15 @@ setMethod(
 
     # construct query
     fields <- paste(fields, collapse = ",")
-    
+
     if (keepAll) {
       query <- sprintf("select %s from %s", fields, cohort)
     } else {
-      query <- sprintf("select %s from %s where IID is not NULL", fields, cohort)
+      query <- sprintf(
+        "select %s from %s where IID is not NULL",
+        fields,
+        cohort
+      )
     }
 
     # extract cohort

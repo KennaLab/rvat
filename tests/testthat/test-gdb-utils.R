@@ -34,10 +34,14 @@ test_that("subsetGdb and concatGdb roundtrip works", {
 
   ## compare gdbs
   compare_gdbs(gdb, gdbconcat, check_tables = FALSE)
-  
+
   ## supplying targets as character vector also works
   gdbconcat_fromvector <- withr::local_tempfile()
-  suppressMessages(concatGdb(tmpfiles, output = gdbconcat_fromvector, verbose = TRUE))
+  suppressMessages(concatGdb(
+    tmpfiles,
+    output = gdbconcat_fromvector,
+    verbose = TRUE
+  ))
   gdbconcat_fromvector <- gdb(gdbconcat_fromvector)
   compare_gdbs(gdb, gdbconcat_fromvector, check_tables = FALSE)
 })
@@ -304,17 +308,23 @@ test_that("concatGdb input validation works", {
     ),
     regexp = "Not all input gdbs share the same genome build"
   )
-  
 
   # expect error when gdbs contain non-matching IIDs
   gdb_subset <- create_example_gdb()
-  iids_to_keep <- head(DBI::dbGetQuery(gdb_subset, "select IID from SM")$IID, 50)
-  DBI::dbExecute(gdb_subset, 
-    sprintf("DELETE FROM SM WHERE IID NOT IN ('%s')", 
-            paste(iids_to_keep, collapse = "','")))
+  iids_to_keep <- head(
+    DBI::dbGetQuery(gdb_subset, "select IID from SM")$IID,
+    50
+  )
+  DBI::dbExecute(
+    gdb_subset,
+    sprintf(
+      "DELETE FROM SM WHERE IID NOT IN ('%s')",
+      paste(iids_to_keep, collapse = "','")
+    )
+  )
   targets <- withr::local_tempfile()
   readr::write_lines(c(getGdbPath(gdb), getGdbPath(gdb_subset)), file = targets)
-  
+
   expect_error(
     concatGdb(
       targets = targets,

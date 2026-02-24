@@ -4,7 +4,7 @@ data(GTsmall)
 test_that("assocTest covar/pheno missingness is handled correctly", {
   # compare missingness in covariates with keep-list
   GT_missing_covar <- GTsmall
-  
+
   ## introduce some missing values in a covariate
   GT_missing_covar$covar_with_missings <- GT_missing_covar$PC1
   GT_missing_covar_check <- GT_missing_covar
@@ -20,7 +20,7 @@ test_that("assocTest covar/pheno missingness is handled correctly", {
     covar = c("PC2", "covar_with_missings"),
     verbose = TRUE
   ))
-  
+
   ## run assocTest with keep-list based on non-missing covariate values
   assoc_missing_covar_check <- suppressMessages(assocTest(
     object = GT_missing_covar_check,
@@ -32,7 +32,7 @@ test_that("assocTest covar/pheno missingness is handled correctly", {
   ))
   metadata(assoc_missing_covar)$creationDate <- NA_character_
   metadata(assoc_missing_covar_check)$creationDate <- NA_character_
-  
+
   ## compare
   expect_equal(assoc_missing_covar, assoc_missing_covar_check)
 

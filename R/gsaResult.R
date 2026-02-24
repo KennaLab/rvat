@@ -31,15 +31,18 @@ gsaResult <- function(object) {
     readResults(path = object, type = "gsaResult")
   } else if (is.data.frame(object) || is(object, "DFrame")) {
     if (!all(names(columns_gsaResults) %in% colnames(object))) {
-      stop(sprintf(
-        "The following columns are missing: %s",
-        paste(
-          names(columns_gsaResults)[
-            !names(columns_gsaResults) %in% colnames(object)
-          ],
-          collapse = ","
-        )
-      ), call. = FALSE)
+      stop(
+        sprintf(
+          "The following columns are missing: %s",
+          paste(
+            names(columns_gsaResults)[
+              !names(columns_gsaResults) %in% colnames(object)
+            ],
+            collapse = ","
+          )
+        ),
+        call. = FALSE
+      )
     }
     object <- cbind(
       object[, names(columns_gsaResults)],
