@@ -77,10 +77,10 @@ setMethod(
       con = output
     )
 
-    handle <- RSQLite::dbSendQuery(object, query)
+    handle <- DBI::dbSendQuery(object, query)
     on.exit(DBI::dbClearResult(handle), add = TRUE)
-    while (!RSQLite::dbHasCompleted(handle)) {
-      chunk <- RSQLite::dbFetch(handle, n = memlimit)
+    while (!DBI::dbHasCompleted(handle)) {
+      chunk <- DBI::dbFetch(handle, n = memlimit)
 
       if (nrow(chunk) == 0L) {
         break

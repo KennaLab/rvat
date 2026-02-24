@@ -225,7 +225,7 @@ setMethod(
       con = gdb,
       name = name,
       value = value,
-      sep = sep,
+      sep = sep, ## TODO: duckdb does not support sep? check if this gives errors
       overwrite = TRUE
     )
     source_info <- value
@@ -605,8 +605,8 @@ setMethod(
     if (meta_anno_exists) {
       DBI::dbExecute(
         object,
-        "DELETE FROM anno WHERE name = :table_to_remove",
-        params = list(table_to_remove = name)
+        "DELETE FROM anno WHERE name = ?",
+        params = list(name)
       )
     }
 
