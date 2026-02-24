@@ -64,8 +64,11 @@
     # parse
     metadata_ <- list()
     for (item in expected_metadata) {
-      metadata_[[item]] <- if (item %in% names(metadata)) metadata[[item]] else
+      metadata_[[item]] <- if (item %in% names(metadata)) {
+        metadata[[item]]
+      } else {
         NA_character_
+      }
     }
     metadata <- metadata_
   }
@@ -244,16 +247,16 @@
   if (!file.exists(path)) {
     stop(sprintf("The file '%s' does not exist.", path), call. = FALSE)
   }
-  
+
   # check if path is a file (not a directory)
   if (dir.exists(path)) {
     stop(sprintf("'%s' is a directory, not a file.", path), call. = FALSE)
   }
-  
+
   # check if file is readable
   if (file.access(path, mode = 4) != 0) {
     stop(sprintf("The file '%s' is not readable.", path), call. = FALSE)
   }
-  
+
   invisible(NULL)
 }

@@ -289,9 +289,8 @@ test_that("getGT validation works", {
     ),
     regexp = "`VAR_id` contains duplicated values"
   )
-  
+
   # expect error
-  
 
   # expect error when annotation has multiple rows per VAR_id
 

@@ -17,37 +17,38 @@ test_that("--buildGdb works", {
     buildGdb = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildGdb",
-        "--vcf=example.vcf.gz",
-        "--output=example.gdb"
-      )
+      c("--buildGdb", "--vcf=example.vcf.gz", "--output=example.gdb")
     },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     vcf = "example.vcf.gz",
     output = "example.gdb"
   )
-  expected_args <- c(expected_args, formals(buildGdb)[!names(formals(buildGdb)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(buildGdb)[!names(formals(buildGdb)) %in% names(expected_args)]
+  )
   expect_equal(expected_args, mock_args)
-  
+
   # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildGdb",
+      c(
+        "--buildGdb",
         "--vcf=example.vcf.gz",
         "--output=example.gdb",
         "--skipIndexes",
@@ -61,13 +62,13 @@ test_that("--buildGdb works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     vcf = "example.vcf.gz",
@@ -79,9 +80,11 @@ test_that("--buildGdb works", {
     memlimit = 1000,
     verbose = FALSE
   )
-  expected_args <- c(expected_args, formals(buildGdb)[!names(formals(buildGdb)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(buildGdb)[!names(formals(buildGdb)) %in% names(expected_args)]
+  )
   expect_equal(expected_args, mock_args)
-  
 })
 
 
@@ -99,37 +102,38 @@ test_that("--concatGdb works", {
     concatGdb = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--concatGdb",
-        "--targets=targets.txt",
-        "--output=example.gdb"
-      )
+      c("--concatGdb", "--targets=targets.txt", "--output=example.gdb")
     },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     targets = "targets.txt",
     output = "example.gdb"
   )
-  expected_args <- c(expected_args, formals(concatGdb)[!names(formals(concatGdb)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(concatGdb)[!names(formals(concatGdb)) %in% names(expected_args)]
+  )
   expect_equal(expected_args, mock_args)
-  
-  # test non-defaults 
+
+  # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--concatGdb",
+      c(
+        "--concatGdb",
         "--targets=targets.txt",
         "--output=example.gdb",
         "--skipRemap",
@@ -141,13 +145,13 @@ test_that("--concatGdb works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     targets = "targets.txt",
@@ -157,7 +161,10 @@ test_that("--concatGdb works", {
     overWrite = TRUE,
     verbose = FALSE
   )
-  expected_args <- c(expected_args, formals(concatGdb)[!names(formals(concatGdb)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(concatGdb)[!names(formals(concatGdb)) %in% names(expected_args)]
+  )
   expect_equal(expected_args, mock_args)
 })
 
@@ -176,11 +183,12 @@ test_that("--subsetGdb works", {
     subsetGdb = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--subsetGdb",
+      c(
+        "--subsetGdb",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--output=example_subset.gdb"
       )
@@ -188,28 +196,35 @@ test_that("--subsetGdb works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
     output = "example_subset.gdb"
   )
-  expected_args <- c(expected_args, formals(subsetGdb)[!names(formals(subsetGdb)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(subsetGdb)[!names(formals(subsetGdb)) %in% names(expected_args)]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
-  expect_equal(expected_args[2:length(expected_args)], mock_args[2:length(mock_args)])
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[2:length(expected_args)],
+    mock_args[2:length(mock_args)]
+  )
+
+  # test non-defaults
   tmpfile <- withr::local_tempfile()
   readr::write_lines(1:10, tmpfile)
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--subsetGdb",
+      c(
+        "--subsetGdb",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--output=example.gdb",
         "--intersection=varInfo",
@@ -224,13 +239,13 @@ test_that("--subsetGdb works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -244,9 +259,14 @@ test_that("--subsetGdb works", {
     verbose = FALSE
   )
   expect_s4_class(mock_args[[1]], "gdb")
-  expected_args <- c(expected_args, formals(subsetGdb)[!names(formals(subsetGdb)) %in% names(expected_args)])
-  expect_equal(expected_args[2:length(expected_args)], mock_args[2:length(mock_args)])
-  
+  expected_args <- c(
+    expected_args,
+    formals(subsetGdb)[!names(formals(subsetGdb)) %in% names(expected_args)]
+  )
+  expect_equal(
+    expected_args[2:length(expected_args)],
+    mock_args[2:length(mock_args)]
+  )
 })
 
 # uploadAnno
@@ -263,11 +283,12 @@ test_that("--uploadAnno works", {
     uploadAnno = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--uploadAnno",
+      c(
+        "--uploadAnno",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--name=data",
         "--value=data.txt"
@@ -276,27 +297,34 @@ test_that("--uploadAnno works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
     name = "data",
     value = "data.txt"
   )
-  expected_args <- c(expected_args, formals(uploadAnno)[!names(formals(uploadAnno)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(uploadAnno)[!names(formals(uploadAnno)) %in% names(expected_args)]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
-  expect_equal(expected_args[2:length(expected_args)], mock_args[2:length(mock_args)])
-  
+  expect_equal(
+    expected_args[2:length(expected_args)],
+    mock_args[2:length(mock_args)]
+  )
+
   # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--uploadAnno",
+      c(
+        "--uploadAnno",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--name=data",
         "--value=data.txt",
@@ -313,13 +341,13 @@ test_that("--uploadAnno works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -335,9 +363,14 @@ test_that("--uploadAnno works", {
     verbose = FALSE
   )
   expect_s4_class(mock_args[[1]], "gdb")
-  expected_args <- c(expected_args, formals(uploadAnno)[!names(formals(uploadAnno)) %in% names(expected_args)])
-  expect_equal(expected_args[2:length(expected_args)], mock_args[2:length(mock_args)])
-  
+  expected_args <- c(
+    expected_args,
+    formals(uploadAnno)[!names(formals(uploadAnno)) %in% names(expected_args)]
+  )
+  expect_equal(
+    expected_args[2:length(expected_args)],
+    mock_args[2:length(mock_args)]
+  )
 })
 
 # uploadCohort
@@ -354,11 +387,12 @@ test_that("--uploadCohort works", {
     uploadCohort = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--uploadCohort",
+      c(
+        "--uploadCohort",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--name=data",
         "--value=data.txt"
@@ -367,27 +401,36 @@ test_that("--uploadCohort works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
     name = "data",
     value = "data.txt"
   )
-  expected_args <- c(expected_args, formals(uploadCohort)[!names(formals(uploadCohort)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(uploadCohort)[
+      !names(formals(uploadCohort)) %in% names(expected_args)
+    ]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
-  expect_equal(expected_args[2:length(expected_args)], mock_args[2:length(mock_args)])
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[2:length(expected_args)],
+    mock_args[2:length(mock_args)]
+  )
+
+  # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--uploadCohort",
+      c(
+        "--uploadCohort",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--name=data",
         "--value=data.txt",
@@ -399,13 +442,13 @@ test_that("--uploadCohort works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -416,9 +459,16 @@ test_that("--uploadCohort works", {
     verbose = FALSE
   )
   expect_s4_class(mock_args[[1]], "gdb")
-  expected_args <- c(expected_args, formals(uploadCohort)[!names(formals(uploadCohort)) %in% names(expected_args)])
-  expect_equal(expected_args[2:length(expected_args)], mock_args[2:length(mock_args)])
-  
+  expected_args <- c(
+    expected_args,
+    formals(uploadCohort)[
+      !names(formals(uploadCohort)) %in% names(expected_args)
+    ]
+  )
+  expect_equal(
+    expected_args[2:length(expected_args)],
+    mock_args[2:length(mock_args)]
+  )
 })
 
 
@@ -436,32 +486,35 @@ test_that("--listAnno works", {
     listAnno = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--listAnno",
+      c(
+        "--listAnno",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb"))
       )
     },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb"))
   )
-  expected_args <- c(expected_args, formals(listAnno)[!names(formals(listAnno)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(listAnno)[!names(formals(listAnno)) %in% names(expected_args)]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
 })
-
 
 
 # listCohort
@@ -478,29 +531,33 @@ test_that("--listCohort works", {
     listCohort = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--listCohort",
+      c(
+        "--listCohort",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb"))
       )
     },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb"))
   )
-  expected_args <- c(expected_args, formals(listCohort)[!names(formals(listCohort)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(listCohort)[!names(formals(listCohort)) %in% names(expected_args)]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
 })
 
@@ -518,40 +575,46 @@ test_that("--mapVariants works", {
     mapVariants = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--mapVariants",
+      c(
+        "--mapVariants",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb"))
       )
     },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb"))
   )
-  expected_args <- c(expected_args, formals(mapVariants)[!names(formals(mapVariants)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(mapVariants)[!names(formals(mapVariants)) %in% names(expected_args)]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
-  
+
   # skip bedCols
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "bedCols")], 
-               mock_args[!names(mock_args) %in% c("object", "bedCols")])
-  
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object", "bedCols")],
+    mock_args[!names(mock_args) %in% c("object", "bedCols")]
+  )
+
+  # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--mapVariants",
+      c(
+        "--mapVariants",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--ranges=ranges.txt",
         "--gff=ensembl.gtf",
@@ -569,13 +632,13 @@ test_that("--mapVariants works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -592,9 +655,14 @@ test_that("--mapVariants works", {
     verbose = FALSE
   )
   expect_s4_class(mock_args[[1]], "gdb")
-  expected_args <- c(expected_args, formals(mapVariants)[!names(formals(mapVariants)) %in% names(expected_args)])
-  expect_equal(expected_args[2:length(expected_args)], mock_args[2:length(mock_args)])
-  
+  expected_args <- c(
+    expected_args,
+    formals(mapVariants)[!names(formals(mapVariants)) %in% names(expected_args)]
+  )
+  expect_equal(
+    expected_args[2:length(expected_args)],
+    mock_args[2:length(mock_args)]
+  )
 })
 
 
@@ -612,11 +680,12 @@ test_that("--buildVarSet works", {
     buildVarSet = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildVarSet",
+      c(
+        "--buildVarSet",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--varSetName=LOF",
         "--unitTable=gene",
@@ -627,13 +696,13 @@ test_that("--buildVarSet works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -642,18 +711,23 @@ test_that("--buildVarSet works", {
     unitName = "gene_id",
     output = "varsetfile.txt.gz"
   )
-  expected_args <- c(expected_args, formals(buildVarSet)[!names(formals(buildVarSet)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(buildVarSet)[!names(formals(buildVarSet)) %in% names(expected_args)]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
+
+  # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildVarSet",
+      c(
+        "--buildVarSet",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--varSetName=LOF",
         "--unitTable=gene",
@@ -669,13 +743,13 @@ test_that("--buildVarSet works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -690,10 +764,14 @@ test_that("--buildVarSet works", {
     verbose = FALSE
   )
   expect_s4_class(mock_args[[1]], "gdb")
-  expected_args <- c(expected_args, formals(buildVarSet)[!names(formals(buildVarSet)) %in% names(expected_args)])
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
+  expected_args <- c(
+    expected_args,
+    formals(buildVarSet)[!names(formals(buildVarSet)) %in% names(expected_args)]
+  )
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
 })
 
 
@@ -711,11 +789,12 @@ test_that("--spatialClust works", {
     spatialClust = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--spatialClust",
+      c(
+        "--spatialClust",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--output=varsetfile.txt.gz",
         "--varSetName=LOF",
@@ -728,13 +807,13 @@ test_that("--spatialClust works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -745,18 +824,25 @@ test_that("--spatialClust works", {
     windowSize = 60,
     overlap = 30
   )
-  expected_args <- c(expected_args, formals(spatialClust)[!names(formals(spatialClust)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(spatialClust)[
+      !names(formals(spatialClust)) %in% names(expected_args)
+    ]
+  )
   expect_s4_class(mock_args[["object"]], "gdb")
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
+
+  # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--spatialClust",
+      c(
+        "--spatialClust",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--varSetName=LOF",
         "--unitTable=gene",
@@ -773,13 +859,13 @@ test_that("--spatialClust works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -794,12 +880,18 @@ test_that("--spatialClust works", {
     overlap = c(30, 50)
   )
   expect_s4_class(mock_args[["object"]], "gdb")
-  expected_args <- c(expected_args, formals(spatialClust)[!names(formals(spatialClust)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(spatialClust)[
+      !names(formals(spatialClust)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
 })
 
 
@@ -817,11 +909,12 @@ test_that("--summariseGeno works", {
     summariseGeno = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--summariseGeno",
+      c(
+        "--summariseGeno",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--output=sumgeno.txt.gz"
       )
@@ -829,32 +922,38 @@ test_that("--summariseGeno works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
     output = "sumgeno.txt.gz"
   )
-  expected_args <- c(expected_args, formals(summariseGeno)[!names(formals(summariseGeno)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(summariseGeno)[
+      !names(formals(summariseGeno)) %in% names(expected_args)
+    ]
+  )
   expect_s4_class(mock_args[[1]], "gdb")
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
-  
-  # test non-defaults 
+
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
+
+  # test non-defaults
   ## save varids
   varids <- withr::local_tempfile()
   readr::write_lines(1:10, varids)
-  
+
   ## save varsetfile
   varsetfile <- withr::local_tempfile()
   buildVarSet(
@@ -866,16 +965,15 @@ test_that("--summariseGeno works", {
     output = varsetfile,
     verbose = FALSE
   )
-  
+
   ## save keep-list
   keeplist <- withr::local_tempfile()
-  readr::write_lines(paste0("ALS", 1:100),
-                     file = keeplist)
-  
-  
+  readr::write_lines(paste0("ALS", 1:100), file = keeplist)
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--summariseGeno",
+      c(
+        "--summariseGeno",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--output=sumgeno.txt.gz",
         "--cohort=pheno",
@@ -906,13 +1004,13 @@ test_that("--summariseGeno works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -942,12 +1040,18 @@ test_that("--summariseGeno works", {
   )
   expect_s4_class(mock_args[["object"]], "gdb")
   expect_s4_class(mock_args[["varSet"]], "varSetFile")
-  expected_args <- c(expected_args, formals(summariseGeno)[!names(formals(summariseGeno)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(summariseGeno)[
+      !names(formals(summariseGeno)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "varSet")], 
-               mock_args[!names(mock_args) %in% c("object", "varSet")])
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object", "varSet")],
+    mock_args[!names(mock_args) %in% c("object", "varSet")]
+  )
 })
 
 
@@ -965,14 +1069,15 @@ test_that("--aggregate works", {
     aggregate = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   varids <- withr::local_tempfile()
   readr::write_lines(1:10, varids)
-  
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--aggregate",
+      c(
+        "--aggregate",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         sprintf("--VAR_id=%s", varids),
         "--output=aggregate.txt.gz"
@@ -981,32 +1086,36 @@ test_that("--aggregate works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     x = gdb(rvatData::rvat_example("rvatData.gdb")),
     VAR_id = as.character(1:10),
     output = "aggregate.txt.gz"
   )
-  expected_args <- c(expected_args, formals(aggregate)[!names(formals(aggregate)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(aggregate)[!names(formals(aggregate)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
   expect_s4_class(mock_args[["x"]], "gdb")
-  expect_equal(expected_args[!names(expected_args) %in% c("x")], 
-               mock_args[!names(mock_args) %in% c("x")])
-  
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("x")],
+    mock_args[!names(mock_args) %in% c("x")]
+  )
+
+  # test non-defaults
   ## save varids
   varids <- withr::local_tempfile()
   readr::write_lines(1:10, varids)
-  
+
   ## save varsetfile
   varsetfile <- withr::local_tempfile()
   buildVarSet(
@@ -1018,23 +1127,22 @@ test_that("--aggregate works", {
     output = varsetfile,
     verbose = FALSE
   )
-  
+
   ## save keep-list
   keeplist <- withr::local_tempfile()
-  readr::write_lines(paste0("ALS", 1:100),
-                     file = keeplist)
-  
-  
+  readr::write_lines(paste0("ALS", 1:100), file = keeplist)
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--aggregate",
+      c(
+        "--aggregate",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--cohort=pheno",
         sprintf("--varSet=%s", varsetfile),
         sprintf("--VAR_id=%s", varids),
         "--pheno=pheno",
         "--memlimit=5000",
-        "--geneticModel=allelic,dominant", 
+        "--geneticModel=allelic,dominant",
         "--imputeMethod=missingToRef",
         "--MAFweights=mb",
         "--checkPloidy=GRCh38",
@@ -1060,13 +1168,13 @@ test_that("--aggregate works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     x = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -1098,12 +1206,16 @@ test_that("--aggregate works", {
   )
   expect_s4_class(mock_args[["x"]], "gdb")
   expect_s4_class(mock_args[["varSet"]], "varSetFile")
-  expected_args <- c(expected_args, formals(aggregate)[!names(formals(aggregate)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(aggregate)[!names(formals(aggregate)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("x", "varSet")], 
-               mock_args[!names(mock_args) %in% c("x", "varSet")])
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("x", "varSet")],
+    mock_args[!names(mock_args) %in% c("x", "varSet")]
+  )
 })
 
 # mergeAggDbs
@@ -1120,20 +1232,31 @@ test_that("--mergeAggDbs works", {
     mergeAggDbs = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   aggdb1 <- withr::local_tempfile()
   aggdb2 <- withr::local_tempfile()
   gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
-  agg1 <- aggregate(gdb, VAR_id = 1:10, cohort = "pheno", output = aggdb1, verbose = FALSE)
-  agg2 <- aggregate(gdb, VAR_id = 11:20, cohort = "pheno", output = aggdb2, verbose = FALSE)
+  agg1 <- aggregate(
+    gdb,
+    VAR_id = 1:10,
+    cohort = "pheno",
+    output = aggdb1,
+    verbose = FALSE
+  )
+  agg2 <- aggregate(
+    gdb,
+    VAR_id = 11:20,
+    cohort = "pheno",
+    output = aggdb2,
+    verbose = FALSE
+  )
   filelist <- withr::local_tempfile()
-  readr::write_lines(c(aggdb1, aggdb2), 
-                     file = filelist
-                     )
+  readr::write_lines(c(aggdb1, aggdb2), file = filelist)
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--mergeAggDbs",
+      c(
+        "--mergeAggDbs",
         sprintf("--filelist=%s", filelist),
         "--not-checkDups",
         "--output=mergeAggDbs.txt.gz"
@@ -1142,29 +1265,34 @@ test_that("--mergeAggDbs works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     output = "mergeAggDbs.txt.gz"
   )
-  expected_args <- c(expected_args, formals(mergeAggDbs)[!names(formals(mergeAggDbs)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(mergeAggDbs)[!names(formals(mergeAggDbs)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
   expect_s4_class(mock_args[["object"]], "aggdbList")
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
+
+  # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--mergeAggDbs",
+      c(
+        "--mergeAggDbs",
         sprintf("--filelist=%s", filelist),
         "--not-checkDups",
         "--output=mergeAggDbs.txt.gz",
@@ -1174,25 +1302,29 @@ test_that("--mergeAggDbs works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     output = "mergeAggDbs.txt.gz",
     verbose = FALSE
   )
-  expected_args <- c(expected_args, formals(mergeAggDbs)[!names(formals(mergeAggDbs)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(mergeAggDbs)[!names(formals(mergeAggDbs)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
   expect_s4_class(mock_args[["object"]], "aggdbList")
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
 })
 
 # collapseAggDbs
@@ -1209,20 +1341,31 @@ test_that("--collapseAggDbs works", {
     collapseAggDbs = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   aggdb1 <- withr::local_tempfile()
   aggdb2 <- withr::local_tempfile()
   gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
-  agg1 <- aggregate(gdb, VAR_id = 1:10, cohort = "pheno", output = aggdb1, verbose = FALSE)
-  agg2 <- aggregate(gdb, VAR_id = 11:20, cohort = "pheno", output = aggdb2, verbose = FALSE)
-  filelist <- withr::local_tempfile()
-  readr::write_lines(c(aggdb1, aggdb2), 
-                     file = filelist
+  agg1 <- aggregate(
+    gdb,
+    VAR_id = 1:10,
+    cohort = "pheno",
+    output = aggdb1,
+    verbose = FALSE
   )
+  agg2 <- aggregate(
+    gdb,
+    VAR_id = 11:20,
+    cohort = "pheno",
+    output = aggdb2,
+    verbose = FALSE
+  )
+  filelist <- withr::local_tempfile()
+  readr::write_lines(c(aggdb1, aggdb2), file = filelist)
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--collapseAggDbs",
+      c(
+        "--collapseAggDbs",
         sprintf("--filelist=%s", filelist),
         "--not-checkDups",
         "--output=collapseAggDbs.txt.gz"
@@ -1231,29 +1374,36 @@ test_that("--collapseAggDbs works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     output = "collapseAggDbs.txt.gz"
   )
-  expected_args <- c(expected_args, formals(collapseAggDbs)[!names(formals(collapseAggDbs)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(collapseAggDbs)[
+      !names(formals(collapseAggDbs)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
   expect_s4_class(mock_args[["object"]], "aggdbList")
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
+
+  # test non-defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--collapseAggDbs",
+      c(
+        "--collapseAggDbs",
         sprintf("--filelist=%s", filelist),
         "--not-checkDups",
         "--output=collapseAggDbs.txt.gz",
@@ -1263,25 +1413,31 @@ test_that("--collapseAggDbs works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     output = "collapseAggDbs.txt.gz",
     verbose = FALSE
   )
-  expected_args <- c(expected_args, formals(collapseAggDbs)[!names(formals(collapseAggDbs)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(collapseAggDbs)[
+      !names(formals(collapseAggDbs)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
   expect_s4_class(mock_args[["object"]], "aggdbList")
-  expect_equal(expected_args[!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
 })
 
 
@@ -1299,11 +1455,12 @@ test_that("--assocTest works", {
     assocTest = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--assocTest",
+      c(
+        "--assocTest",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--pheno=pheno",
         "--test=firth",
@@ -1313,13 +1470,13 @@ test_that("--assocTest works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -1327,19 +1484,23 @@ test_that("--assocTest works", {
     test = "firth",
     output = "assocTest.txt.gz"
   )
-  expected_args <- c(expected_args, formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
   expect_s4_class(mock_args[["object"]], "gdb")
-  expect_equal(expected_args[names(mock_args)][!names(expected_args) %in% c("object")], 
-               mock_args[!names(mock_args) %in% c("object")])
-  
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[names(mock_args)][!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
+
+  # test non-defaults
   ## save varids
   varids <- withr::local_tempfile()
   readr::write_lines(1:10, varids)
-  
+
   ## save varsetfile
   varsetfile <- withr::local_tempfile()
   null <- buildVarSet(
@@ -1351,20 +1512,23 @@ test_that("--assocTest works", {
     output = varsetfile,
     verbose = FALSE
   )
-  
+
   ## save resamplingfile
   resamplingfile <- withr::local_tempfile()
-  null <- buildResamplingFile(nSamples = 25000, nResampling = 100, output = resamplingfile)
-  
+  null <- buildResamplingFile(
+    nSamples = 25000,
+    nResampling = 100,
+    output = resamplingfile
+  )
+
   ## save keep-list
   keeplist <- withr::local_tempfile()
-  readr::write_lines(paste0("ALS", 1:100),
-                     file = keeplist)
-  
-  
+  readr::write_lines(paste0("ALS", 1:100), file = keeplist)
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--assocTest",
+      c(
+        "--assocTest",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--pheno=pheno,sex",
         "--test=firth,glm,scoreSPA",
@@ -1376,7 +1540,7 @@ test_that("--assocTest works", {
         "--singlevar",
         "--covar=PC1/PC1,PC2,PC3,PC4",
         "--offset=offset",
-        "--geneticModel=allelic,dominant", 
+        "--geneticModel=allelic,dominant",
         "--imputeMethod=missingToRef",
         "--MAFweights=mb",
         "--maxitFirth=5000",
@@ -1384,7 +1548,7 @@ test_that("--assocTest works", {
         sprintf("--keep=%s", keeplist),
         "--output=assocTest.txt.gz",
         "--methodResampling=permutation",
-        sprintf("--resamplingFile=%s",resamplingfile),
+        sprintf("--resamplingFile=%s", resamplingfile),
         "--nResampling=1000",
         "--outputResampling=outputresampling.txt.gz",
         "--memlimitResampling=5000",
@@ -1408,13 +1572,13 @@ test_that("--assocTest works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -1457,14 +1621,19 @@ test_that("--assocTest works", {
   expect_s4_class(mock_args[["object"]], "gdb")
   expect_s4_class(mock_args[["varSet"]], "varSetFile")
   expect_s4_class(mock_args[["resamplingFile"]], "resamplingFile")
-  expected_args <- c(expected_args, formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "varSet", "resamplingFile")], 
-               mock_args[!names(mock_args) %in% c("object", "varSet", "resamplingFile")])
-  
+  expect_equal(
+    expected_args[
+      !names(expected_args) %in% c("object", "varSet", "resamplingFile")
+    ],
+    mock_args[!names(mock_args) %in% c("object", "varSet", "resamplingFile")]
+  )
 })
-
 
 
 # assocTest-aggdb
@@ -1481,12 +1650,12 @@ test_that("--assocTest works", {
     assocTest = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   varsetfile <- withr::local_tempfile()
   aggdb <- withr::local_tempfile()
   genesetfile <- withr::local_tempfile()
-  
+
   null <- buildVarSet(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
     varSetName = "Moderate",
@@ -1496,14 +1665,14 @@ test_that("--assocTest works", {
     output = varsetfile,
     verbose = FALSE
   )
-  
+
   null <- aggregate(
     x = gdb(rvatData::rvat_example("rvatData.gdb")),
     varSet = getVarSet(varSetFile(varsetfile), unit = c("SOD1", "ABCA4")),
     output = aggdb,
     verbose = FALSE
   )
- 
+
   null <- buildGeneSet(
     data = list(
       "A" = c("SOD1"),
@@ -1512,15 +1681,15 @@ test_that("--assocTest works", {
     output = genesetfile,
     verbose = FALSE
   )
-  
-  
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--assocTest",
+      c(
+        "--assocTest",
         "--pheno=pheno",
         "--test=firth",
-        sprintf("--aggdb=%s",aggdb),
-        sprintf("--geneSet=%s",genesetfile),
+        sprintf("--aggdb=%s", aggdb),
+        sprintf("--geneSet=%s", genesetfile),
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--output=assocTest.txt.gz"
       )
@@ -1528,48 +1697,51 @@ test_that("--assocTest works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     pheno = "pheno",
     test = "firth",
     output = "assocTest.txt.gz"
   )
-  expected_args <- c(expected_args, formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)]
+  )
   expect_s4_class(mock_args[["object"]], "aggdb")
   expect_s4_class(mock_args[["gdb"]], "gdb")
   expect_s4_class(mock_args[["geneSet"]], "geneSetFile")
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "gdb", "geneSet")], 
-               mock_args[!names(mock_args) %in% c("object", "gdb", "geneSet")])
-  
-  
-  # test non-defaults 
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object", "gdb", "geneSet")],
+    mock_args[!names(mock_args) %in% c("object", "gdb", "geneSet")]
+  )
+
+  # test non-defaults
+
   ## save keep-list
   keeplist <- withr::local_tempfile()
-  readr::write_lines(paste0("ALS", 1:100),
-                     file = keeplist)
-  
+  readr::write_lines(paste0("ALS", 1:100), file = keeplist)
+
   ## save keep-list
   dropunits <- withr::local_tempfile()
-  readr::write_lines("SOD1",
-                     file = dropunits)
-  
+  readr::write_lines("SOD1", file = dropunits)
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--assocTest",
+      c(
+        "--assocTest",
         sprintf("--aggdb=%s", aggdb),
         "--pheno=pheno",
         "--test=firth,glm",
-        sprintf("--geneSet=%s",genesetfile),
+        sprintf("--geneSet=%s", genesetfile),
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
         "--cohort=pheno",
         "--name=test",
@@ -1588,13 +1760,12 @@ test_that("--assocTest works", {
   )
   collected_args <- rvat:::collect_args()
 
-
-  # run cli 
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     pheno = "pheno",
@@ -1611,16 +1782,20 @@ test_that("--assocTest works", {
     verbose = FALSE,
     strict = FALSE
   )
-  
+
   expect_s4_class(mock_args[["object"]], "aggdb")
   expect_s4_class(mock_args[["gdb"]], "gdb")
   expect_s4_class(mock_args[["geneSet"]], "geneSetFile")
-  expected_args <- c(expected_args, formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(assocTest)[!names(formals(assocTest)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "gdb", "geneSet")], 
-               mock_args[!names(mock_args) %in% c("object", "gdb", "geneSet")])
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object", "gdb", "geneSet")],
+    mock_args[!names(mock_args) %in% c("object", "gdb", "geneSet")]
+  )
 })
 
 # buildResamplingFile
@@ -1637,11 +1812,12 @@ test_that("--buildResamplingFile works", {
     buildResamplingFile = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildResamplingFile",
+      c(
+        "--buildResamplingFile",
         "--nSamples=10000",
         "--output=buildResamplingFile.txt.gz"
       )
@@ -1649,29 +1825,34 @@ test_that("--buildResamplingFile works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     nSamples = 10000,
     output = "buildResamplingFile.txt.gz"
   )
-  expected_args <- c(expected_args, formals(buildResamplingFile)[!names(formals(buildResamplingFile)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(buildResamplingFile)[
+      !names(formals(buildResamplingFile)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args,
-               mock_args)
-  
-  # test non-defaults 
-  
+  expect_equal(expected_args, mock_args)
+
+  # test non-defaults
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildResamplingFile",
+      c(
+        "--buildResamplingFile",
         "--nSamples=10000",
         "--nResampling=100000",
         "--memlimit=500",
@@ -1682,13 +1863,13 @@ test_that("--buildResamplingFile works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     nSamples = 10000,
@@ -1697,13 +1878,16 @@ test_that("--buildResamplingFile works", {
     methodResampling = "permutation",
     output = "buildResamplingFile.txt.gz"
   )
-  
-  expected_args <- c(expected_args, formals(buildResamplingFile)[!names(formals(buildResamplingFile)) %in% names(expected_args)])
+
+  expected_args <- c(
+    expected_args,
+    formals(buildResamplingFile)[
+      !names(formals(buildResamplingFile)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args, 
-               mock_args)
-  
+  expect_equal(expected_args, mock_args)
 })
 
 # buildGeneSet
@@ -1720,41 +1904,43 @@ test_that("--buildGeneSet works", {
     buildGeneSet = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildGeneSet",
-        "--gmtpath=data.gmt",
-        "--output=buildGeneSet.txt.gz"
-      )
+      c("--buildGeneSet", "--gmtpath=data.gmt", "--output=buildGeneSet.txt.gz")
     },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     gmtpath = "data.gmt",
     output = "buildGeneSet.txt.gz"
   )
-  expected_args <- c(expected_args, formals(buildGeneSet)[!names(formals(buildGeneSet)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(buildGeneSet)[
+      !names(formals(buildGeneSet)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args,
-               mock_args)
-  
-  # test non-defaults 
-  
+  expect_equal(expected_args, mock_args)
+
+  # test non-defaults
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildGeneSet",
+      c(
+        "--buildGeneSet",
         "--gmtpath=data.gmt",
         "--output=buildGeneSet.txt.gz",
         "--sep=|",
@@ -1764,13 +1950,13 @@ test_that("--buildGeneSet works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     gmtpath = "data.gmt",
@@ -1778,13 +1964,16 @@ test_that("--buildGeneSet works", {
     sep = "|",
     verbose = FALSE
   )
-  
-  expected_args <- c(expected_args, formals(buildGeneSet)[!names(formals(buildGeneSet)) %in% names(expected_args)])
+
+  expected_args <- c(
+    expected_args,
+    formals(buildGeneSet)[
+      !names(formals(buildGeneSet)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args, 
-               mock_args)
-  
+  expect_equal(expected_args, mock_args)
 })
 
 # buildCorMatrix
@@ -1801,27 +1990,38 @@ test_that("--buildCorMatrix works", {
     buildCorMatrix = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   aggdb <- withr::local_tempfile()
   gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
   varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-  varsetlist <- getVarSet(varsetfile, unit = listUnits(varsetfile)[1:4], varSetName = "Moderate")
-  agg <- aggregate(gdb, 
-                   varSet = varsetlist,
-                   cohort = "pheno", 
-                   output = aggdb, 
-                   verbose = FALSE)
-  
+  varsetlist <- getVarSet(
+    varsetfile,
+    unit = listUnits(varsetfile)[1:4],
+    varSetName = "Moderate"
+  )
+  agg <- aggregate(
+    gdb,
+    varSet = varsetlist,
+    cohort = "pheno",
+    output = aggdb,
+    verbose = FALSE
+  )
+
   results <- withr::local_tempfile()
   data(rvbresults)
-  writeResult(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",], 
-              file = results)
+  writeResult(
+    rvbresults[
+      rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",
+    ],
+    file = results
+  )
   output <- withr::local_tempfile()
-  
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildCorMatrix",
+      c(
+        "--buildCorMatrix",
         sprintf("--rvbResult=%s", results),
         sprintf("--aggdb=%s", aggdb),
         sprintf("--output=%s", output)
@@ -1830,29 +2030,37 @@ test_that("--buildCorMatrix works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list()
   expect_s4_class(mock_args[["object"]], "rvbResult")
   expect_s4_class(mock_args[["aggdb"]], "aggdb")
-  
-  expected_args <- c(expected_args, formals(buildCorMatrix)[!names(formals(buildCorMatrix)) %in% names(expected_args)])
+
+  expected_args <- c(
+    expected_args,
+    formals(buildCorMatrix)[
+      !names(formals(buildCorMatrix)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "aggdb")], 
-               mock_args[!names(mock_args) %in% c("object", "aggdb")])
-  
-  # test non-defaults 
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object", "aggdb")],
+    mock_args[!names(mock_args) %in% c("object", "aggdb")]
+  )
+
+  # test non-defaults
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--buildCorMatrix",
+      c(
+        "--buildCorMatrix",
         sprintf("--rvbResult=%s", results),
         sprintf("--aggdb=%s", aggdb),
         "--memlimit=10000",
@@ -1884,12 +2092,18 @@ test_that("--buildCorMatrix works", {
     verbose = FALSE
   )
 
-  expected_args <- c(expected_args, formals(buildCorMatrix)[!names(formals(buildCorMatrix)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(buildCorMatrix)[
+      !names(formals(buildCorMatrix)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "aggdb")], 
-               mock_args[!names(mock_args) %in% c("object", "aggdb")])
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object", "aggdb")],
+    mock_args[!names(mock_args) %in% c("object", "aggdb")]
+  )
 })
 
 
@@ -1907,9 +2121,9 @@ test_that("--geneSetAssoc works", {
     geneSetAssoc = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
-  
+
+  # test defaults
+
   ## geneSetFile
   genesetfile <- withr::local_tempfile()
   null <- buildGeneSet(
@@ -1917,14 +2131,20 @@ test_that("--geneSetAssoc works", {
     output = genesetfile,
     verbose = FALSE
   )
-  
+
   results <- withr::local_tempfile()
   data(rvbresults)
-  writeResult(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",], file = results)
-  
+  writeResult(
+    rvbresults[
+      rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",
+    ],
+    file = results
+  )
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--geneSetAssoc",
+      c(
+        "--geneSetAssoc",
         sprintf("--rvbResult=%s", results),
         sprintf("--geneSet=%s", genesetfile),
         "--test=lm",
@@ -1934,13 +2154,13 @@ test_that("--geneSetAssoc works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     test = "lm",
@@ -1948,19 +2168,28 @@ test_that("--geneSetAssoc works", {
   )
   expect_s4_class(mock_args[["object"]], "rvbResult")
   expect_s4_class(mock_args[["geneSet"]], "geneSetFile")
-  expected_args <- c(expected_args, formals(geneSetAssoc)[!names(formals(geneSetAssoc)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(geneSetAssoc)[
+      !names(formals(geneSetAssoc)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "geneSet")], 
-               mock_args[!names(mock_args) %in% c("object", "geneSet")])
-  
-  # test non-defaults 
-  
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object", "geneSet")],
+    mock_args[!names(mock_args) %in% c("object", "geneSet")]
+  )
+
+  # test non-defaults
+
   ## scorematrix
   scorematrix <- withr::local_tempfile()
-  data <- readr::read_tsv(test_path("data/GSE67835_Human_Cortex.txt.gz"), 
-                          show_col_types = FALSE, 
-                          progress = FALSE)
+  data <- readr::read_tsv(
+    test_path("data/GSE67835_Human_Cortex.txt.gz"),
+    show_col_types = FALSE,
+    progress = FALSE
+  )
   genes <- data$GENE
   data$GENE <- NULL
   data <- as.matrix(data)
@@ -1969,27 +2198,35 @@ test_that("--geneSetAssoc works", {
 
   ## cormatrix
   aggdb <- withr::local_tempfile()
-  cormatrix <-  withr::local_tempfile()
+  cormatrix <- withr::local_tempfile()
   gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
   varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-  varsetlist <- getVarSet(varsetfile, unit = listUnits(varsetfile)[1:4], varSetName = "Moderate")
-  agg <- aggregate(gdb, 
-                   varSet = varsetlist,
-                   cohort = "pheno", 
-                   output = aggdb, 
-                   verbose = FALSE)
-  
-  
+  varsetlist <- getVarSet(
+    varsetfile,
+    unit = listUnits(varsetfile)[1:4],
+    varSetName = "Moderate"
+  )
+  agg <- aggregate(
+    gdb,
+    varSet = varsetlist,
+    cohort = "pheno",
+    output = aggdb,
+    verbose = FALSE
+  )
+
   mat <- suppressMessages(buildCorMatrix(
-    rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
+    rvbresults[
+      rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",
+    ],
     aggdb = aggdb(aggdb),
     verbose = FALSE
   ))
   saveRDS(mat, file = cormatrix)
-  
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--geneSetAssoc",
+      c(
+        "--geneSetAssoc",
         sprintf("--rvbResult=%s", results),
         sprintf("--geneSet=%s", genesetfile),
         sprintf("--scoreMatrix=%s", scorematrix),
@@ -2013,7 +2250,7 @@ test_that("--geneSetAssoc works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
+
   # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
@@ -2042,13 +2279,25 @@ test_that("--geneSetAssoc works", {
   expect_s4_class(mock_args[["cormatrix"]], "Matrix")
   expect_s4_class(mock_args[["condition"]], "geneSetFile")
   expect_true(is(mock_args[["scoreMatrix"]], "matrix"))
-  
-  expected_args <- c(expected_args, formals(geneSetAssoc)[!names(formals(geneSetAssoc)) %in% names(expected_args)])
+
+  expected_args <- c(
+    expected_args,
+    formals(geneSetAssoc)[
+      !names(formals(geneSetAssoc)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object", "geneSet", "cormatrix", "condition", "scoreMatrix")],
-               mock_args[!names(mock_args) %in% c("object", "geneSet", "cormatrix", "condition", "scoreMatrix")])
-
+  expect_equal(
+    expected_args[
+      !names(expected_args) %in%
+        c("object", "geneSet", "cormatrix", "condition", "scoreMatrix")
+    ],
+    mock_args[
+      !names(mock_args) %in%
+        c("object", "geneSet", "cormatrix", "condition", "scoreMatrix")
+    ]
+  )
 })
 
 
@@ -2066,11 +2315,12 @@ test_that("--vcfInfo2Table works", {
     vcfInfo2Table = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--vcfInfo2Table",
+      c(
+        "--vcfInfo2Table",
         sprintf("--vcf=%s", rvatData::rvat_example("rvatData.vcf.gz")),
         "--output=vcfInfo2Table.txt.gz"
       )
@@ -2078,29 +2328,34 @@ test_that("--vcfInfo2Table works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     vcf = rvatData::rvat_example("rvatData.vcf.gz"),
     output = "vcfInfo2Table.txt.gz"
   )
-  expected_args <- c(expected_args, formals(vcfInfo2Table)[!names(formals(vcfInfo2Table)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(vcfInfo2Table)[
+      !names(formals(vcfInfo2Table)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args,
-               mock_args)
-  
-  # test non-defaults 
-  
+  expect_equal(expected_args, mock_args)
+
+  # test non-defaults
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--vcfInfo2Table",
+      c(
+        "--vcfInfo2Table",
         sprintf("--vcf=%s", rvatData::rvat_example("rvatData.vcf.gz")),
         "--output=vcfInfo2Table.txt.gz",
         "--not-splitMultiallelic"
@@ -2109,26 +2364,29 @@ test_that("--vcfInfo2Table works", {
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     vcf = rvatData::rvat_example("rvatData.vcf.gz"),
     output = "vcfInfo2Table.txt.gz",
     splitMultiallelic = FALSE
   )
-  
-  expected_args <- c(expected_args, formals(vcfInfo2Table)[!names(formals(vcfInfo2Table)) %in% names(expected_args)])
+
+  expected_args <- c(
+    expected_args,
+    formals(vcfInfo2Table)[
+      !names(formals(vcfInfo2Table)) %in% names(expected_args)
+    ]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args, 
-               mock_args)
-  
+  expect_equal(expected_args, mock_args)
 })
 
 
@@ -2146,24 +2404,26 @@ test_that("--writeVcf works", {
     writeVcf = mock_function,
     .package = "rvat"
   )
-  
-  # test defaults 
+
+  # test defaults
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--writeVcf",
+      c(
+        "--writeVcf",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
-              "--output=writeVcf.txt.gz"
-    )},
+        "--output=writeVcf.txt.gz"
+      )
+    },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
@@ -2171,59 +2431,70 @@ test_that("--writeVcf works", {
   )
 
   expect_s4_class(mock_args[["object"]], "gdb")
-  expected_args <- c(expected_args, formals(writeVcf)[!names(formals(writeVcf)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(writeVcf)[!names(formals(writeVcf)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object")],
-               mock_args[!names(mock_args) %in% c("object")])
-  
-  # test non-defaults 
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
+
+  # test non-defaults
   varids <- withr::local_tempfile()
   readr::write_lines(1:10, varids)
   iids <- withr::local_tempfile()
   readr::write_lines(1:10, iids)
-  
+
   local_mocked_bindings(
     commandArgs = function(trailingOnly = TRUE) {
-      c("--writeVcf",
+      c(
+        "--writeVcf",
         sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
-                "--output=writeVcf.txt.gz",
-                sprintf("--VAR_id=%s", varids),
-                sprintf("--IID=%s", iids),
-                "--memlimit=10000",
-                "--not-includeGeno",
-                "--includeVarId",
-                "--overWrite",
-                "--quiet"
+        "--output=writeVcf.txt.gz",
+        sprintf("--VAR_id=%s", varids),
+        sprintf("--IID=%s", iids),
+        "--memlimit=10000",
+        "--not-includeGeno",
+        "--includeVarId",
+        "--overWrite",
+        "--quiet"
       )
     },
     .package = "base"
   )
   collected_args <- rvat:::collect_args()
-  
-  # run cli 
+
+  # run cli
   suppressMessages(rvat:::rvat_cli(
     args = collected_args[["args"]],
     args_raw = collected_args[["args_raw"]]
   ))
-  
+
   # check against expected args
   expected_args <- list(
     object = gdb(rvatData::rvat_example("rvatData.gdb")),
     output = "writeVcf.txt.gz",
     VAR_id = as.character(1:10),
     IID = as.character(1:10),
-    memlimit = 10000, 
+    memlimit = 10000,
     includeGeno = FALSE,
     includeVarId = TRUE,
     overWrite = TRUE,
     verbose = FALSE
   )
-  
+
   expect_s4_class(mock_args[["object"]], "gdb")
-  expected_args <- c(expected_args, formals(writeVcf)[!names(formals(writeVcf)) %in% names(expected_args)])
+  expected_args <- c(
+    expected_args,
+    formals(writeVcf)[!names(formals(writeVcf)) %in% names(expected_args)]
+  )
   expected_args <- expected_args[sort(names(expected_args))]
   mock_args <- mock_args[sort(names(mock_args))]
-  expect_equal(expected_args[!names(expected_args) %in% c("object")],
-               mock_args[!names(mock_args) %in% c("object")])
+  expect_equal(
+    expected_args[!names(expected_args) %in% c("object")],
+    mock_args[!names(mock_args) %in% c("object")]
+  )
 })

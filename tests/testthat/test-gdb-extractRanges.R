@@ -110,7 +110,7 @@ test_that("extractRanges padding functionality works", {
 test_that("extractRanges handles edge cases correctly", {
   gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
   ranges <- create_test_ranges()
-  
+
   # check no overlap message and empty result
   expect_message(
     var_no_overlap <- getAnno(
@@ -121,19 +121,19 @@ test_that("extractRanges handles edge cases correctly", {
     ),
     regexp = "No variants overlap with provided range"
   )
-  
+
   var_no_overlap <- suppressMessages(getAnno(
     gdb,
-    "var", 
+    "var",
     fields = c("VAR_id", "CHROM", "POS", "REF", "ALT"),
     ranges = ranges$no_overlap
   ))
   expect_identical(nrow(var_no_overlap), 0L)
-  
+
   # expect warning if no chromosomes overlap between ranges and gdb
   chroms <- unique(getAnno(gdb, "var", fields = "CHROM")$CHROM)
   chroms <- setdiff(paste0("chr", c(1:22, "X", "Y")), chroms)[1:2]
-  
+
   expect_warning(
     extractRanges(
       gdb,
@@ -150,40 +150,40 @@ test_that("extractRanges handles edge cases correctly", {
 test_that("extractRanges input validation works correctly", {
   gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
   ranges <- create_test_ranges()$basic
-  
+
   # expect an error when invalid padding values are provided
   expect_error(
     extractRanges(gdb, ranges, padding = "250"),
     regexp = "should be a positive value"
   )
-  
+
   expect_error(
     extractRanges(gdb, valid_ranges, padding = -5),
     regexp = "should be a positive value"
   )
-  
+
   # expect error if required columns are missing
   expect_error(
     extractRanges(gdb, ranges = data.frame(CHROM = "chr21", start = 1000)),
     regexp = "should be present"
   )
-  
+
   expect_error(
     extractRanges(gdb, ranges = data.frame(start = 1000, end = 1001)),
     regexp = "should be present"
   )
-  
+
   expect_error(
     extractRanges(gdb, ranges = data.frame(CHROM = "chr21", end = 1001)),
     regexp = "should be present"
   )
-  
+
   # expect error if input format is not supported
   expect_error(
     extractRanges(gdb, ranges = matrix()),
     regexp = "should be either"
   )
-  
+
   expect_error(
     extractRanges(gdb, ranges = "hello"),
     regexp = "should be either"

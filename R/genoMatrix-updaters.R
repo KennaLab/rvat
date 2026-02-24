@@ -18,7 +18,7 @@ setMethod(
     # variants to flip
     flip <- getAF(object) > 0.5
     flip[is.na(flip)] <- FALSE
-    
+
     # flip effect alleles in variant info
     if (all(c("effectAllele", "otherAllele") %in% colnames(rowData(object)))) {
       effectAllele <- ifelse(

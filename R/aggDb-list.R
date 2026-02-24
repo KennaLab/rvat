@@ -94,7 +94,13 @@ aggdbList <- function(filelist, checkDups = TRUE) {
     stop("Aggdbs were generated from different gdbs", call. = FALSE)
   }
   if (length(genomebuild) > 1L) {
-    stop(sprintf("Aggdbs were generated using different genome builds: %s.", paste(genomebuild, collapse = ", ")), call. = FALSE)
+    stop(
+      sprintf(
+        "Aggdbs were generated using different genome builds: %s.",
+        paste(genomebuild, collapse = ", ")
+      ),
+      call. = FALSE
+    )
   }
 
   metadata <- list(

@@ -587,4 +587,3 @@ test_that("assocTest input validation work", {
     regexp = "generated from a different gdb"
   )
 })
-

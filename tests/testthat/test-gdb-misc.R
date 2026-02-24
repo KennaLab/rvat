@@ -1,19 +1,27 @@
 # gdb validation
 test_that("gdb integrity checks work", {
-
   # drop a table from the meta table
   gdb <- create_example_gdb()
   DBI::dbExecute(gdb, "DELETE FROM anno WHERE name = 'varInfo';")
-  expect_warning({
-    .gdb_check_tables(gdb, return_problems = FALSE, skip = "tmp")
-  }, regexp = "not tracked in the gdb metadata")
+  expect_warning(
+    {
+      .gdb_check_tables(gdb, return_problems = FALSE, skip = "tmp")
+    },
+    regexp = "not tracked in the gdb metadata"
+  )
 
   # add table that is not tracked in meta
   gdb <- create_example_gdb()
-  DBI::dbExecute(gdb, "INSERT INTO anno (name, value, date) VALUES ('hello', 'test', 'today');")
-  expect_warning({
-    problems <- .gdb_check_tables(gdb, skip = "tmp")
-  }, regexp = "are expected based on the gdb metadata but are not present")
+  DBI::dbExecute(
+    gdb,
+    "INSERT INTO anno (name, value, date) VALUES ('hello', 'test', 'today');"
+  )
+  expect_warning(
+    {
+      problems <- .gdb_check_tables(gdb, skip = "tmp")
+    },
+    regexp = "are expected based on the gdb metadata but are not present"
+  )
 })
 
 # misc methods
@@ -28,9 +36,11 @@ test_that("misc gdb methods work", {
   gdb <- gdb(gdb)
   gdb_no_meta <- create_example_gdb()
   DBI::dbExecute(gdb_no_meta, "DROP TABLE meta;")
-  DBI::dbWriteTable(gdb_no_meta, 
-                   "meta",
-                    value = data.frame(name = character(0), value = character(0)))
+  DBI::dbWriteTable(
+    gdb_no_meta,
+    "meta",
+    value = data.frame(name = character(0), value = character(0))
+  )
 
   # show gdb connection
   expect_true(stringr::str_detect(
@@ -44,17 +54,16 @@ test_that("misc gdb methods work", {
   expect_equal(getRvatVersion(gdb), as.character(packageVersion("rvat")))
   expect_equal(getRvatVersion(gdb_no_meta), NA_character_)
 
-
   # get creation date
   expect_true(
     (stringr::str_detect(getCreationDate(gdb), "-") &&
       stringr::str_detect(getCreationDate(gdb), ":"))
   )
   expect_equal(getCreationDate(gdb_no_meta), NA_character_)
-  
+
   # get gdb ID
   expect_equal(getGdbId(gdb_no_meta), NA_character_)
-  
+
   # get genome build
   expect_equal(getGenomeBuild(gdb_no_meta), NA_character_)
 

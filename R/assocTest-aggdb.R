@@ -28,8 +28,8 @@ columns_aggresults <- list(
 #' @name assocTest-aggdb
 #' @aliases assocTest,aggdb-method
 #' @param object an [`aggdb`] object (generated using the [`aggregate`] method).
-#' @param pheno field to test as response variable. 
-#' The response variable can either be binary (0/1) or continuous. 
+#' @param pheno field to test as response variable.
+#' The response variable can either be binary (0/1) or continuous.
 #' If the response variable is continuous, set `continuous` to `TRUE`.
 #' @param test Vector of statistical tests to run,
 #' options include firth,glm,lm, and nbinom.
