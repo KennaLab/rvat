@@ -154,7 +154,7 @@ NULL
 #'
 #' @rdname gdb
 #' @import DBI
-#' @importClassesFrom duckdb_connection
+#' @importClassesFrom duckdb duckdb_connection
 #' @export
 setClass("gdb", contains = "duckdb_connection")
 
