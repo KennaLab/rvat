@@ -139,10 +139,10 @@ dim(GT)
 GT[1:5, 1:5]
 
 # Subset samples based on sample info
-GT[ ,GT$pheno == 1]
+GT[, GT$pheno == 1]
 
 # Subset first two variants
-GT[1:2,]
+GT[1:2, ]
 
 # Extract variant/sample summaries --------------------------------------------------
 
@@ -170,7 +170,7 @@ recode(GT, geneticModel = "dominant")
 recode(GT, geneticModel = "recessive")
 # see ?recode for details
 
-# recode missing genotypes 
+# recode missing genotypes
 recode(GT, imputeMethod = "meanImpute")
 recode(GT, imputeMethod = "missingToRef")
 # see ?recode for details
@@ -181,19 +181,22 @@ recode(GT, imputeMethod = "missingToRef")
 aggregate(recode(GT, imputeMethod = "meanImpute"))
 
 # set `returnGT = FALSE` to return aggregates as a vector instead
-aggregate <- aggregate(recode(GT, imputeMethod = "meanImpute"), returnGT = FALSE)
+aggregate <- aggregate(
+  recode(GT, imputeMethod = "meanImpute"),
+  returnGT = FALSE
+)
 head(aggregate)
 
 # Update cohort and variant info in genoMatrix --------------------------
 gdb <- create_example_gdb()
 anno <- getAnno(gdb, "varInfo", fields = c("VAR_id", "CADDphred", "PolyPhen"))
-updateGT(GT, anno = anno )
+updateGT(GT, anno = anno)
 pheno <- colData(GT)
-updateGT(GT, SM = colData(GT)[,1:4])
+updateGT(GT, SM = colData(GT)[, 1:4])
 
 # Get variant carriers
 
-# retrieve a data.frame that lists the samples carrying each respective 
+# retrieve a data.frame that lists the samples carrying each respective
 # variant in the genoMatrix. Additional variant and sample info can be included
 # using the `rowDataFields` and `colDataFields` respectively.
 carriers <- getCarriers(
