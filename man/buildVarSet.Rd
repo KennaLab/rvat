@@ -15,21 +15,25 @@ library(rvatData)
 # Build a varSetFile including variants with a moderate predicted impact
 gdb <- create_example_gdb()
 varsetfile_moderate <- tempfile()
-buildVarSet(object = gdb, 
-            output = varsetfile_moderate,
-            varSetName = "Moderate", 
-            unitTable = "varInfo", 
-            unitName = "gene_name",
-            where = "ModerateImpact = 1")
+buildVarSet(
+  object = gdb,
+  output = varsetfile_moderate,
+  varSetName = "Moderate",
+  unitTable = "varInfo",
+  unitName = "gene_name",
+  where = "ModerateImpact = 1"
+)
 
 # Build a varSetFile that contains CADD scores
 varsetfile_cadd <- tempfile()
-buildVarSet(object = gdb, 
-            output = varsetfile_cadd,
-            varSetName = "CADD", 
-            unitTable = "varInfo", 
-            unitName = "gene_name",
-            weightName = "CADDphred")
+buildVarSet(
+  object = gdb,
+  output = varsetfile_cadd,
+  varSetName = "CADD",
+  unitTable = "varInfo",
+  unitName = "gene_name",
+  weightName = "CADDphred"
+)
 
 # in addition to building a varSetFile from a gdb,
 # it can also be build directly from a data.frame
