@@ -102,6 +102,16 @@
       call. = FALSE
     )
   }
+
+  # add creation date
+  DBI::dbExecute(
+    gdb,
+    "INSERT INTO meta VALUES (?, ?)",
+    params = list(
+      "creationDate",
+      as.character(round(Sys.time(), units = "secs"))
+    )
+  )
 }
 
 

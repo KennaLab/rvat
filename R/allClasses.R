@@ -707,7 +707,7 @@ NULL
 #' @rdname aggdb
 #' @usage NULL
 #' @export
-setClass("aggdb", contains = "duckdb_connection")
+setClass("aggdb", contains = "SQLiteConnection")
 
 
 #' Class to facilitate merging aggdbs
