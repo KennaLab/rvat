@@ -854,7 +854,7 @@ setMethod(
 
   # add grouped concat
   query <- sprintf(
-    "select unit, group_concat(VAR_id) as VAR_id, group_concat(w) as w, '%s' as varSetName from (%s) x group by unit",
+    "select unit, group_concat(VAR_id order by VAR_id) as VAR_id, group_concat(w order by VAR_id) as w, '%s' as varSetName from (%s) x group by unit order by unit",
     varSetName,
     query
   )
