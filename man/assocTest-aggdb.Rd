@@ -75,7 +75,11 @@ gdb <- create_example_gdb()
 # assocTest-aggdb allows for running association tests on pre-constructed aggregates.
 # below we first generate the aggregates based on a varSetFile
 varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
-varset <- getVarSet(varsetfile, unit = c("NEK1", "SOD1", "ABCA4"), varSetName = "High")
+varset <- getVarSet(
+  varsetfile,
+  unit = c("NEK1", "SOD1", "ABCA4"),
+  varSetName = "High"
+)
 aggfile <- tempfile()
 aggregate(
   x = gdb,

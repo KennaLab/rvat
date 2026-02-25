@@ -34,10 +34,7 @@ head(varsets)
 unique(listVarSets(varsetfile))
 
 # specific varSets can be selected using the `varSetName` parameter
-varsets <- getVarSet(varsetfile, 
-                     unit = c("SOD1", "FUS"),
-                     varSetName = "CADD"
-                     )
+varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "CADD")
 head(varsets)
 
 # see ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
