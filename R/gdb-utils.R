@@ -110,32 +110,44 @@ concatGdb <- function(
         as.character(round(Sys.time(), units = "secs"))
       ))
     }
+    # generate VAR_id map
     DBI::dbExecute(
       gdb,
       "
-    WITH numbered AS (
-      SELECT rowid, ROW_NUMBER() OVER () AS new_id 
-      FROM var
+  CREATE TEMP TABLE VAR_id_map AS
+  SELECT
+    VAR_id AS old_id,
+    ROW_NUMBER() OVER (
+      ORDER BY VAR_id 
+    ) AS new_id
+  FROM var
+  "
     )
-    UPDATE var 
-    SET VAR_id = numbered.new_id 
-    FROM numbered 
-    WHERE var.rowid = numbered.rowid
-    "
-    )
+
+    # apply the mapping to the var table
     DBI::dbExecute(
       gdb,
       "
-    WITH numbered AS (
-      SELECT rowid, ROW_NUMBER() OVER () AS new_id 
-      FROM dosage
+  UPDATE var
+  SET VAR_id = m.new_id
+  FROM VAR_id_map AS m
+  WHERE var.VAR_id = m.old_id
+  "
     )
-    UPDATE dosage 
-    SET VAR_id = numbered.new_id 
-    FROM numbered 
-    WHERE dosage.rowid = numbered.rowid
-    "
+
+    # apply the same mapping to the dosage table
+    DBI::dbExecute(
+      gdb,
+      "
+  UPDATE dosage
+  SET VAR_id = m.new_id
+  FROM VAR_id_map AS m
+  WHERE dosage.VAR_id = m.old_id
+  "
     )
+
+    # clean up
+    DBI::dbExecute(gdb, "DROP TABLE VAR_id_map")
   }
 
   # generate indexes
