@@ -65,7 +65,7 @@ library(rvatData)
 # this will first ACAT P-values across statistical tests
 # and then ACAT these P-values across varSets
 data(rvbresults)
-rvbresults <- rvbresults[1:1000,]
+rvbresults <- rvbresults[1:1000, ]
 ACAT(
   rvbresults,
   aggregate = list("test", "varSetName")
@@ -78,8 +78,8 @@ ACAT(
 )
 
 # Input P-value shouldn't be exactly 0 or 1 (see: https://github.com/yaowuliu/ACAT).
-# By default, P-values that are exactly 0 or 1 are reset (`fixpval = TRUE`) to the 
-# minimum P-value (>0) and maximum P-value (<1) in the results. 
+# By default, P-values that are exactly 0 or 1 are reset (`fixpval = TRUE`) to the
+# minimum P-value (>0) and maximum P-value (<1) in the results.
 # Alternatives include:
 # manual minmax values:
 ACAT(
