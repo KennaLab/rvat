@@ -20,7 +20,7 @@ create_test_ranges <- function() {
 }
 
 test_that("extractRanges basic functionality works", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
   ranges <- create_test_ranges()
 
   # check basic extraction
@@ -48,7 +48,7 @@ test_that("extractRanges basic functionality works", {
 })
 
 test_that("extractRanges handles different input formats", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
 
   # ensembl gene info
   gtf <- readr::read_tsv(
@@ -84,7 +84,7 @@ test_that("extractRanges handles different input formats", {
 })
 
 test_that("extractRanges padding functionality works", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
 
   # check whether INDELs are extracted correctly
   # includes three deletions that should overlap the start coordinates of ranges
@@ -104,11 +104,11 @@ test_that("extractRanges padding functionality works", {
     ranges = ranges,
     padding = 10L
   )
-  expect_identical(check_with_padding, c("1362", "1206", "1765"))
+  expect_identical(sort(check_with_padding), sort(c("1362", "1206", "1765")))
 })
 
 test_that("extractRanges handles edge cases correctly", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
   ranges <- create_test_ranges()
 
   # check no overlap message and empty result
@@ -148,7 +148,7 @@ test_that("extractRanges handles edge cases correctly", {
 })
 
 test_that("extractRanges input validation works correctly", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
   ranges <- create_test_ranges()$basic
 
   # expect an error when invalid padding values are provided

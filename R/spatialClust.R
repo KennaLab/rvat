@@ -59,7 +59,7 @@ setMethod(
 
     # add grouped concat
     query <- sprintf(
-      "select unit, group_concat(VAR_id) as VAR_id, group_concat(weight) as weight, '%s' as varSetName, group_concat(POS) as POS from (%s) x group by unit",
+      "select unit, group_concat(VAR_id order by VAR_id) as VAR_id, group_concat(weight order by VAR_id) as weight, '%s' as varSetName, group_concat(POS order by VAR_id) as POS from (%s) x group by unit order by unit",
       varSetName,
       query
     )

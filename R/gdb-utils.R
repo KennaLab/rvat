@@ -68,8 +68,7 @@ concatGdb <- function(
     if (verbose) {
       message(sprintf("Merging '%s'", gdb_i))
     }
-    # DBI::dbExecute(gdb, sprintf("ATTACH '%s' AS src", gdb_i))
-    DBI::dbExecute(gdb, "attach ? as src", params = list(gdb_i))
+    DBI::dbExecute(gdb, sprintf("ATTACH '%s' AS src", gdb_i))
     DBI::dbExecute(gdb, "insert into var select * from src.var order by VAR_id")
     DBI::dbExecute(
       gdb,
@@ -111,8 +110,32 @@ concatGdb <- function(
         as.character(round(Sys.time(), units = "secs"))
       ))
     }
-    DBI::dbExecute(gdb, "update var set VAR_id=rowid") ##TODO: see how to do this with duckdb (where rowid is not supported?)
-    DBI::dbExecute(gdb, "update dosage set VAR_id=rowid")
+    DBI::dbExecute(
+      gdb,
+      "
+    WITH numbered AS (
+      SELECT rowid, ROW_NUMBER() OVER () AS new_id 
+      FROM var
+    )
+    UPDATE var 
+    SET VAR_id = numbered.new_id 
+    FROM numbered 
+    WHERE var.rowid = numbered.rowid
+    "
+    )
+    DBI::dbExecute(
+      gdb,
+      "
+    WITH numbered AS (
+      SELECT rowid, ROW_NUMBER() OVER () AS new_id 
+      FROM dosage
+    )
+    UPDATE dosage 
+    SET VAR_id = numbered.new_id 
+    FROM numbered 
+    WHERE dosage.rowid = numbered.rowid
+    "
+    )
   }
 
   # generate indexes
@@ -240,7 +263,7 @@ concatGdb <- function(
   if (verbose) {
     message("Creating SM, anno and cohort tables")
   }
-  DBI::dbExecute(gdb, "attach ? as src", params = list(gdb_list[1]))
+  DBI::dbExecute(gdb, sprintf("attach '%s' as src", gdb_list[1]))
   DBI::dbExecute(gdb, "create table SM as select * from src.SM")
   DBI::dbExecute(gdb, "detach src")
   DBI::dbExecute(gdb, "create table anno (name text,value text,date text)")
