@@ -706,6 +706,7 @@ NULL
 
 #' @rdname aggdb
 #' @usage NULL
+#' @importClassesFrom RSQLite SQLiteConnection
 #' @export
 setClass("aggdb", contains = "SQLiteConnection")
 
