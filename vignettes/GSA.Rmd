@@ -333,7 +333,7 @@ write(genesetlist,
       file = paste0(outdir, "/genesetfile.txt.gz"))
 ```
 
-Perform the gene set burden tests, for this we can use the `assocTest` method, with the first argument being a `aggregateFile` connection. Similar to a `varSetFile` or `geneSetFile` we can connect to the file containing aggregates (burden scores) using the `aggregateFile` method:
+Perform the gene set burden tests, for this we can use the `assocTest` method, with the first argument being an `aggdb` connection. Similar to a `varSetFile` or `geneSetFile` we can connect to the file containing aggregates (burden scores) using the `aggdb` method:
 
 ```{r}
 aggfile <- aggdb(paste0(outdir, "/moderate.aggregate.aggdb"))
@@ -387,7 +387,7 @@ Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
 Rscript $rvat --assocTest \
 --gdb $gdbpath \
 --geneSet $outdir/genesetfile.txt.gz \
---aggdb $outdir/moderate.aggregate.txt.gz \
+--aggdb $outdir/moderate.aggregate.aggdb \
 --name maxMAF001 \
 --covar PC1,PC2,PC3,PC4 \
 --cohort pheno \

@@ -360,7 +360,8 @@ Provide a valid function call for detailed help.\n%s",
       where = args[["where"]],
       weightName = args[["weightName"]],
       posField = args[["posField"]],
-      minTry = args[["minTry"]]
+      minTry = args[["minTry"]],
+      memlimit = args[["memlimit"]]
     )
   }
 
@@ -508,6 +509,7 @@ Provide a valid function call for detailed help.\n%s",
       maxCarriers = args[["maxCarriers"]],
       minCarrierFreq = args[["minCarrierFreq"]],
       maxCarrierFreq = args[["maxCarrierFreq"]],
+      overWrite = args[["overWrite"]],
       verbose = verbose,
       strict = strict
     )
@@ -541,6 +543,7 @@ Provide a valid function call for detailed help.\n%s",
     mergeAggDbs(
       object = aggdblist,
       output = args[["output"]],
+      overWrite = args[["overWrite"]],
       verbose = verbose
     )
   }
@@ -573,6 +576,7 @@ Provide a valid function call for detailed help.\n%s",
     collapseAggDbs(
       object = aggdblist,
       output = args[["output"]],
+      overWrite = args[["overWrite"]],
       verbose = verbose
     )
   }

@@ -205,7 +205,7 @@ setMethod(
     # if value is a data.frame upload directly
     if (verbose) {
       message(sprintf(
-        "Loading table '%s' from interactive R session'",
+        "Loading table '%s' from interactive R session",
         name
       ))
     }
@@ -557,7 +557,7 @@ setMethod(
   if (is.character(value)) {
     # if filepath is provided -> read data
     if (verbose) {
-      message(sprintf("Loading cohort '%s' from '%s'\n", name, value))
+      message(sprintf("Loading cohort '%s' from '%s'", name, value))
     }
     cohort <- read.table(
       value,
@@ -571,7 +571,7 @@ setMethod(
     # value is a data.frame
     if (verbose) {
       message(sprintf(
-        "Loading cohort '%s' from interactive R session\n",
+        "Loading cohort '%s' from interactive R session",
         name
       ))
     }
@@ -597,8 +597,8 @@ setMethod(
     check_length(verbose, equal = 1L, allow_na = FALSE)
 
     # check if table exists -> both as a table and in metadata
-    meta_anno_exists <- tolower(name) %in% tolower(listAnno(object)$name)
-    meta_cohort_exists <- tolower(name) %in% tolower(listCohort(object)$name)
+    meta_anno_exists <- name %in% listAnno(object)$name
+    meta_cohort_exists <- name %in% listCohort(object)$name
     table_exists <- tolower(name) %in% tolower(DBI::dbListTables(object))
 
     # remove from anno meta (if exists)
