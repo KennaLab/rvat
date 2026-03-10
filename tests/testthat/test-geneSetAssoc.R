@@ -338,8 +338,16 @@ test_that("geneSetAssoc results match manual calculations", {
         dplyr::select(geneSetName, effect, P),
       by = "geneSetName"
     )
-  expect_equal(lm_results$effect.x, lm_results$effect.y, tolerance = 1e-4)
-  expect_equal(lm_results$P.x, lm_results$P.y, tolerance = 1e-4)
+  expect_equal(
+    unname(fisher_results$effect.x),
+    unname(fisher_results$effect.y),
+    tolerance = 1e-4
+  )
+  expect_equal(
+    unname(fisher_results$P.x),
+    unname(fisher_results$P.y),
+    tolerance = 1e-4
+  )
 })
 
 test_that("geneSetAssoc misc", {

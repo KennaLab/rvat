@@ -212,7 +212,7 @@ setMethod(
   }
 
   if (return_header) {
-    invisible(NULL)
+    header[seq_len(skip)]
   } else {
     skip
   }

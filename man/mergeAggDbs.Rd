@@ -3,7 +3,7 @@
 \name{mergeAggDbs}
 \alias{mergeAggDbs}
 \alias{mergeAggDbs,aggdbList-method}
-\title{Merge multiple aggregate files}
+\title{Merge multiple aggDbs}
 \usage{
 mergeAggDbs(object, output, overWrite = FALSE, verbose = TRUE)
 }

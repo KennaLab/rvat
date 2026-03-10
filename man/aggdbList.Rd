@@ -55,10 +55,10 @@ In the following code snippets, x is an aggdbList object.
 
 \itemize{
 \item \code{mergeAggDbs(object, output = NULL, verbose = TRUE)}:
-Merge aggregrateFiles, this will generate a new \code{aggdb} including all aggregates across provided aggdbs.
+Merge aggDbs, this will generate a new \code{aggdb} including all aggregates across provided aggdbs.
 See \code{\link{mergeAggDbs}} for details.
 \item \code{collapseAggDbs(object, output = NULL, verbose = TRUE)}: Collapse aggdbs by aggregating values across aggdbs.
-This will result in one aggregate score for each sample, representing the aggregate value across aggregate files.
+This will result in one aggregate score for each sample, representing the aggregate value across aggdbs
 The output will be a two-column matrix including sample IDs and aggregate scores respectively.
 See \code{\link{collapseAggDbs}} for details.
 }
