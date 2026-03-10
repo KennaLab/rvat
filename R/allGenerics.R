@@ -1165,7 +1165,7 @@ setGeneric("topResult", function(object, n = 10) standardGeneric("topResult"))
 #' @export
 setGeneric("getUnit", function(object, unit) standardGeneric("getUnit"))
 
-#' Merge multiple aggregate files
+#' Merge multiple aggDbs
 #'
 #' Merge aggdbs, this will generate a new `aggdb` including all aggregates across provided aggdbs.
 #'
@@ -1189,9 +1189,9 @@ setGeneric(
 )
 
 
-#' Collapse multiple aggregate files
+#' Collapse multiple aggDbs
 #'
-#' Collapse aggregrateFiles by aggregating values across aggdbs. This will result in one aggregate score for
+#' Collapse aggDbs by aggregating values across aggdbs. This will result in one aggregate score for
 #' each sample, representing the aggregate value across aggregate dbs.
 #' The output will be a two-column matrix including sample IDs and aggregate scores respectively.
 #'

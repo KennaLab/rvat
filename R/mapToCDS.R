@@ -31,7 +31,7 @@ setMethod(
 
     # initialize output
     if (!is.null(output)) {
-      output_con <- file(output, open = "wb")
+      output_con <- gzcon(file(output, open = "wb"))
       on.exit(close(output_con), add = TRUE)
       # write header
       write.table(

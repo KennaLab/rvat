@@ -773,7 +773,7 @@
       )
       pval.very.rare <- SPAtest::ScoreTest_SPA(
         genos = agg,
-        obj.nul = obj,
+        obj.null = obj,
         minmac = 0
       )$p.value
     } else if (method == "firth") {

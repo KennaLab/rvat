@@ -92,7 +92,7 @@ concatGdb <- function(
     warning(
       "Not all input gdbs were created with the same RVAT version, ",
       "we recommend generating the input gdbs with the same RVAT version. ",
-      "The version of the first input gdb will be recorded in the output gdb.",
+      "The current RVAT version will be recorded in the output gdb.",
       call. = FALSE
     )
     version <- version[1]

@@ -442,9 +442,9 @@ check_length <- function(
 
   if (!is.null(max) && length(x) > max) {
     message <- sprintf(
-      "`%s` should be at least of length %s",
+      "`%s` should be at most of length %s",
       arg,
-      min
+      max
     )
     rlang::abort(
       message,

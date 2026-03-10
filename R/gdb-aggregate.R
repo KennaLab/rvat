@@ -381,7 +381,15 @@ setMethod(
 ) {
   lapply(units, FUN = function(unit) {
     # load genotypes
-    varset <- getVarSet(varSet, unit = unit)[[1L]]
+    varset <- getVarSet(varSet, unit = unit)
+    if (length(varset) != 1L) {
+      stop(sprintf(
+        "Expected exactly 1 varSet for unit '%s', but found %s.",
+        unit,
+        length(varset)
+      ))
+    }
+    varset <- varset[[1L]]
     GT <- getGT(
       gdb,
       cohort = cohort,

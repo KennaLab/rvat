@@ -221,6 +221,12 @@ test_that("uploadAnno input validation works correctly", {
     regexp = "already in use"
   )
 
+  # expect error when upload name already exists as a cohort table
+  expect_error(
+    uploadAnno(gdb, value = test_df, name = "pheno", skipRemap = TRUE),
+    regexp = "already in use"
+  )
+
   # expect error when upload name includes punctuation marks
   for (mark in c(".", ",", "+", "-", " ")) {
     expect_error(
@@ -249,7 +255,6 @@ test_that("uploadAnno input validation works correctly", {
     regexp = "must be a data.frame or a character string"
   )
 
-  #
   expect_error(
     {
       uploadAnno(

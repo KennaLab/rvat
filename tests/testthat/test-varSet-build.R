@@ -264,7 +264,7 @@ test_that("buildVarSet-data.frame input validation works", {
     regexp = "was not found"
   )
 
-  # expecct error when one of the `fields` does not exist in data.frame
+  # expect error when one of the `fields` does not exist in data.frame
   expect_error(
     {
       buildVarSet(df, unitName = "gene", fields = c("impact", "hello_world"))
