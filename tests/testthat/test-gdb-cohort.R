@@ -202,6 +202,12 @@ test_that("uploadCohort input validation works correctly", {
     "already in use"
   )
 
+  # expect error when upload name already exists as an anno table
+  expect_error(
+    uploadCohort(gdb, value = test_df, name = "varinfo"),
+    "already in use"
+  )
+
   # expect error when upload name is invalid
   invalid_chars <- c(".", ",", "+", "-", " ")
   for (char in invalid_chars) {

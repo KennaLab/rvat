@@ -767,7 +767,7 @@ enrich_test <- function(
 .prepare_stats_GSA <- function(object, covar, Zcutoffs, INT, verbose = TRUE) {
   if (!is.null(Zcutoffs) && length(Zcutoffs) != 2L) {
     stop(
-      "`Zcutoffs should be a vector of length 2 (minimum and maximum)",
+      "`Zcutoffs` should be a vector of length 2 (minimum and maximum)",
       call. = FALSE
     )
   }
@@ -828,12 +828,6 @@ enrich_test <- function(
       (rank(object$Z, na.last = "keep") - 0.5) / sum(!is.na(object$Z))
     )
   } else if (!is.null(Zcutoffs)) {
-    if (length(Zcutoffs) != 2L) {
-      stop(
-        "The length of `Zcutoffs` should be 2 (minimum and maximum).",
-        call. = FALSE
-      )
-    }
     if (verbose) {
       message(sprintf(
         "%s Z-scores <%s are set to %s",
@@ -880,8 +874,8 @@ enrich_test <- function(
   object
 }
 
-z_test <- function(x, mu = 0, var = 1, alternative = "two.sided") {
-  se <- var / sqrt(length(x))
+z_test <- function(x, mu = 0, sd = 1, alternative = "two.sided") {
+  se <- sd / sqrt(length(x))
   b <- mean(x)
   list(
     mean = b - mu,

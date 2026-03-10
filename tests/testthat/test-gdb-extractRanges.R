@@ -158,7 +158,7 @@ test_that("extractRanges input validation works correctly", {
   )
 
   expect_error(
-    extractRanges(gdb, valid_ranges, padding = -5),
+    extractRanges(gdb, ranges, padding = -5),
     regexp = "should be a positive value"
   )
 

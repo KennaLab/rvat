@@ -388,6 +388,11 @@ setMethod(
       control <- max(object$ctrlN, na.rm = TRUE)
     }
 
+    # set label
+    if (is.null(label) && "label" %in% colnames(object)) {
+      label <- "label"
+    }
+
     # subset required fields
     fields <- c("P", label)
     qq_data <- as.data.frame(object)[, fields, drop = FALSE]

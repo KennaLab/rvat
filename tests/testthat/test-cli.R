@@ -853,6 +853,7 @@ test_that("--spatialClust works", {
         "--weightName=CADD",
         "--windowSize=60,100",
         "--overlap=30,50",
+        "--memlimit=500",
         "--quiet"
       )
     },
@@ -877,7 +878,8 @@ test_that("--spatialClust works", {
     where = "'QC=1'",
     weightName = "CADD",
     windowSize = c(60, 100),
-    overlap = c(30, 50)
+    overlap = c(30, 50),
+    memlimit = 500L
   )
   expect_s4_class(mock_args[["object"]], "gdb")
   expected_args <- c(
@@ -1161,6 +1163,7 @@ test_that("--aggregate works", {
         "--maxCarriers=1000",
         "--minCarrierFreq=0.00001",
         "--maxCarrierFreq=0.05",
+        "--overWrite",
         "--not-strict",
         "--quiet"
       )
@@ -1201,6 +1204,7 @@ test_that("--aggregate works", {
     maxCarriers = 1000,
     minCarrierFreq = 0.00001,
     maxCarrierFreq = 0.05,
+    overWrite = TRUE,
     verbose = FALSE,
     strict = FALSE
   )
@@ -1296,6 +1300,7 @@ test_that("--mergeAggDbs works", {
         sprintf("--filelist=%s", filelist),
         "--not-checkDups",
         "--output=mergeAggDbs.txt.gz",
+        "--overWrite",
         "--quiet"
       )
     },
@@ -1312,6 +1317,7 @@ test_that("--mergeAggDbs works", {
   # check against expected args
   expected_args <- list(
     output = "mergeAggDbs.txt.gz",
+    overWrite = TRUE,
     verbose = FALSE
   )
   expected_args <- c(
@@ -1407,6 +1413,7 @@ test_that("--collapseAggDbs works", {
         sprintf("--filelist=%s", filelist),
         "--not-checkDups",
         "--output=collapseAggDbs.txt.gz",
+        "--overWrite",
         "--quiet"
       )
     },
@@ -1423,6 +1430,7 @@ test_that("--collapseAggDbs works", {
   # check against expected args
   expected_args <- list(
     output = "collapseAggDbs.txt.gz",
+    overWrite = TRUE,
     verbose = FALSE
   )
   expected_args <- c(

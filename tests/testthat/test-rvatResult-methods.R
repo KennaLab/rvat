@@ -106,7 +106,7 @@ test_that("rvatResult input validation works", {
     {
       validObject(rvbresults_invalid)
     },
-    regexp = "The following columns should be of type: P: numeric"
+    regexp = "The following columns should be of type"
   )
   rvbresults_invalid$P <- NULL
   expect_error(

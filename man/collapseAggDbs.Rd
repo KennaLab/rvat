@@ -3,7 +3,7 @@
 \name{collapseAggDbs}
 \alias{collapseAggDbs}
 \alias{collapseAggDbs,aggdbList-method}
-\title{Collapse multiple aggregate files}
+\title{Collapse multiple aggDbs}
 \usage{
 collapseAggDbs(object, output = NULL, overWrite = FALSE, verbose = TRUE)
 }
@@ -18,7 +18,7 @@ Defaults to \code{NULL}, in which case a data.frame will be returned.}
 \item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
-Collapse aggregrateFiles by aggregating values across aggdbs. This will result in one aggregate score for
+Collapse aggDbs by aggregating values across aggdbs. This will result in one aggregate score for
 each sample, representing the aggregate value across aggregate dbs.
 The output will be a two-column matrix including sample IDs and aggregate scores respectively.
 }

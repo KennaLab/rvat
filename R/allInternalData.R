@@ -177,6 +177,7 @@ assocTest_resampling_tests <- c(
   "skat_robust",
   "skat_burden",
   "skat_burden_robust",
+  "skato",
   "skato_robust",
   "acatv"
 )
