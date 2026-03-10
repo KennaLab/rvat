@@ -24,10 +24,11 @@ subsetGdb(
 gdb_subset <- gdb(output)
 
 # subset gdbs based on list of VAR ids
-anno <- getAnno(gdb, 
-                "var",
-                range = data.frame(CHROM = "chr16", start = 31191399, end = 31191605)
-                )
+anno <- getAnno(
+  gdb,
+  "var",
+  range = data.frame(CHROM = "chr16", start = 31191399, end = 31191605)
+)
 
 subsetGdb(
   gdb,
