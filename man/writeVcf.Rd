@@ -48,9 +48,9 @@ as annotation software, and then upload the results back into the gdb, without
 having to map the variants to VAR_ids again.
 }
 \examples{
- library(rvatData)
+library(rvatData)
 
- output <- tempfile()
- gdb <- create_example_gdb()
- writeVcf(gdb, VAR_id = 1:100, output = output)
+output <- tempfile()
+gdb <- create_example_gdb()
+writeVcf(gdb, VAR_id = 1:100, output = output)
 }

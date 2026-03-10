@@ -6,5 +6,5 @@ varset <- getVarSet(varsetfile, unit = c("NEK1"), varSetName = "High")[[1]]
 listVars(varset)
 listWeights(varset)
 
-# note that usually you'll work with varSets in either a varSetList or 
+# note that usually you'll work with varSets in either a varSetList or
 # a varSetFile (see ?varSetList and ?varSetFile)

@@ -126,8 +126,8 @@ ncol(rvbresults)
 dim(rvbresults)
 rvbresults_df <- as.data.frame(rvbresults)
 head(rvbresults_df)
-rvbresults[1:3,]
-rvbresults[,1:10]
+rvbresults[1:3, ]
+rvbresults[, 1:10]
 rvbresults[["unit"]][1:5]
 
 # write results
@@ -150,8 +150,12 @@ writeResult(sv, file = svresultfile)
 sv <- singlevarResult(sv)
 head(sv)
 
-# merge 
-merge <- merge(rvbresults[1:23], as.data.frame(rvbresults[,c(1, 23:28)]), by = "unit")
+# merge
+merge <- merge(
+  rvbresults[1:23],
+  as.data.frame(rvbresults[, c(1, 23:28)]),
+  by = "unit"
+)
 
 # show summary
 summary(rvbresults)
@@ -160,14 +164,21 @@ summary(rvbresults)
 topResult(rvbresults, n = 10)
 
 # qqplot
-man <- qqplot(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
-                 label = "unit")
+man <- qqplot(
+  rvbresults[
+    rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",
+  ],
+  label = "unit"
+)
 
 # generate a manhattan plot
-man <- manhattan(rvbresults[rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",],
-                 label = "unit", 
-                 contigs = "GRCh38")
-
+man <- manhattan(
+  rvbresults[
+    rvbresults$varSetName == "ModerateImpact" & rvbresults$test == "firth",
+  ],
+  label = "unit",
+  contigs = "GRCh38"
+)
 
 # see ?ACAT and ?geneSetAssoc for downstream analyses on rvatResults
 }
