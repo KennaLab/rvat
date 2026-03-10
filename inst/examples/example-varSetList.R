@@ -12,7 +12,7 @@ varsetlist
 # for example, getVarSet can also be used to extract specific genes or varSets from a varSetList
 getVarSet(varsetlist, unit = "SOD1")
 
-# list included units and varSets 
+# list included units and varSets
 units <- listUnits(varsetlist)
 head(units)
 varsets <- listVarSets(varsetlist)
@@ -33,7 +33,7 @@ getGdbId(varsetlist)
 collapseVarSetList(varsetlist)
 
 # varSetLists can be written to a varSetFile on disk using the write method
-output <- tempfile() 
+output <- tempfile()
 write(varsetlist, output)
 varsetfile <- varSetFile(output)
 varsetfile
