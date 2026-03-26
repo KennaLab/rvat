@@ -17,19 +17,28 @@ aggdbList <- function(filelist, checkDups = TRUE) {
   check_length(filelist, min = 1L)
   check_bool(checkDups)
 
-  # connect to aggdbs
-  aggdb_list <- lapply(
-    filelist,
-    FUN = aggdb
+  # extract info from each aggdb one at a time to avoid opening too many
+  # connections simultaneously
+  units_list <- vector("list", length(filelist))
+  samples_list <- vector("list", length(filelist))
+  metadata_list <- vector("list", length(filelist))
+  params_list <- vector("list", length(filelist))
+  con <- NULL
+  on.exit(
+    if (!is.null(con) && DBI::dbIsValid(con)) try(close(con), silent = TRUE)
   )
-  ## close all gdbs on exit
-  on.exit(lapply(
-    aggdb_list,
-    function(con) if (DBI::dbIsValid(con)) try(close(con), silent = TRUE)
-  ))
+  for (i in seq_along(filelist)) {
+    con <- aggdb(filelist[[i]])
+    units_list[[i]] <- listUnits(con)
+    samples_list[[i]] <- listSamples(con)
+    metadata_list[[i]] <- metadata(con)
+    params_list[[i]] <- listParams(con)
+    close(con)
+  }
+  con <- NULL
 
   # check whether duplicate units are included
-  units_all <- unlist(lapply(aggdb_list, listUnits))
+  units_all <- unlist(units_list)
   if (anyDuplicated(units_all) != 0L) {
     if (checkDups) {
       stop(
@@ -45,9 +54,8 @@ aggdbList <- function(filelist, checkDups = TRUE) {
   }
 
   # check whether sample IDs are identical across dbs
-  samples <- lapply(aggdb_list, listSamples)
-  check_identical_samples <- unlist(lapply(samples, FUN = function(x) {
-    identical(samples[[1L]], x)
+  check_identical_samples <- unlist(lapply(samples_list, FUN = function(x) {
+    identical(samples_list[[1L]], x)
   }))
   if (!all(check_identical_samples)) {
     stop(
@@ -55,10 +63,10 @@ aggdbList <- function(filelist, checkDups = TRUE) {
       call. = FALSE
     )
   }
-  samples <- samples[[1L]]
+  samples <- samples_list[[1L]]
 
   # check metadata
-  metadata <- lapply(aggdb_list, metadata)
+  metadata <- metadata_list
   rvatversion <- unique(unlist(lapply(
     metadata,
     function(x) x[["rvatVersion"]]
@@ -71,10 +79,7 @@ aggdbList <- function(filelist, checkDups = TRUE) {
     metadata,
     function(x) x[["genomeBuild"]]
   )))
-  params <- lapply(
-    aggdb_list,
-    listParams
-  )
+  params <- params_list
   check_identical_params <- unlist(lapply(params, FUN = function(x) {
     identical(params[[1L]], x)
   }))
