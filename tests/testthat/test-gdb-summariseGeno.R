@@ -195,7 +195,7 @@ test_that("gdb-summariseGeno input validation works", {
   expect_no_error({
     suppressWarnings(summariseGeno(
       test_gdb,
-      varSet = getVarSet(varsetfile, unit = listUnits(varsetfile)[1]),
+      varSet = getVarSet(varsetfile, unit = listUnits(varsetfile)[1], varSetName = listVarSets(varsetfile)[1]),
       cohort = "SM",
       verbose = FALSE,
       strict = FALSE
