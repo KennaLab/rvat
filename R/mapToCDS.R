@@ -393,6 +393,9 @@ setMethod(
       )
       vars_tx[["CHROM"]] <- as.character(vars_tx[["CHROM"]])
 
+      # sort by POS and VAR_id for deterministic output
+      vars_tx <- vars_tx[order(vars_tx$POS, vars_tx$VAR_id), ]
+
       results[[transcript]] <- vars_tx
     }
   }
