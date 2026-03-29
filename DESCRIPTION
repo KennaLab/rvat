@@ -96,4 +96,6 @@ Collate:
     'vcfUtils.R'
 Suggests: 
     testthat (>= 3.0.0), rvatData, withr
+Remotes:
+    KennaLab/rvatData
 Config/testthat/edition: 3
