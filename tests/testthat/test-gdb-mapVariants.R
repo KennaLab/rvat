@@ -357,7 +357,22 @@ test_that("mapVariants input validation works correctly", {
     "must be a character vector"
   )
 
-  # expect error when output exists and overWrite = FALSE
+  # expect error when output file exists and overWrite = FALSE
+  existing_file <- withr::local_tempfile()
+  readr::write_lines("placeholder", existing_file)
+  expect_error(
+    {
+      mapVariants(
+        gdb,
+        gff = test_path("data/protein_coding_genes.gtf"),
+        output = existing_file,
+        verbose = FALSE
+      )
+    },
+    "already exists"
+  )
+
+  # expect error when uploadName exists and overWrite = FALSE
   expect_error(
     {
       mapVariants(

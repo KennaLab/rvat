@@ -127,6 +127,19 @@ test_that("subSetGdb works", {
   gdb_subset <- gdb(gdb_subset)
   expect_equal(nrow(listAnno(gdb_subset)), 0L)
   expect_equal(nrow(listCohort(gdb_subset)), 1L)
+
+  # tables filter that matches nothing: both tables.anno and tables.cohort are empty
+  gdb_subset_empty <- withr::local_tempfile()
+  suppressMessages(subsetGdb(
+    gdb,
+    VAR_id = 1:100,
+    tables = "nonexistent_table",
+    output = gdb_subset_empty,
+    overWrite = TRUE
+  ))
+  gdb_subset_empty <- gdb(gdb_subset_empty)
+  expect_equal(nrow(listAnno(gdb_subset_empty)), 0L)
+  expect_equal(nrow(listCohort(gdb_subset_empty)), 0L)
 })
 
 

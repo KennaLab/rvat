@@ -601,7 +601,10 @@ setMethod(
       ]
       if (nrow(task_cohort) == 0L) {
         if (verbose) {
-          message(sprintf("No units left for %s, skipping.", geneset))
+          message(sprintf(
+            "No samples left after filtering for complete cases for %s, skipping.",
+            geneset
+          ))
         }
         return(NULL)
       } else if (verbose) {

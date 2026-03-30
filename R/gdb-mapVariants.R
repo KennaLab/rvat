@@ -46,6 +46,7 @@ setMethod(
 
     # if output!=NULL connect
     if (!is.null(output)) {
+      .check_output(output, overWrite = overWrite, verbose = verbose)
       output_con <- gzcon(file(output, open = "wb"))
       on.exit(close(output_con), add = TRUE)
     }

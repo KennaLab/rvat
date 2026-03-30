@@ -106,7 +106,7 @@ concatGdb <- function(
   if (!skipRemap) {
     if (verbose) {
       message(sprintf(
-        "%s\tReseting VAR_id to rowid",
+        "%s\tResetting VAR_id to rowid",
         as.character(round(Sys.time(), units = "secs"))
       ))
     }
@@ -483,24 +483,41 @@ setMethod(
   )
 
   # cohort meta table
-  DBI::dbExecute(
-    gdb,
-    sprintf(
-      "create table %s.cohort as select * from cohort where name in (%s)",
-      attach_name,
-      paste(paste0("'", tables.cohort, "'"), collapse = ",")
+  if (length(tables.cohort) > 0) {
+    DBI::dbExecute(
+      gdb,
+      sprintf(
+        "create table %s.cohort as select * from cohort where name in (%s)",
+        attach_name,
+        paste(paste0("'", tables.cohort, "'"), collapse = ",")
+      )
     )
-  )
+  } else {
+    DBI::dbExecute(
+      gdb,
+      sprintf(
+        "create table %s.cohort as select * from cohort where 0",
+        attach_name
+      )
+    )
+  }
 
   # anno meta table
-  DBI::dbExecute(
-    gdb,
-    sprintf(
-      "create table %s.anno as select * from anno where name in (%s)",
-      attach_name,
-      paste(paste0("'", tables.anno, "'"), collapse = ",")
+  if (length(tables.anno) > 0) {
+    DBI::dbExecute(
+      gdb,
+      sprintf(
+        "create table %s.anno as select * from anno where name in (%s)",
+        attach_name,
+        paste(paste0("'", tables.anno, "'"), collapse = ",")
+      )
     )
-  )
+  } else {
+    DBI::dbExecute(
+      gdb,
+      sprintf("create table %s.anno as select * from anno where 0", attach_name)
+    )
+  }
 
   # copy cohort tables
   for (cohort_i in tables.cohort) {
