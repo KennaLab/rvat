@@ -18,7 +18,7 @@ object can be either a varSetList or a varSetFile."><!-- mathjax --><script src=
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -110,17 +110,17 @@ object can be either a varSetList or a varSetFile."><!-- mathjax --><script src=
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>A <code><a href="varSetList.html">varSetList</a></code> or <code><a href="varSetFile.html">varSetFile</a></code>.</p></dd>
+<dd><p>A <code><a href="varSetList.html">varSetList</a></code> or <code><a href="varSetFile.html">varSetFile</a></code> object.</p></dd>
 
 
 <dt id="arg-unit">unit<a class="anchor" aria-label="anchor" href="#arg-unit"></a></dt>
-<dd><p>Vector of unit(s) to retrieve
-Use <code><a href="listUnits.html">listUnits()</a></code> to see which units are included in the varSetList/varSetFile.</p></dd>
+<dd><p>Vector of unit(s) to retrieve.
+Use <code><a href="listUnits.html">listUnits</a></code> to see which units are included in the varSetList/varSetFile.</p></dd>
 
 
 <dt id="arg-varsetname">varSetName<a class="anchor" aria-label="anchor" href="#arg-varsetname"></a></dt>
-<dd><p>Vector of unit(s) to retrieve
-Use <code><a href="listVarSets.html">listVarSets()</a></code> to see which varSets are included in the varSetList/varSetFile.</p></dd>
+<dd><p>Vector of varSetName(s) to retrieve.
+Use <code><a href="listVarSets.html">listVarSets</a></code> to see which varSets are included in the varSetList/varSetFile.</p></dd>
 
 </dl></div>
 
@@ -175,13 +175,11 @@ Use <code><a href="listVarSets.html">listVarSets()</a></code> to see which varSe
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the varsetfile contains multiple records per gene, (High impact, CADD scores etc.)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="listVarSets.html">listVarSets</a></span><span class="op">(</span><span class="va">varsetfile</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="listVarSets.html">listVarSets</a></span><span class="op">(</span><span class="va">varsetfile</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Moderate"     "ModerateHigh" "High"         "CADD"        </span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># specific varSets can be selected using the `varSetName` parameter</span></span></span>
-<span class="r-in"><span><span class="va">varsets</span> <span class="op">&lt;-</span> <span class="fu">getVarSet</span><span class="op">(</span><span class="va">varsetfile</span>, </span></span>
-<span class="r-in"><span>                     unit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"FUS"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                     varSetName <span class="op">=</span> <span class="st">"CADD"</span></span></span>
-<span class="r-in"><span>                     <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">varsets</span> <span class="op">&lt;-</span> <span class="fu">getVarSet</span><span class="op">(</span><span class="va">varsetfile</span>, unit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"FUS"</span><span class="op">)</span>, varSetName <span class="op">=</span> <span class="st">"CADD"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">varsets</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> varSetList</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Contains 2 records</span>
@@ -198,10 +196,8 @@ Use <code><a href="listVarSets.html">listVarSets()</a></code> to see which varSe
 <span class="r-out co"><span class="r-pr">#&gt;</span> w=31,.,23.4,.,.,13.44,.,23.9,24.9,22.7,24.9,24.5,.,29.6,26.5,27.1,31,26.2,34,26.6,32,29,14.85,26.2,25,16.46,23.2,.,24.3,17.52,22.8,27.4,27.6,.,25.1,.,.,23.4,28.2,27.9,16.67,27.4,.,42,25.7,.,29.2,22.4,27.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># see?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.</span></span></span>
+<span class="r-in"><span><span class="co"># see ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.</span></span></span>
 <span class="r-in"><span><span class="co"># see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

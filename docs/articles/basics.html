@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -195,24 +195,32 @@ CHROM,POS,REF,ALT fields.</p>
 <span></span>
 <span><span class="co"># the `name` parameter specifies the name of the table in the gdb, </span></span>
 <span><span class="co"># the variant info that should be imported is specified using the `value` parameter</span></span>
-<span><span class="fu"><a href="../reference/uploadAnno.html">uploadAnno</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"varInfo"</span>,value <span class="op">=</span> <span class="va">varinfo</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/uploadAnno.html">uploadAnno</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"varInfo"</span>, value <span class="op">=</span> <span class="va">varinfo</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># note that the filepath can also be provided directly without reading the file first.</span></span>
+<span><span class="co"># also note that `overWrite = TRUE` is specified here to overwrite the existing table.</span></span>
+<span><span class="fu"><a href="../reference/uploadAnno.html">uploadAnno</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"varInfo"</span>, value <span class="op">=</span> <span class="va">varinfopath</span>, overWrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>The <code><a href="../reference/gdb.html">listAnno()</a></code> method lists all variant annotation
 tables in the gdb:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gdb.html">listAnno</a></span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##      name               value                     date</span></span>
-<span><span class="co">## 1 varInfo interactive_session Thu Jan  8 12:38:03 2026</span></span></code></pre>
+<pre><code><span><span class="co">##      name</span></span>
+<span><span class="co">## 1 varInfo</span></span>
+<span><span class="co">##                                                                              value</span></span>
+<span><span class="co">## 1 /home/pjhop/.conda/envs/rvat_dev/lib/R/library/rvatData/extdata/rvatData.varinfo</span></span>
+<span><span class="co">##                       date</span></span>
+<span><span class="co">## 1 Mon Mar 30 18:43:13 2026</span></span></code></pre>
 <p>The <code><a href="../reference/getAnno.html">getAnno()</a></code> method retrieves a given variant
 annotation table from the gdb:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getAnno.html">getAnno</a></span><span class="op">(</span><span class="va">gdb</span>, table <span class="op">=</span> <span class="st">"varinfo"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">varinfo</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   VAR_id CHROM      POS          ID REF ALT     QUAL FILTER AC    AN</span></span>
-<span><span class="co">## 1      1  chr1 11013912        &lt;NA&gt;   A   G   722.13     NA  1 45484</span></span>
+<span><span class="co">## 1      1  chr1 11013912          NA   A   G   722.13     NA  1 45484</span></span>
 <span><span class="co">## 2      2  chr1 11013928 rs755357622   C   T  2598.23     NA  1 49194</span></span>
-<span><span class="co">## 3      3  chr1 11013936        &lt;NA&gt;   A   C  4135.36     NA  1 50000</span></span>
-<span><span class="co">## 4      4  chr1 11013936        &lt;NA&gt;   A   G  4135.36     NA  1 42636</span></span>
-<span><span class="co">## 5      5  chr1 11013952        &lt;NA&gt;   C   G   517.13     NA  1 49574</span></span>
+<span><span class="co">## 3      3  chr1 11013936          NA   A   C  4135.36     NA  1 50000</span></span>
+<span><span class="co">## 4      4  chr1 11013936          NA   A   G  4135.36     NA  1 42636</span></span>
+<span><span class="co">## 5      5  chr1 11013952          NA   C   G   517.13     NA  1 49574</span></span>
 <span><span class="co">## 6      6  chr1 11016874  rs80356715   C   T 64910.10     NA 32 49766</span></span>
 <span><span class="co">##             AF gene_name HighImpact ModerateImpact Synonymous CADDphred</span></span>
 <span><span class="co">## 1 0.0000219858    TARDBP          0              1          0      24.8</span></span>
@@ -233,11 +241,11 @@ annotation table from the gdb:</p>
 <code class="sourceCode R"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getAnno.html">getAnno</a></span><span class="op">(</span><span class="va">gdb</span>, table <span class="op">=</span> <span class="st">"varinfo"</span>, ranges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>CHROM<span class="op">=</span><span class="st">"chr1"</span>, start <span class="op">=</span> <span class="fl">11013847</span>, end <span class="op">=</span> <span class="fl">11016874</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">varinfo</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   VAR_id CHROM      POS          ID REF ALT     QUAL FILTER AC    AN</span></span>
-<span><span class="co">## 1      1  chr1 11013912        &lt;NA&gt;   A   G   722.13     NA  1 45484</span></span>
+<span><span class="co">## 1      1  chr1 11013912          NA   A   G   722.13     NA  1 45484</span></span>
 <span><span class="co">## 2      2  chr1 11013928 rs755357622   C   T  2598.23     NA  1 49194</span></span>
-<span><span class="co">## 3      3  chr1 11013936        &lt;NA&gt;   A   C  4135.36     NA  1 50000</span></span>
-<span><span class="co">## 4      4  chr1 11013936        &lt;NA&gt;   A   G  4135.36     NA  1 42636</span></span>
-<span><span class="co">## 5      5  chr1 11013952        &lt;NA&gt;   C   G   517.13     NA  1 49574</span></span>
+<span><span class="co">## 3      3  chr1 11013936          NA   A   C  4135.36     NA  1 50000</span></span>
+<span><span class="co">## 4      4  chr1 11013936          NA   A   G  4135.36     NA  1 42636</span></span>
+<span><span class="co">## 5      5  chr1 11013952          NA   C   G   517.13     NA  1 49574</span></span>
 <span><span class="co">## 6      6  chr1 11016874  rs80356715   C   T 64910.10     NA 32 49766</span></span>
 <span><span class="co">##             AF gene_name HighImpact ModerateImpact Synonymous CADDphred</span></span>
 <span><span class="co">## 1 0.0000219858    TARDBP          0              1          0      24.8</span></span>
@@ -267,13 +275,20 @@ method:</p>
 <span><span class="co"># Import into the gdb (the `IID` column is used)</span></span>
 <span><span class="co"># the `name` parameter specifies the name of the table in the gdb, </span></span>
 <span><span class="co"># the sample info that should be important is specified using the `value` parameter</span></span>
-<span><span class="fu"><a href="../reference/uploadCohort.html">uploadCohort</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"pheno"</span>, value <span class="op">=</span> <span class="va">pheno</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/uploadCohort.html">uploadCohort</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"pheno"</span>, value <span class="op">=</span> <span class="va">pheno</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># like for variant annotations, the filepath can also be provided directly</span></span>
+<span><span class="fu"><a href="../reference/uploadCohort.html">uploadCohort</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"pheno"</span>, value <span class="op">=</span> <span class="va">phenopath</span>, overWrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>The <code><a href="../reference/gdb.html">listCohort()</a></code> method lists all uploaded sample info
 tables in the gdb:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gdb.html">listCohort</a></span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##    name               value                     date</span></span>
-<span><span class="co">## 1 pheno interactive_session Thu Jan  8 12:38:03 2026</span></span></code></pre>
+<pre><code><span><span class="co">##    name</span></span>
+<span><span class="co">## 1 pheno</span></span>
+<span><span class="co">##                                                                            value</span></span>
+<span><span class="co">## 1 /home/pjhop/.conda/envs/rvat_dev/lib/R/library/rvatData/extdata/rvatData.pheno</span></span>
+<span><span class="co">##                       date</span></span>
+<span><span class="co">## 1 Mon Mar 30 18:43:14 2026</span></span></code></pre>
 <p>The <code><a href="../reference/getCohort.html">getCohort()</a></code> method retrieves a given sample info
 table from the gdb:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
@@ -309,10 +324,10 @@ explore in this section.</p>
 <h3 id="construct-a-genomatrix">Construct a genoMatrix<a class="anchor" aria-label="anchor" href="#construct-a-genomatrix"></a>
 </h3>
 <p>First, we’ll build a genoMatrix object using the <code><a href="../reference/getGT.html">getGT()</a></code>
-method. Variants to include can be specified in two main ways: 1) by
-directly passing the VAR_ids to the <code><a href="../reference/getGT.html">getGT()</a></code> method, 2) by
-providing a set of genomic ranges to retrieve and 23 by supplying a
-<code>varSet</code> (discussed later).</p>
+method. Variants to include can be specified in two main ways: 1. by
+directly passing the VAR_ids to the <code><a href="../reference/getGT.html">getGT()</a></code> method<br>
+2. by providing a set of genomic ranges to retrieve<br>
+3. by supplying a <code>varSet</code> (discussed later).</p>
 <p>Here we’ll start with methods 1-2, varSets are discussed in
 <code><a href="../articles/association_testing.html">vignette("association_testing")</a></code> tutorial.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -394,7 +409,7 @@ object. Here we first show some basic operations:</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Annotated-class.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">GT</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## $gdb</span></span>
-<span><span class="co">## [1] "/tmp/RtmpDb9HX2/rvat_tutorials.gdb"</span></span>
+<span><span class="co">## [1] "/tmp/RtmpxymKRM/rvat_tutorials.gdb"</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $gdbId</span></span>
 <span><span class="co">## [1] "u7fd78yvg5fivj57qv4af7ayh65s"</span></span>
@@ -452,7 +467,7 @@ data.frame:</p>
 <span><span class="co">## colData names(10): IID sex ... PC4 age</span></span></code></pre>
 <p>subset first 2 variants for subjects older than 70:</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">GT</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="va">GT</span><span class="op">$</span><span class="va">age</span> <span class="op">&gt;</span> <span class="fl">70</span><span class="op">]</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">GT</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">GT</span><span class="op">$</span><span class="va">age</span> <span class="op">&gt;</span> <span class="fl">70</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">## rvat genoMatrix Object</span></span>
 <span><span class="co">## class: genoMatrix </span></span>
 <span><span class="co">## dim: 2 3910 </span></span>
@@ -463,7 +478,7 @@ data.frame:</p>
 <span><span class="co">## colnames(3910): ALS17 ALS31 ... CTRL19990 CTRL19995</span></span>
 <span><span class="co">## colData names(10): IID sex ... PC4 age</span></span></code></pre>
 <p>Although you’ll usually not work directly on the genotypes, they can
-be retrieved as followingL</p>
+be retrieved as following:</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assays</a></span><span class="op">(</span><span class="va">GT</span><span class="op">)</span><span class="op">$</span><span class="va">GT</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">##      ALS1 ALS2 ALS3 ALS4 ALS5</span></span>

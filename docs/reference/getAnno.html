@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -104,12 +104,12 @@
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">table</span>,</span>
 <span>  fields <span class="op">=</span> <span class="st">"*"</span>,</span>
-<span>  left <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  inner <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  left <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  inner <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  VAR_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ranges <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  padding <span class="op">=</span> <span class="fl">250</span>,</span>
-<span>  where <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  padding <span class="op">=</span> <span class="fl">250L</span>,</span>
+<span>  where <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -118,27 +118,27 @@
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>an object of class <code><a href="gdb.html">gdb</a></code></p></dd>
+<dd><p>an object of class <code><a href="gdb.html">gdb</a></code>.</p></dd>
 
 
 <dt id="arg-table">table<a class="anchor" aria-label="anchor" href="#arg-table"></a></dt>
-<dd><p>base table to query</p></dd>
+<dd><p>base table to query.</p></dd>
 
 
 <dt id="arg-fields">fields<a class="anchor" aria-label="anchor" href="#arg-fields"></a></dt>
-<dd><p>columns to retain</p></dd>
+<dd><p>columns to retain.</p></dd>
 
 
 <dt id="arg-left">left<a class="anchor" aria-label="anchor" href="#arg-left"></a></dt>
-<dd><p>left join operations to perform</p></dd>
+<dd><p>left join operations to perform.</p></dd>
 
 
 <dt id="arg-inner">inner<a class="anchor" aria-label="anchor" href="#arg-inner"></a></dt>
-<dd><p>inner join operations to perform</p></dd>
+<dd><p>inner join operations to perform.</p></dd>
 
 
 <dt id="arg-var-id">VAR_id<a class="anchor" aria-label="anchor" href="#arg-var-id"></a></dt>
-<dd><p>retain only variants with matching ID</p></dd>
+<dd><p>retain only variants with matching ID.</p></dd>
 
 
 <dt id="arg-ranges">ranges<a class="anchor" aria-label="anchor" href="#arg-ranges"></a></dt>
@@ -148,19 +148,21 @@ can be a <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html
 
 
 <dt id="arg-padding">padding<a class="anchor" aria-label="anchor" href="#arg-padding"></a></dt>
-<dd><p>Number of basepairs to extend the search region beyond the specified genomic ranges to capture variants where the reference allele (REF) overlaps the input ranges,
-but the POS of the variant falls outside the ranges. This accounts for variants where the REF allele spans multiple base pairs.</p></dd>
+<dd><p>Number of basepairs to extend the search region beyond the specified genomic ranges
+to capture variants where the reference allele (REF) overlaps the input ranges,
+but the POS of the variant falls outside the ranges.
+This accounts for variants where the REF allele spans multiple base pairs.</p></dd>
 
 
 <dt id="arg-where">where<a class="anchor" aria-label="anchor" href="#arg-where"></a></dt>
-<dd><p>An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF&lt;0.01 AND (cadd.caddPhred&gt;15 OR snpEff.SIFT='D')".</p></dd>
+<dd><p>An SQL compliant where clause to filter output;
+eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF&lt;0.01 AND (cadd.caddPhred&gt;15 OR snpEff.SIFT='D')".</p></dd>
 
 </dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># retrieve full anno table</span></span></span>
@@ -189,9 +191,11 @@ but the POS of the variant falls outside the ranges. This accounts for variants 
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6        B    T</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># extract a genomic range</span></span></span>
-<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span><span class="va">gdb</span>, </span></span>
-<span class="r-in"><span>                   table <span class="op">=</span> <span class="st">"varInfo"</span>, </span></span>
-<span class="r-in"><span>                   ranges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>CHROM <span class="op">=</span> <span class="st">"chr1"</span>, start <span class="op">=</span> <span class="fl">11013847</span>, end <span class="op">=</span> <span class="fl">11016874</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  table <span class="op">=</span> <span class="st">"varInfo"</span>,</span></span>
+<span class="r-in"><span>  ranges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>CHROM <span class="op">=</span> <span class="st">"chr1"</span>, start <span class="op">=</span> <span class="fl">11013847</span>, end <span class="op">=</span> <span class="fl">11016874</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">varinfo</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   VAR_id CHROM      POS          ID REF ALT    QUAL FILTER AC    AN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      1  chr1 11013912        &lt;NA&gt;   A   G  722.13   &lt;NA&gt;  1 45484</span>
@@ -216,10 +220,12 @@ but the POS of the variant falls outside the ranges. This accounts for variants 
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6        B    T</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># keep only specified fields</span></span></span>
-<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span><span class="va">gdb</span>, </span></span>
-<span class="r-in"><span>                   table <span class="op">=</span> <span class="st">"varInfo"</span>, </span></span>
-<span class="r-in"><span>                   fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VAR_id"</span>, <span class="st">"CHROM"</span>, <span class="st">"POS"</span>, <span class="st">"REF"</span>, <span class="st">"ALT"</span>, <span class="st">"ModerateImpact"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                   ranges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>CHROM <span class="op">=</span> <span class="st">"chr1"</span>, start <span class="op">=</span> <span class="fl">11013847</span>, end <span class="op">=</span> <span class="fl">11016874</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  table <span class="op">=</span> <span class="st">"varInfo"</span>,</span></span>
+<span class="r-in"><span>  fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VAR_id"</span>, <span class="st">"CHROM"</span>, <span class="st">"POS"</span>, <span class="st">"REF"</span>, <span class="st">"ALT"</span>, <span class="st">"ModerateImpact"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  ranges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>CHROM <span class="op">=</span> <span class="st">"chr1"</span>, start <span class="op">=</span> <span class="fl">11013847</span>, end <span class="op">=</span> <span class="fl">11016874</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">varinfo</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   VAR_id CHROM      POS REF ALT ModerateImpact</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      1  chr1 11013912   A   G              1</span>
@@ -230,9 +236,11 @@ but the POS of the variant falls outside the ranges. This accounts for variants 
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6      6  chr1 11016874   C   T              1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the `where` parameter can be used to to pass an SQL-compliant where clause t</span></span></span>
-<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span><span class="va">gdb</span>, </span></span>
-<span class="r-in"><span>                   table <span class="op">=</span> <span class="st">"varInfo"</span>, </span></span>
-<span class="r-in"><span>                   where <span class="op">=</span> <span class="st">"gene_name = 'SOD1' and ModerateImpact = 1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  table <span class="op">=</span> <span class="st">"varInfo"</span>,</span></span>
+<span class="r-in"><span>  where <span class="op">=</span> <span class="st">"gene_name = 'SOD1' and ModerateImpact = 1"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">varinfo</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   VAR_id CHROM      POS          ID  REF ALT    QUAL FILTER AC    AN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   1268 chr21 31659783 rs121912442    C   T 15317.2   &lt;NA&gt;  6 47612</span>
@@ -260,12 +268,14 @@ but the POS of the variant falls outside the ranges. This accounts for variants 
 <span class="r-in"><span><span class="co"># the `inner` and `left` parameters can be used to perform inner and left join operations respectively</span></span></span>
 <span class="r-in"><span><span class="co"># e.g. we can use the `inner` parameter to filter e.g. based on a table containing QC-passing variants</span></span></span>
 <span class="r-in"><span><span class="co"># for example:</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="uploadAnno.html">uploadAnno</a></span><span class="op">(</span><span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"QCpass"</span>, value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>VAR_id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span>, skipRemap <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span><span class="va">gdb</span>, </span></span>
-<span class="r-in"><span>                   inner <span class="op">=</span> <span class="st">"QCpass"</span>,</span></span>
-<span class="r-in"><span>                   table <span class="op">=</span> <span class="st">"varInfo"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="uploadAnno.html">uploadAnno</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"QCpass"</span>,</span></span>
+<span class="r-in"><span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>VAR_id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  skipRemap <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">varinfo</span> <span class="op">&lt;-</span> <span class="fu">getAnno</span><span class="op">(</span><span class="va">gdb</span>, inner <span class="op">=</span> <span class="st">"QCpass"</span>, table <span class="op">=</span> <span class="st">"varInfo"</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

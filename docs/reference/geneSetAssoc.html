@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -107,15 +107,15 @@
 <span>  cormatrix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  condition <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  covar <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span>, <span class="st">"glm"</span>, <span class="st">"mlm"</span>, <span class="st">"fisher"</span>, <span class="st">"ttest"</span>, <span class="st">"ztest"</span>, <span class="st">"ACAT"</span><span class="op">)</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span>, <span class="st">"mlm"</span>, <span class="st">"fisher"</span>, <span class="st">"ttest"</span>, <span class="st">"ztest"</span>, <span class="st">"ACAT"</span><span class="op">)</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Zcutoffs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  INT <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  scoreCutoffs <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  minSetSize <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  minSetSize <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  maxSetSize <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  oneSided <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  memlimit <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  memlimit <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  ID <span class="op">=</span> <span class="st">"unit"</span>,</span>
 <span>  output <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -127,11 +127,11 @@
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>an <code><a href="rvatResult.html">rvbResult</a></code> object.</p></dd>
+<dd><p>An <code><a href="rvatResult.html">rvbResult</a></code> object.</p></dd>
 
 
 <dt id="arg-geneset">geneSet<a class="anchor" aria-label="anchor" href="#arg-geneset"></a></dt>
-<dd><p>a <code><a href="geneSetList.html">geneSetList</a></code> or <code><a href="geneSetFile.html">geneSetFile</a></code> object.</p></dd>
+<dd><p>A <code><a href="geneSetList.html">geneSetList</a></code> or <code><a href="geneSetFile.html">geneSetFile</a></code> object.</p></dd>
 
 
 <dt id="arg-scorematrix">scoreMatrix<a class="anchor" aria-label="anchor" href="#arg-scorematrix"></a></dt>
@@ -143,27 +143,31 @@ analyses on continuous values. These can be used to perform e.g. cell-type enric
 <dd><p>a correlation matrix with row and column names corresponding to the units in the rvbResult.
 Needs to be specified in order to run the 'mlm' (mixed linear model) test.
 A burden score correlation matrix can be generated using the <code><a href="buildCorMatrix.html">buildCorMatrix</a></code> method.
-The mixed mixed linear model is run using the GENESIS R package.</p></dd>
+The mixed linear model is run using the GENESIS R package.</p></dd>
 
 
 <dt id="arg-condition">condition<a class="anchor" aria-label="anchor" href="#arg-condition"></a></dt>
-<dd><p>Perform conditional analyses. Input can be a 1) a <code><a href="geneSetList.html">geneSetList</a></code> or <code><a href="geneSetFile.html">geneSetFile</a></code>, in which case
-the genesets specified in the <code>geneSet</code> parameter will all be conditioned on the gene sets provided here.
-2) a vector of gene set names present in <code>geneSet</code>, all genesets specified in the geneSetList/geneSetFile
-will be conditioned on the genesets specified here.</p></dd>
+<dd><p>Perform conditional analyses.
+Input can be 1) a <code><a href="geneSetList.html">geneSetList</a></code> or <code><a href="geneSetFile.html">geneSetFile</a></code>, in which case
+the genesets specified in the <code>geneSet</code> parameter will all be conditioned
+on the gene sets provided here.
+2) a vector of gene set names present in <code>geneSet</code>,
+all genesets specified in the geneSetList/geneSetFile will be conditioned
+on the genesets specified here.</p></dd>
 
 
 <dt id="arg-covar">covar<a class="anchor" aria-label="anchor" href="#arg-covar"></a></dt>
-<dd><p>a vector of covariates</p></dd>
+<dd><p>A vector of covariates</p></dd>
 
 
 <dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
 <dd><p>Vector of tests to perform.
-Currently implemented tests are the competitive tests lm,mlm,fisher and self-contained tests ttest,ztest and ACAT.</p></dd>
+Currently implemented tests are the competitive tests lm,mlm,fisher
+and self-contained tests ttest,ztest and ACAT.</p></dd>
 
 
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
-<dd><p>A vector of thresholds for cutoff-based tests (fisher's exact test / glm).</p></dd>
+<dd><p>A vector of thresholds for cutoff-based tests (fisher's exact test).</p></dd>
 
 
 <dt id="arg-zcutoffs">Zcutoffs<a class="anchor" aria-label="anchor" href="#arg-zcutoffs"></a></dt>
@@ -176,16 +180,18 @@ Z scores below/above these cutoffs will be set equal to the cutoff.</p></dd>
 
 
 <dt id="arg-scorecutoffs">scoreCutoffs<a class="anchor" aria-label="anchor" href="#arg-scorecutoffs"></a></dt>
-<dd><p>If <code>scoreMatrix</code> is specified, this parameter can be set to cap scores in the scorematrix.
-It should be a vector of length 2 (minimum and maximum sd). Defaults to <code>NULL</code>, in which case no score cutoffs are applied.</p></dd>
+<dd><p>If <code>scoreMatrix</code> is specified,
+this parameter can be set to cap scores in the scorematrix.
+It should be a vector of length 2 (minimum and maximum sd).
+Defaults to <code>NULL</code>, in which case no score cutoffs are applied.</p></dd>
 
 
 <dt id="arg-minsetsize">minSetSize<a class="anchor" aria-label="anchor" href="#arg-minsetsize"></a></dt>
-<dd><p>Exclude genesets with size &lt; minSetSize</p></dd>
+<dd><p>Exclude genesets with size &lt; minSetSize. Defaults to 1.</p></dd>
 
 
 <dt id="arg-maxsetsize">maxSetSize<a class="anchor" aria-label="anchor" href="#arg-maxsetsize"></a></dt>
-<dd><p>Exclude genesets with size &gt; maxSetSize</p></dd>
+<dd><p>Exclude genesets with size &gt; maxSetSize. Defaults to Inf.</p></dd>
 
 
 <dt id="arg-onesided">oneSided<a class="anchor" aria-label="anchor" href="#arg-onesided"></a></dt>
@@ -202,37 +208,54 @@ Defaults to 'unit'.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
-<dd><p>Optional: save results to specified path</p></dd>
+<dd><p>Optional: save results to specified file path.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Should the function be verbose? Defaults to <code>TRUE</code>.</p></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p>An object of class <code><a href="gsaResult.html">gsaResult</a></code> or a data.frame if <code>scoreMatrix</code> is used.
+The columns are described below:</p><ul><li><p><code>geneSetName</code>:  Name of the gene set.</p></li>
+<li><p><code>test</code>:  Statistical test used.</p></li>
+<li><p><code>covar</code>:  Covariates included.</p></li>
+<li><p><code>threshold</code>:  Threshold used for cutoff-based tests.</p></li>
+<li><p><code>geneSetSize</code>:  Number of genes in the gene set.</p></li>
+<li><p><code>genesObs</code>:  Number of genes observed in the input results.</p></li>
+<li><p><code>effect</code>:  Effect size estimate.</p></li>
+<li><p><code>effectSE</code>:  Standard error of the effect size estimate.</p></li>
+<li><p><code>effectCIlower</code>:  Lower confidence interval of the effect size estimate.</p></li>
+<li><p><code>effectCIupper</code>:  Upper confidence interval of the effect size estimate.</p></li>
+<li><p><code>P</code>:  P-value.</p></li>
+</ul></div>
     <div id="references">
     <h2>References</h2>
     <p>Gogarten SM, Sofer T, Chen H, Yu C, Brody JA, Thornton TA, Rice KM, Conomos MP. Genetic association testing using the GENESIS R/Bioconductor package. Bioinformatics. 2019 Dec 15;35(24):5346-5348</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="buildGeneSet.html">buildGeneSet</a></code></p>
-<p><code><a href="geneSetList.html">geneSetList</a></code></p>
-<p><code><a href="geneSetFile.html">geneSetFile</a></code></p></div>
+    <div class="dont-index"><p><code><a href="buildGeneSet.html">buildGeneSet</a></code>, <code><a href="geneSetList.html">geneSetList</a></code>, <code><a href="geneSetFile.html">geneSetFile</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">rvbresults</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="va">rvbresults</span><span class="op">[</span><span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span> <span class="op">&amp;</span> </span></span>
-<span class="r-in"><span>                    <span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="va">rvbresults</span><span class="op">[</span></span></span>
+<span class="r-in"><span>  <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span> <span class="op">&amp;</span></span></span>
+<span class="r-in"><span>    <span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span>,</span></span>
+<span class="r-in"><span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example genesetlist used in examples below (see ?buildGeneSet on build geneSetLists/geneSetFiles)</span></span></span>
 <span class="r-in"><span><span class="va">genesetlist</span> <span class="op">&lt;-</span> <span class="fu"><a href="buildGeneSet.html">buildGeneSet</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"geneset1"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>       <span class="st">"geneset2"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ABCA4"</span>, <span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>       <span class="st">"geneset3"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FUS"</span>, <span class="st">"NEK1"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>       <span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"geneset1"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"geneset2"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ABCA4"</span>, <span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"geneset3"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FUS"</span>, <span class="st">"NEK1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Perform competitive gene set analysis using a linear model</span></span></span>
 <span class="r-in"><span><span class="va">GSAresults</span> <span class="op">&lt;-</span> <span class="fu">geneSetAssoc</span><span class="op">(</span></span></span>
@@ -244,13 +267,13 @@ Defaults to 'unit'.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1 Z-scores are +Inf, these are set to the maximum observed Z-score: 4.219.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 3 out of 3 sets are kept.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Outlying gene association scores can be remedied by either setting Z-score cutoffs (i.e. all Z-scores exceeding these values will be set to the respective cutoff), </span></span></span>
+<span class="r-in"><span><span class="co"># Outlying gene association scores can be remedied by either setting Z-score cutoffs (i.e. all Z-scores exceeding these values will be set to the respective cutoff),</span></span></span>
 <span class="r-in"><span><span class="co"># or inverse normal transforming the Z-scores:</span></span></span>
 <span class="r-in"><span><span class="va">GSAresults</span> <span class="op">&lt;-</span> <span class="fu">geneSetAssoc</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">res</span>,</span></span>
 <span class="r-in"><span>  <span class="va">genesetlist</span>,</span></span>
 <span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nvar"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  maxSetSize <span class="op">=</span> <span class="fl">500</span>,</span></span>
 <span class="r-in"><span>  Zcutoffs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span> <span class="co"># lower and upper bounds</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -262,21 +285,21 @@ Defaults to 'unit'.</p></dd>
 <span class="r-in"><span>  <span class="va">res</span>,</span></span>
 <span class="r-in"><span>  <span class="va">genesetlist</span>,</span></span>
 <span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nvar"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  maxSetSize <span class="op">=</span> <span class="fl">500</span>,</span></span>
 <span class="r-in"><span>  INT <span class="op">=</span> <span class="cn">TRUE</span> <span class="co"># perform inverse normal transformation</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 3 out of 3 sets are kept.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Conditional gene set analyses can be performed to test whether gene sets are associated independently with the phenotype of interest. </span></span></span>
+<span class="r-in"><span><span class="co"># Conditional gene set analyses can be performed to test whether gene sets are associated independently with the phenotype of interest.</span></span></span>
 <span class="r-in"><span><span class="co"># In the example below we test whether gene sets are independent of geneset1</span></span></span>
 <span class="r-in"><span><span class="va">GSAresults</span> <span class="op">&lt;-</span> <span class="fu">geneSetAssoc</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">res</span>,</span></span>
 <span class="r-in"><span>  condition <span class="op">=</span> <span class="fu"><a href="getGeneSet.html">getGeneSet</a></span><span class="op">(</span><span class="va">genesetlist</span>, <span class="st">"geneset1"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  geneSet <span class="op">=</span> <span class="va">genesetlist</span>,</span></span>
 <span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nvar"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  maxSetSize <span class="op">=</span> <span class="fl">500</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1 Z-scores are +Inf, these are set to the maximum observed Z-score: 4.219.</span>
@@ -287,7 +310,7 @@ Defaults to 'unit'.</p></dd>
 <span class="r-in"><span>  <span class="va">res</span>,</span></span>
 <span class="r-in"><span>  <span class="va">genesetlist</span>,</span></span>
 <span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nvar"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  maxSetSize <span class="op">=</span> <span class="fl">500</span>,</span></span>
 <span class="r-in"><span>  oneSided <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -300,14 +323,12 @@ Defaults to 'unit'.</p></dd>
 <span class="r-in"><span><span class="va">GSAresults</span> <span class="op">&lt;-</span> <span class="fu">geneSetAssoc</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">res</span>,</span></span>
 <span class="r-in"><span>  <span class="va">genesetlist</span>,</span></span>
-<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  threshold <span class="op">=</span> <span class="fl">1e-4</span>,</span></span>
 <span class="r-in"><span>  maxSetSize <span class="op">=</span> <span class="fl">500</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1 Z-scores are +Inf, these are set to the maximum observed Z-score: 4.219.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 3 out of 3 sets are kept.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

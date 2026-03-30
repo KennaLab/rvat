@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -219,13 +219,13 @@ including Gene Ontology (molecular function) terms:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Annotated-class.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">genesetlist</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## $rvatVersion</span></span>
-<span><span class="co">## [1] "0.3.4"</span></span>
+<span><span class="co">## [1] "0.4.0"</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $source</span></span>
 <span><span class="co">## [1] "data/c5.go.mf.v2023.2.Hs.symbols.gmt"</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $creationDate</span></span>
-<span><span class="co">## [1] "2026-01-08 12:44:03"</span></span></code></pre>
+<span><span class="co">## [1] "2026-03-30 18:48:45"</span></span></code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">genesetlist</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "geneSet"</span></span>
@@ -291,7 +291,7 @@ more genesets from a <code>geneSetList:</code></p>
 genes of interest:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract all genesets that contain SOD1:</span></span>
-<span><span class="va">geneset</span> <span class="op">=</span> <span class="fu"><a href="../reference/getGeneSet.html">getGeneSet</a></span><span class="op">(</span><span class="va">genesetlist</span>, unit <span class="op">=</span> <span class="st">"SOD1"</span><span class="op">)</span></span>
+<span><span class="va">geneset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getGeneSet.html">getGeneSet</a></span><span class="op">(</span><span class="va">genesetlist</span>, unit <span class="op">=</span> <span class="st">"SOD1"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">geneset</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "GOMF_ANTIOXIDANT_ACTIVITY"             </span></span>
 <span><span class="co">## [2] "GOMF_COPPER_ION_BINDING"               </span></span>
@@ -381,7 +381,7 @@ we build a GO and KEGG <code><a href="../reference/geneSetFile.html">geneSetFile
 <span><span class="va">genesetfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geneSetFile.html">geneSetFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/genesetfile.txt.gz"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">genesetfile</span></span></code></pre></div>
 <pre><code><span><span class="co">## geneSetFile</span></span>
-<span><span class="co">## Path: /tmp/Rtmpfyfq6A/genesetfile.txt.gz</span></span>
+<span><span class="co">## Path: /tmp/RtmpiRwznd/genesetfile.txt.gz</span></span>
 <span><span class="co">## Sets: 1799</span></span></code></pre>
 <p>Extract a gene set:</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
@@ -512,8 +512,8 @@ was adjusted:</p>
 <code class="sourceCode R"><span><span class="va">topresults</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rvatResult.html">topResult</a></span><span class="op">(</span><span class="va">GSAresults</span><span class="op">)</span></span>
 <span><span class="va">GSAresults_conditional</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geneSetAssoc.html">geneSetAssoc</a></span><span class="op">(</span></span>
 <span>  <span class="va">res</span>,</span>
-<span>  <span class="fu"><a href="../reference/getGeneSet.html">getGeneSet</a></span><span class="op">(</span><span class="va">genesetlist</span>, <span class="va">topresults</span><span class="op">$</span><span class="va">geneSetName</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>  condition <span class="op">=</span> <span class="fu"><a href="../reference/getGeneSet.html">getGeneSet</a></span><span class="op">(</span><span class="va">genesetlist</span>, <span class="va">topresults</span><span class="op">$</span><span class="va">geneSetName</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/getGeneSet.html">getGeneSet</a></span><span class="op">(</span><span class="va">genesetlist</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">topresults</span><span class="op">$</span><span class="va">geneSetName</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  condition <span class="op">=</span> <span class="fu"><a href="../reference/getGeneSet.html">getGeneSet</a></span><span class="op">(</span><span class="va">genesetlist</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">topresults</span><span class="op">$</span><span class="va">geneSetName</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nvar"</span><span class="op">)</span>,</span>
 <span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span>, </span>
 <span>  minSetSize <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -608,7 +608,7 @@ phenotype of interest. An example of this approach is shown below.</p>
 <p>First, we’ll generate a varsetfile, including variants that we want
 to include in the gene burden scores:</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gdb.html">gdb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">"rvatData.gdb"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/buildVarSet.html">buildVarSet</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">gdb</span>, </span>
 <span>            output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/moderate.txt.gz"</span><span class="op">)</span>,</span>
 <span>            varSetName <span class="op">=</span> <span class="st">"Moderate"</span>, </span>
@@ -619,11 +619,11 @@ to include in the gene burden scores:</p>
 <code>aggregate</code> method:</p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">gdb</span>, </span>
-<span>          varSet<span class="op">=</span><span class="fu"><a href="../reference/varSetFile.html">varSetFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/moderate.txt.gz"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>          maxMAF<span class="op">=</span><span class="fl">0.001</span>,</span>
-<span>          output<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/moderate.aggregate.txt.gz"</span><span class="op">)</span>,</span>
+<span>          varSet <span class="op">=</span> <span class="fu"><a href="../reference/varSetFile.html">varSetFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/moderate.txt.gz"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>          maxMAF <span class="op">=</span> <span class="fl">0.001</span>,</span>
+<span>          output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/moderate.aggregate.aggdb"</span><span class="op">)</span>,</span>
 <span>          verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>          <span class="op">)</span></span></code></pre></div>
+<span>         <span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="step-2-run-gene-set-burden-tests">Step 2: run gene set burden tests<a class="anchor" aria-label="anchor" href="#step-2-run-gene-set-burden-tests"></a>
@@ -643,20 +643,19 @@ genesets that contain genes which are present in the gdb:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="va">genesetlist</span>,</span>
 <span>      file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/genesetfile.txt.gz"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Perform the gene set burden tests, for this we can use the
-<code>assocTest</code> method, with the first argument being a
-<code>aggregateFile</code> connection. Similar to a
-<code>varSetFile</code> or <code>geneSetFile</code> we can connect to
-the file containing aggregates (burden scores) using the
-<code>aggregateFile</code> method:</p>
+<code>assocTest</code> method, with the first argument being an
+<code>aggdb</code> connection. Similar to a <code>varSetFile</code> or
+<code>geneSetFile</code> we can connect to the file containing
+aggregates (burden scores) using the <code>aggdb</code> method:</p>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aggfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aggregateFile.html">aggregateFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/moderate.aggregate.txt.gz"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>We can then run gene set burden tests using the
-<code>aggregateFile</code>, by passing it as the first argument to
-<code>assocTest</code> as shown below. Note that, in contrast to running
-<code>assocTest</code> directly on a genoMatrix or gdb, we cannot
-perform any variant filters when running <code>assocTest</code> on an
-<code>aggregateFile</code>. Any variant filters should be applied when
-generating the aggregates, as shown in step 1.</p>
+<code class="sourceCode R"><span><span class="va">aggfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aggdb.html">aggdb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"/moderate.aggregate.aggdb"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We can then run gene set burden tests using the <code>aggdb</code>,
+by passing it as the first argument to <code>assocTest</code> as shown
+below. Note that, in contrast to running <code>assocTest</code> directly
+on a genoMatrix or gdb, we cannot perform any variant filters when
+running <code>assocTest</code> on an <code>aggdb</code>. Any variant
+filters should be applied when generating the aggregates, as shown in
+step 1.</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aggAssoc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span></span>
 <span>  <span class="va">aggfile</span>,</span>
@@ -720,15 +719,12 @@ analyses (i.e. ~20,000 genes).</p>
 just like other types of assocation tests:</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>rvat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'exec/rvat.R'</span>, package <span class="op">=</span> <span class="st">'rvat'</span><span class="op">)</span>,</span>
-<span>           vcfpath <span class="op">=</span> <span class="fu">rvatData</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">'rvatData.vcf.gz'</span><span class="op">)</span>,</span>
-<span>           phenopath <span class="op">=</span> <span class="fu">rvatData</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">'rvatData.pheno'</span><span class="op">)</span>,</span>
-<span>           varinfopath <span class="op">=</span> <span class="fu">rvatData</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">'rvatData.varinfo'</span><span class="op">)</span>,</span>
-<span>           gdbpath <span class="op">=</span> <span class="va">gdb</span><span class="op">@</span><span class="va">dbname</span>,</span>
+<span>           gdbpath <span class="op">=</span> <span class="fu"><a href="../reference/gdb.html">getGdbPath</a></span><span class="op">(</span><span class="va">gdb</span><span class="op">)</span>,</span>
 <span>           outdir <span class="op">=</span> <span class="va">outdir</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb59"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--assocTest</span> <span class="dt">\</span></span>
 <span id="cb59-2"><a href="#cb59-2" tabindex="-1"></a>--gdb <span class="va">$gdbpath</span> <span class="dt">\</span></span>
 <span id="cb59-3"><a href="#cb59-3" tabindex="-1"></a>--geneSet <span class="va">$outdir</span>/genesetfile.txt.gz <span class="dt">\</span></span>
-<span id="cb59-4"><a href="#cb59-4" tabindex="-1"></a>--aggregateFile <span class="va">$outdir</span>/moderate.aggregate.txt.gz <span class="dt">\</span></span>
+<span id="cb59-4"><a href="#cb59-4" tabindex="-1"></a>--aggdb <span class="va">$outdir</span>/moderate.aggregate.aggdb <span class="dt">\</span></span>
 <span id="cb59-5"><a href="#cb59-5" tabindex="-1"></a>--name maxMAF001 <span class="dt">\</span></span>
 <span id="cb59-6"><a href="#cb59-6" tabindex="-1"></a>--covar PC1,PC2,PC3,PC4 <span class="dt">\</span></span>
 <span id="cb59-7"><a href="#cb59-7" tabindex="-1"></a>--cohort pheno <span class="dt">\</span></span>

@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -136,7 +136,7 @@ directory for that:</p>
 </h2>
 <p>Connect to gdb:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gdb.html">gdb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">"rvatData.gdb"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="create-varsets">Create varSets<a class="anchor" aria-label="anchor" href="#create-varsets"></a>
 </h3>
@@ -397,15 +397,14 @@ of 0.9:</p>
 <span>                               pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                               covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
 <span>                               test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span>
-<span>                               name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># optional name of the analysis</span></span>
+<span>                               name <span class="op">=</span> <span class="st">"example"</span>,</span>
 <span>                               maxMAF <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>                               minCallrateVar <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Keeping 25000/25000 available samples for analysis.</span></span></code></pre>
-<pre><code><span><span class="co">## 96/106 variants are retained for analysis</span></span></code></pre>
-<pre><code><span><span class="co">## 1/96 variants have zero carriers, these are dropped.</span></span></code></pre>
+<pre><code><span><span class="co">##   1/96 variants have zero carriers, these are dropped.</span></span></code></pre>
+<pre><code><span><span class="co">## [1/1] (25000 samples, 95 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span></span></code></pre>
 <p>Additionally, filter samples based on a call-rate filter of &gt; 0.95
 :</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_pheno_4PCs_MAF001_SMcr0.9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                               pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                               covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
@@ -415,17 +414,15 @@ of 0.9:</p>
 <span>                               minCallrateVar <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>                               minCallrateSM <span class="op">=</span> <span class="fl">0.95</span></span>
 <span>                                     <span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## 4155 samples don't pass callRate filters.</span></span></code></pre>
-<pre><code><span><span class="co">## Keeping 20845/25000 available samples for analysis.</span></span></code></pre>
-<pre><code><span><span class="co">## 101/106 variants are retained for analysis</span></span></code></pre>
-<pre><code><span><span class="co">## 11/101 variants have zero carriers, these are dropped.</span></span></code></pre>
+<pre><code><span><span class="co">##   11/101 variants have zero carriers, these are dropped.</span></span></code></pre>
+<pre><code><span><span class="co">## [1/1] (20845 samples, 90 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="applying-weights-based-on-minor-allele-frequency">Applying weights based on minor allele frequency<a class="anchor" aria-label="anchor" href="#applying-weights-based-on-minor-allele-frequency"></a>
 </h2>
 <p>Currently Madsen-Browning weighting is implemented <span class="citation">(Madsen and Browning 2009)</span>, and can be applied
 by setting the <code>MAFweights</code> parameter:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_pheno_4PCs_mb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                               pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                               covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
@@ -440,7 +437,7 @@ by setting the <code>MAFweights</code> parameter:</p>
 the number of minor alleles). Alternative models (‘recessive’ and
 ‘dominant’) can be specified using the <code>geneticModel</code>
 parameter:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_pheno_4PCs_recessive</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                               pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                               covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
@@ -456,7 +453,7 @@ parameter:</p>
 <code>minCarrierFreq</code> and <code>maxCarrierFreq</code> parameters
 can be used to filter variants based on the number of carriers
 <em>after</em> applying the genetic model:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_pheno_4PCs_dominant_minCarrierFreq0.01</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                               pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                               covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
@@ -471,7 +468,7 @@ can be used to filter variants based on the number of carriers
 performing burden tests (note that by default no imputation is applied
 for single variant tests), alternatively missing calls can be set to the
 reference allele:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_pheno_4PCs_missingToRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                               pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                               covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
@@ -485,12 +482,12 @@ reference allele:</p>
 <code><a href="../reference/assocTest.html">assocTest()</a></code> help page for details). Simply set
 <code>methodResampling</code> to ‘permutation’ and specify the number of
 resamplings using the <code>nResampling</code> parameter:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_pheno_4PCs_permuted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                                     pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                                     covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
 <span>                                     test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skat"</span>, <span class="st">"skat_burden"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span>
-<span>                                     name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># optional name of the analysis,</span></span>
+<span>                                     name <span class="op">=</span> <span class="st">"example"</span>,</span>
 <span>                                     methodResampling <span class="op">=</span> <span class="st">"permutation"</span>,</span>
 <span>                                     nResampling <span class="op">=</span> <span class="fl">100</span></span>
 <span>                                     <span class="op">)</span></span>
@@ -530,14 +527,14 @@ resamplings using the <code>nResampling</code> parameter:</p>
 <span><span class="co">## 6        NA        NA            NA            NA        NA 9.90099e-03</span></span></code></pre>
 <p>Make sure to set a seed to ensure that the results are
 reproducible:</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># reproducibility </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">burden_pheno_4PCs_permuted1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                                     pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                                     covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
 <span>                                     test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skat"</span>, <span class="st">"skat_burden"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span>
-<span>                                     name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># optional name of the analysis,</span></span>
+<span>                                     name <span class="op">=</span> <span class="st">"example"</span>,</span>
 <span>                                     methodResampling <span class="op">=</span> <span class="st">"permutation"</span>,</span>
 <span>                                     nResampling <span class="op">=</span> <span class="fl">100</span></span>
 <span>                                     <span class="op">)</span></span>
@@ -547,17 +544,17 @@ reproducible:</p>
 <span>                                     pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                                     covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
 <span>                                     test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skat"</span>, <span class="st">"skat_burden"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span>
-<span>                                     name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># optional name of the analysis,</span></span>
+<span>                                     name <span class="op">=</span> <span class="st">"example"</span>,</span>
 <span>                                     methodResampling <span class="op">=</span> <span class="st">"permutation"</span>,</span>
 <span>                                     nResampling <span class="op">=</span> <span class="fl">100</span></span>
 <span>                                     <span class="op">)</span></span>
 <span><span class="fu">waldo</span><span class="fu">::</span><span class="fu"><a href="https://waldo.r-lib.org/reference/compare.html" class="external-link">compare</a></span><span class="op">(</span><span class="va">burden_pheno_4PCs_permuted1</span>, <span class="va">burden_pheno_4PCs_permuted2</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## `old@metadata$creationDate`: <span style="color: #00BB00;">"2026-01-08 12:34:26"</span></span></span>
-<span><span class="co">## `new@metadata$creationDate`: <span style="color: #00BB00;">"2026-01-08 12:34:34"</span></span></span></code></pre>
+<pre><code><span><span class="co">## `old@metadata$creationDate`: <span style="color: #00BB00;">"2026-03-30 18:39:55"</span></span></span>
+<span><span class="co">## `new@metadata$creationDate`: <span style="color: #00BB00;">"2026-03-30 18:40:03"</span></span></span></code></pre>
 <p>Alternatively, a resamplingmatrix can be build using
 <code><a href="../reference/buildResamplingFile.html">buildResamplingFile()</a></code> and supplied to the
 <code>resamplingMatrix</code> parameter.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># reproducibility </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">resamplingmatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/buildResamplingFile.html">buildResamplingFile</a></span><span class="op">(</span>nSamples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">GT</span><span class="op">)</span>, nResampling <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -565,8 +562,7 @@ reproducible:</p>
 <span>                                     pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                                     covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
 <span>                                     test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skat"</span>, <span class="st">"skat_burden"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span>
-<span>                                     name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># optional name of the analysis,</span></span>
-<span>                                     methodResampling <span class="op">=</span> <span class="st">"permutation"</span>,</span>
+<span>                                     name <span class="op">=</span> <span class="st">"example"</span>,</span>
 <span>                                     resamplingMatrix <span class="op">=</span> <span class="va">resamplingmatrix</span><span class="op">)</span></span>
 <span><span class="va">burden_pheno_4PCs_permuted</span></span></code></pre></div>
 <pre><code><span><span class="co">## rvbResult with 6 rows and 24 columns</span></span>
@@ -602,19 +598,22 @@ reproducible:</p>
 <span><span class="co">## 4        NA        NA            NA            NA        NA 7.92079e-02</span></span>
 <span><span class="co">## 5        NA        NA            NA            NA        NA 5.54455e-01</span></span>
 <span><span class="co">## 6        NA        NA            NA            NA        NA 9.90099e-03</span></span></code></pre>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">waldo</span><span class="fu">::</span><span class="fu"><a href="https://waldo.r-lib.org/reference/compare.html" class="external-link">compare</a></span><span class="op">(</span><span class="va">burden_pheno_4PCs_permuted</span>, <span class="va">burden_pheno_4PCs_permuted1</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## `old@metadata$creationDate`: <span style="color: #00BB00;">"2026-01-08 12:34:45"</span></span></span>
-<span><span class="co">## `new@metadata$creationDate`: <span style="color: #00BB00;">"2026-01-08 12:34:26"</span></span></span></code></pre>
+<pre><code><span><span class="co">## `old@metadata$creationDate`: <span style="color: #00BB00;">"2026-03-30 18:40:12"</span></span></span>
+<span><span class="co">## `new@metadata$creationDate`: <span style="color: #00BB00;">"2026-03-30 18:39:55"</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## `old@listData$P[2:6]`: <span style="color: #555555;">0.629</span> <span style="color: #555555;">0.000</span> <span style="color: #555555;">0.079</span> <span style="color: #00BB00;">0.554</span> <span style="color: #555555;">0.010</span></span></span>
+<span><span class="co">## `new@listData$P[2:6]`: <span style="color: #555555;">0.629</span> <span style="color: #555555;">0.000</span> <span style="color: #555555;">0.079</span> <span style="color: #00BB00;">0.604</span> <span style="color: #555555;">0.010</span></span></span></code></pre>
 <p>Instead of calculating resampled P-values, the individual resampled
 P-values can be obtained by setting
 <code>outputResampling=TRUE</code>.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_pheno_4PCs_permutations</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                                     pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                                     covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
 <span>                                     test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skat"</span>, <span class="st">"skat_burden"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span>
-<span>                                     name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># optional name of the analysis,</span></span>
+<span>                                     name <span class="op">=</span> <span class="st">"example"</span>,</span>
 <span>                                     methodResampling <span class="op">=</span> <span class="st">"permutation"</span>,</span>
 <span>                                     nResampling <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                                     outputResampling<span class="op">=</span><span class="cn">TRUE</span></span>
@@ -659,7 +658,7 @@ for example across various statistical tests, weighting schemes, variant
 sets, covariate sets, MAF filters etc.</p>
 <p>First, we’ll use ACAT to combine P-values across three statistical
 tests (firth, SKAT, and ACAT-V):</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">burden_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">GT</span>,</span>
 <span>                            pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span>
 <span>                            covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span>
@@ -687,7 +686,7 @@ tests (firth, SKAT, and ACAT-V):</p>
 <span><span class="co">## 1 0.0301844    -0.0446503      0.073697   1.01493 6.23855e-01</span></span>
 <span><span class="co">## 2        NA            NA            NA        NA 7.04441e-02</span></span>
 <span><span class="co">## 3        NA            NA            NA        NA 1.80267e-08</span></span></code></pre>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ACAT.html">ACAT</a></span><span class="op">(</span><span class="va">burden_results</span>, aggregate <span class="op">=</span> <span class="st">"test"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## rvbResult with 1 row and 24 columns</span></span>
 <span><span class="co">##          unit cohort varSetName    name pheno           covar geneticModel</span></span>
@@ -708,7 +707,7 @@ followed by 2) ACAT across varSets. Step-wise ACAT is performed by
 supplying a list of the variables (in order), for example, below we
 first ACAT across statistical tests, followed by ACAT across
 varSets:</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">varsetfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/varSetFile.html">varSetFile</a></span><span class="op">(</span><span class="va">CADDpath</span><span class="op">)</span></span>
 <span><span class="va">varset_CADD</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getVarSet.html">getVarSet</a></span><span class="op">(</span><span class="va">varsetfile</span>, unit <span class="op">=</span> <span class="st">"NEK1"</span><span class="op">)</span></span>
 <span><span class="va">GT_CADD</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getGT.html">getGT</a></span><span class="op">(</span></span>
@@ -750,37 +749,37 @@ command-line tool: (for more information see the tutorial on using rvat
 in the cmd-line: <code><a href="../articles/cmdline.html">vignette("cmdline")</a></code>). If a varset contains
 multiple records, the assocTest method will loop through each
 record:</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>rvat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'exec/rvat.R'</span>, package <span class="op">=</span> <span class="st">'rvat'</span><span class="op">)</span>,</span>
 <span>           gdbpath <span class="op">=</span> <span class="fu">rvatData</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">'rvatData.gdb'</span><span class="op">)</span>,</span>
 <span>           outdir <span class="op">=</span> <span class="va">outdir</span></span>
 <span>           <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb55"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb55-1"><a href="#cb55-1" tabindex="-1"></a><span class="co"># identify executable path:</span></span>
-<span id="cb55-2"><a href="#cb55-2" tabindex="-1"></a><span class="va">varset</span><span class="op">=</span><span class="va">$outdir</span>/moderate.txt.gz</span>
-<span id="cb55-3"><a href="#cb55-3" tabindex="-1"></a></span>
-<span id="cb55-4"><a href="#cb55-4" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--assocTest</span> <span class="dt">\</span></span>
-<span id="cb55-5"><a href="#cb55-5" tabindex="-1"></a>--gdb <span class="va">$gdbpath</span> <span class="dt">\</span></span>
-<span id="cb55-6"><a href="#cb55-6" tabindex="-1"></a>--varSet <span class="va">$varset</span> <span class="dt">\</span></span>
-<span id="cb55-7"><a href="#cb55-7" tabindex="-1"></a>--test firth,acatv,skat_robust <span class="dt">\</span></span>
-<span id="cb55-8"><a href="#cb55-8" tabindex="-1"></a>--geneticModel allelic <span class="dt">\</span></span>
-<span id="cb55-9"><a href="#cb55-9" tabindex="-1"></a>--cohort pheno <span class="dt">\</span></span>
-<span id="cb55-10"><a href="#cb55-10" tabindex="-1"></a>--pheno pheno <span class="dt">\</span></span>
-<span id="cb55-11"><a href="#cb55-11" tabindex="-1"></a>--covar PC1,PC2,PC3,PC4 <span class="dt">\</span></span>
-<span id="cb55-12"><a href="#cb55-12" tabindex="-1"></a>--output <span class="va">$outdir</span>/burden_cmdline1.txt.gz</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" tabindex="-1"></a><span class="co"># identify executable path:</span></span>
+<span id="cb52-2"><a href="#cb52-2" tabindex="-1"></a><span class="va">varset</span><span class="op">=</span><span class="va">$outdir</span>/moderate.txt.gz</span>
+<span id="cb52-3"><a href="#cb52-3" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--assocTest</span> <span class="dt">\</span></span>
+<span id="cb52-5"><a href="#cb52-5" tabindex="-1"></a>--gdb <span class="va">$gdbpath</span> <span class="dt">\</span></span>
+<span id="cb52-6"><a href="#cb52-6" tabindex="-1"></a>--varSet <span class="va">$varset</span> <span class="dt">\</span></span>
+<span id="cb52-7"><a href="#cb52-7" tabindex="-1"></a>--test firth,acatv,skat_robust <span class="dt">\</span></span>
+<span id="cb52-8"><a href="#cb52-8" tabindex="-1"></a>--geneticModel allelic <span class="dt">\</span></span>
+<span id="cb52-9"><a href="#cb52-9" tabindex="-1"></a>--cohort pheno <span class="dt">\</span></span>
+<span id="cb52-10"><a href="#cb52-10" tabindex="-1"></a>--pheno pheno <span class="dt">\</span></span>
+<span id="cb52-11"><a href="#cb52-11" tabindex="-1"></a>--covar PC1,PC2,PC3,PC4 <span class="dt">\</span></span>
+<span id="cb52-12"><a href="#cb52-12" tabindex="-1"></a>--output <span class="va">$outdir</span>/burden_cmdline1.txt.gz</span></code></pre></div>
 <p>Multiple phenotypes, tests, geneticModels, MAFweights and covars can
 be specified, for example, apply both allelic and recessive models and
 run for two covar sets:</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" tabindex="-1"></a><span class="va">varset</span><span class="op">=</span><span class="va">$outdir</span>/moderate.txt.gz</span>
-<span id="cb56-2"><a href="#cb56-2" tabindex="-1"></a></span>
-<span id="cb56-3"><a href="#cb56-3" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--assocTest</span> <span class="dt">\</span></span>
-<span id="cb56-4"><a href="#cb56-4" tabindex="-1"></a>--gdb <span class="va">$gdbpath</span> <span class="dt">\</span></span>
-<span id="cb56-5"><a href="#cb56-5" tabindex="-1"></a>--varSet <span class="va">$varset</span> <span class="dt">\</span></span>
-<span id="cb56-6"><a href="#cb56-6" tabindex="-1"></a>--test firth,acatv,skat_robust <span class="dt">\</span></span>
-<span id="cb56-7"><a href="#cb56-7" tabindex="-1"></a>--geneticModel allelic,recessive <span class="dt">\</span></span>
-<span id="cb56-8"><a href="#cb56-8" tabindex="-1"></a>--cohort pheno <span class="dt">\</span></span>
-<span id="cb56-9"><a href="#cb56-9" tabindex="-1"></a>--pheno pheno <span class="dt">\</span></span>
-<span id="cb56-10"><a href="#cb56-10" tabindex="-1"></a>--covar PC1,PC2,PC3,PC4/PC1,PC2,PC3,PC4,age <span class="dt">\</span></span>
-<span id="cb56-11"><a href="#cb56-11" tabindex="-1"></a>--output <span class="va">$outdir</span>/burden_cmdline2.txt.gz</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" tabindex="-1"></a><span class="va">varset</span><span class="op">=</span><span class="va">$outdir</span>/moderate.txt.gz</span>
+<span id="cb53-2"><a href="#cb53-2" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" tabindex="-1"></a><span class="ex">Rscript</span> <span class="va">$rvat</span> <span class="at">--assocTest</span> <span class="dt">\</span></span>
+<span id="cb53-4"><a href="#cb53-4" tabindex="-1"></a>--gdb <span class="va">$gdbpath</span> <span class="dt">\</span></span>
+<span id="cb53-5"><a href="#cb53-5" tabindex="-1"></a>--varSet <span class="va">$varset</span> <span class="dt">\</span></span>
+<span id="cb53-6"><a href="#cb53-6" tabindex="-1"></a>--test firth,acatv,skat_robust <span class="dt">\</span></span>
+<span id="cb53-7"><a href="#cb53-7" tabindex="-1"></a>--geneticModel allelic,recessive <span class="dt">\</span></span>
+<span id="cb53-8"><a href="#cb53-8" tabindex="-1"></a>--cohort pheno <span class="dt">\</span></span>
+<span id="cb53-9"><a href="#cb53-9" tabindex="-1"></a>--pheno pheno <span class="dt">\</span></span>
+<span id="cb53-10"><a href="#cb53-10" tabindex="-1"></a>--covar PC1,PC2,PC3,PC4/PC1,PC2,PC3,PC4,age <span class="dt">\</span></span>
+<span id="cb53-11"><a href="#cb53-11" tabindex="-1"></a>--output <span class="va">$outdir</span>/burden_cmdline2.txt.gz</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

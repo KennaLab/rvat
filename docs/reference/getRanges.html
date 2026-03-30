@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -107,7 +107,7 @@
 <span>  table <span class="op">=</span> <span class="st">"var"</span>,</span>
 <span>  CHROM <span class="op">=</span> <span class="st">"CHROM"</span>,</span>
 <span>  POS <span class="op">=</span> <span class="st">"POS"</span>,</span>
-<span>  where <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  where <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -143,25 +143,27 @@ the column name can be specified here.</p></dd>
 
 
 <dt id="arg-where">where<a class="anchor" aria-label="anchor" href="#arg-where"></a></dt>
-<dd><p>An SQL compliant where clause to filter output; eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF&lt;0.01 AND (cadd.caddPhred&gt;15 OR snpEff.SIFT='D')". Can be either of length 1, in which case the same
-where clause is applied for each varSet, or of length equal to the number of varSets in the provided varSetList or varSetFile,
+<dd><p>An SQL compliant where clause to filter output;
+eg: "CHROM=2 AND POS between 5000 AND 50000 AND AF&lt;0.01 AND (cadd.caddPhred&gt;15 OR snpEff.SIFT='D')".
+Can be either of length 1, in which case the same
+where clause is applied for each varSet, or of length equal to the number of varSets
+in the provided varSetList or varSetFile,
 in which case each where clause is applied to the corresponding varSet.</p></dd>
 
 </dl></div>
     <div id="details">
     <h2>Details</h2>
-    <p>This function method retrieves genomic ranges (chromosome, start, and end positions) for variant sets defined in a <code>varSetFile</code> or <code>varSetList</code>.
-It will map positions based on a variant annotations table in provided <code>gdb</code> (default = "var").</p>
+    <p>Retrieve genomic ranges (chromosome, start, and end positions) for variant sets
+defined in a <code><a href="varSetFile.html">varSetFile</a></code> or <code><a href="varSetList.html">varSetList</a></code>.
+It will map positions based on a variant annotations table in the provided <code><a href="gdb.html">gdb</a></code> (default = "var").</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">varsetfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="varSetFile.html">varSetFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">"rvatData_varsetfile.txt.gz"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ranges</span> <span class="op">&lt;-</span> <span class="fu">getRanges</span><span class="op">(</span><span class="va">varsetfile</span>, gdb <span class="op">=</span> <span class="va">gdb</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

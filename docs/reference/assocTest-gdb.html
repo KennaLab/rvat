@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -116,19 +116,22 @@
 <span>  geneticModel <span class="op">=</span> <span class="st">"allelic"</span>,</span>
 <span>  imputeMethod <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  MAFweights <span class="op">=</span> <span class="st">"none"</span>,</span>
-<span>  maxitFirth <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  maxitFirth <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  checkPloidy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  keep <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  output <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  append <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  returnDF <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  methodResampling <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  resamplingMatrix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resamplingFile <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nResampling <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  nResampling <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  outputResampling <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  memlimitResampling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  minCallrateVar <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  maxCallrateVar <span class="op">=</span> <span class="cn">Inf</span>,</span>
+<span>  maxCallrateVar <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  minCallrateSM <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  maxCallrateSM <span class="op">=</span> <span class="cn">Inf</span>,</span>
+<span>  maxCallrateSM <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  minMAF <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  maxMAF <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  minMAC <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -136,8 +139,8 @@
 <span>  minCarriers <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  maxCarriers <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  minCarrierFreq <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  maxCarrierFreq <span class="op">=</span> <span class="cn">Inf</span>,</span>
-<span>  memlimit <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  maxCarrierFreq <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  memlimit <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  strict <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -148,7 +151,7 @@
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>a <code><a href="gdb.html">gdb</a></code> object</p></dd>
+<dd><p>A <code><a href="gdb.html">gdb</a></code> object</p></dd>
 
 
 <dt id="arg-pheno">pheno<a class="anchor" aria-label="anchor" href="#arg-pheno"></a></dt>
@@ -160,8 +163,7 @@ Multiple phenotypes can be specified, which will then be tested separately.</p><
 
 <dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
 <dd><p>Vector of statistical tests to run,
-options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_fwe,skat_burden_fwe,
-skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA.
+options include firth,glm,lm,nbinom,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth.
 See <code><a href="assocTest.html">assocTest</a></code> for details.</p></dd>
 
 
@@ -172,12 +174,13 @@ If not specified, all samples in the gdb will be loaded.</p></dd>
 
 
 <dt id="arg-varset">varSet<a class="anchor" aria-label="anchor" href="#arg-varset"></a></dt>
-<dd><p>a <code><a href="varSetFile.html">varSetFile</a></code> or <code><a href="varSetList.html">varSetList</a></code> object, alternatively a vector of VAR_ids can be specified using the <code>VAR_id</code> parameter.</p></dd>
+<dd><p>A <code><a href="varSetFile.html">varSetFile</a></code> or <code><a href="varSetList.html">varSetList</a></code> object.
+Alternatively a vector of VAR_ids can be specified using the <code>VAR_id</code> parameter.</p></dd>
 
 
 <dt id="arg-var-id">VAR_id<a class="anchor" aria-label="anchor" href="#arg-var-id"></a></dt>
-<dd><p>a vector of VAR_ids, alternatively the <code>varSet</code> parameter can be specified.
-If single variant tests are ran, the <code>memlimit</code> argument controls how many variants to analyze at a time.</p></dd>
+<dd><p>A vector of VAR_ids, alternatively the <code>varSet</code> parameter can be specified.
+If single variant tests are run, the <code>memlimit</code> argument controls how many variants to analyze at a time.</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
@@ -185,16 +188,17 @@ If single variant tests are ran, the <code>memlimit</code> argument controls how
 
 
 <dt id="arg-continuous">continuous<a class="anchor" aria-label="anchor" href="#arg-continuous"></a></dt>
-<dd><p>If the response variable continuous? (TRUE/FALSE). Defaults to <code>FALSE</code>.</p></dd>
+<dd><p>Is the response variable continuous? (TRUE/FALSE). Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-singlevar">singlevar<a class="anchor" aria-label="anchor" href="#arg-singlevar"></a></dt>
 <dd><p>Run single variant tests? (TRUE/FALSE).
-Defaults to <code>FALSE</code>, in which case aggregate tests are ran.</p></dd>
+Defaults to <code>FALSE</code>, in which case aggregate tests are run.</p></dd>
 
 
 <dt id="arg-covar">covar<a class="anchor" aria-label="anchor" href="#arg-covar"></a></dt>
-<dd><p>Character vector of covariates, or a list of character vectors of covariates in which case each covariate set will be tested separately.</p></dd>
+<dd><p>Character vector of covariates, or a list of character vectors of covariates
+in which case each covariate set will be tested separately.</p></dd>
 
 
 <dt id="arg-offset">offset<a class="anchor" aria-label="anchor" href="#arg-offset"></a></dt>
@@ -213,23 +217,28 @@ Defaults to <code>meanImpute</code>.</p></dd>
 
 
 <dt id="arg-mafweights">MAFweights<a class="anchor" aria-label="anchor" href="#arg-mafweights"></a></dt>
-<dd><p>MAF weighting method. Currently Madsen-Browning ('mb') is implemented, by default no MAF weighting is applied.
+<dd><p>MAF weighting method. Currently Madsen-Browning ('mb') is implemented,
+by default no MAF weighting is applied.
 Multiple MAFweights can be specified, in which case each will be analyzed separately.</p></dd>
 
 
 <dt id="arg-maxitfirth">maxitFirth<a class="anchor" aria-label="anchor" href="#arg-maxitfirth"></a></dt>
-<dd><p>Maximum number of iterations to use for estimating firth confidence intervals. Defaults to 1000.</p></dd>
+<dd><p>Maximum number of iterations to use for estimating firth confidence intervals.
+Defaults to 1000.</p></dd>
 
 
 <dt id="arg-checkploidy">checkPloidy<a class="anchor" aria-label="anchor" href="#arg-checkploidy"></a></dt>
 <dd><p>Version of the human genome to use when assigning variant ploidy (diploid, XnonPAR, YnonPAR).
-Accepted inputs are GRCh37, hg19, GRCh38, hg38.
-If not specified, the genome build in the <code><a href="gdb.html">gdb</a></code> will be used, if available (included if the <code>genomeBuild</code> parameter was set in <code><a href="buildGdb.html">buildGdb</a></code>).
-Otherwise, if the genome build is not included in the gdb metadata, and no value is provided, then all variants are assigned the default ploidy of "diploid"</p></dd>
+Accepted inputs are 'GRCh37', 'hg19', 'GRCh38', 'hg38'.
+If not specified, the genome build in the <code><a href="gdb.html">gdb</a></code> will be used, if available.
+(included if the <code>genomeBuild</code> parameter was set in <code><a href="buildGdb.html">buildGdb</a></code>).
+Otherwise, if the genome build is not included in the gdb metadata,
+and no value is provided, then all variants are assigned the default ploidy of "diploid".</p></dd>
 
 
 <dt id="arg-keep">keep<a class="anchor" aria-label="anchor" href="#arg-keep"></a></dt>
-<dd><p>Vector of sample IDs to keep, defaults to <code>NULL</code>, in which case all samples are kept.</p></dd>
+<dd><p>Vector of sample IDs to keep, defaults to <code>NULL</code>,
+in which case all samples are kept.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
@@ -237,9 +246,24 @@ Otherwise, if the genome build is not included in the gdb metadata, and no value
 Defaults to <code>NULL</code>, in which case results are not written.</p></dd>
 
 
+<dt id="arg-append">append<a class="anchor" aria-label="anchor" href="#arg-append"></a></dt>
+<dd><p>Relevant if the <code>output</code> parameter is not <code>NULL</code>.
+Should results be appended to <code>output</code>?</p></dd>
+
+
+<dt id="arg-returndf">returnDF<a class="anchor" aria-label="anchor" href="#arg-returndf"></a></dt>
+<dd><p>Return a data.frame rather than a rvatResult. Defaults to <code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-methodresampling">methodResampling<a class="anchor" aria-label="anchor" href="#arg-methodresampling"></a></dt>
-<dd><p>Which method to use for resampling? ('permutation' currently implemented)
+<dd><p>Which method to use for resampling? ('permutation' currently implemented).
 Defaults to <code>NULL</code>, in which case no resampling is performed.</p></dd>
+
+
+<dt id="arg-resamplingmatrix">resamplingMatrix<a class="anchor" aria-label="anchor" href="#arg-resamplingmatrix"></a></dt>
+<dd><p>Pre-calculated resampling matrix (n x p),
+where n = number of samples, and p number of resamplings.
+Can be generated using <code><a href="buildResamplingFile.html">buildResamplingFile</a></code>.</p></dd>
 
 
 <dt id="arg-resamplingfile">resamplingFile<a class="anchor" aria-label="anchor" href="#arg-resamplingfile"></a></dt>
@@ -251,8 +275,9 @@ Defaults to <code>NULL</code>, in which case no resampling is performed.</p></dd
 
 
 <dt id="arg-outputresampling">outputResampling<a class="anchor" aria-label="anchor" href="#arg-outputresampling"></a></dt>
-<dd><p>If <code>TRUE</code> or a filepath, results for each resampling are returned (or saved to the filepath).
-This can be useful if permutations are used to calculated to estimate correlations among genes for example.
+<dd><p>If <code>TRUE</code> or a filepath,
+results for each resampling are returned (or saved to the filepath).
+This can be useful if permutations are used to estimate correlations among genes for example.
 Defaults to <code>FALSE</code> in which case resampling is used to calculate resampled P-values,
 results for individual resamplings are not returned.</p></dd>
 
@@ -260,7 +285,7 @@ results for individual resamplings are not returned.</p></dd>
 <dt id="arg-memlimitresampling">memlimitResampling<a class="anchor" aria-label="anchor" href="#arg-memlimitresampling"></a></dt>
 <dd><p>Maximum number of resamplings to perform at a time.
 Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
-thus, for large number of resamplings it can be more efficient to split the permutations in chunks of size <code>memlimitResampling</code>.
+thus, for a large number of resamplings it can be more efficient to split the permutations in chunks of size <code>memlimitResampling</code>.
 Defaults to <code>NULL</code> in which case all permutations are performed.</p></dd>
 
 
@@ -328,255 +353,254 @@ checking whether supplied varSetFile/varSetList was generated from the same gdb 
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">varsetfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="varSetFile.html">varSetFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">"rvatData_varsetfile.txt.gz"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># for example purposes, upload a small cohort</span></span></span>
 <span class="r-in"><span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="fu"><a href="getCohort.html">getCohort</a></span><span class="op">(</span><span class="va">gdb</span>, <span class="st">"pheno"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="va">cohort</span><span class="op">[</span><span class="va">cohort</span><span class="op">$</span><span class="va">IID</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">GTsmall</span><span class="op">)</span>,<span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="va">cohort</span><span class="op">[</span><span class="va">cohort</span><span class="op">$</span><span class="va">IID</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">GTsmall</span><span class="op">)</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="uploadCohort.html">uploadCohort</a></span><span class="op">(</span><span class="va">gdb</span>, name <span class="op">=</span> <span class="st">"phenosmall"</span>, value <span class="op">=</span> <span class="va">cohort</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cohort 'phenosmall' from interactive R session</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 10 fields detected (IID,sex,pheno,pop,superPop,PC1,PC2,PC3,PC4,age)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2602 males, 2398 females and 0 unknown gender</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Retained 5000 of 25000 uploaded samples that could be mapped to dosage matrix</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2602 males, 2398 females and 0 unknown sex</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># run a firth burden test on a binary phenotype</span></span></span>
-<span class="r-in"><span><span class="va">varsetlist</span> <span class="op">&lt;-</span> <span class="fu"><a href="getVarSet.html">getVarSet</a></span><span class="op">(</span><span class="va">varsetfile</span>, unit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>, varSetName <span class="op">=</span> <span class="st">"High"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="st">"firth"</span>,</span></span>
-<span class="r-in"><span>                 name <span class="op">=</span> <span class="st">"example"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="va">varsetlist</span> <span class="op">&lt;-</span> <span class="fu"><a href="getVarSet.html">getVarSet</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">varsetfile</span>,</span></span>
+<span class="r-in"><span>  unit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  varSetName <span class="op">=</span> <span class="st">"High"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="st">"firth"</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"example"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 33/33 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20/33 variants have zero carriers, these are dropped.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   20/33 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 13 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 4 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4/4 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2/4 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   2/4 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 2 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># run ACAT-v and SKAT tests</span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"acatvfirth"</span>, <span class="st">"skat_burden_robust"</span>, <span class="st">"skato_robust"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 name <span class="op">=</span> <span class="st">"example"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"acatvfirth"</span>, <span class="st">"skat_burden_robust"</span>, <span class="st">"skato_robust"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"example"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 33/33 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20/33 variants have zero carriers, these are dropped.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   20/33 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 13 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 4 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4/4 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2/4 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   2/4 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 2 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># run a burden test on a continuous phenotype</span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"age"</span>,</span></span>
-<span class="r-in"><span>                 continuous <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span>, <span class="st">"skat"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 name <span class="op">=</span> <span class="st">"example"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>  continuous <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lm"</span>, <span class="st">"skat"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"example"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 33/33 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20/33 variants have zero carriers, these are dropped.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   20/33 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 13 variants) age | PC1,PC2,PC3,PC4 | allelic</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 4 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4/4 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2/4 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   2/4 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 2 variants) age | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># run single variant tests on a binary phenotype </span></span></span>
-<span class="r-in"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
-<span class="r-in"><span>                cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                singlevar <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"glm"</span>, <span class="st">"scoreSPA"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                name <span class="op">=</span> <span class="st">"example"</span>,</span></span>
-<span class="r-in"><span>                minCarriers <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="co"># run single variant tests on a binary phenotype</span></span></span>
+<span class="r-in"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  singlevar <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"glm"</span>, <span class="st">"scoreSPA"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"example"</span>,</span></span>
+<span class="r-in"><span>  minCarriers <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 13/13 variants are retained for analysis</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 13 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>13/13 variants have less than 2 carriers, tests will be skipped for these variants.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 4 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2/2 variants are retained for analysis</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 2 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>2/2 variants have less than 2 carriers, tests will be skipped for these variants.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># similarly a list of VAR_ids can be specified instead of a varSetList/varSetFile</span></span></span>
-<span class="r-in"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                VAR_id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span>,</span></span>
-<span class="r-in"><span>                cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                singlevar <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"glm"</span>, <span class="st">"scoreSPA"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                name <span class="op">=</span> <span class="st">"example"</span>,</span></span>
-<span class="r-in"><span>                minCarriers <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing chunk1</span>
+<span class="r-in"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  VAR_id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  singlevar <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"glm"</span>, <span class="st">"scoreSPA"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"example"</span>,</span></span>
+<span class="r-in"><span>  minCarriers <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing chunk1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 20 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit chunk1; varSet none</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 8/8 variants are retained for analysis</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: none -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 8 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>4/8 variants have less than 2 carriers, tests will be skipped for these variants.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># apply variant filters</span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 name <span class="op">=</span> <span class="st">"example"</span>, </span></span>
-<span class="r-in"><span>                 maxMAF <span class="op">=</span> <span class="fl">0.05</span>,</span></span>
-<span class="r-in"><span>                 minCarriers <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                 minCallrateVar <span class="op">=</span> <span class="fl">0.9</span>,</span></span>
-<span class="r-in"><span>                 minCallrateSM <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"example"</span>,</span></span>
+<span class="r-in"><span>  maxMAF <span class="op">=</span> <span class="fl">0.05</span>,</span></span>
+<span class="r-in"><span>  minCarriers <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>  minCallrateVar <span class="op">=</span> <span class="fl">0.9</span>,</span></span>
+<span class="r-in"><span>  minCallrateSM <span class="op">=</span> <span class="fl">0.95</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 1609 samples don't pass callRate filters.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 3391/3391 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 10/10 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (3391 samples, 10 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 4 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 255 samples don't pass callRate filters.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 4745/4745 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2/2 variants are retained for analysis</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (4745 samples, 2 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Perform MAF-weighted burden tests (madsen-browning)</span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 MAFweights <span class="op">=</span> <span class="st">"mb"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  MAFweights <span class="op">=</span> <span class="st">"mb"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 13/13 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   20/33 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 13 variants) pheno | PC1,PC2,PC3,PC4 | allelic (mb-weighted)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 4 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2/2 variants are retained for analysis</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   2/4 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 2 variants) pheno | PC1,PC2,PC3,PC4 | allelic (mb-weighted)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># CADD-weighted burden test</span></span></span>
-<span class="r-in"><span><span class="va">varsetlist_cadd</span> <span class="op">&lt;-</span> <span class="fu"><a href="getVarSet.html">getVarSet</a></span><span class="op">(</span><span class="va">varsetfile</span>, unit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>, varSetName <span class="op">=</span> <span class="st">"CADD"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist_cadd</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NAs introduced by coercion</span>
+<span class="r-in"><span><span class="va">varsetlist_cadd</span> <span class="op">&lt;-</span> <span class="fu"><a href="getVarSet.html">getVarSet</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">varsetfile</span>,</span></span>
+<span class="r-in"><span>  unit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  varSetName <span class="op">=</span> <span class="st">"CADD"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist_cadd</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 190 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NAs introduced by coercion</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet CADD</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 119/119 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 75/119 variants have zero carriers, these are dropped.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NAs introduced by coercion</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: CADD -------------------</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>For 71 variants weights are missing, these variants are excluded.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   75/119 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 44 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 49 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NAs introduced by coercion</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet CADD</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 38/38 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 26/38 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: CADD -------------------</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>For 11 variants weights are missing, these variants are excluded.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   26/38 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 12 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Perform recessive burden test</span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 geneticModel <span class="op">=</span> <span class="st">"recessive"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"firth"</span>, <span class="st">"skat_robust"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  geneticModel <span class="op">=</span> <span class="st">"recessive"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 33/33 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 33/33 variants have zero carriers, these are dropped.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Less than two samples have a non-zero burden score, skipping tests.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   33/33 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing SOD1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 4 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit SOD1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4/4 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4/4 variants have zero carriers, these are dropped.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Less than two samples have a non-zero burden score, skipping tests.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   4/4 variants have zero carriers, these are dropped.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Resampled burden test </span></span></span>
-<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>                 varSet <span class="op">=</span> <span class="va">varsetlist</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>                 cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
-<span class="r-in"><span>                 pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
-<span class="r-in"><span>                 covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skat"</span>, <span class="st">"skat_burden"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 name <span class="op">=</span> <span class="st">"example"</span>,</span></span>
-<span class="r-in"><span>                 methodResampling <span class="op">=</span> <span class="st">"permutation"</span>,</span></span>
-<span class="r-in"><span>                 nResampling <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1</span>
+<span class="r-in"><span><span class="co"># Resampled burden test</span></span></span>
+<span class="r-in"><span><span class="va">rvb</span> <span class="op">&lt;-</span> <span class="fu"><a href="assocTest.html">assocTest</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  varSet <span class="op">=</span> <span class="va">varsetlist</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>  cohort <span class="op">=</span> <span class="st">"phenosmall"</span>,</span></span>
+<span class="r-in"><span>  pheno <span class="op">=</span> <span class="st">"pheno"</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span>, <span class="st">"PC4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skat"</span>, <span class="st">"skat_burden"</span>, <span class="st">"acatv"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"example"</span>,</span></span>
+<span class="r-in"><span>  methodResampling <span class="op">=</span> <span class="st">"permutation"</span>,</span></span>
+<span class="r-in"><span>  nResampling <span class="op">=</span> <span class="fl">100</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing NEK1 -------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Retrieved genotypes for 33 variants</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5000/25000 samples in the gdb are present in cohort 'phenosmall'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Analysing unit NEK1; varSet High</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Keeping 5000/5000 available samples for analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 33/33 variants are retained for analysis</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20/33 variants have zero carriers, these are dropped.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> varSet: High -------------------</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   20/33 variants have zero carriers, these are dropped.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [1/1] (5000 samples, 13 variants) pheno | PC1,PC2,PC3,PC4 | allelic</span>
 </code></pre></div>
     </div>
   </div>
