@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -105,6 +105,7 @@
 <span>  <span class="va">output</span>,</span>
 <span>  skipRemap <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  skipIndexes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  overWrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -114,7 +115,7 @@
 
 
 <dl><dt id="arg-targets">targets<a class="anchor" aria-label="anchor" href="#arg-targets"></a></dt>
-<dd><p>File listing full paths of gdbs to concatenate</p></dd>
+<dd><p>Character vector of gdb file paths, or a single path to a file listing gdb paths.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
@@ -122,62 +123,65 @@
 
 
 <dt id="arg-skipremap">skipRemap<a class="anchor" aria-label="anchor" href="#arg-skipremap"></a></dt>
-<dd><p>Flag to skip resetting of VAR_id to row id after concatenation. Defaults to <code>FALSE</code>.</p></dd>
+<dd><p>Skip resetting of VAR_id to row id after concatenation? Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-skipindexes">skipIndexes<a class="anchor" aria-label="anchor" href="#arg-skipindexes"></a></dt>
-<dd><p>Flag to skip generation of standard var and dosage table indexes (VAR_id;CHROM, POS,REF,ALT).
+<dd><p>Skip generation of standard var and dosage table indexes (VAR_id;CHROM, POS,REF,ALT)?
+Defaults to <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-overwrite">overWrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
+<dd><p>Overwrite output file if it already exists?
 Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>Should the function be verbose? (TRUE/FALSE), defaults to <code>TRUE</code>.</p></dd>
+<dd><p>Should the function be verbose? Defaults to <code>TRUE</code>.</p></dd>
 
 </dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="gdb.html">gdb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/rvat_example.html" class="external-link">rvat_example</a></span><span class="op">(</span><span class="st">"rvatData.gdb"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># to illustrate how concatGdb we'll first generate two small gdbs to concatenate</span></span></span>
 <span class="r-in"><span><span class="va">gdb1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="subsetGdb.html">subsetGdb</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">gdb</span>, </span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
 <span class="r-in"><span>  VAR_id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span>,</span></span>
 <span class="r-in"><span>  output <span class="op">=</span> <span class="va">gdb1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:03	Complete</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Complete</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gdb2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="subsetGdb.html">subsetGdb</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">gdb</span>, </span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
 <span class="r-in"><span>  VAR_id <span class="op">=</span> <span class="fl">101</span><span class="op">:</span><span class="fl">200</span>,</span></span>
 <span class="r-in"><span>  output <span class="op">=</span> <span class="va">gdb2</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:03	Complete</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Complete</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># write filepaths of gdbs to concatenate to a file</span></span></span>
-<span class="r-in"><span><span class="va">targets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_lines.html" class="external-link">write_lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">gdb1</span>, <span class="va">gdb2</span><span class="op">)</span>, file <span class="op">=</span> <span class="va">targets</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">concatgdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># concatenate</span></span></span>
 <span class="r-in"><span><span class="fu">concatGdb</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  targets <span class="op">=</span> <span class="va">targets</span>,</span></span>
+<span class="r-in"><span>  targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">gdb1</span>, <span class="va">gdb2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  output <span class="op">=</span> <span class="va">concatgdb</span>,</span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:03	Creating db tables</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Creating gdb tables</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Creating db tables</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Creating SM, anno and cohort tables</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Merging '/tmp/RtmpmOGse7/file34f3c5638d5c0'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Merging '/tmp/RtmpmOGse7/file34f3c3b952629'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:04	Reseting VAR_id to rowid</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:04	Creating var table indexes</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:04	Creating dosage table index</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:04	Creating ranged var table</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-01-08 12:32:04	Complete</span>
-<span class="r-in"><span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Merging '/tmp/RtmpvjdKWE/file153931cd85e79'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Merging '/tmp/RtmpvjdKWE/file1539323ac8da8'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Reseting VAR_id to rowid</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Creating var table indexes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Creating SM table index</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Creating dosage table index</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Creating ranged var table</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2026-03-30 18:37:40	Complete</span>
 </code></pre></div>
     </div>
   </div>

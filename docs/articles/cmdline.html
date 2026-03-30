@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -158,9 +158,10 @@ directory will be used for that:</p>
 <span><span class="co">## --spatialClust</span></span>
 <span><span class="co">## --summariseGeno</span></span>
 <span><span class="co">## --aggregate</span></span>
-<span><span class="co">## --mergeAggregateFiles</span></span>
-<span><span class="co">## --collapseAggregateFiles</span></span>
+<span><span class="co">## --mergeAggDbs</span></span>
+<span><span class="co">## --collapseAggDbs</span></span>
 <span><span class="co">## --vcfInfo2Table</span></span>
+<span><span class="co">## --writeVcf</span></span>
 <span><span class="co">## --assocTest</span></span>
 <span><span class="co">## --buildResamplingFile</span></span>
 <span><span class="co">## --buildGeneSet</span></span>
@@ -173,19 +174,30 @@ directory will be used for that:</p>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## buildGdb</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##   Creates a new gdb file. The gdb can be structured and populated using a provided vcf file. </span></span>
+<span><span class="co">##   Creates a new gdb file. </span></span>
+<span><span class="co">##   The gdb can be structured and populated using a provided vcf file. </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Usage:</span></span>
 <span><span class="co">##   Rscript rvat.R --buildGdb --vcf={vcf} --output={output} [options]</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Arguments:</span></span>
-<span><span class="co">##   output           Path for output gdb file</span></span>
-<span><span class="co">##   vcf              Input vcf file used to structure and populate gdb. Warning this function makes the following of assumptions: 1) strict adherence to vcf format (GT subfield first element in genotype firelds), 2) multiallelic records have been split, 3) desired genotype QC has already been applied (DP,GQ filters), 4) GT values conform to the set {0/0,0/1,1/0,1/1,./.,0|0,0|1,1|0,1|1,.|.}. Multiallelic parsing and genotype QC can be performed using vcftools and/or accompanying parser scripts included on the rvat github.</span></span>
-<span><span class="co">##   skipIndexes      Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM, POS,REF,ALT). Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use</span></span>
-<span><span class="co">##   skipVarRanges    Flag to skip generation of ranged var table. Typically only required if you plan to use gdbConcat to concatenate a series of separately generated gdb files before use</span></span>
-<span><span class="co">##   overWrite        Overwrite if output already exists? Defaults to FALSE, in which case an error is raised.</span></span>
-<span><span class="co">##   genomeBuild      Optional genome build to include in the gdb metadata. If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the genome build is implemented in RVAT (currently: GRCh37, hg19, GRCh38, hg38).</span></span>
+<span><span class="co">##   vcf              Input vcf file used to structure and populate gdb. </span></span>
+<span><span class="co">##                    Warning this function makes the following assumptions: </span></span>
+<span><span class="co">##                      1) strict adherence to vcf format (GT subfield first element in genotype fields),</span></span>
+<span><span class="co">##                      2) desired genotype QC has already been applied (DP,GQ filters),</span></span>
+<span><span class="co">##                      3) GT values conform to the set {0/0,0/1,1/0,1/1,./.,0|0,0|1,1|0,1|1,.|.}.</span></span>
+<span><span class="co">##                      Multiallelic parsing and genotype QC can be performed using vcftools and/or</span></span>
+<span><span class="co">##                      accompanying parser scripts included in the rvat repository.</span></span>
+<span><span class="co">##   output           Path for output gdb file.</span></span>
+<span><span class="co">##   skipIndexes      Flag to skip generation of indexes for var and dosage table (VAR_id;CHROM,POS,REF,ALT).  </span></span>
+<span><span class="co">##                    Typically only required if you plan to use --concatGdb to concatenate a series of separately generated gdb files.</span></span>
+<span><span class="co">##   skipVarRanges    Flag to skip generation of ranged var table.</span></span>
+<span><span class="co">##                    Typically only useful (i.e., faster) if you plan to use --concatGdb to concatenate a series of separately generated gdb files.</span></span>
+<span><span class="co">##   overWrite        Flag to indicate that output gdb file should be overwritten if it already exists.</span></span>
+<span><span class="co">##   genomeBuild      Optional genome build to include in the gdb metadata.</span></span>
+<span><span class="co">##                    If specified, it will be used to set ploidies (diploid, XnonPAR, YnonPAR) if the genome build is implemented in RVAT (currently: GRCh37, hg19, GRCh38, hg38).</span></span>
 <span><span class="co">##   memlimit         Maximum number of vcf records to parse at a time, defaults to 1000.</span></span>
+<span><span class="co">##   quiet            Flag to suppress verbose messages.</span></span>
 <span><span class="co">##   </span></span>
 <span><span class="co">## Error:                                                                                                                                                              </span></span>
 <span><span class="co">## Execution halted</span></span></code></pre>

@@ -22,7 +22,7 @@ in the same way as a varset list using the getVarSet method."><!-- mathjax --><s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -125,8 +125,8 @@ See <code><a href="buildVarSet.html">buildVarSet()</a></code> for details.</p></
 <p>In the following code snippets, x is a varSetList object.</p><ul><li><p><code>getVarSet(x, unit, varSetName)</code>: Retrieve varSets for specified units and/or varSetNames.</p></li>
 <li><p><code>listUnits(x)</code>: Return a vector of all units included in the varSetList.</p></li>
 <li><p><code>listVarSets(x)</code>: Return a vector of all varSetNames included in the varSetList.</p></li>
-<li><p><code>getGdbId(x)</code>: Get gdb ID from metadata</p></li>
-<li><p><code>metadata(x)</code>: Get metadata from varSetList</p></li>
+<li><p><code>getGdbId(x)</code>: Get gdb ID from metadata.</p></li>
+<li><p><code>metadata(x)</code>: Get metadata from varSetList.</p></li>
 </ul></div>
     <div id="subsetting">
     <h2>Subsetting</h2>
@@ -149,7 +149,7 @@ in the varSetList.</p>
     <h2>Miscellaneous</h2>
 
 
-<p>In the following code snippets, x is a varSetList object:</p><ul><li><p><code>collapseVarSetList(x, unit = "unnamed", varSetName = "unnamed)</code>:
+<p>In the following code snippets, x is a varSetList object:</p><ul><li><p><code>collapseVarSetList(x, unit = "unnamed", varSetName = "unnamed")</code>:
 Merge all varSets into one varSet. All weights will be set to 1.
 Optionally, the unit name and varSetName can be specified.
 This method is mainly used when you want to load the genotypes for all variants
@@ -245,7 +245,7 @@ the <code><a href="varSetFile.html">varSetFile</a></code> format.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> w=31,.,23.4,.,.,13.44,.,23.9,24.9,22.7,24.9,24.5,.,29.6,26.5,27.1,31,26.2,34,26.6,32,29,14.85,26.2,25,16.46,23.2,.,24.3,17.52,22.8,27.4,27.6,.,25.1,.,.,23.4,28.2,27.9,16.67,27.4,.,42,25.7,.,29.2,22.4,27.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># list included units and varSets </span></span></span>
+<span class="r-in"><span><span class="co"># list included units and varSets</span></span></span>
 <span class="r-in"><span><span class="va">units</span> <span class="op">&lt;-</span> <span class="fu"><a href="listUnits.html">listUnits</a></span><span class="op">(</span><span class="va">varsetlist</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">units</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "FUS"  "FUS"  "FUS"  "FUS"  "SOD1" "SOD1"</span>
@@ -306,16 +306,15 @@ the <code><a href="varSetFile.html">varSetFile</a></code> format.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> w=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># varSetLists can be written to a varSetFile on disk using the write method</span></span></span>
-<span class="r-in"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span> </span></span>
+<span class="r-in"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="va">varsetlist</span>, <span class="va">output</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">varsetfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="varSetFile.html">varSetFile</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">varsetfile</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> varSetFile object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Path:/tmp/RtmpmOGse7/file34f3c7b04c87a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Path:/tmp/RtmpvjdKWE/file1539348bff41b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Units:8</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varSets included in a varSetlist</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

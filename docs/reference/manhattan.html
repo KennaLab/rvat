@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -103,13 +103,14 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">manhattan</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  label <span class="op">=</span> <span class="st">"label"</span>,</span>
+<span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  labelThreshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  labelRepel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  labelSize <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  contigs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">""</span></span>
+<span>  labelSize <span class="op">=</span> <span class="fl">3.88</span>,</span>
+<span>  contigs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -126,7 +127,8 @@
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
-<dd><p>Column name of the labels that are used for significant results</p></dd>
+<dd><p>Column name of the labels that are used for significant results.
+If not provided, the function attempts to use a column named "label" if one is present.</p></dd>
 
 
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
@@ -138,19 +140,27 @@
 
 
 <dt id="arg-labelrepel">labelRepel<a class="anchor" aria-label="anchor" href="#arg-labelrepel"></a></dt>
-<dd><p>Should the text labels repel away from each other and away from the data points? Defaults to <code>FALSE</code>.</p></dd>
+<dd><p>Should the text labels repel away from each other and away from the data points?
+Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-labelsize">labelSize<a class="anchor" aria-label="anchor" href="#arg-labelsize"></a></dt>
-<dd><p>Size of the label, defaults to the default used in the ggrepel package.</p></dd>
+<dd><p>Size of the label. Defaults to 3.88.</p></dd>
 
 
 <dt id="arg-contigs">contigs<a class="anchor" aria-label="anchor" href="#arg-contigs"></a></dt>
-<dd><p>Update contig lengths from GRCh37 defaults.</p></dd>
+<dd><p>Update contig lengths from GRCh37 defaults.
+Can be a character string (e.g. "GRCh38") or a data.frame with 'CHROM' and 'Length' columns.
+If not specified, the function attempts to infer the genome build from the object metadata,
+defaulting to GRCh37 if identifying information is missing.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
 <dd><p>Optional title.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Should the function be verbose? Defaults to <code>TRUE</code>.</p></dd>
 
 </dl></div>
 
@@ -160,30 +170,45 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">rvbresults</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># generate manhatan plot</span></span></span>
-<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span><span class="va">rvbresults</span><span class="op">[</span><span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,<span class="op">]</span>,</span></span>
-<span class="r-in"><span>                 label <span class="op">=</span> <span class="st">"unit"</span>, </span></span>
-<span class="r-in"><span>                 contigs <span class="op">=</span> <span class="st">"GRCh38"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">rvbresults</span><span class="op">[</span></span></span>
+<span class="r-in"><span>    <span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,</span></span>
+<span class="r-in"><span>  <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  label <span class="op">=</span> <span class="st">"unit"</span>,</span></span>
+<span class="r-in"><span>  contigs <span class="op">=</span> <span class="st">"GRCh38"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># if many overlapping gene label, try setting `labelRepel = TRUE`</span></span></span>
-<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span><span class="va">rvbresults</span><span class="op">[</span><span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,<span class="op">]</span>,</span></span>
-<span class="r-in"><span>                 label <span class="op">=</span> <span class="st">"unit"</span>, </span></span>
-<span class="r-in"><span>                 labelRepel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                 contigs <span class="op">=</span> <span class="st">"GRCh38"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">rvbresults</span><span class="op">[</span></span></span>
+<span class="r-in"><span>    <span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,</span></span>
+<span class="r-in"><span>  <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  label <span class="op">=</span> <span class="st">"unit"</span>,</span></span>
+<span class="r-in"><span>  labelRepel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  contigs <span class="op">=</span> <span class="st">"GRCh38"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># alter the significane threshold using the `threshold` parameter</span></span></span>
-<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span><span class="va">rvbresults</span><span class="op">[</span><span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,<span class="op">]</span>,</span></span>
-<span class="r-in"><span>                 label <span class="op">=</span> <span class="st">"unit"</span>, </span></span>
-<span class="r-in"><span>                 labelRepel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                 threshold <span class="op">=</span> <span class="fl">1e-5</span>,</span></span>
-<span class="r-in"><span>                 contigs <span class="op">=</span> <span class="st">"GRCh38"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">rvbresults</span><span class="op">[</span></span></span>
+<span class="r-in"><span>    <span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,</span></span>
+<span class="r-in"><span>  <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  label <span class="op">=</span> <span class="st">"unit"</span>,</span></span>
+<span class="r-in"><span>  labelRepel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  threshold <span class="op">=</span> <span class="fl">1e-5</span>,</span></span>
+<span class="r-in"><span>  contigs <span class="op">=</span> <span class="st">"GRCh38"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the threshold for displaying labels can be set using the `labelTrheshold` parameter</span></span></span>
-<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span><span class="va">rvbresults</span><span class="op">[</span><span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,<span class="op">]</span>,</span></span>
-<span class="r-in"><span>                 label <span class="op">=</span> <span class="st">"unit"</span>, </span></span>
-<span class="r-in"><span>                 labelRepel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                 labelThreshold <span class="op">=</span> <span class="fl">1e-12</span>,</span></span>
-<span class="r-in"><span>                 contigs <span class="op">=</span> <span class="st">"GRCh38"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">man</span> <span class="op">&lt;-</span> <span class="fu">manhattan</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">rvbresults</span><span class="op">[</span></span></span>
+<span class="r-in"><span>    <span class="va">rvbresults</span><span class="op">$</span><span class="va">varSetName</span> <span class="op">==</span> <span class="st">"ModerateImpact"</span> <span class="op">&amp;</span> <span class="va">rvbresults</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"firth"</span>,</span></span>
+<span class="r-in"><span>  <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  label <span class="op">=</span> <span class="st">"unit"</span>,</span></span>
+<span class="r-in"><span>  labelRepel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  labelThreshold <span class="op">=</span> <span class="fl">1e-12</span>,</span></span>
+<span class="r-in"><span>  contigs <span class="op">=</span> <span class="st">"GRCh38"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

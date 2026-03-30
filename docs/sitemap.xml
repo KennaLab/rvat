@@ -14,10 +14,10 @@
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
 <url><loc>/reference/ACAT.html</loc></url>
+<url><loc>/reference/aggdb.html</loc></url>
+<url><loc>/reference/aggdbList.html</loc></url>
 <url><loc>/reference/aggregate-gdb-method.html</loc></url>
-<url><loc>/reference/aggregateFile.html</loc></url>
-<url><loc>/reference/aggregateFileList.html</loc></url>
-<url><loc>/reference/assocTest-aggregateFile.html</loc></url>
+<url><loc>/reference/assocTest-aggdb.html</loc></url>
 <url><loc>/reference/assocTest-gdb.html</loc></url>
 <url><loc>/reference/assocTest-genoMatrix.html</loc></url>
 <url><loc>/reference/assocTest.html</loc></url>
@@ -28,7 +28,7 @@
 <url><loc>/reference/buildVarSet-data.frame.html</loc></url>
 <url><loc>/reference/buildVarSet-gdb.html</loc></url>
 <url><loc>/reference/buildVarSet.html</loc></url>
-<url><loc>/reference/collapseAggregateFiles.html</loc></url>
+<url><loc>/reference/collapseAggDbs.html</loc></url>
 <url><loc>/reference/concatGdb.html</loc></url>
 <url><loc>/reference/densityPlot.html</loc></url>
 <url><loc>/reference/dropTable.html</loc></url>
@@ -57,7 +57,7 @@
 <url><loc>/reference/manhattan.html</loc></url>
 <url><loc>/reference/mapToCDS.html</loc></url>
 <url><loc>/reference/mapVariants.html</loc></url>
-<url><loc>/reference/mergeAggregateFiles.html</loc></url>
+<url><loc>/reference/mergeAggDbs.html</loc></url>
 <url><loc>/reference/mutationPlot.html</loc></url>
 <url><loc>/reference/nullModelGSA-class.html</loc></url>
 <url><loc>/reference/pipe.html</loc></url>
@@ -67,7 +67,6 @@
 <url><loc>/reference/recode.html</loc></url>
 <url><loc>/reference/resamplingFile.html</loc></url>
 <url><loc>/reference/rvatResult.html</loc></url>
-<url><loc>/reference/rvatViewer.html</loc></url>
 <url><loc>/reference/spatialClust.html</loc></url>
 <url><loc>/reference/subsetGdb.html</loc></url>
 <url><loc>/reference/summariseGeno.html</loc></url>

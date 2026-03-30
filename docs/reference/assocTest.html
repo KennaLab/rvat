@@ -9,10 +9,10 @@ assocTest can be run either directly on a genoMatrix object or alternatively
 on a gdb object, in which case assocTest can loop through multiple variant sets by providing
 a varSetFile or varSetList as input.
 Moreover, assocTest can be run on sets of genes ('gene set burden'),
-for which gene burden scores have been generated using aggregate and stored in an aggregateFile.
+for which gene burden scores have been generated using aggregate and stored in an aggdb.
 For running assocTest on a genoMatrix object see: assocTest-genoMatrix for details
 for running assocTest on a gdb  object see: assocTest-gdb for details
-for running assocTest on a aggregateFile  object see: assocTest-aggregateFile for details"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+for running assocTest on a aggdb  object see: assocTest-aggdb for details"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
@@ -30,7 +30,7 @@ for running assocTest on a aggregateFile  object see: assocTest-aggregateFile fo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -119,10 +119,10 @@ assocTest can be run either directly on a <code><a href="genoMatrix.html">genoMa
 on a <code><a href="gdb.html">gdb</a></code> object, in which case assocTest can loop through multiple variant sets by providing
 a <code><a href="varSetFile.html">varSetFile</a></code> or <code><a href="varSetList.html">varSetList</a></code> as input.
 Moreover, assocTest can be run on sets of genes ('gene set burden'),
-for which gene burden scores have been generated using <code><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></code> and stored in an <code><a href="aggregateFile.html">aggregateFile</a></code>.
+for which gene burden scores have been generated using <code><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></code> and stored in an <code><a href="aggdb.html">aggdb</a></code>.
 For running assocTest on a <code><a href="genoMatrix.html">genoMatrix</a></code> object see: <code><a href="assocTest-genoMatrix.html">assocTest-genoMatrix</a></code> for details<br>
 for running assocTest on a <code><a href="gdb.html">gdb</a></code>  object see: <code><a href="assocTest-gdb.html">assocTest-gdb</a></code> for details
-for running assocTest on a <code><a href="aggregateFile.html">aggregateFile</a></code>  object see: <code><a href="assocTest-aggregateFile.html">assocTest-aggregateFile</a></code> for details</p>
+for running assocTest on a <code><a href="aggdb.html">aggdb</a></code>  object see: <code><a href="assocTest-aggdb.html">assocTest-aggdb</a></code> for details</p>
     </div>
 
 
@@ -150,7 +150,7 @@ respectively)</p><ul><li><p><code>unit</code>:  (rvbResult) name of the unit tes
 <li><p><code>caseN</code>:  Number of cases.</p></li>
 <li><p><code>ctrlN</code>:  Number of controls.</p></li>
 <li><p><code>caseCallRate</code>:  Variant call-rate in cases. For aggregate tests this is the average call-rate across variants.</p></li>
-<li><p><code>ctrlCallRate</code>:  Variant call-rate in controls For aggregate tests this is the average call-rate across variants.</p></li>
+<li><p><code>ctrlCallRate</code>:  Variant call-rate in controls. For aggregate tests this is the average call-rate across variants.</p></li>
 <li><p><code>effectAllele</code>:  (singlevarResult) Allele to which the effect estimate refers.</p></li>
 <li><p><code>otherAllele</code>:  (singlevarResult) Non-effect allele</p></li>
 <li><p><code>effect</code>:  Effect estimate for specified statistical test.
@@ -196,6 +196,10 @@ can be specified using the <code>maxitFirth</code> parameter.</p></li>
 <p>Liu, Y. et al. ACAT: A Fast and Powerful p Value Combination Method for Rare-Variant Analysis in Sequencing Studies. The American Journal of Human Genetics 104, 410–421 (2019).</p>
 <p>Firth, D. Bias Reduction of Maximum Likelihood Estimates. Biometrika 80, 27–38 (1993).</p>
 <p>Zhao, Z. et al. UK Biobank Whole-Exome Sequence Binary Phenome Analysis with Robust Region-Based Rare-Variant Test. The American Journal of Human Genetics 106, 3–12 (2020).</p>
+    </div>
+    <div id="see-also">
+    <h2>See also</h2>
+    <div class="dont-index"><p><code><a href="assocTest-genoMatrix.html">assocTest-genoMatrix</a></code>, <code><a href="assocTest-gdb.html">assocTest-gdb</a></code>, <code><a href="assocTest-aggdb.html">assocTest-aggdb</a></code></p></div>
     </div>
 
   </div>

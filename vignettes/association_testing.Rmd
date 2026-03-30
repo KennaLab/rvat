@@ -355,7 +355,6 @@ burden_pheno_4PCs_permuted <- assocTest(GT,
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
                                      test = c("skat", "skat_burden", "acatv"),
                                      name = "example",
-                                     methodResampling = "permutation",
                                      resamplingMatrix = resamplingmatrix)
 burden_pheno_4PCs_permuted
 ```

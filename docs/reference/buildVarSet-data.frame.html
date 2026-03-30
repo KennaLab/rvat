@@ -18,7 +18,7 @@ See the tutorials for examples."><!-- mathjax --><script src="https://cdnjs.clou
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -118,7 +118,8 @@ See the tutorials for examples.</p>
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>A data.frame containing variant annotations</p></dd>
+<dd><p>A data.frame containing variant annotations.
+Must contain a 'VAR_id' column, and columns matching <code>unitName</code> and <code>fields</code>.</p></dd>
 
 
 <dt id="arg-unitname">unitName<a class="anchor" aria-label="anchor" href="#arg-unitname"></a></dt>
@@ -126,9 +127,9 @@ See the tutorials for examples.</p>
 
 
 <dt id="arg-fields">fields<a class="anchor" aria-label="anchor" href="#arg-fields"></a></dt>
-<dd><p>Which fields in the data.frame to use as variant annotations.
+<dd><p>Character vector of fields in the data.frame to use as variant annotations.
 These fields can be 1) an indicator (0,1 or FALSE/TRUE) that flags variants with the annotation,
-e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function.;
+e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function;
 or 2) variant weights, e.g. a column named 'CADD' that contains CADD scores.
 Multiple fields can be specified, which will result in multiple rows per aggregation unit in the resulting varSetFile.</p></dd>
 
@@ -142,15 +143,15 @@ Multiple fields can be specified, which will result in multiple rows per aggrega
 
 
 <dt id="arg-mask">mask<a class="anchor" aria-label="anchor" href="#arg-mask"></a></dt>
-<dd><p>If the annotation field is a 0,1 or FALSE/TRUE indicator, should variants with 0/FALSE be dropped? Defaults to <code>TRUE</code>.
+<dd><p>If the annotation field is a 0,1 or FALSE/TRUE indicator,
+should variants with 0/FALSE be dropped? Defaults to <code>TRUE</code>.
 If <code>FALSE</code>, all variants will be included, and will be assigned weights 0 and 1.</p></dd>
 
 </dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">anno</span> <span class="op">&lt;-</span> <span class="fu"><a href="getAnno.html">getAnno</a></span><span class="op">(</span><span class="va">gdb</span>, <span class="st">"varinfo"</span>, where <span class="op">=</span> <span class="st">"gene_name in ('SOD1', 'FUS')"</span><span class="op">)</span></span></span>
@@ -168,7 +169,6 @@ If <code>FALSE</code>, all variants will be included, and will be assigned weigh
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.</span></span></span>
 <span class="r-in"><span><span class="co"># see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

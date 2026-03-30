@@ -22,7 +22,7 @@ The output can be written to disk  (output parameter) or directly uploaded to th
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -131,12 +131,13 @@ The output can be written to disk  (<code>output</code> parameter) or directly u
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>a <code><a href="gdb.html">gdb</a></code> object</p></dd>
+<dd><p>a <code><a href="gdb.html">gdb</a></code> object.</p></dd>
 
 
 <dt id="arg-ranges">ranges<a class="anchor" aria-label="anchor" href="#arg-ranges"></a></dt>
-<dd><p>Can be 1) a data.frame, including at least 'CHROM','start', and 'end' columns.
-2) a <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GenomicRanges::GRanges</a></code> object. 3) a filepath to a ranges file containing at least 'CHROM','start', and 'end' columns.
+<dd><p>Can be 1)a data.frame, including at least 'CHROM','start', and 'end' columns.
+2) a <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GenomicRanges::GRanges</a></code> object.
+3) a filepath to a ranges file containing at least 'CHROM','start', and 'end' columns.
 Separator can be specified using the <code>sep</code> parameter (defaults to <code>\\t</code>).</p></dd>
 
 
@@ -149,23 +150,26 @@ Separator can be specified using the <code>sep</code> parameter (defaults to <co
 
 
 <dt id="arg-bedcols">bedCols<a class="anchor" aria-label="anchor" href="#arg-bedcols"></a></dt>
-<dd><p>A character vector of names of the extra columns to read from the BED-file.
-Optionally the vector can be a named vector to indicate the classes of the columns (i.e. c("gene_id" = "character", "gene_name"="character")).
+<dd><p>Character vector of names of the extra columns to read from the BED-file.
+Optionally the vector can be a named vector to indicate the classes of the columns
+(i.e. c("gene_id" = "character", "gene_name"="character")).
 If not named, all extra columns will be read as character columns (see examples).</p></dd>
 
 
 <dt id="arg-fields">fields<a class="anchor" aria-label="anchor" href="#arg-fields"></a></dt>
-<dd><p>Feature fields to keep. Defaults to <code>NULL</code> in which case all fields are kept.</p></dd>
+<dd><p>Character vector of feature fields to keep.
+Defaults to <code>NULL</code> in which case all fields are kept.</p></dd>
 
 
 <dt id="arg-uploadname">uploadName<a class="anchor" aria-label="anchor" href="#arg-uploadname"></a></dt>
 <dd><p>Name of table to upload to the gdb.
-If not specified, either specifiy <code>output</code> to
-write the results to disk, or otherwise the results will be returned in the R session.</p></dd>
+If not specified, either specify <code>output</code> to write the results to disk,
+or otherwise the results will be returned in the R session.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
-<dd><p>Optionally, an output file path. Can be used instead of <code>uploadName</code> to write the results to disk.</p></dd>
+<dd><p>Optionally, an output file path (gz-compressed).
+Can be used instead of <code>uploadName</code> to write the results to disk.</p></dd>
 
 
 <dt id="arg-sep">sep<a class="anchor" aria-label="anchor" href="#arg-sep"></a></dt>
@@ -179,7 +183,7 @@ Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-overwrite">overWrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
-<dd><p>if <code>uploadName</code> is specified, should an existing table in the gdb with the same name be overwitten?
+<dd><p>if <code>uploadName</code> is specified, should an existing table in the gdb with the same name be overwritten?
 Defaults to <code>FALSE</code>.</p></dd>
 
 
@@ -190,8 +194,7 @@ Defaults to <code>FALSE</code>.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges" class="external-link">GenomicRanges</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rvatData/man/create_example_gdb.html" class="external-link">create_example_gdb</a></span><span class="op">(</span><span class="op">)</span></span></span>
@@ -206,10 +209,7 @@ Defaults to <code>FALSE</code>.</p></dd>
 <span class="r-in"><span>  gene_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>            ranges <span class="op">=</span> <span class="va">ranges</span>,</span></span>
-<span class="r-in"><span>            uploadName <span class="op">=</span> <span class="st">"gene"</span>,</span></span>
-<span class="r-in"><span>            verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span><span class="va">gdb</span>, ranges <span class="op">=</span> <span class="va">ranges</span>, uploadName <span class="op">=</span> <span class="st">"gene"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># similarly, ranges can be a data.frame</span></span></span>
 <span class="r-in"><span><span class="va">ranges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -219,48 +219,50 @@ Defaults to <code>FALSE</code>.</p></dd>
 <span class="r-in"><span>  gene_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>            ranges <span class="op">=</span> <span class="va">ranges</span>,</span></span>
-<span class="r-in"><span>            uploadName <span class="op">=</span> <span class="st">"gene"</span>,</span></span>
-<span class="r-in"><span>            verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>            overWrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Table 'gene' already exists, it will be overwritten (as `overWrite=TRUE`)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Table 'gene' removed from gdb</span>
+<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  ranges <span class="op">=</span> <span class="va">ranges</span>,</span></span>
+<span class="r-in"><span>  uploadName <span class="op">=</span> <span class="st">"gene"</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  overWrite <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># often you'd want to map variants to a large set of ranges, such as ensembl models</span></span></span>
 <span class="r-in"><span><span class="co"># mapVariants supports several file formats, including gff/gtf, bed and ranges</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># map variants using a gtf file</span></span></span>
 <span class="r-in"><span><span class="va">gtffile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".gtf"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">rtracklayer</span><span class="fu">::</span><span class="fu">export</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/makeGRangesFromDataFrame.html" class="external-link">makeGRangesFromDataFrame</a></span><span class="op">(</span><span class="va">ranges</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                    con <span class="op">=</span> <span class="va">gtffile</span>, </span></span>
-<span class="r-in"><span>                    format <span class="op">=</span> <span class="st">"gtf"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">rtracklayer</span><span class="fu">::</span><span class="fu">export</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/makeGRangesFromDataFrame.html" class="external-link">makeGRangesFromDataFrame</a></span><span class="op">(</span><span class="va">ranges</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  con <span class="op">=</span> <span class="va">gtffile</span>,</span></span>
+<span class="r-in"><span>  format <span class="op">=</span> <span class="st">"gtf"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>            gff <span class="op">=</span> <span class="va">gtffile</span>,</span></span>
-<span class="r-in"><span>            uploadName <span class="op">=</span> <span class="st">"gene"</span>,</span></span>
-<span class="r-in"><span>            verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>            overWrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Table 'gene' already exists, it will be overwritten (as `overWrite=TRUE`)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Table 'gene' removed from gdb</span>
+<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  gff <span class="op">=</span> <span class="va">gtffile</span>,</span></span>
+<span class="r-in"><span>  uploadName <span class="op">=</span> <span class="st">"gene"</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  overWrite <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># map variants using a bed file</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">bedfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".bed"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">rtracklayer</span><span class="fu">::</span><span class="fu">export</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/makeGRangesFromDataFrame.html" class="external-link">makeGRangesFromDataFrame</a></span><span class="op">(</span><span class="va">ranges</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                    con <span class="op">=</span> <span class="va">bedfile</span>, </span></span>
-<span class="r-in"><span>                    format <span class="op">=</span> <span class="st">"bed"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span><span class="va">gdb</span>,</span></span>
-<span class="r-in"><span>            bed <span class="op">=</span> <span class="va">bedfile</span>,</span></span>
-<span class="r-in"><span>            uploadName <span class="op">=</span> <span class="st">"gene"</span>,</span></span>
-<span class="r-in"><span>            verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>            overWrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Table 'gene' already exists, it will be overwritten (as `overWrite=TRUE`)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Table 'gene' removed from gdb</span>
+<span class="r-in"><span><span class="fu">rtracklayer</span><span class="fu">::</span><span class="fu">export</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/makeGRangesFromDataFrame.html" class="external-link">makeGRangesFromDataFrame</a></span><span class="op">(</span><span class="va">ranges</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  con <span class="op">=</span> <span class="va">bedfile</span>,</span></span>
+<span class="r-in"><span>  format <span class="op">=</span> <span class="st">"bed"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">mapVariants</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">gdb</span>,</span></span>
+<span class="r-in"><span>  bed <span class="op">=</span> <span class="va">bedfile</span>,</span></span>
+<span class="r-in"><span>  uploadName <span class="op">=</span> <span class="st">"gene"</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  overWrite <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># see the variant annotation tutorial on the rvat website for more details</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

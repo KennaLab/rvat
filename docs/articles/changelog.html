@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -123,6 +123,80 @@
 
     
     
+<div class="section level2">
+<h2 id="v-0-4">v.0.4<a class="anchor" aria-label="anchor" href="#v-0-4"></a>
+</h2>
+<div class="section level3">
+<h3 id="v-0-4-0">v 0.4.0<a class="anchor" aria-label="anchor" href="#v-0-4-0"></a>
+</h3>
+<div class="section level4">
+<h4 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h4>
+<p>This release is primarily an internal refactoring focused on improved
+robustness: - large source files are split into focused modules.<br>
+- almost all methods and functions have been refactored significantly
+for clarity, maintainability and robustness.<br>
+- test coverage is expanded to &gt;90% for most code.<br>
+- there are also several small bug fixes and performance
+improvements.</p>
+</div>
+<div class="section level4">
+<h4 id="user-facing-changes">User-facing changes<a class="anchor" aria-label="anchor" href="#user-facing-changes"></a>
+</h4>
+<div class="section level5">
+<h5 id="aggregatefile-replaced-by-aggdb">aggregateFile replaced by aggdb<a class="anchor" aria-label="anchor" href="#aggregatefile-replaced-by-aggdb"></a>
+</h5>
+<p>The main user-facing change is the replacement of
+<code>aggregateFile</code> with a new SQLite-backed <code>aggdb</code>
+class.</p>
+<p>The <code>aggregateFile</code> class is replaced by
+<code>aggdb</code>, an SQLite-backed class (extending
+<code>SQLiteConnection</code>, matching the <code>gdb</code> pattern).
+This provides fast queries via SQL instead of sequential file scanning.
+Related methods:</p>
+<ul>
+<li>
+<code>collapseAggregateFiles</code> -&gt;
+<code>collapseAggDbs</code>
+</li>
+<li>
+<code>mergeAggregateFiles</code> -&gt; <code>mergeAggDbs</code>
+</li>
+<li>
+<code>aggregateFileList</code> -&gt; <code>aggdbList</code>
+</li>
+</ul>
+<p>The <code>aggdb</code> stores results in structured tables
+(<code>meta</code>, <code>params</code>, <code>SM</code>,
+<code>aggregates</code>) and supports efficient merging.</p>
+</div>
+<div class="section level5">
+<h5 id="other-user-facing-updates">Other user-facing updates<a class="anchor" aria-label="anchor" href="#other-user-facing-updates"></a>
+</h5>
+<ul>
+<li>
+<code>writeVcf</code>, <code>spatialClust</code>: new
+<code>memlimit</code> parameter for batch processing, improving
+performance on large datasets.</li>
+<li>
+<code>concatGdb</code>, <code>uploadAnno</code>,
+<code>uploadCohort</code>: new <code>overWrite</code> parameter
+(defaults to <code>FALSE</code>). Existing code that relied on implicit
+overwrites now needs to pass <code>overWrite = TRUE</code>.</li>
+<li>
+<code>concatGdb</code>: <code>targets</code> now accepts a character
+vector in addition to a file path. New sample-identity validation across
+input gdbs.</li>
+<li>rvatViewer: Shiny app removed (will be moved to a separate package
+soon).</li>
+<li>skat_fwe / skat_burden_fwe / skato_fwe tests removed. These can be
+replaced by the resampling functionality already present in
+<code>assocTest</code>.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 <div class="section level2">
 <h2 id="v-0-3">v.0.3<a class="anchor" aria-label="anchor" href="#v-0-3"></a>
 </h2>

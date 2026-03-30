@@ -21,7 +21,7 @@ Initialize geneSetFile-class object"><!-- mathjax --><script src="https://cdnjs.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@ to perform competitive/self-contained gene set analyses.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">geneSetFile</span><span class="op">(</span><span class="va">path</span>, memlimit <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">geneSetFile</span><span class="op">(</span><span class="va">path</span>, memlimit <span class="op">=</span> <span class="fl">5000L</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -128,9 +128,10 @@ to perform competitive/self-contained gene set analyses.</p>
 
 
 <ul><li><p><code>buildGeneSet(x, ...)</code>: Generate a <code><a href="geneSetList.html">geneSetList</a></code> or geneSetFile that stores (weighted) gene sets
-for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) and 2) a list of #' vectors of units per gene set.
+for use geneSetAnalyses. This can be based on 1) GMT-files (https://www.gsea-msigdb.org/gsea/msigdb/) and</p></li>
+</ul><ol><li><p>a list of vectors of units per gene set.
 See <code><a href="buildGeneSet.html">buildGeneSet()</a></code> for details.</p></li>
-</ul></div>
+</ol></div>
     <div id="connect-to-a-genesetfile">
     <h2>Connect to a geneSetFile</h2>
 
@@ -143,8 +144,15 @@ See <code><a href="buildGeneSet.html">buildGeneSet()</a></code> for details.</p>
 
 <p>In the following code snippets, x is a geneSetFile object.</p><ul><li><p><code>getGeneSet(x, geneSet)</code>: Retrieve geneSets for specified units and/or geneSetNames.
 Output will be of class <code><a href="geneSetList.html">geneSetList</a></code>.</p></li>
-<li><p><code>listUnits(x)</code>: Return a vector of all units included in the geneSetFile</p></li>
 <li><p><code>listGeneSets(x)</code>: Return a vector of all geneSetNames included in the geneSetFile</p></li>
+<li><p><code>length(x)</code>: Return the number of gene sets.</p></li>
+<li><p><code>metadata(x)</code>: Return the metadata.</p></li>
+</ul></div>
+    <div id="conversion">
+    <h2>Conversion</h2>
+
+
+<ul><li><p><code>as.geneSetList(x)</code>: Convert the geneSetFile to a geneSetList object.</p></li>
 </ul></div>
     <div id="association-testing">
     <h2>Association testing</h2>
@@ -159,25 +167,25 @@ To perform gene set burden analyses, <code><a href="assocTest.html">assocTest</a
     <div class="dont-index"><p><code><a href="geneSetList.html">geneSetList</a></code></p>
 <p><code><a href="buildGeneSet.html">buildGeneSet</a></code></p>
 <p><code><a href="geneSetAssoc.html">geneSetAssoc</a></code></p>
-<p><code><a href="assocTest-aggregateFile.html">assocTest-aggregateFile</a></code></p></div>
+<p><code><a href="assocTest-aggdb.html">assocTest-aggdb</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rvatData</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># build a geneSetList</span></span></span>
 <span class="r-in"><span><span class="co"># can also be build based on a GMT-file (see ?buildGeneSet)</span></span></span>
 <span class="r-in"><span><span class="va">file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">genesetfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="buildGeneSet.html">buildGeneSet</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"geneset1"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>       <span class="st">"geneset2"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ABCA4"</span>, <span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>       <span class="st">"geneset3"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FUS"</span>, <span class="st">"NEK1"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>       <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"geneset1"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"geneset2"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ABCA4"</span>, <span class="st">"SOD1"</span>, <span class="st">"NEK1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"geneset3"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FUS"</span>, <span class="st">"NEK1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
 <span class="r-in"><span>  output <span class="op">=</span> <span class="va">file</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generated geneSetFile: /tmp/RtmpmOGse7/file34f3c7e7b090b</span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Generated geneSetFile: /tmp/RtmpvjdKWE/file15393136c38b7</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># connect to a geneSetFile</span></span></span>
 <span class="r-in"><span><span class="va">genesetfile</span> <span class="op">&lt;-</span> <span class="fu">geneSetFile</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
@@ -187,13 +195,12 @@ To perform gene set burden analyses, <code><a href="assocTest.html">assocTest</a
 <span class="r-out co"><span class="r-pr">#&gt;</span> geneSetList</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Contains 2 sets</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># list included gene sets </span></span></span>
+<span class="r-in"><span><span class="co"># list included gene sets</span></span></span>
 <span class="r-in"><span><span class="va">genesets</span> <span class="op">&lt;-</span> <span class="fu"><a href="listGeneSets.html">listGeneSets</a></span><span class="op">(</span><span class="va">genesetfile</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">genesets</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "geneset1" "geneset2" "geneset3"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># see ?geneSetAssoc and ?`assocTest-aggregateFile` to run gene set analyses</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># see ?geneSetAssoc and ?`assocTest-aggdb` to run gene set analyses</span></span></span>
 </code></pre></div>
     </div>
   </div>

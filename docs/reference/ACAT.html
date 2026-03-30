@@ -18,7 +18,7 @@ For details on the ACAT method see: (Liu et al., 2019)."><!-- mathjax --><script
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rvat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -120,7 +120,7 @@ For details on the ACAT method see: (Liu <em>et al.</em>, 2019).</p>
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p><code><a href="rvatResult.html">rvatResult</a></code> object</p></dd>
+<dd><p><code><a href="rvatResult.html">rvbResult</a></code> object</p></dd>
 
 
 <dt id="arg-aggregate">aggregate<a class="anchor" aria-label="anchor" href="#arg-aggregate"></a></dt>
@@ -139,7 +139,7 @@ then combined across varSets.</p></dd>
 <dd><p>Variables to group by.
 For example, if <code>group = c('unit', 'varSetName')</code> and <code>aggregate = 'test'</code>,
 for each unit-varSetName combination, P-values across statistical tests are combined.
-Defaults to c("unit", "cohort", "varSetName","name", "unit", "pheno", "covar", "geneticModel", "MAFweight", "test"),
+Defaults to c("unit", "cohort", "varSetName", "name", "pheno", "covar", "geneticModel", "MAFweight", "test"),
 i.e. all grouping variables in an rvbResult object.
 The variable(s) specified in <code>aggregate</code>, are excluded from the grouping variables.</p></dd>
 
@@ -150,13 +150,13 @@ The method used for fixing the P-values can be specified using the <code>fixpval
 
 
 <dt id="arg-fixpval-method">fixpval_method<a class="anchor" aria-label="anchor" href="#arg-fixpval-method"></a></dt>
-<dd><p>Method used to fix p-value (if <code>fixpval = TRUE</code>). Methods include:
+<dd><p>Method used to fix P-value (if <code>fixpval = TRUE</code>). Methods include:
 'minmax' = P-values that are exactly 1 are replaced by the maximum value below 1 present in the results;
 P-values that are exactly 0 are replaced by the minimum value above 0 in the results.
 'manual' = Specify the replacement P-values using <code>fixpval_maxP</code> and <code>fixpval_minP</code>.
 'Liu' = Method recommended by the author of the ACAT R package
 (see: https://github.com/yaowuliu/ACAT),
-P-values of 1 are replaced by 1-1/d, where d is the number of p-values combined by ACAT.
+P-values of 1 are replaced by 1-1/d, where d is the number of P-values combined by ACAT.
 Since no recommendation for P-values of 0 is given, these are replaced with the value specified using <code>fixpval_minP</code>.</p></dd>
 
 
@@ -185,7 +185,7 @@ or <code>fixpval_method = 'Liu'</code>.</p></dd>
 <span class="r-in"><span><span class="co"># this will first ACAT P-values across statistical tests</span></span></span>
 <span class="r-in"><span><span class="co"># and then ACAT these P-values across varSets</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">rvbresults</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rvbresults</span> <span class="op">&lt;-</span> <span class="va">rvbresults</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span>,<span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">rvbresults</span> <span class="op">&lt;-</span> <span class="va">rvbresults</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="fu">ACAT</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">rvbresults</span>,</span></span>
 <span class="r-in"><span>  aggregate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"test"</span>, <span class="st">"varSetName"</span><span class="op">)</span></span></span>
@@ -306,8 +306,8 @@ or <code>fixpval_method = 'Liu'</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 129        NA            NA            NA        NA  0.384451</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Input P-value shouldn't be exactly 0 or 1 (see: https://github.com/yaowuliu/ACAT).</span></span></span>
-<span class="r-in"><span><span class="co"># By default, P-values that are exactly 0 or 1 are reset (`fixpval = TRUE`) to the </span></span></span>
-<span class="r-in"><span><span class="co"># minimum P-value (&gt;0) and maximum P-value (&lt;1) in the results. </span></span></span>
+<span class="r-in"><span><span class="co"># By default, P-values that are exactly 0 or 1 are reset (`fixpval = TRUE`) to the</span></span></span>
+<span class="r-in"><span><span class="co"># minimum P-value (&gt;0) and maximum P-value (&lt;1) in the results.</span></span></span>
 <span class="r-in"><span><span class="co"># Alternatives include:</span></span></span>
 <span class="r-in"><span><span class="co"># manual minmax values:</span></span></span>
 <span class="r-in"><span><span class="fu">ACAT</span><span class="op">(</span></span></span>
@@ -433,7 +433,6 @@ or <code>fixpval_method = 'Liu'</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 127        NA            NA            NA        NA  0.702937</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 128        NA            NA            NA        NA  0.530125</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 129        NA            NA            NA        NA  0.384451</span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
