@@ -7,14 +7,15 @@
 qqplot(
   object,
   title = "",
-  label = "label",
+  label = NULL,
   threshold = NULL,
   showThreshold = TRUE,
   labelThreshold = NULL,
   cex = 16,
   lambda1000 = FALSE,
   case = NULL,
-  control = NULL
+  control = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -26,7 +27,8 @@ qqplot(
 
 \item{threshold}{Provide alternative fwe threshold (bonferroni is applied by default.)}
 
-\item{showThreshold}{Show the multiple testing threshold? Defaults to \code{TRUE}. The threshold can be specified using the \code{threshold} parameter.}
+\item{showThreshold}{Show the multiple testing threshold? Defaults to \code{TRUE}.
+The threshold can be specified using the \code{threshold} parameter.}
 
 \item{labelThreshold}{Provide alternative fwe threshold (bonferroni is applied by default.)}
 
@@ -40,6 +42,8 @@ using the \code{case} and \code{control} parameters.}
 \item{case}{Number of cases in association tests.}
 
 \item{control}{Number of controls in association tests.}
+
+\item{verbose}{Should the function be verbose? Defaults to \code{TRUE}.}
 }
 \description{
 Plot a qqplot based on the P-values stored in an \code{\link{rvatResult}} object.

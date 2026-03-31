@@ -15,13 +15,14 @@
 )
 }
 \arguments{
-\item{object}{A data.frame containing variant annotations}
+\item{object}{A data.frame containing variant annotations.
+Must contain a 'VAR_id' column, and columns matching \code{unitName} and \code{fields}.}
 
 \item{unitName}{Field to utilize for aggregation unit names.}
 
-\item{fields}{Which fields in the data.frame to use as variant annotations.
+\item{fields}{Character vector of fields in the data.frame to use as variant annotations.
 These fields can be 1) an indicator (0,1 or FALSE/TRUE) that flags variants with the annotation,
-e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function.;
+e.g. a column named 'LOF' that indicates whether the variant is predicted to lead to loss-of-function;
 or 2) variant weights, e.g. a column named 'CADD' that contains CADD scores.
 Multiple fields can be specified, which will result in multiple rows per aggregation unit in the resulting varSetFile.}
 
@@ -29,7 +30,8 @@ Multiple fields can be specified, which will result in multiple rows per aggrega
 
 \item{memlimit}{Defaults to \code{NULL}, currently not implemented.}
 
-\item{mask}{If the annotation field is a 0,1 or FALSE/TRUE indicator, should variants with 0/FALSE be dropped? Defaults to \code{TRUE}.
+\item{mask}{If the annotation field is a 0,1 or FALSE/TRUE indicator,
+should variants with 0/FALSE be dropped? Defaults to \code{TRUE}.
 If \code{FALSE}, all variants will be included, and will be assigned weights 0 and 1.}
 }
 \description{
@@ -37,7 +39,6 @@ Generate optionally weighted variant sets using annotation table(s).
 See the tutorials for examples.
 }
 \examples{
-
 library(rvatData)
 
 gdb <- create_example_gdb()
@@ -56,5 +57,4 @@ varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"))
 
 # see ?getVarSet, ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
 # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
-
 }

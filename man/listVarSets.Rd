@@ -7,7 +7,7 @@
 listVarSets(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{\link{varSetFile}}, \code{\link{varSetList}}}
+\item{object}{An object of class \code{\link{varSetFile}}, \code{\link{varSetList}}.}
 
 \item{...}{additional arguments.}
 }

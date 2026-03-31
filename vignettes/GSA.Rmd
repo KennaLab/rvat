@@ -107,7 +107,7 @@ of interest:
 
 ```{r}
 # Extract all genesets that contain SOD1:
-geneset = getGeneSet(genesetlist, unit = "SOD1")
+geneset <- getGeneSet(genesetlist, unit = "SOD1")
 head(names(geneset))
 ```
 
@@ -261,8 +261,8 @@ Conditional gene set analyses can be performed to testher whether gene sets are 
 topresults <- topResult(GSAresults)
 GSAresults_conditional <- geneSetAssoc(
   res,
-  getGeneSet(genesetlist, topresults$geneSetName[1]),
-  condition = getGeneSet(genesetlist, topresults$geneSetName[2:10]),
+  getGeneSet(genesetlist, as.character(topresults$geneSetName[1])),
+  condition = getGeneSet(genesetlist, as.character(topresults$geneSetName[2:10])),
   covar = c("nvar"),
   test = c("lm"), 
   minSetSize = 10,
@@ -297,7 +297,7 @@ Self-contained gene set analyses have been implemented in the form of 'gene set 
 First, we'll generate a varsetfile, including variants that we want to include in the gene burden scores:
 
 ```{r, message = FALSE, results = 'hide'}
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 buildVarSet(object = gdb, 
             output = paste0(outdir, "/moderate.txt.gz"),
             varSetName = "Moderate", 
@@ -310,11 +310,11 @@ Second, burden scores are generated per gene using the `aggregate` method:
 
 ```{r}
 aggregate(x = gdb, 
-          varSet=varSetFile(paste0(outdir, "/moderate.txt.gz")),
-          maxMAF=0.001,
-          output=paste0(outdir, "/moderate.aggregate.txt.gz"),
+          varSet = varSetFile(paste0(outdir, "/moderate.txt.gz")),
+          maxMAF = 0.001,
+          output = paste0(outdir, "/moderate.aggregate.aggdb"),
           verbose = FALSE
-          )
+         )
 ```
 
 ### Step 2: run gene set burden tests
@@ -333,13 +333,13 @@ write(genesetlist,
       file = paste0(outdir, "/genesetfile.txt.gz"))
 ```
 
-Perform the gene set burden tests, for this we can use the `assocTest` method, with the first argument being a `aggregateFile` connection. Similar to a `varSetFile` or `geneSetFile` we can connect to the file containing aggregates (burden scores) using the `aggregateFile` method:
+Perform the gene set burden tests, for this we can use the `assocTest` method, with the first argument being an `aggdb` connection. Similar to a `varSetFile` or `geneSetFile` we can connect to the file containing aggregates (burden scores) using the `aggdb` method:
 
 ```{r}
-aggfile <- aggregateFile(paste0(outdir, "/moderate.aggregate.txt.gz"))
+aggfile <- aggdb(paste0(outdir, "/moderate.aggregate.aggdb"))
 ```
 
-We can then run gene set burden tests using the `aggregateFile`, by passing it as the first argument to `assocTest` as shown below. Note that, in contrast to running `assocTest` directly on a genoMatrix or gdb, we cannot perform any variant filters when running `assocTest` on an `aggregateFile`. Any variant filters should be applied when generating the aggregates, as shown in step 1.
+We can then run gene set burden tests using the `aggdb`, by passing it as the first argument to `assocTest` as shown below. Note that, in contrast to running `assocTest` directly on a genoMatrix or gdb, we cannot perform any variant filters when running `assocTest` on an `aggdb`. Any variant filters should be applied when generating the aggregates, as shown in step 1.
 
 ```{r}
 aggAssoc <- assocTest(
@@ -379,10 +379,7 @@ Finally, gene set burden analyses can be run from the command-line, just like ot
 
 ```{r}
 Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
-           vcfpath = rvatData::rvat_example('rvatData.vcf.gz'),
-           phenopath = rvatData::rvat_example('rvatData.pheno'),
-           varinfopath = rvatData::rvat_example('rvatData.varinfo'),
-           gdbpath = gdb@dbname,
+           gdbpath = getGdbPath(gdb),
            outdir = outdir)
 ```
 
@@ -390,7 +387,7 @@ Sys.setenv(rvat = system.file('exec/rvat.R', package = 'rvat'),
 Rscript $rvat --assocTest \
 --gdb $gdbpath \
 --geneSet $outdir/genesetfile.txt.gz \
---aggregateFile $outdir/moderate.aggregate.txt.gz \
+--aggdb $outdir/moderate.aggregate.aggdb \
 --name maxMAF001 \
 --covar PC1,PC2,PC3,PC4 \
 --cohort pheno \

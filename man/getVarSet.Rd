@@ -7,13 +7,13 @@
 getVarSet(object, unit = NULL, varSetName = NULL)
 }
 \arguments{
-\item{object}{A \code{\link{varSetList}} or \code{\link{varSetFile}}.}
+\item{object}{A \code{\link{varSetList}} or \code{\link{varSetFile}} object.}
 
-\item{unit}{Vector of unit(s) to retrieve
-Use \code{\link[=listUnits]{listUnits()}} to see which units are included in the varSetList/varSetFile.}
+\item{unit}{Vector of unit(s) to retrieve.
+Use \code{\link{listUnits}} to see which units are included in the varSetList/varSetFile.}
 
-\item{varSetName}{Vector of unit(s) to retrieve
-Use \code{\link[=listVarSets]{listVarSets()}} to see which varSets are included in the varSetList/varSetFile.}
+\item{varSetName}{Vector of varSetName(s) to retrieve.
+Use \code{\link{listVarSets}} to see which varSets are included in the varSetList/varSetFile.}
 }
 \description{
 Retrieve varSet record(s) for specified unit(s) and/or varSetName(s).
@@ -32,15 +32,11 @@ head(varsets)
 
 # the varsetfile contains multiple records per gene, (High impact, CADD scores etc.)
 unique(listVarSets(varsetfile))
+
 # specific varSets can be selected using the `varSetName` parameter
-varsets <- getVarSet(varsetfile, 
-                     unit = c("SOD1", "FUS"),
-                     varSetName = "CADD"
-                     )
+varsets <- getVarSet(varsetfile, unit = c("SOD1", "FUS"), varSetName = "CADD")
 head(varsets)
 
-# see?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
+# see ?varSetFile and ?varSetList for more details on connecting and handling varsetfiles.
 # see e.g., ?assocTest and ?aggregate for downstream methods that can loop through varsetfiles and varsetlists.
-
-
 }

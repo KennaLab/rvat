@@ -87,7 +87,11 @@ varinfo <- read.table(varinfopath, header = TRUE)
 
 # the `name` parameter specifies the name of the table in the gdb, 
 # the variant info that should be imported is specified using the `value` parameter
-uploadAnno(object = gdb, name = "varInfo",value = varinfo)
+uploadAnno(object = gdb, name = "varInfo", value = varinfo)
+
+# note that the filepath can also be provided directly without reading the file first.
+# also note that `overWrite = TRUE` is specified here to overwrite the existing table.
+uploadAnno(object = gdb, name = "varInfo", value = varinfopath, overWrite = TRUE)
 ```
 
 The `listAnno()` method lists all variant annotation tables in the gdb:
@@ -124,6 +128,9 @@ pheno <- read.table( phenopath, header = TRUE)
 # the `name` parameter specifies the name of the table in the gdb, 
 # the sample info that should be important is specified using the `value` parameter
 uploadCohort(object = gdb, name = "pheno", value = pheno)
+
+# like for variant annotations, the filepath can also be provided directly
+uploadCohort(object = gdb, name = "pheno", value = phenopath, overWrite = TRUE)
 ```
 
 The `listCohort()` method lists all uploaded sample info tables in the
@@ -153,8 +160,10 @@ for genoMatrix objects, which we'll explore in this section.
 ### Construct a genoMatrix
 
 First, we'll build a genoMatrix object using the `getGT()` method.
-Variants to include can be specified in two main ways: 1) by directly
-passing the VAR_ids to the `getGT()` method, 2) by providing a set of genomic ranges to retrieve and 23 by supplying a `varSet` (discussed later).
+Variants to include can be specified in two main ways: 
+1. by directly passing the VAR_ids to the `getGT()` method  
+2. by providing a set of genomic ranges to retrieve  
+3. by supplying a `varSet` (discussed later).
 
 Here we'll start with methods 1-2, varSets are discussed in 
 `vignette("association_testing")` tutorial.
@@ -226,11 +235,11 @@ GT[,GT$pheno == 1]
 subset first 2 variants for subjects older than 70:
 
 ```{r}
-GT[1:2,GT$age > 70]
+GT[1:2, GT$age > 70]
 ```
 
 Although you'll usually not work directly on the genotypes, they can be
-retrieved as followingL
+retrieved as following:
 
 ```{r}
 assays(GT)$GT[1:5,1:5]

@@ -28,7 +28,7 @@ respectively)
 \item \code{caseN}:  Number of cases.
 \item \code{ctrlN}:  Number of controls.
 \item \code{caseCallRate}:  Variant call-rate in cases. For aggregate tests this is the average call-rate across variants.
-\item \code{ctrlCallRate}:  Variant call-rate in controls For aggregate tests this is the average call-rate across variants.
+\item \code{ctrlCallRate}:  Variant call-rate in controls. For aggregate tests this is the average call-rate across variants.
 \item \code{effectAllele}:  (singlevarResult) Allele to which the effect estimate refers.
 \item \code{otherAllele}:  (singlevarResult) Non-effect allele
 \item \code{effect}:  Effect estimate for specified statistical test.
@@ -54,10 +54,10 @@ assocTest can be run either directly on a \code{\link{genoMatrix}} object or alt
 on a \code{\link{gdb}} object, in which case assocTest can loop through multiple variant sets by providing
 a \code{\link{varSetFile}} or \code{\link{varSetList}} as input.
 Moreover, assocTest can be run on sets of genes ('gene set burden'),
-for which gene burden scores have been generated using \code{\link{aggregate}} and stored in an \code{\link{aggregateFile}}.
+for which gene burden scores have been generated using \code{\link{aggregate}} and stored in an \code{\link{aggdb}}.
 For running assocTest on a \code{\link{genoMatrix}} object see: \code{\link{assocTest-genoMatrix}} for details\cr
 for running assocTest on a \code{\link{gdb}}  object see: \code{\link{assocTest-gdb}} for details
-for running assocTest on a \code{\link{aggregateFile}}  object see: \code{\link{assocTest-aggregateFile}} for details
+for running assocTest on a \code{\link{aggdb}}  object see: \code{\link{assocTest-aggdb}} for details
 }
 \details{
 \strong{Aggregate tests}
@@ -114,4 +114,7 @@ Liu, Y. et al. ACAT: A Fast and Powerful p Value Combination Method for Rare-Var
 Firth, D. Bias Reduction of Maximum Likelihood Estimates. Biometrika 80, 27–38 (1993).
 
 Zhao, Z. et al. UK Biobank Whole-Exome Sequence Binary Phenome Analysis with Robust Region-Based Rare-Variant Test. The American Journal of Human Genetics 106, 3–12 (2020).
+}
+\seealso{
+\code{\link{assocTest-genoMatrix}}, \code{\link{assocTest-gdb}}, \code{\link{assocTest-aggdb}}
 }

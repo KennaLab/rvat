@@ -14,24 +14,24 @@
   singlevar = FALSE,
   covar = NULL,
   offset = NULL,
-  overwriteAggregate = TRUE,
-  geneticModel = c("allelic", "recessive", "dominant"),
+  geneticModel = "allelic",
   imputeMethod = NULL,
   MAFweights = "none",
-  maxitFirth = 1000,
+  maxitFirth = 1000L,
   keep = NULL,
   output = NULL,
   append = FALSE,
   returnDF = FALSE,
   methodResampling = NULL,
   resamplingMatrix = NULL,
-  nResampling = 1000,
+  resamplingFile = NULL,
+  nResampling = 1000L,
   outputResampling = FALSE,
   memlimitResampling = NULL,
   minCallrateVar = 0,
-  maxCallrateVar = Inf,
+  maxCallrateVar = 1,
   minCallrateSM = 0,
-  maxCallrateSM = Inf,
+  maxCallrateSM = 1,
   minMAF = 0,
   maxMAF = 1,
   minMAC = 0,
@@ -39,7 +39,7 @@
   minCarriers = 0,
   maxCarriers = Inf,
   minCarrierFreq = 0,
-  maxCarrierFreq = Inf,
+  maxCarrierFreq = 1,
   verbose = TRUE
 )
 }
@@ -51,22 +51,20 @@ can either be binary (0/1) or continuous. If the response variable is continuous
 \code{continuous} to \code{TRUE}.}
 
 \item{test}{Vector of statistical tests to run,
-options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_fwe,skat_burden_fwe,
-skato_fwe,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA. See \code{\link{assocTest}} for details.}
+options include firth,glm,lm,scoreSPA,skat,skat_burden,skato,skat_robust,skato_robust,skat_burden_robust, acatv, acatvSPA, acatvfirth.
+See \code{\link{assocTest}} for details.}
 
 \item{name}{Optional name for the analysis, defaults to "none".}
 
 \item{continuous}{Is the response variable continuous? (TRUE/FALSE). Defaults to \code{FALSE}.}
 
 \item{singlevar}{Run single variant tests? (TRUE/FALSE).
-Defaults to \code{FALSE}, in which case collapsing tests are ran.}
+Defaults to \code{FALSE}, in which case collapsing tests are run}
 
-\item{covar}{Character vector of covariates. These should be present in the colData slot of the genoMatrix.}
+\item{covar}{Character vector of covariates.
+These should be present in the colData slot of the genoMatrix.}
 
 \item{offset}{Optional model offset, can be used to account for regenie LOCO predictions.}
-
-\item{overwriteAggregate}{In case there is already an \code{aggregate} column in the \code{colData} of the genoMatrix
-(i.e. \code{aggregate} has been run on the genoMatrix), should it be overwitten? Defaults to \code{TRUE}.}
 
 \item{geneticModel}{Which genetic model to apply? ('allelic', 'recessive' or 'dominant').
 Defaults to \code{allelic}.}
@@ -82,28 +80,36 @@ Defaults to 'none'.}
 \item{keep}{Vector of sample IDs to keep, defaults to \code{NULL}, in which case all samples are kept.}
 
 \item{output}{Output file path for results.
-Defaults to \code{NULL}, in which case results are not written to disk, but returned as an \code{\link{rvatResult}} object.}
+Defaults to \code{NULL}, in which case results are not written to disk,
+but returned as an \code{\link{rvatResult}} object.}
 
-\item{append}{Relevant if the \code{output} parameter is not \code{NULL}. Should results be appended to \code{output}?}
+\item{append}{Relevant if the \code{output} parameter is not \code{NULL}.
+Should results be appended to \code{output}?}
 
 \item{returnDF}{Return a data.frame rather than a rvatResult. Defaults to \code{FALSE}.}
 
 \item{methodResampling}{Which method to use for resampling? ('permutation' currently implemented)
 Defaults to \code{NULL}, in which case no resampling is performed.}
 
-\item{resamplingMatrix}{Pre-calculated resampling matrix (n x p), where n = number of samples, and p number of resamplings.
+\item{resamplingMatrix}{Pre-calculated resampling matrix (n x p),
+where n = number of samples, and p number of resamplings.
 Can be generated using \code{\link{buildResamplingFile}}.}
+
+\item{resamplingFile}{A \code{\link{resamplingFile}} object.}
 
 \item{nResampling}{Number of resamplings to perform if methodResampling is specified.}
 
-\item{outputResampling}{If \code{TRUE} or a filepath, results for each resampling are returned (or saved to the filepath).
-This can be useful if permutations are used to calculated to estimate correlations among genes for example.
+\item{outputResampling}{If \code{TRUE} or a filepath,
+results for each resampling are returned (or saved to the filepath).
+This can be useful if permutations are used to calculated to estimate
+correlations among genes for example.
 Defaults to \code{FALSE} in which case resampling is used to calculate resampled P-values,
 results for individual resamplings are not returned.}
 
 \item{memlimitResampling}{Maximum number of resamplings to perform at a time.
 Resampling generates a matrix of n x p, where n is the number of samples and p the number of resamplings
-thus, for large number of resamplings it can be more efficient to split the permutations in chunks of size \code{memlimitResampling}.
+thus, for large number of resamplings it can be more efficient to split
+the permutations in chunks of size \code{memlimitResampling}.
 Defaults to \code{NULL} in which case all permutations are performed.}
 
 \item{minCallrateVar}{Minimum genotype rate for variant retention.}
@@ -136,85 +142,100 @@ Defaults to \code{NULL} in which case all permutations are performed.}
 Run \code{\link{assocTest}} on a \code{\link{genoMatrix}} object. See the main \code{\link{assocTest}} page for details.
 }
 \examples{
-
 library(rvatData)
 data(GTsmall)
 
 # run a firth burden test on a binary phenotype
-rvb <- assocTest(GTsmall,
-                 pheno = "pheno",
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = "firth",
-                 name = "example")
+rvb <- assocTest(
+  GTsmall,
+  pheno = "pheno",
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = "firth",
+  name = "example"
+)
 
 # run ACAT-v and SKAT tests
-rvb <- assocTest(GTsmall,
-                 pheno = "pheno",
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = c("acatvfirth", "skat_burden_robust", "skato_robust"),
-                 name = "example")
+rvb <- assocTest(
+  GTsmall,
+  pheno = "pheno",
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("acatvfirth", "skat_burden_robust", "skato_robust"),
+  name = "example"
+)
 
 # run a burden test on a continuous phenotype
-rvb <- assocTest(GTsmall,
-                 pheno = "age",
-                 continuous = TRUE,
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = c("lm", "skat", "acatv"),
-                 name = "example")
+rvb <- assocTest(
+  GTsmall,
+  pheno = "age",
+  continuous = TRUE,
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("lm", "skat", "acatv"),
+  name = "example"
+)
 
-# run single variant tests on a binary phenotype 
-sv <- assocTest(GTsmall,
-                pheno = "pheno",
-                singlevar = TRUE,
-                covar = c("PC1", "PC2", "PC3", "PC4"),
-                test = c("firth", "glm", "scoreSPA"),
-                name = "example",
-                minCarriers = 1
-                )
+# run single variant tests on a binary phenotype
+sv <- assocTest(
+  GTsmall,
+  pheno = "pheno",
+  singlevar = TRUE,
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("firth", "glm", "scoreSPA"),
+  name = "example",
+  minCarriers = 1
+)
 
 # apply variant filters
-rvb <- assocTest(GTsmall,
-                 pheno = "pheno",
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = c("firth", "skat_robust", "acatv"),
-                 name = "example", 
-                 maxMAF = 0.001,
-                 minCarriers = 2,
-                 minCallrateVar = 0.9,
-                 minCallrateSM = 0.95)
+rvb <- assocTest(
+  GTsmall,
+  pheno = "pheno",
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("firth", "skat_robust", "acatv"),
+  name = "example",
+  maxMAF = 0.001,
+  minCarriers = 2,
+  minCallrateVar = 0.9,
+  minCallrateSM = 0.95
+)
 
 # Perform MAF-weighted burden tests (madsen-browning)
-rvb <- assocTest(GTsmall,
-                 pheno = "pheno",
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = c("firth", "skat_robust", "acatv"),
-                 MAFweights = "mb")
+rvb <- assocTest(
+  GTsmall,
+  pheno = "pheno",
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("firth", "skat_robust", "acatv"),
+  MAFweights = "mb"
+)
 
 # Perform weighted burden tests with custom weights
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 # add cadd scores
 caddscores <- getAnno(gdb, "varInfo", VAR_id = rownames(GTsmall))
-caddscores <- caddscores[match(rownames(GTsmall), caddscores$VAR_id),]
+caddscores <- caddscores[match(rownames(GTsmall), caddscores$VAR_id), ]
 # CADD-weighted burden test
-rvb <- assocTest(recode(GTsmall, weights = caddscores$CADDphred),
-                 pheno = "pheno",
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = c("firth", "skat_robust", "acatv"))
+rvb <- assocTest(
+  recode(GTsmall, weights = caddscores$CADDphred),
+  pheno = "pheno",
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("firth", "skat_robust", "acatv")
+)
 
 # Perform recessive burden test
-rvb <- assocTest(GTsmall,
-                 pheno = "pheno",
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = c("firth", "skat_robust", "acatv"),
-                 geneticModel = "recessive")
+rvb <- assocTest(
+  GTsmall,
+  pheno = "pheno",
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("firth", "skat_robust", "acatv"),
+  geneticModel = "recessive"
+)
 
-# Resampled burden test 
-rvb <- assocTest(GTsmall,
-                 pheno = "pheno",
-                 covar = c("PC1", "PC2", "PC3", "PC4"),
-                 test = c("skat", "skat_burden", "acatv"),
-                 name = "example",
-                 methodResampling = "permutation",
-                 nResampling = 100)
-
+# Resampled burden test
+rvb <- assocTest(
+  GTsmall,
+  pheno = "pheno",
+  covar = c("PC1", "PC2", "PC3", "PC4"),
+  test = c("skat", "skat_burden", "acatv"),
+  name = "example",
+  methodResampling = "permutation",
+  nResampling = 100
+)
 }

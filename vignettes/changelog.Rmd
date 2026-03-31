@@ -6,6 +6,43 @@ output:
     df_print: kable
 ---
 
+
+# v.0.4
+
+## v 0.4.0
+
+### Overview 
+
+This release is primarily an internal refactoring focused on improved robustness: 
+- large source files are split into focused modules.  
+- almost all methods and functions have been refactored significantly for clarity, maintainability and robustness.  
+- test coverage is expanded to >90% for most code.  
+- there are also several small bug fixes and performance improvements.  
+
+### User-facing changes
+
+#### aggregateFile replaced by aggdb
+
+The main user-facing change is the replacement of `aggregateFile` with a new SQLite-backed `aggdb` class.
+
+The `aggregateFile` class is replaced by `aggdb`, an SQLite-backed class (extending `SQLiteConnection`, matching the `gdb` pattern). 
+This provides fast queries via SQL instead of sequential file scanning. Related methods:
+
+- `collapseAggregateFiles` -> `collapseAggDbs`
+- `mergeAggregateFiles` -> `mergeAggDbs`
+- `aggregateFileList` -> `aggdbList`
+
+The `aggdb` stores results in structured tables (`meta`, `params`, `SM`, `aggregates`) and supports efficient merging. 
+
+#### Other user-facing updates
+
+- `writeVcf`, `spatialClust`: new `memlimit` parameter for batch processing, improving performance on large datasets.
+- `concatGdb`, `uploadAnno`, `uploadCohort`: new `overWrite` parameter (defaults to `FALSE`). 
+   Existing code that relied on implicit overwrites now needs to pass `overWrite = TRUE`.
+- `concatGdb`: `targets` now accepts a character vector in addition to a file path. New sample-identity validation across input gdbs.
+- rvatViewer: Shiny app removed (will be moved to a separate package soon).
+- skat_fwe / skat_burden_fwe / skato_fwe tests removed. These can be replaced by the resampling functionality already present in `assocTest`.
+
 # v.0.3
 
 ## v.0.3.2

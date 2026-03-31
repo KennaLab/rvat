@@ -32,7 +32,7 @@ outdir <- tempdir()
 Connect to gdb:
 
 ```{r}
-gdb <- gdb(rvat_example("rvatData.gdb"))
+gdb <- create_example_gdb()
 ```
 
 ## Create varSets
@@ -219,7 +219,7 @@ burden_pheno_4PCs_MAF001_varcr0.9 <- assocTest(GT,
                                pheno = "pheno",
                                covar = c("PC1", "PC2", "PC3", "PC4"),
                                test = c("firth", "skat_robust", "acatv"),
-                               name = "example", # optional name of the analysis
+                               name = "example",
                                maxMAF = 0.001,
                                minCallrateVar = 0.9)
 ```
@@ -311,7 +311,7 @@ burden_pheno_4PCs_permuted <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
                                      test = c("skat", "skat_burden", "acatv"),
-                                     name = "example", # optional name of the analysis,
+                                     name = "example",
                                      methodResampling = "permutation",
                                      nResampling = 100
                                      )
@@ -327,7 +327,7 @@ burden_pheno_4PCs_permuted1 <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
                                      test = c("skat", "skat_burden", "acatv"),
-                                     name = "example", # optional name of the analysis,
+                                     name = "example",
                                      methodResampling = "permutation",
                                      nResampling = 100
                                      )
@@ -337,7 +337,7 @@ burden_pheno_4PCs_permuted2 <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
                                      test = c("skat", "skat_burden", "acatv"),
-                                     name = "example", # optional name of the analysis,
+                                     name = "example",
                                      methodResampling = "permutation",
                                      nResampling = 100
                                      )
@@ -354,7 +354,7 @@ burden_pheno_4PCs_permuted <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
                                      test = c("skat", "skat_burden", "acatv"),
-                                     name = "example", # optional name of the analysis,
+                                     name = "example",
                                      methodResampling = "permutation",
                                      resamplingMatrix = resamplingmatrix)
 burden_pheno_4PCs_permuted
@@ -371,7 +371,7 @@ burden_pheno_4PCs_permutations <- assocTest(GT,
                                      pheno = "pheno",
                                      covar = c("PC1", "PC2", "PC3", "PC4"),
                                      test = c("skat", "skat_burden", "acatv"),
-                                     name = "example", # optional name of the analysis,
+                                     name = "example",
                                      methodResampling = "permutation",
                                      nResampling = 100,
                                      outputResampling=TRUE
