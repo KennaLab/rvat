@@ -59,7 +59,7 @@ setMethod(
 
     # add grouped concat
     query <- sprintf(
-      "select unit, group_concat(VAR_id) as VAR_id, group_concat(weight) as weight, '%s' as varSetName, group_concat(POS) as POS from (%s) x group by unit",
+      "select unit, group_concat(VAR_id order by VAR_id) as VAR_id, group_concat(weight order by VAR_id) as weight, '%s' as varSetName, group_concat(POS order by VAR_id) as POS from (%s) x group by unit order by unit",
       varSetName,
       query
     )
@@ -77,10 +77,10 @@ setMethod(
       con = output
     )
 
-    handle <- RSQLite::dbSendQuery(object, query)
+    handle <- DBI::dbSendQuery(object, query)
     on.exit(DBI::dbClearResult(handle), add = TRUE)
-    while (!RSQLite::dbHasCompleted(handle)) {
-      chunk <- RSQLite::dbFetch(handle, n = memlimit)
+    while (!DBI::dbHasCompleted(handle)) {
+      chunk <- DBI::dbFetch(handle, n = memlimit)
 
       if (nrow(chunk) == 0L) {
         break

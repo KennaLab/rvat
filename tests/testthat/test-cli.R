@@ -3,6 +3,9 @@
 # - directly checks if arguments are passed correctly, rather than indirectly by checking outputs etc.
 # - tests will directly fail if parameters or defaults ihave not been properly updated in CLI
 
+gdb <- create_example_gdb()
+gdb_path <- getGdbPath(gdb)
+
 # buildGdb
 test_that("--buildGdb works", {
   # generate mocked function/method that returns the environment
@@ -189,7 +192,7 @@ test_that("--subsetGdb works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--subsetGdb",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=example_subset.gdb"
       )
     },
@@ -205,7 +208,7 @@ test_that("--subsetGdb works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     output = "example_subset.gdb"
   )
   expected_args <- c(
@@ -225,7 +228,7 @@ test_that("--subsetGdb works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--subsetGdb",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=example.gdb",
         "--intersection=varInfo",
         "--where='ModerateImpact = 1'",
@@ -248,7 +251,7 @@ test_that("--subsetGdb works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     output = "example.gdb",
     intersection = "varInfo",
     where = "'ModerateImpact = 1'",
@@ -289,7 +292,7 @@ test_that("--uploadAnno works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--uploadAnno",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--name=data",
         "--value=data.txt"
       )
@@ -306,7 +309,7 @@ test_that("--uploadAnno works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     name = "data",
     value = "data.txt"
   )
@@ -325,7 +328,7 @@ test_that("--uploadAnno works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--uploadAnno",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--name=data",
         "--value=data.txt",
         "--sep='|'",
@@ -350,7 +353,7 @@ test_that("--uploadAnno works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     name = "data",
     value = "data.txt",
     sep = "'|'",
@@ -393,7 +396,7 @@ test_that("--uploadCohort works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--uploadCohort",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--name=data",
         "--value=data.txt"
       )
@@ -410,7 +413,7 @@ test_that("--uploadCohort works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     name = "data",
     value = "data.txt"
   )
@@ -431,7 +434,7 @@ test_that("--uploadCohort works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--uploadCohort",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--name=data",
         "--value=data.txt",
         "--sep='|'",
@@ -451,7 +454,7 @@ test_that("--uploadCohort works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     name = "data",
     value = "data.txt",
     sep = "'|'",
@@ -492,7 +495,7 @@ test_that("--listAnno works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--listAnno",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb"))
+        sprintf("--gdb=%s", gdb_path)
       )
     },
     .package = "base"
@@ -507,7 +510,7 @@ test_that("--listAnno works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb"))
+    object = gdb
   )
   expected_args <- c(
     expected_args,
@@ -537,7 +540,7 @@ test_that("--listCohort works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--listCohort",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb"))
+        sprintf("--gdb=%s", gdb_path)
       )
     },
     .package = "base"
@@ -552,7 +555,7 @@ test_that("--listCohort works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb"))
+    object = gdb
   )
   expected_args <- c(
     expected_args,
@@ -581,7 +584,7 @@ test_that("--mapVariants works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--mapVariants",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb"))
+        sprintf("--gdb=%s", gdb_path)
       )
     },
     .package = "base"
@@ -596,7 +599,7 @@ test_that("--mapVariants works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb"))
+    object = gdb
   )
   expected_args <- c(
     expected_args,
@@ -615,7 +618,7 @@ test_that("--mapVariants works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--mapVariants",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--ranges=ranges.txt",
         "--gff=ensembl.gtf",
         "--bed=bedfile.bed",
@@ -641,7 +644,7 @@ test_that("--mapVariants works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     ranges = "ranges.txt",
     gff = "ensembl.gtf",
     bed = "bedfile.bed",
@@ -686,7 +689,7 @@ test_that("--buildVarSet works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--buildVarSet",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--varSetName=LOF",
         "--unitTable=gene",
         "--unitName=gene_id",
@@ -705,7 +708,7 @@ test_that("--buildVarSet works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "LOF",
     unitTable = "gene",
     unitName = "gene_id",
@@ -728,7 +731,7 @@ test_that("--buildVarSet works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--buildVarSet",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--varSetName=LOF",
         "--unitTable=gene",
         "--unitName=gene_id",
@@ -752,7 +755,7 @@ test_that("--buildVarSet works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "LOF",
     unitTable = "gene",
     unitName = "gene_id",
@@ -795,7 +798,7 @@ test_that("--spatialClust works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--spatialClust",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=varsetfile.txt.gz",
         "--varSetName=LOF",
         "--unitTable=gene",
@@ -816,7 +819,7 @@ test_that("--spatialClust works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "LOF",
     unitTable = "gene",
     unitName = "gene_id",
@@ -843,7 +846,7 @@ test_that("--spatialClust works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--spatialClust",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--varSetName=LOF",
         "--unitTable=gene",
         "--unitName=gene_id",
@@ -869,7 +872,7 @@ test_that("--spatialClust works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "LOF",
     unitTable = "gene",
     unitName = "gene_id",
@@ -917,7 +920,7 @@ test_that("--summariseGeno works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--summariseGeno",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=sumgeno.txt.gz"
       )
     },
@@ -933,7 +936,7 @@ test_that("--summariseGeno works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     output = "sumgeno.txt.gz"
   )
   expected_args <- c(
@@ -959,7 +962,7 @@ test_that("--summariseGeno works", {
   ## save varsetfile
   varsetfile <- withr::local_tempfile()
   buildVarSet(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "Moderate",
     unitTable = "varInfo",
     unitName = "gene_name",
@@ -976,7 +979,7 @@ test_that("--summariseGeno works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--summariseGeno",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=sumgeno.txt.gz",
         "--cohort=pheno",
         sprintf("--varSet=%s", varsetfile),
@@ -1015,7 +1018,7 @@ test_that("--summariseGeno works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     cohort = "pheno",
     VAR_id = as.character(1:10),
     pheno = "pheno",
@@ -1080,7 +1083,7 @@ test_that("--aggregate works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--aggregate",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         sprintf("--VAR_id=%s", varids),
         "--output=aggregate.txt.gz"
       )
@@ -1097,7 +1100,7 @@ test_that("--aggregate works", {
 
   # check against expected args
   expected_args <- list(
-    x = gdb(rvatData::rvat_example("rvatData.gdb")),
+    x = gdb,
     VAR_id = as.character(1:10),
     output = "aggregate.txt.gz"
   )
@@ -1121,7 +1124,7 @@ test_that("--aggregate works", {
   ## save varsetfile
   varsetfile <- withr::local_tempfile()
   buildVarSet(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "Moderate",
     unitTable = "varInfo",
     unitName = "gene_name",
@@ -1138,7 +1141,7 @@ test_that("--aggregate works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--aggregate",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--cohort=pheno",
         sprintf("--varSet=%s", varsetfile),
         sprintf("--VAR_id=%s", varids),
@@ -1180,7 +1183,7 @@ test_that("--aggregate works", {
 
   # check against expected args
   expected_args <- list(
-    x = gdb(rvatData::rvat_example("rvatData.gdb")),
+    x = gdb,
     cohort = "pheno",
     VAR_id = as.character(1:10),
     pheno = "pheno",
@@ -1240,7 +1243,7 @@ test_that("--mergeAggDbs works", {
   # test defaults
   aggdb1 <- withr::local_tempfile()
   aggdb2 <- withr::local_tempfile()
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- gdb
   agg1 <- aggregate(
     gdb,
     VAR_id = 1:10,
@@ -1351,7 +1354,7 @@ test_that("--collapseAggDbs works", {
   # test defaults
   aggdb1 <- withr::local_tempfile()
   aggdb2 <- withr::local_tempfile()
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- gdb
   agg1 <- aggregate(
     gdb,
     VAR_id = 1:10,
@@ -1469,7 +1472,7 @@ test_that("--assocTest works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--assocTest",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--pheno=pheno",
         "--test=firth",
         "--output=assocTest.txt.gz"
@@ -1487,7 +1490,7 @@ test_that("--assocTest works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     pheno = "pheno",
     test = "firth",
     output = "assocTest.txt.gz"
@@ -1512,7 +1515,7 @@ test_that("--assocTest works", {
   ## save varsetfile
   varsetfile <- withr::local_tempfile()
   null <- buildVarSet(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "Moderate",
     unitTable = "varInfo",
     unitName = "gene_name",
@@ -1537,7 +1540,7 @@ test_that("--assocTest works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--assocTest",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--pheno=pheno,sex",
         "--test=firth,glm,scoreSPA",
         "--cohort=pheno",
@@ -1589,7 +1592,7 @@ test_that("--assocTest works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     pheno = c("pheno", "sex"),
     test = c("firth", "glm", "scoreSPA"),
     cohort = "pheno",
@@ -1665,7 +1668,7 @@ test_that("--assocTest works", {
   genesetfile <- withr::local_tempfile()
 
   null <- buildVarSet(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     varSetName = "Moderate",
     unitTable = "varInfo",
     unitName = "gene_name",
@@ -1675,7 +1678,7 @@ test_that("--assocTest works", {
   )
 
   null <- aggregate(
-    x = gdb(rvatData::rvat_example("rvatData.gdb")),
+    x = gdb,
     varSet = getVarSet(varSetFile(varsetfile), unit = c("SOD1", "ABCA4")),
     output = aggdb,
     verbose = FALSE
@@ -1698,7 +1701,7 @@ test_that("--assocTest works", {
         "--test=firth",
         sprintf("--aggdb=%s", aggdb),
         sprintf("--geneSet=%s", genesetfile),
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=assocTest.txt.gz"
       )
     },
@@ -1750,7 +1753,7 @@ test_that("--assocTest works", {
         "--pheno=pheno",
         "--test=firth,glm",
         sprintf("--geneSet=%s", genesetfile),
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--cohort=pheno",
         "--name=test",
         "--continuous",
@@ -2001,7 +2004,7 @@ test_that("--buildCorMatrix works", {
 
   # test defaults
   aggdb <- withr::local_tempfile()
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- gdb
   varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
   varsetlist <- getVarSet(
     varsetfile,
@@ -2207,7 +2210,7 @@ test_that("--geneSetAssoc works", {
   ## cormatrix
   aggdb <- withr::local_tempfile()
   cormatrix <- withr::local_tempfile()
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- gdb
   varsetfile <- varSetFile(rvat_example("rvatData_varsetfile.txt.gz"))
   varsetlist <- getVarSet(
     varsetfile,
@@ -2418,7 +2421,7 @@ test_that("--writeVcf works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--writeVcf",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=writeVcf.txt.gz"
       )
     },
@@ -2434,7 +2437,7 @@ test_that("--writeVcf works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     output = "writeVcf.txt.gz"
   )
 
@@ -2460,7 +2463,7 @@ test_that("--writeVcf works", {
     commandArgs = function(trailingOnly = TRUE) {
       c(
         "--writeVcf",
-        sprintf("--gdb=%s", rvatData::rvat_example("rvatData.gdb")),
+        sprintf("--gdb=%s", gdb_path),
         "--output=writeVcf.txt.gz",
         sprintf("--VAR_id=%s", varids),
         sprintf("--IID=%s", iids),
@@ -2483,7 +2486,7 @@ test_that("--writeVcf works", {
 
   # check against expected args
   expected_args <- list(
-    object = gdb(rvatData::rvat_example("rvatData.gdb")),
+    object = gdb,
     output = "writeVcf.txt.gz",
     VAR_id = as.character(1:10),
     IID = as.character(1:10),
