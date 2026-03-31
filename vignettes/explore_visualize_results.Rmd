@@ -142,16 +142,4 @@ manhattan(rvbresults[rvbresults$test == "skat_burden_robust" &
           contigs = "GRCh38")
 ```
 
-## rvatViewer
-
-The `rvatViewer()` method allows for interactive exploration of the
-results, it can be launched as following:
-
-```{r, eval = FALSE}
-rvatViewer(rvbresults)
-```
-
-A video tutorial on using `rvatViewer()` will be included in the near
-future!
-
 # References

@@ -13,15 +13,21 @@ buildResamplingFile(
 )
 }
 \arguments{
-\item{nSamples}{Number of samples}
+\item{nSamples}{Number of samples.}
 
 \item{nResampling}{Number of resamplings. Defaults to 1000.}
 
-\item{memlimit}{Chunk sizes (when writing to output)}
+\item{memlimit}{Maximum number of resamplings to generate at a time (chunk size).
+Relevant when writing to \code{output} to manage memory usage. Defaults to 1000.}
 
 \item{methodResampling}{Resampling method, currently 'permutation' is implemented.}
 
-\item{output}{File path (.gz extension) to write output to. If not specified, a matrix with resamplings is returned.}
+\item{output}{File path (.gz extension) to write output to.
+If not specified, a matrix with resamplings is returned.}
+}
+\value{
+If \code{output} is \code{NULL}, returns a matrix of dimensions \code{nSamples} x \code{nResampling}.
+If \code{output} is specified, the function writes to the file and returns \code{NULL}.
 }
 \description{
 Currently the 'permutation' approach is implemented. If \code{output} is specified,
@@ -33,13 +39,11 @@ resampling tests.
 library(rvatData)
 # build and connect to a resamplingFile
 file <- tempfile(fileext = ".gz")
-buildResamplingFile(nSamples = 25000, 
-                    nResampling = 100,
-                    output = file)
+buildResamplingFile(nSamples = 25000, nResampling = 100, output = file)
 resamplingfile <- resamplingFile(file)
 
-# perform resampled association tests 
-gdb <- gdb(rvat_example("rvatData.gdb"))
+# perform resampled association tests
+gdb <- create_example_gdb()
 assoc <- assocTest(
   gdb,
   VAR_id = 1:10,

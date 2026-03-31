@@ -17,7 +17,7 @@ ACAT(
 )
 }
 \arguments{
-\item{object}{\code{\link{rvatResult}} object}
+\item{object}{\code{\link{rvbResult}} object}
 
 \item{aggregate}{Variable to ACAT P-values across.
 For example, if aggregate = 'test', P-values across statistical tests will be combined using ACAT.
@@ -32,20 +32,20 @@ then combined across varSets.}
 \item{group}{Variables to group by.
 For example, if \code{group = c('unit', 'varSetName')} and \code{aggregate = 'test'},
 for each unit-varSetName combination, P-values across statistical tests are combined.
-Defaults to c("unit", "cohort", "varSetName","name", "unit", "pheno", "covar", "geneticModel", "MAFweight", "test"),
+Defaults to c("unit", "cohort", "varSetName", "name", "pheno", "covar", "geneticModel", "MAFweight", "test"),
 i.e. all grouping variables in an rvbResult object.
 The variable(s) specified in \code{aggregate}, are excluded from the grouping variables.}
 
 \item{fixpval}{Should P-values that are exactly zero or one be fixed? Defaults to \code{TRUE}.
 The method used for fixing the P-values can be specified using the \code{fixpval_method} parameter.}
 
-\item{fixpval_method}{Method used to fix p-value (if \code{fixpval = TRUE}). Methods include:
+\item{fixpval_method}{Method used to fix P-value (if \code{fixpval = TRUE}). Methods include:
 'minmax' = P-values that are exactly 1 are replaced by the maximum value below 1 present in the results;
 P-values that are exactly 0 are replaced by the minimum value above 0 in the results.
 'manual' = Specify the replacement P-values using \code{fixpval_maxP} and \code{fixpval_minP}.
 'Liu' = Method recommended by the author of the ACAT R package
 (see: https://github.com/yaowuliu/ACAT),
-P-values of 1 are replaced by 1-1/d, where d is the number of p-values combined by ACAT.
+P-values of 1 are replaced by 1-1/d, where d is the number of P-values combined by ACAT.
 Since no recommendation for P-values of 0 is given, these are replaced with the value specified using \code{fixpval_minP}.}
 
 \item{fixpval_maxP}{Replace P-values that are exactly 1 with this P-value if \code{fixpval_method = 'manual'}.}
@@ -65,7 +65,7 @@ library(rvatData)
 # this will first ACAT P-values across statistical tests
 # and then ACAT these P-values across varSets
 data(rvbresults)
-rvbresults <- rvbresults[1:1000,]
+rvbresults <- rvbresults[1:1000, ]
 ACAT(
   rvbresults,
   aggregate = list("test", "varSetName")
@@ -78,8 +78,8 @@ ACAT(
 )
 
 # Input P-value shouldn't be exactly 0 or 1 (see: https://github.com/yaowuliu/ACAT).
-# By default, P-values that are exactly 0 or 1 are reset (`fixpval = TRUE`) to the 
-# minimum P-value (>0) and maximum P-value (<1) in the results. 
+# By default, P-values that are exactly 0 or 1 are reset (`fixpval = TRUE`) to the
+# minimum P-value (>0) and maximum P-value (<1) in the results.
 # Alternatives include:
 # manual minmax values:
 ACAT(
@@ -98,7 +98,6 @@ ACAT(
   fixpval = TRUE,
   fixpval_method = "Liu"
 )
-
 }
 \references{
 Liu, Y. et al. ACAT: A Fast and Powerful p Value Combination Method for Rare-Variant Analysis in Sequencing Studies. The American Journal of Human Genetics 104, 410–421 (2019).

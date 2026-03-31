@@ -23,22 +23,18 @@ Initialize environment:
 
 ```{r}
 outdir <- tempdir()
-gdbpath = paste0(outdir,"/rvat_tutorials.gdb")
+gdb <- create_example_gdb()
+gdbpath <- getGdbPath(gdb)
 Sys.setenv(outdir = outdir,
            rvat = system.file('exec/rvat.R', package = 'rvat'),
-           gdbrvatdata = rvatData::rvat_example('rvatData.gdb'),
-           gdbpath = paste0(outdir,"/rvat_tutorials.gdb")
+           gdbpath = gdbpath
            )
-```
-
-```{bash}
-cp $gdbrvatdata $gdbpath
 ```
 
 Connect to the example gdb:
 
 ```{r}
-gdb <- gdb(paste0(outdir,"/rvat_tutorials.gdb"))
+gdb <- gdb(gdbpath)
 ```
 
 # annotate variants with genomic features

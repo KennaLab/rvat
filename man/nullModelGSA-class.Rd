@@ -13,17 +13,8 @@
 \alias{getResults,nullModelGSA-method}
 \alias{getCovar,nullModelGSA-method}
 \title{An S4 class to store and handle null models for mixed linear model gene set analysis.}
-\usage{
-\S4method{listUnits}{nullModelGSA}(object)
-
-\S4method{length}{nullModelGSA}(x)
-
-\S4method{show}{nullModelGSA}(object)
-}
 \arguments{
-\item{object}{\code{\link{nullModelGSA-class}} object}
-
-\item{x}{\code{\link{nullModelGSA-class}} object}
+\item{x}{\code{\linkS4class{nullModelGSA}} object.}
 }
 \description{
 An S4 class to store and handle null models for mixed linear model gene set analysis.

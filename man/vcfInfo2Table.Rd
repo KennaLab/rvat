@@ -7,14 +7,17 @@
 vcfInfo2Table(vcf, output, splitMultiallelic = TRUE)
 }
 \arguments{
-\item{vcf}{vcf file path.}
+\item{vcf}{Input vcf file path.}
 
-\item{output}{output path}
+\item{output}{Output file path}
 
-\item{splitMultiallelic}{Returns one row per alternative allele instead of one row per variant. Default=TRUE.}
+\item{splitMultiallelic}{Returns one row per alternative allele instead of one row per variant.
+Note that this option currently simply duplicates the information in the INFO field for each allele;
+it does not parse Number='A' or Number='R' INFO fields to extract allele-specific values.
+Defaults to \code{TRUE}.}
 }
 \description{
-Convert vcf info field to table format. Requires valid vcf where INFO fields are specified in header.
+Convert vcf info field to table format. Requires valid vcf where INFO fields are specified in the header.
 }
 \examples{
 library(rvatData)
@@ -24,5 +27,4 @@ vcfInfo2Table(
   vcf = vcf,
   output = output
 )
-
 }
