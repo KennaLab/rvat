@@ -21,11 +21,17 @@ setMethod(
     qmethod = c("escape", "double"),
     fileEncoding = ""
   ) {
+    is_gz <- grepl("\\.gz$", file)
+
+    open_mode <- if (append) "a" else "w"
+    con <- if (is_gz) gzfile(file, open_mode) else file(file, open_mode)
+    on.exit(close(con), add = TRUE)
+
     if (append) {
       write.table(
         object,
-        file = file,
-        append = append,
+        file = con,
+        append = FALSE,
         quote = quote,
         sep = sep,
         eol = eol,
@@ -37,22 +43,19 @@ setMethod(
         fileEncoding = fileEncoding
       )
     } else {
-      file <- file(file, "w")
-      on.exit(close(file), add = TRUE)
-
       # write metadata
       metadata <- metadata(object)
       metadata <- metadata[names(metadata) %in% metadata_rvatresult]
       .write_rvat_header(
         filetype = as.character(class(object)[1L]),
         metadata = metadata,
-        con = file
+        con = con
       )
 
       # write results
       write.table(
         object,
-        file = file,
+        file = con,
         append = FALSE,
         quote = quote,
         sep = sep,
