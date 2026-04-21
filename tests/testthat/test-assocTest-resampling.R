@@ -108,3 +108,40 @@ test_that("outputting resamplings works", {
   )
   expect_equal(as.data.frame(outputresampling), as.data.frame(test))
 })
+
+test_that("outputting resamplings to gz works", {
+  outputresampling_gz <- withr::local_tempfile(fileext = ".txt.gz")
+  set.seed(10)
+  test <- assocTest(
+    GTsmall,
+    pheno = "pheno",
+    covar = paste0("PC", 1:4),
+    test = c("skat"),
+    methodResampling = "permutation",
+    nResampling = 10,
+    outputResampling = outputresampling_gz,
+    verbose = FALSE
+  )
+  expect_equal(
+    readBin(outputresampling_gz, raw(), n = 2),
+    as.raw(c(0x1f, 0x8b))
+  )
+  outputresampling_gz <- readr::read_tsv(
+    outputresampling_gz,
+    show_col_types = FALSE,
+    col_types = list(MAFweight = "character")
+  )
+
+  set.seed(10)
+  test <- assocTest(
+    GTsmall,
+    pheno = "pheno",
+    covar = paste0("PC", 1:4),
+    test = c("skat"),
+    methodResampling = "permutation",
+    nResampling = 10,
+    outputResampling = TRUE,
+    verbose = FALSE
+  )
+  expect_equal(as.data.frame(outputresampling_gz), as.data.frame(test))
+})

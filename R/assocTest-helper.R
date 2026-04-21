@@ -1073,12 +1073,20 @@
 ) {
   if (is.character(outputResampling) || outputResampling) {
     if (is.character(outputResampling)) {
+      is_gz <- grepl("\\.gz$", outputResampling)
+      open_mode <- if (append) "a" else "w"
+      con <- if (is_gz) {
+        gzfile(outputResampling, open_mode)
+      } else {
+        file(outputResampling, open_mode)
+      }
+      on.exit(close(con), add = TRUE)
       write.table(
         as.data.frame(results),
-        file = outputResampling,
+        file = con,
         sep = "\t",
         quote = FALSE,
-        append = append,
+        append = FALSE,
         row.names = FALSE,
         col.names = !append
       )
