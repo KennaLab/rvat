@@ -109,6 +109,72 @@ test_that("readResults infers singlevarResult type correctly", {
 })
 
 
+test_that("rvbResult gz read/write roundtrip preserves data", {
+  data(rvbresults, envir = environment())
+
+  resultfile <- withr::local_tempfile(fileext = ".txt.gz")
+  writeResult(rvbresults, file = resultfile)
+
+  # verify file is actually gzip-compressed
+  expect_equal(readBin(resultfile, raw(), n = 2), as.raw(c(0x1f, 0x8b)))
+
+  rvbresults_read <- rvbResult(resultfile)
+  expect_equal(rvbresults, rvbresults_read)
+})
+
+test_that("rvbResult gz appending works correctly", {
+  data(rvbresults, envir = environment())
+  resultfile <- withr::local_tempfile(fileext = ".txt.gz")
+
+  writeResult(rvbresults[1:100, ], file = resultfile)
+  writeResult(
+    rvbresults[101:nrow(rvbresults), ],
+    file = resultfile,
+    append = TRUE
+  )
+
+  expect_equal(readBin(resultfile, raw(), n = 2), as.raw(c(0x1f, 0x8b)))
+
+  resultfile_onechunk <- withr::local_tempfile(fileext = ".txt.gz")
+  writeResult(rvbresults, file = resultfile_onechunk)
+
+  expect_equal(
+    rvbResult(resultfile),
+    rvbResult(resultfile_onechunk)
+  )
+})
+
+test_that("singlevarResult gz read/write roundtrip preserves data", {
+  resultfile <- withr::local_tempfile(fileext = ".txt.gz")
+  writeResult(sv_results, file = resultfile)
+
+  expect_equal(readBin(resultfile, raw(), n = 2), as.raw(c(0x1f, 0x8b)))
+
+  sv_results_read <- singlevarResult(resultfile)
+  expect_equal(sv_results, sv_results_read)
+})
+
+test_that("singlevarResult gz appending works correctly", {
+  resultfile <- withr::local_tempfile(fileext = ".txt.gz")
+
+  writeResult(sv_results[1:20, ], file = resultfile)
+  writeResult(
+    sv_results[21:nrow(sv_results), ],
+    file = resultfile,
+    append = TRUE
+  )
+
+  expect_equal(readBin(resultfile, raw(), n = 2), as.raw(c(0x1f, 0x8b)))
+
+  resultfile_onechunk <- withr::local_tempfile(fileext = ".txt.gz")
+  writeResult(sv_results, file = resultfile_onechunk)
+
+  expect_equal(
+    singlevarResult(resultfile),
+    singlevarResult(resultfile_onechunk)
+  )
+})
+
 test_that("reading and writing rvatResults input validation works", {
   # reading rvbResult as singlevarResult fails
   data(rvbresults, envir = environment())
