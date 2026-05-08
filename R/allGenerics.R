@@ -417,7 +417,7 @@ setGeneric("insertVarRecord", function(object, record) {
   standardGeneric("insertVarRecord")
 })
 
-setGeneric("insertDosageRecord", function(object, record) {
+setGeneric("insertDosageRecord", function(object, record, var_id) {
   standardGeneric("insertDosageRecord")
 })
 

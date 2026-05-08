@@ -39,7 +39,8 @@ Imports:
     readr,
     ggh4x,
     data.table,
-    rlang
+    rlang,
+    duckdb
 Depends: 
     R (>= 3.4.1), 
     SummarizedExperiment,

@@ -14,7 +14,7 @@ aggdb <- function(path) {
   }
   tryCatch(
     {
-      con <- DBI::dbConnect(RSQLite::SQLite(), path)
+      con <- DBI::dbConnect(DBI::dbDriver("SQLite"), path)
     },
     error = function(e) {
       stop(sprintf("Invalid aggdb path '%s'", path), call. = FALSE)

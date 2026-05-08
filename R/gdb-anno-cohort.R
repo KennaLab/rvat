@@ -54,10 +54,14 @@ setMethod(
 
     # build where statement
     if (!is.null(VAR_id)) {
-      VAR_id <- sprintf(
-        "VAR_id in (%s)",
-        paste(as.integer(VAR_id), collapse = ",")
-      )
+      if (length(VAR_id) > 0L) {
+        VAR_id <- sprintf(
+          "VAR_id in (%s)",
+          paste(as.integer(VAR_id), collapse = ",")
+        )
+      } else {
+        VAR_id <- "1=0"
+      }
       if (length(where) > 0L) {
         where <- sprintf("(%s) AND (%s)", VAR_id, where)
       } else {
@@ -221,12 +225,14 @@ setMethod(
     if (verbose) {
       message(sprintf("Loading table '%s' from '%s'", name, value))
     }
-    DBI::dbWriteTable(
-      con = gdb,
-      name = name,
-      value = value,
-      sep = sep,
-      overwrite = TRUE
+    DBI::dbExecute(
+      gdb,
+      sprintf(
+        "CREATE TABLE %s AS SELECT * FROM read_csv_auto('%s', delim='%s')",
+        name,
+        value,
+        sep
+      )
     )
     source_info <- value
   } else {
@@ -605,8 +611,8 @@ setMethod(
     if (meta_anno_exists) {
       DBI::dbExecute(
         object,
-        "DELETE FROM anno WHERE name = :table_to_remove",
-        params = list(table_to_remove = name)
+        "DELETE FROM anno WHERE name = ?",
+        params = list(name)
       )
     }
 
@@ -614,8 +620,8 @@ setMethod(
     if (meta_cohort_exists) {
       DBI::dbExecute(
         object,
-        "DELETE FROM cohort WHERE name = :table_to_remove",
-        params = list(table_to_remove = name)
+        "DELETE FROM cohort WHERE name = ?",
+        params = list(name)
       )
     }
 

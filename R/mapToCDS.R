@@ -176,7 +176,7 @@ setMethod(
 
 .mapToCDS_get_overlapping_chroms <- function(object, exons) {
   chrom <- unique(as.character(seqnames(exons)))
-  chrom_gdb <- RSQLite::dbGetQuery(object, "select CHROM from var_ranges")$CHROM
+  chrom_gdb <- DBI::dbGetQuery(object, "select CHROM from var_ranges")$CHROM
   if (any(grepl("chr", chrom_gdb, fixed = TRUE))) {
     chrom_gdb <- gsub("chr", "", chrom_gdb, fixed = TRUE)
   }

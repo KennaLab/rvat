@@ -68,7 +68,7 @@ concatGdb <- function(
     if (verbose) {
       message(sprintf("Merging '%s'", gdb_i))
     }
-    DBI::dbExecute(gdb, "attach :src as src", params = list(src = gdb_i))
+    DBI::dbExecute(gdb, sprintf("ATTACH '%s' AS src", gdb_i))
     DBI::dbExecute(gdb, "insert into var select * from src.var order by VAR_id")
     DBI::dbExecute(
       gdb,
@@ -110,8 +110,44 @@ concatGdb <- function(
         as.character(round(Sys.time(), units = "secs"))
       ))
     }
-    DBI::dbExecute(gdb, "update var set VAR_id=rowid")
-    DBI::dbExecute(gdb, "update dosage set VAR_id=rowid")
+    # generate VAR_id map
+    DBI::dbExecute(
+      gdb,
+      "
+  CREATE TEMP TABLE VAR_id_map AS
+  SELECT
+    VAR_id AS old_id,
+    ROW_NUMBER() OVER (
+      ORDER BY VAR_id 
+    ) AS new_id
+  FROM var
+  "
+    )
+
+    # apply the mapping to the var table
+    DBI::dbExecute(
+      gdb,
+      "
+  UPDATE var
+  SET VAR_id = m.new_id
+  FROM VAR_id_map AS m
+  WHERE var.VAR_id = m.old_id
+  "
+    )
+
+    # apply the same mapping to the dosage table
+    DBI::dbExecute(
+      gdb,
+      "
+  UPDATE dosage
+  SET VAR_id = m.new_id
+  FROM VAR_id_map AS m
+  WHERE dosage.VAR_id = m.old_id
+  "
+    )
+
+    # clean up
+    DBI::dbExecute(gdb, "DROP TABLE VAR_id_map")
   }
 
   # generate indexes
@@ -239,7 +275,7 @@ concatGdb <- function(
   if (verbose) {
     message("Creating SM, anno and cohort tables")
   }
-  DBI::dbExecute(gdb, "attach :src as src", params = list(src = gdb_list[1]))
+  DBI::dbExecute(gdb, sprintf("attach '%s' as src", gdb_list[1]))
   DBI::dbExecute(gdb, "create table SM as select * from src.SM")
   DBI::dbExecute(gdb, "detach src")
   DBI::dbExecute(gdb, "create table anno (name text,value text,date text)")
@@ -278,7 +314,7 @@ setMethod(
     )
 
     # list tables
-    master <- DBI::dbGetQuery(object, "select * from sqlite_master")
+    master <- DBI::dbGetQuery(object, "select * from sqlite_master") ##TODO: works with duckdb, but is this the best option?
     tables.base <- gdb_protected_tables[
       !gdb_protected_tables %in% c("var_ranges", "tmp")
     ]
@@ -365,6 +401,7 @@ setMethod(
     addRangedVarinfo(gdb, overwrite = TRUE, verbose = verbose)
 
     ## meta table
+    DBI::dbExecute(gdb, "DROP TABLE IF EXISTS meta")
     DBI::dbExecute(gdb, "create table meta (name text,value text)")
     .gdb_populate_meta_table(
       gdb = gdb,
@@ -542,14 +579,23 @@ setMethod(
   for (copied in tables) {
     indexes <- master[
       master$type == "index" &
-        master$tbl_name == copied,
+        master$tbl_name == copied &
+        !is.na(master$sql),
     ]$sql
 
+    ## skip if there are no indexes (is this necessary, or had the varInfo table always an index for VAR_id?)
+    if (length(indexes) == 0) {
+      next
+    }
+
+    ## duckdb uses schema.table syntax (it must use attach_name.tablename)
     for (index in indexes) {
-      DBI::dbExecute(
-        gdb,
-        gsub("CREATE INDEX ", sprintf("CREATE INDEX %s.", attach_name), index)
+      query <- sub(
+        paste0("ON\\s+", copied, "\\b"),
+        paste0("ON ", attach_name, ".", copied),
+        index
       )
+      DBI::dbExecute(gdb, query)
     }
   }
 
