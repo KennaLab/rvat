@@ -108,7 +108,7 @@ setMethod(
       stop(sprintf("Input vcf %s does not exist", vcf), call. = FALSE)
     }
     if (endsWith(vcf, ".gz")) {
-      con <- gzcon(file(vcf, open = "rb"))
+      con <- gzfile(vcf, open = "r")
     } else {
       con <- file(vcf, open = "r")
     }
@@ -120,11 +120,10 @@ setMethod(
     # skip over vcf meta-data
     header <- NULL
     while (length(i <- readLines(con, n = 1L)) > 0L) {
-      if (substr(i, 1, 2) == "##") {
-        next
+      if (startsWith(i, "#CHROM")) {
+        header <- i
+        break
       }
-      header <- i
-      break
     }
 
     # parse vcf header line
