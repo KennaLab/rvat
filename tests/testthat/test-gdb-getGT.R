@@ -1,6 +1,6 @@
 test_that("getGT basic functionality works", {
   # GT with 100 variants for testing
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
   GT <- expect_no_error(getGT(
     gdb,
     VAR_id = 1:100,
@@ -27,7 +27,7 @@ test_that("getGT basic functionality works", {
 
 
 test_that("getGT handles invalid VAR_ids correctly", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
 
   # loading VAR_ids that are not present in gdb should yield a warning
   GT_reference <- getGT(gdb, VAR_id = 1:100, cohort = "pheno", verbose = FALSE)
@@ -58,7 +58,7 @@ test_that("getGT handles invalid VAR_ids correctly", {
 })
 
 test_that("getGT works with varSet and weights", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
 
   # build a varset containing CADD weights
   CADD_file <- withr::local_tempfile(fileext = ".txt.gz")
@@ -105,7 +105,7 @@ test_that("getGT works with varSet and weights", {
 })
 
 test_that("getGT handles different cohort specifications", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
 
   # test specifying gdb cohort name
   GT1 <- getGT(gdb, VAR_id = 1:100, cohort = "pheno", verbose = FALSE)
@@ -125,7 +125,7 @@ test_that("getGT handles different cohort specifications", {
 })
 
 test_that("getGT annotation functionality works", {
-  gdb <- gdb(rvatData::rvat_example("rvatData.gdb"))
+  gdb <- create_example_gdb()
 
   # GT without annotations
   GT1 <- getGT(gdb, VAR_id = 1:100, cohort = "pheno", verbose = FALSE)

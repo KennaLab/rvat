@@ -360,9 +360,10 @@ test_that("dominant/recessive model filtering works", {
 
 test_that("assocTest-gdb and assocTest-GT result in identical output", {
   params <- generate_param()
+  gdb <- create_example_gdb()
   warnings <- capture_warnings(
     run_test_gdb <- run_tests_gdb(
-      gdb(rvat_example("rvatData.gdb")),
+      gdb,
       params,
       VAR_id = rownames(GT),
       var_sv = rownames(GT)[1:25]

@@ -26,7 +26,7 @@
 \description{
 Compressed SQLite (".gdb") representation of genotype data and associated variant annotation and sample info tables.
 These allow for rapid and memory-efficient loading of sample genotype data and associated metadata within R.
-The slots of the gdb class are inherited entirely from the \code{\link[RSQLite:SQLiteConnection-class]{RSQLite::SQLiteConnection}}.
+The slots of the gdb class are inherited entirely from the duckdb::duckdb() connection.
 A host of RVAT methods described here allow for convenient querying and manipulation of a gdb, for complex queries
 users can also directly perform SQL queries on the gdb as exemplified in the examples and tutorials.
 }
